@@ -299,3 +299,14 @@ TSWLatexianTemp*
 # option is specified. Footnotes are the stored in a file with suffix Notes.bib.
 # Uncomment the next line to have this generated file ignored.
 #*Notes.bib
+
+# Build directories
+build*
+bin*
+dist*
+
+# Temp solution > Copy bibliography but ignore the copy
+student-project-description/bibliography
+
+# Ignore created PDF files
+student-project-description/*.pdf
