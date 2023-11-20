@@ -310,3 +310,6 @@ student-project-description/bibliography
 
 # Ignore created PDF files
 student-project-description/*.pdf
+
+# Ignore Libre Office Lock files
+.~lock.*
