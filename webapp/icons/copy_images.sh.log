@@ -1,0 +1,2 @@
++ find . -regex '.*\.\(ico\|png\|svg\)' -exec cp '{}' ../vis_ride_pool_concept/public ';'
++ cp main.svg ../vis_ride_pool_concept/src/app/favicon.svg

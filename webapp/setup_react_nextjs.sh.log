@@ -1,0 +1,40 @@
++ npm --version
+10.2.5
++ npx --version
+10.2.5
++ npx create-next-app@latest
+✔ What is your project named? … vis_ride_pool_concept
+✔ Would you like to use TypeScript? … No / [Yes]
+✔ Would you like to use ESLint? … No / [Yes]
+✔ Would you like to use Tailwind CSS? … [No] / Yes
+✔ Would you like to use `src/` directory? … No / [Yes]
+✔ Would you like to use App Router? (recommended) … No / [Yes]
+✔ Would you like to customize the default import alias (@/*)? … [No] / Yes
+Creating a new Next.js app in webapp/vis_ride_pool_concept.
+
+Using npm.
+
+Initializing project with template: app
+
+
+Installing dependencies:
+- react
+- react-dom
+- next
+
+Installing devDependencies:
+- typescript
+- @types/node
+- @types/react
+- @types/react-dom
+- eslint
+- eslint-config-next
+
+
+added 281 packages, and audited 282 packages in 9s
+
+106 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+Success! Created vis_ride_pool_concept at webapp/vis_ride_pool_concept

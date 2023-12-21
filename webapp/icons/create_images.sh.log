@@ -1,0 +1,21 @@
++ MAIN_SVG=main.svg
++ MAIN_OUTPUT_ICO=main.ico
++ MAIN_OUTPUT_PNG_PREFIX=main_
++ MAIN_OUTPUT_PNG_SUFFIX=.png
++ MAIN_PNG_SIZES=(128 144 256 512)
++ convert --version
+Version: ImageMagick 7.1.1-23 Q16-HDRI x86_64 21803 https://imagemagick.org
+Copyright: (C) 1999 ImageMagick Studio LLC
+License: https://imagemagick.org/script/license.php
+Features: Cipher DPC HDRI Modules OpenCL OpenMP(4.5)
+Delegates (built-in): bzlib cairo djvu fftw fontconfig freetype heic jbig jng jp2 jpeg jxl lcms lqr ltdl lzma openexr pangocairo png raqm raw rsvg tiff webp wmf x xml zip zlib zstd
+Compiler: gcc (13.2)
++ convert -background none main.svg -define icon:auto-resize=128,64,48,32,16 main.ico
++ for PNG_SIZE in "${MAIN_PNG_SIZES[@]}"
++ convert -background none -size 128x128 main.svg main_128.png
++ for PNG_SIZE in "${MAIN_PNG_SIZES[@]}"
++ convert -background none -size 144x144 main.svg main_144.png
++ for PNG_SIZE in "${MAIN_PNG_SIZES[@]}"
++ convert -background none -size 256x256 main.svg main_256.png
++ for PNG_SIZE in "${MAIN_PNG_SIZES[@]}"
++ convert -background none -size 512x512 main.svg main_512.png

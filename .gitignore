@@ -313,3 +313,6 @@ student-project-description/*.pdf
 
 # Ignore Libre Office Lock files
 .~lock.*
+
+# Do not ignore log files of bash scripts
+!*.sh.log
