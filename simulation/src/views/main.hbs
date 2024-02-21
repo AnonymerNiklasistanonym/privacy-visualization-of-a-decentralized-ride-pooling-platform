@@ -1,0 +1,79 @@
+<h1>Current Simulation State</h1>
+
+<div id="map"></div>
+
+<scr{{!}}ipt>
+  window.addEventListener("load", () => {
+  const map = L.map('map').setView([{{startPos.latitude}}, {{startPos.longitude}}], {{startPos.zoom}});
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+  }).addTo(map);
+let marker;
+let circle;
+{{#each customers}}
+  marker = L.marker([{{this.currentPos.latitude}}, {{this.currentPos.longitude}}]).addTo(map);
+  marker.bindPopup("{{this.id}} ({{this.type}})");
+{{/each}}
+{{#each rideProviders}}
+  marker = L.marker([{{this.currentPos.latitude}}, {{this.currentPos.longitude}}]).addTo(map);
+  marker.bindPopup("{{this.id}} ({{this.type}})");
+{{/each}}
+{{#each authenticationServices}}
+   circle = L.circle([{{this.currentArea.latitude}}, {{this.currentArea.longitude}}], {
+    color: 'red',
+    fillColor: '#f03',
+    fillOpacity: 0.5,
+    radius: {{this.currentArea.radius}}
+}).addTo(map);
+  circle.bindPopup("{{this.id}} ({{this.type}})");
+{{/each}}
+{{#each matchingServices}}
+   circle = L.circle([{{this.currentArea.latitude}}, {{this.currentArea.longitude}}], {
+    color: 'red',
+    fillColor: '#03f',
+    fillOpacity: 0.5,
+    radius: {{this.currentArea.radius}}
+}).addTo(map);
+  circle.bindPopup("{{this.id}} ({{this.type}})");
+{{/each}}
+});
+
+</scr{{!}}ipt>
+
+<h2>Customers ({{customers.length}}) <a href="/json/customers">[json]</a></h2>
+<ul class="scrolling">
+  {{#each customers}}
+    <li>{{> customer}}</li>
+  {{/each}}
+</ul>
+
+<h2>Ride Providers ({{rideProviders.length}}) <a href="/json/ride_providers">[json]</a></h2>
+<ul class="scrolling">
+  {{#each rideProviders}}
+    <li>{{> rideProvider}}</li>
+  {{/each}}
+</ul>
+
+<h2>Authentication Services ({{authenticationServices.length}}) <a href="/json/authentication_services">[json]</a></h2>
+<ul class="scrolling">
+  {{#each authenticationServices}}
+    <li>{{> authenticationService}}</li>
+  {{/each}}
+</ul>
+
+<h2>Matching Services ({{matchingServices.length}}) <a href="/json/matching_services">[json]</a></h2>
+<ul class="scrolling">
+  {{#each matchingServices}}
+    <li>{{> matchingService}}</li>
+  {{/each}}
+</ul>
+
+<h2>Smart Contracts ({{smartContracts.length}}) <a href="/json/smart_contracts">[json]</a></h2>
+<ul class="scrolling">
+  {{#each smartContracts}}
+    <li>{{> smartContract}}</li>
+  {{/each}}
+</ul>
+
+<button onClick="window.location.reload();">Refresh Page</button>

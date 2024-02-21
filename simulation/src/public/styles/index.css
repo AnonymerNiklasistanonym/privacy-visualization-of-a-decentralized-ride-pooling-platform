@@ -1,0 +1,35 @@
+body {
+    background-color: #d5d5d5;
+    color: black;
+}
+
+h1 {
+    text-align: center;
+}
+
+p {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 20px;
+}
+
+/* Make an element scrollable after exceeding a certain height */
+.scrolling {
+    max-height: 250px;
+    overflow-y: scroll;
+}
+
+#content-container {
+    width: 100%;
+    max-width: 800px;
+    margin: auto;
+}
+
+#content {
+    background-color: white;
+    padding: 15px;
+    border-radius: 20px;
+}
+
+#map {
+    height: 350px;
+}

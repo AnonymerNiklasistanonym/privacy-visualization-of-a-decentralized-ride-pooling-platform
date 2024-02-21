@@ -1,0 +1,13 @@
+<p> Participant {{id}}:</p>
+<ul>
+    <li>Name: {{name}}</li>
+    <li>Full name: {{fullName}}</li>
+    <li>Birthday: {{birthday}}</li>
+    <li>Address: {{address}}</li>
+    <li>Pseudonyms:</li>
+    <ul>
+    {{#each pseudonyms}}
+        <li>{{this}}</li>
+    {{/each}}
+    </ul>
+</ul>
