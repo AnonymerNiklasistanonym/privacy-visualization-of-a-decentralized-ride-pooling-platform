@@ -316,3 +316,4 @@ student-project-description/*.pdf
 
 # Do not ignore log files of bash scripts
 !*.sh.log
+analysis/presentation.pdf
