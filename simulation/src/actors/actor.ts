@@ -1,15 +1,27 @@
 import type { Simulation } from '../simulation';
 
+/**
+ * Abstract Class that represents an actor of the simulation.
+ */
 export default abstract class Actor<JsonType> {
-  protected id: string;
+  /** Unique simulation ID. */
+  protected readonly id: string;
+  /** Actor type ID. */
+  protected readonly type: string;
 
-  protected running: boolean;
-
-  constructor(id: string) {
+  /** Create instance of actor. */
+  constructor(id: string, type: string) {
     this.id = id;
-    this.running = false;
+    this.type = type;
+    console.debug(`Create actor ${type}#${id}`);
   }
 
-  abstract run(timeStep: number, simulation: Simulation): Promise<void>;
+  /**
+   * Automate action that the actor should do within the simulation.
+   *
+   * @param simulation Access other actors in the simulation
+   */
+  abstract run(simulation: Simulation): Promise<void>;
+  /** Get a JSON representation of the current state of the actor. */
   abstract get json(): JsonType;
 }

@@ -1,9 +1,9 @@
 /* eslint-disable no-plusplus */
 /* eslint-disable class-methods-use-this */
 import type { SmartContract as SmartContractType } from './types/blockchain';
-import type { RideProvider as RideProviderType, Customer as CustomerType } from './types/participants';
+import type { SimulationTypeRideProvider as RideProviderType, SimulationTypeCustomer as CustomerType } from './types/participants';
 import type { AuthenticationService as AuthenticationServiceType, MatchingService as MatchingServiceType } from './types/services';
-import { Customer, RideProvider } from './actors/participants';
+import { Customer, RideProvider } from './actors/participant';
 import { AuthenticationService, MatchingService } from './actors/services';
 import SmartContract from './actors/smartContract';
 import { getRandomElement, getRandomId, getRandomIntFromInterval } from './misc/helpers';
@@ -44,6 +44,8 @@ export class Simulation {
   smartContractObjects: SmartContract[];
 
   startPos: StartPos;
+
+  state: "RUNNING" | "PAUSED" | "STOPPED" = "RUNNING"
 
   constructor(config: SimulationConfig) {
     // TODO Use latitudeRadius, longitudeRadius

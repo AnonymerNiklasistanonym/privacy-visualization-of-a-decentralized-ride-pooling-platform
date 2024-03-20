@@ -1,6 +1,9 @@
 /* eslint-disable max-classes-per-file */
+import { getRandomId, getRandomIntFromInterval } from '../misc/helpers';
 import type { Simulation } from '../simulation';
-import type { AuthenticationService as AuthenticationServiceType, MatchingService as MatchingServiceType, AuthenticationServiceParticipantDbEntry } from '../types/services';
+import { LocationGPS } from '../types/location';
+import type { SimulationTypeRideProviderCompany, SimulationTypeRideProviderPerson, SimulationTypeCustomer } from '../types/participants';
+import type { AuthenticationService as AuthenticationServiceType, MatchingService as MatchingServiceType, AuthenticationServiceParticipantDb, MatchingServiceAuction } from '../types/services';
 import Actor from './actor';
 
 abstract class Service<JsonType> extends Actor<JsonType> {
@@ -10,8 +13,8 @@ abstract class Service<JsonType> extends Actor<JsonType> {
 
   radius: number;
 
-  constructor(id: string, latitude: number, longitude: number, radius: number) {
-    super(id);
+  constructor(id: string, type: string, latitude: number, longitude: number, radius: number) {
+    super(id, type);
     this.latitude = latitude;
     this.longitude = longitude;
     this.radius = radius;
@@ -21,31 +24,85 @@ abstract class Service<JsonType> extends Actor<JsonType> {
 }
 
 export class AuthenticationService extends Service<AuthenticationServiceType> {
-  private participantDb: AuthenticationServiceParticipantDbEntry[];
+  private participantDb: AuthenticationServiceParticipantDb;
 
   constructor(id: string, latitude: number, longitude: number, radius: number) {
-    super(id, latitude, longitude, radius);
+    super(id, "auth_service", latitude, longitude, radius);
     this.participantDb = [];
   }
 
-  register(id: string, name: string, fullName: string, birthday: string, address: string): void {
+  /** Register a customer */
+  registerCustomer(
+    id: string,
+    fullName: string,
+    gender: string,
+    dateOfBirth: string,
+    emailAddress: string,
+    phoneNumber: string,
+    homeAddress: string,
+  ): void {
     this.participantDb.push({
-      id, name, fullName, birthday, address, pseudonyms: [],
+      contactDetails: {
+        id, fullName, gender, dateOfBirth, emailAddress, phoneNumber, homeAddress
+      } as SimulationTypeCustomer,
+      pseudonyms: []
+    });
+  }
+  /** Register a ride provider */
+  registerRideProvider(
+    id: string,
+    fullName: string,
+    gender: string,
+    dateOfBirth: string,
+    emailAddress: string,
+    phoneNumber: string,
+    homeAddress: string,
+    vehicleNumberPlate: string,
+    vehicleIdentificationNumber: string
+  ): void {
+    this.participantDb.push({
+      contactDetails: {
+        id, fullName, gender, dateOfBirth, emailAddress, phoneNumber, homeAddress,
+        // Ride Provider Properties
+        vehicleNumberPlate, vehicleIdentificationNumber
+      } satisfies Omit<SimulationTypeRideProviderPerson, "type" | "currentLocation">,
+      pseudonyms: []
+    });
+  }
+  /** Register a ride provider from a company */
+  registerRideProviderCompany(
+    id: string,
+    vehicleNumberPlate: string,
+    vehicleIdentificationNumber: string,
+    company: string
+  ): void {
+    this.participantDb.push({
+      contactDetails: {
+        id,
+        vehicleNumberPlate, vehicleIdentificationNumber,
+        company
+      } satisfies Omit<SimulationTypeRideProviderCompany, "type" | "currentLocation"> ,
+      pseudonyms: []
     });
   }
 
-  verify(id: string): void | string {
-    const participant = this.participantDb.find((a) => a.id === id);
+  verify(id: string): string {
+    const participant = this.participantDb.find((a) => a.contactDetails.id === id);
     if (participant) {
       const newPseudonym = Math.random().toString(36).slice(2);
       participant.pseudonyms.push(newPseudonym);
       return newPseudonym;
     }
-    return undefined;
+    throw Error(`Participant tried to verify but was not in the database (id=${id})`);
+  }
+
+  getRating(_participantId: string): number {
+    // TODO
+    return getRandomIntFromInterval(3, 5)
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars, class-methods-use-this
-  run(timeStep: number, simulation: Simulation): Promise<void> {
+  run(simulation: Simulation): Promise<void> {
     throw new Error('Method not implemented.');
   }
 
@@ -60,16 +117,48 @@ export class AuthenticationService extends Service<AuthenticationServiceType> {
 }
 
 export class MatchingService extends Service<MatchingServiceType> {
+  private auctions: MatchingServiceAuction[] = [];
+
   // eslint-disable-next-line @typescript-eslint/no-useless-constructor
   constructor(id: string, latitude: number, longitude: number, radius: number) {
-    super(id, latitude, longitude, radius);
+    super(id, "matching_service", latitude, longitude, radius);
   }
 
   // TODO Add auction and smart contract generation as well as looking
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars, class-methods-use-this
-  run(timeStep: number, simulation: Simulation): Promise<void> {
+  run(simulation: Simulation): Promise<void> {
     throw new Error('Method not implemented.');
+  }
+
+  requestRide(
+    userId: string,
+    pickupLocation: string,
+    dropoffLocation: string,
+    rating: number,
+    userPublicKey: string,
+    maxWaitingTime: number,
+    minRating: number,
+    minPassengerRating: number,
+    maxPassengers: number
+  ): void {
+    const requestId = getRandomId();
+    this.auctions.push({
+      id: requestId,
+      request: {
+        userId,
+        pickupLocation,
+        dropoffLocation,
+        rating,
+        userPublicKey,
+        maxWaitingTime,
+        minRating,
+        minPassengerRating,
+        maxPassengers
+      },
+      startTime: new Date(),
+      bids: []
+    })
   }
 
   get json(): MatchingServiceType {

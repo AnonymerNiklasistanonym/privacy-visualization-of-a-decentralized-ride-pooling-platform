@@ -3,22 +3,32 @@ export interface Coordinates {
   longitude: number
 }
 
-export interface Participant {
+export interface SimulationTypeParticipant {
   id: string
-  name: string
-  fullName: string
-  birthday: string
-  address: string
-  currentPos: Coordinates
+  currentLocation: Coordinates
   type: 'customer' | 'ride_provider'
 }
 
-export interface Customer extends Participant {
+export interface SimulationTypeCustomer extends SimulationTypeParticipant {
+  fullName: string
+  gender: string
+  dateOfBirth: string
+  emailAddress: string
+  phoneNumber: string
+  homeAddress: string
   type: 'customer'
 }
 
-export interface RideProvider extends Participant {
+export type SimulationTypeRideProvider = SimulationTypeRideProviderPerson | SimulationTypeRideProviderCompany
+
+interface RideProviderGeneric extends SimulationTypeParticipant {
+  vehicleNumberPlate: string
+  vehicleIdentificationNumber: string
   type: 'ride_provider'
 }
 
-// TODO
+export interface SimulationTypeRideProviderPerson extends RideProviderGeneric, Omit<SimulationTypeCustomer, "type"> {}
+
+export interface SimulationTypeRideProviderCompany extends RideProviderGeneric, Omit<SimulationTypeParticipant, 'type'> {
+  company: string
+}
