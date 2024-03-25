@@ -3,40 +3,56 @@
 <div id="map"></div>
 
 <scr{{!}}ipt>
-  window.addEventListener("load", () => {
-  const map = L.map('map').setView([{{startPos.latitude}}, {{startPos.longitude}}], {{startPos.zoom}});
+  const fetchElement = async (endpoint) => {
+    const result = await fetch(`http://localhost:{{port}}/json/${endpoint}`).then(data => data.json());
+    console.debug(`requested endpoint '${endpoint}':`, result);
+    return result;
+  }
+  window.addEventListener("load", async () => {
+  const map = L.map('map').setView([{{startPos.lat}}, {{startPos.lon}}], {{startPos.zoom}});
   L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
       attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
   }).addTo(map);
-let marker;
-let circle;
-{{#each customers}}
-  marker = L.marker([{{this.currentPos.latitude}}, {{this.currentPos.longitude}}]).addTo(map);
-  marker.bindPopup("{{this.id}} ({{this.type}})");
-{{/each}}
-{{#each rideProviders}}
-  marker = L.marker([{{this.currentPos.latitude}}, {{this.currentPos.longitude}}]).addTo(map);
-  marker.bindPopup("{{this.id}} ({{this.type}})");
-{{/each}}
-{{#each authenticationServices}}
-   circle = L.circle([{{this.currentArea.latitude}}, {{this.currentArea.longitude}}], {
-    color: 'red',
-    fillColor: '#f03',
-    fillOpacity: 0.5,
-    radius: {{this.currentArea.radius}}
-}).addTo(map);
-  circle.bindPopup("{{this.id}} ({{this.type}})");
-{{/each}}
-{{#each matchingServices}}
-   circle = L.circle([{{this.currentArea.latitude}}, {{this.currentArea.longitude}}], {
-    color: 'red',
-    fillColor: '#03f',
-    fillOpacity: 0.5,
-    radius: {{this.currentArea.radius}}
-}).addTo(map);
-  circle.bindPopup("{{this.id}} ({{this.type}})");
-{{/each}}
+  const currentElements = [];
+  while (true) {
+    for (const element of currentElements) {
+      console.log(element);
+      map.removeLayer(element);
+    }
+    currentElements.splice(0);
+    // Fetch current actors and draw them on the map
+    for (const customer of (await fetchElement("customers")).customers) {
+      const marker = L.marker([customer.currentLocation.lat, customer.currentLocation.lon]).addTo(map);
+      marker.bindPopup(`${customer.id} (${customer.type})`);
+      currentElements.push(marker);
+    }
+    for (const rideProvider of (await fetchElement("ride_providers")).rideProviders) {
+      const marker = L.marker([rideProvider.currentLocation.lat, rideProvider.currentLocation.lon]).addTo(map);
+      marker.bindPopup(`${rideProvider.id} (${rideProvider.type})`);
+      currentElements.push(marker);
+    }
+    for (const authenticationService of (await fetchElement("authentication_services")).authenticationServices) {
+      const circle = L.circle([authenticationService.currentArea.lat, authenticationService.currentArea.lon], {
+          fillColor: '#f03',
+          fillOpacity: 0.2,
+          radius: authenticationService.currentArea.radius
+      }).addTo(map);
+      circle.bindPopup(`${authenticationService.id} (${authenticationService.type})`);
+      currentElements.push(circle);
+    }
+    for (const matchingService of (await fetchElement("matching_services")).matchingServices) {
+      const circle = L.circle([matchingService.currentArea.lat, matchingService.currentArea.lon], {
+          fillColor: '#03f',
+          fillOpacity: 0.2,
+          radius: matchingService.currentArea.radius
+      }).addTo(map);
+      circle.bindPopup(`${matchingService.id} (${matchingService.type})`);
+      currentElements.push(circle);
+    }
+    // Wait for a little
+    await new Promise(resolve => { setTimeout(resolve, 5 * 1000); });
+  }
 });
 
 </scr{{!}}ipt>

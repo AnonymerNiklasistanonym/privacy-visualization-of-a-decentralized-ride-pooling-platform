@@ -4,9 +4,9 @@ export enum SmartContractState {
 }
 
 export interface SmartContract {
-  id: string
-  customerPseudonym: string
-  rideProviderPseudonym: string
-  state: SmartContractState
-  type: 'smart_contract'
+  id: string;
+  customerPseudonym: string;
+  rideProviderPseudonym: string;
+  state: SmartContractState;
+  type: 'smart_contract';
 }

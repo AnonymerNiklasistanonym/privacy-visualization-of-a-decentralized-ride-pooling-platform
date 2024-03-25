@@ -1,55 +1,77 @@
 # Simulation
 
-Simulate all Stakeholders around a given **list of coordinates** (longitude, latitude), **radius** (longitude, latitude) and **speed** ($1.0=1\text{min}$):
+Simulate the following parts of the GETACAR platform:
 
-- [ ] Customer[s]
-  - [x] Random spawn around coordinates/radius (spawn_count)
-  - [x] Sign-Up/Authenticate to Authentication Service
-  - [ ] Automate sleep, look for rides, rate after ride
-- [ ] Ride-Provider[s]
-  - [x] Random spawn around coordinates/radius (spawn_count)
-  - [x] Sign-Up/Authenticate to Authentication Service
-  - [ ] Automate sleep, bid for customers, rate after ride
-- [x] Authentication Service[s]
-  - [x] Random spawn around coordinates/radius (spawn_count)
-- [ ] Matching Service[s]
-  - [x] Random spawn around coordinates/radius (spawn_count)
-  - [ ] Automate Vickery Auction from Ride-Provider[s] on Customers
-- [ ] Blockchain Smart Contract[s]
-  - [ ] Participants of the smart contract can rate each other
-
-## TODO
-
-### Required
-
-- [ ] Implement checklist
-
-### Optional
-
-- [ ] Add script to open browser on port
-- [ ] Fix `copyfiles` script on Windows: https://github.com/shelljs/shelljs
-- [ ] Read in configuration from external JSON file so no recompile is necessary
-- [ ] Instead of hard coding the locations of all stakeholders on the map fetch them instead in regular intervals so no page refresh is necessary: JSON API already exists, handbrake views need to be compiled in the browser somehow
+- Invisible stakeholders: These actors can normally not be queried
+  - [ ] Customer[s]
+    - [ ] Randomly spawn `$COUNT` around `$CITY`
+    - [ ] Imitate actions in a loop:
+      - [ ] Sleep (move to random `$LOCATION`s in the meantime)
+      - [ ] Randomly select `$DROPOFF_LOCATION` and request a ride
+      - [ ] Accept auction result and be part of the ride
+      - [ ] Rate passengers and driver
+    - [ ] Implement endpoint to query all their data by the visualization platform
+  - [ ] Ride-Provider[s] (normal people & company fleets)
+    - [ ] Randomly spawn `$COUNT` around `$CITY`
+    - [ ] Imitate actions in a loop:
+      - [ ] Sleep (move to random `$LOCATION`s in the meantime)
+      - [ ] Randomly start being active and bid on open ride requests
+      - [ ] Drive to `$DROPOFF_LOCATION` and take passenger for a ride
+      - [ ] Rate passengers
+    - [ ] Implement endpoint to query all their data by the visualization platform
+- Visible stakeholders: These actors can be queried
+  - [ ] Authentication Service[s]
+    - [ ] Randomly spawn `$COUNT`
+    - [ ] Implement endpoints
+      - [ ] `get:/rating/:pseudonym`
+    - [ ] Implement endpoint to query all their data by the visualization platform
+  - [ ] Matching Service[s]
+    - [ ] Randomly spawn `$COUNT`
+    - [ ] Implement endpoints
+      - [ ] `get:/rating/:pseudonym`
+    - [ ] Implement endpoint to query all their data by the visualization platform
+  - [ ] Blockchain
+    - [ ] Implement endpoints
+      - [ ] `get:/smart_contract/:id`
+      - [ ] `get:/smart_contracts/`
 
 ## Configuration
 
 Edit parameters in [`src/index.ts`](./src/index.ts).
 
 ```ts
-const simulation = new Simulation({
-  authenticationServiceCount: 5,
-  cities: [{
-    name: "Stuttgart",
-    latitude: 48.783333,
-    longitude: 9.183333,
-    latitudeRadius: 0.1,
-    longitudeRadius: 0.1
-  }],
-  customerCount: 1000,
-  rideProviderCount: 100,
-  matchingServiceCount: 2,
-  speedInSecPerSec: 60
-});
+import type { SimulationConfig } from './types/config';
+
+const config: Readonly<SimulationConfig> = {
+  // Services
+  authenticationService: {
+    count: 2,
+  },
+  matchingService: {
+    count: 3,
+  },
+  // Participants
+  customer: {
+    count: 200,
+  },
+  rideProvider: {
+    countCompany: 3,
+    countCompanyFleetMax: 50,
+    countCompanyFleetMin: 15,
+    countPerson: 15,
+  },
+  // Location
+  cities: [
+    {
+      name: 'Stuttgart',
+      countryCode: 'de',
+    },
+  ],
+  // Port of server
+  port: 4321,
+  // Misc
+  cacheDir: path.join(__dirname, '..', 'cache'),
+};
 ```
 
 ## Run
@@ -63,12 +85,37 @@ const simulation = new Simulation({
 ```sh
 # Install dependencies
 npm install
-# Compile TypeScript code to JavaScript in dist directory
-npm run tsc
-# Copy additional resource files to the dist directory
-npm run copyfiles
-# Run compiled files
+# Compile TypeScript code to JavaScript in build directory
+npm run compile
+# Copy additional resource files and compiled files to dist directory
+npm run dist
+# Run compiled files (default port 4321 => http://localhost:4321)
 npm run start
+# Optionally you can change the port of the web server from the CL
+npm run start -- --port 3000
 ```
 
-Then open your browser on the listed URL: `http://localhost:3000` (default)
+**Endpoints:**
+
+The web server has the following endpoints:
+
+- `/` Frontend that displays the current simulation state
+- `/json` JSON API for all simulated stakeholders
+  - `/customers`
+  - `/ride_providers`
+  - `/authentication_services`
+  - `/matching_services`
+  - `/smart_contracts`
+- TODO: Add the actual routes that the visualization will use
+
+**Development:**
+
+```sh
+# Check files (style guide, errors)
+npm run lint
+# Auto fix files (style guide, errors)
+npm run fix
+# Create documentation in docs directory
+npm run docs
+npx http-server -o docs -p 8000
+```

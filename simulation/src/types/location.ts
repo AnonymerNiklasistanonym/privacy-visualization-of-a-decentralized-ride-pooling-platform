@@ -1,4 +1,4 @@
 export interface LocationGPS {
-    latitude: number
-    longitude: number
+  lat: number;
+  lon: number;
 }

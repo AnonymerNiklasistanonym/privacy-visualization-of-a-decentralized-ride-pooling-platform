@@ -1,2 +1,8 @@
+# Ignore built files
+build
+docs
 dist
+# Ignore node dependencies
 node_modules
+# Ignore chached files
+cache

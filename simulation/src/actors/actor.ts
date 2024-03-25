@@ -1,11 +1,13 @@
-import type { Simulation } from '../simulation';
+// Type imports
+import type {Simulation} from '../simulation';
 
 /**
  * Abstract Class that represents an actor of the simulation.
  */
-export default abstract class Actor<JsonType> {
+export abstract class Actor<JsonType> {
   /** Unique simulation ID. */
   protected readonly id: string;
+
   /** Actor type ID. */
   protected readonly type: string;
 
@@ -13,13 +15,14 @@ export default abstract class Actor<JsonType> {
   constructor(id: string, type: string) {
     this.id = id;
     this.type = type;
+    // eslint-disable-next-line no-console
     console.debug(`Create actor ${type}#${id}`);
   }
 
   /**
    * Automate action that the actor should do within the simulation.
    *
-   * @param simulation Access other actors in the simulation
+   * @param simulation Access other actors in the simulation.
    */
   abstract run(simulation: Simulation): Promise<void>;
   /** Get a JSON representation of the current state of the actor. */
