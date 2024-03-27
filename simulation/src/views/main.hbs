@@ -9,47 +9,124 @@
     return result;
   }
   window.addEventListener("load", async () => {
-  const map = L.map('map').setView([{{startPos.lat}}, {{startPos.lon}}], {{startPos.zoom}});
+  const map = L.map('map', {
+    fullscreenControl: true,
+  }).setView([{{startPos.lat}}, {{startPos.lon}}], {{startPos.zoom}});
   L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
       attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
   }).addTo(map);
-  const currentElements = [];
+  const iconCustomer = L.icon({
+      iconUrl: "/icons/directions_walk_FILL0_wght400_GRAD0_opsz24.svg",
+  });
+  const iconRideProvider = L.icon({
+      iconUrl: "/icons/directions_car_FILL0_wght400_GRAD0_opsz24.svg",
+  });
+  const createPopupContent = (obj) => {
+      const header = `<h2>${obj.type} (${obj.id})</h2>`;
+      const content = [];
+      for (const key in obj) {
+          if (["id", "type", "currentLocation", "currentArea"].includes(key)) {
+            continue;
+          }
+          if (obj.hasOwnProperty(key)) {
+              let value = obj[key];
+              if (key === "participantDb") {
+                value = `<ul class="scrolling">${obj[key].map(a => `<li>${a.contactDetails.id}<ul>${a.pseudonyms.map(b => `<li>${b}</li>`).join("")}</ul></li>`).join("")}</ul>`
+              }
+              if (key === "auctionsDb") {
+                value = `<ul class="scrolling">${obj[key].map(a => `<li>${JSON.stringify(a)}</li>`).join("")}</ul>`
+              }
+              content.push(`<p style="font-size: 1em; margin-top: 0.2em; margin-bottom: 0.2em"><strong>${key}</strong>: ${value}</p>`)
+          }
+      }
+      return header + content.join("")
+  }
+  let currentElements = [];
   while (true) {
+    const currentDate = new Date();
     for (const element of currentElements) {
-      console.log(element);
-      map.removeLayer(element);
+      if (element._custom_date === undefined) {
+        map.removeLayer(element);
+      }
     }
-    currentElements.splice(0);
     // Fetch current actors and draw them on the map
-    for (const customer of (await fetchElement("customers")).customers) {
-      const marker = L.marker([customer.currentLocation.lat, customer.currentLocation.lon]).addTo(map);
-      marker.bindPopup(`${customer.id} (${customer.type})`);
-      currentElements.push(marker);
-    }
-    for (const rideProvider of (await fetchElement("ride_providers")).rideProviders) {
-      const marker = L.marker([rideProvider.currentLocation.lat, rideProvider.currentLocation.lon]).addTo(map);
-      marker.bindPopup(`${rideProvider.id} (${rideProvider.type})`);
-      currentElements.push(marker);
-    }
     for (const authenticationService of (await fetchElement("authentication_services")).authenticationServices) {
+      const element = currentElements.find(a => a._custom_id === authenticationService.id);
+      if (element !== undefined) {
+        element.setLatLng(new L.LatLng(authenticationService.currentArea.lat, authenticationService.currentArea.lon));
+        element.setPopupContent(createPopupContent(authenticationService));
+        element._custom_date = currentDate;
+        continue;
+      }
       const circle = L.circle([authenticationService.currentArea.lat, authenticationService.currentArea.lon], {
           fillColor: '#f03',
           fillOpacity: 0.2,
           radius: authenticationService.currentArea.radius
-      }).addTo(map);
-      circle.bindPopup(`${authenticationService.id} (${authenticationService.type})`);
+      });
+      circle.addTo(map);
+      circle.bindPopup(createPopupContent(authenticationService));
+      circle._custom_id = authenticationService.id;
+      circle._custom_date = currentDate;
       currentElements.push(circle);
     }
     for (const matchingService of (await fetchElement("matching_services")).matchingServices) {
+      const element = currentElements.find(a => a._custom_id === matchingService.id);
+      if (element !== undefined) {
+        element.setLatLng(new L.LatLng(matchingService.currentArea.lat, matchingService.currentArea.lon));
+        element.setPopupContent(createPopupContent(matchingService));
+        element._custom_date = currentDate;
+        continue;
+      }
       const circle = L.circle([matchingService.currentArea.lat, matchingService.currentArea.lon], {
           fillColor: '#03f',
           fillOpacity: 0.2,
           radius: matchingService.currentArea.radius
-      }).addTo(map);
-      circle.bindPopup(`${matchingService.id} (${matchingService.type})`);
+      });
+      circle.addTo(map);
+      circle.bindPopup(createPopupContent(matchingService));
+      circle._custom_id = matchingService.id;
+      circle._custom_date = currentDate;
       currentElements.push(circle);
     }
+    for (const customer of (await fetchElement("customers")).customers) {
+      const element = currentElements.find(a => a._custom_id === customer.id);
+      if (element !== undefined) {
+        element.setLatLng(new L.LatLng(customer.currentLocation.lat, customer.currentLocation.lon));
+        element.setPopupContent(createPopupContent(customer));
+        element._custom_date = currentDate;
+        continue;
+      }
+      const marker = L.marker([customer.currentLocation.lat, customer.currentLocation.lon], {icon: iconCustomer});
+      marker.addTo(map);
+      marker.bindPopup(createPopupContent(customer));
+      marker._custom_id = customer.id;
+      marker._custom_date = currentDate;
+      currentElements.push(marker);
+    }
+    for (const rideProvider of (await fetchElement("ride_providers")).rideProviders) {
+      const element = currentElements.find(a => a._custom_id === rideProvider.id);
+      if (element !== undefined) {
+        element.setLatLng(new L.LatLng(rideProvider.currentLocation.lat, rideProvider.currentLocation.lon));
+        element.setPopupContent(createPopupContent(rideProvider));
+        element._custom_date = currentDate;
+        continue;
+      }
+      const marker = L.marker([rideProvider.currentLocation.lat, rideProvider.currentLocation.lon], {icon: iconRideProvider});
+      marker.addTo(map);
+      marker.bindPopup(createPopupContent(rideProvider));
+      marker._custom_id = rideProvider.id;
+      marker._custom_date = currentDate;
+      currentElements.push(marker);
+    }
+    currentElements = currentElements.filter((element) => {
+      if (element._custom_date !== undefined && element._custom_date !== currentDate) {
+        console.log("Remove", element, element._custom_date !== currentDate, element._custom_date, currentDate)
+        map.removeLayer(element);
+        return false;
+      }
+      return true;
+    })
     // Wait for a little
     await new Promise(resolve => { setTimeout(resolve, 5 * 1000); });
   }

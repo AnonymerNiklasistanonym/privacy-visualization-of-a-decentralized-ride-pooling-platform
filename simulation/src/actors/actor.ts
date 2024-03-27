@@ -1,5 +1,5 @@
 // Type imports
-import type {Simulation} from '../simulation';
+import type {Simulation} from '../simulation/simulation';
 
 /**
  * Abstract Class that represents an actor of the simulation.

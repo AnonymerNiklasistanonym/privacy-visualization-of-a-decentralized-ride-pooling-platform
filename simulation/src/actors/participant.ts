@@ -1,7 +1,7 @@
 import {Actor} from './actor';
 // Type imports
 import type {AuthenticationService} from './services';
-import type {LocationGPS} from '../types/location';
+import type {LocationGPS} from './types/location';
 
 /**
  * Abstract Class that represents a participant of the simulation.

@@ -1,24 +1,24 @@
 import express from 'express';
-import {Customer} from './actors/customer';
-import {RideProviderCompany, RideProviderPerson} from './actors/rideProvider';
-import {AuthenticationService, MatchingService} from './actors/services';
-import {SmartContract} from './actors/smartContract';
+import {Customer} from '../actors/customer';
+import {RideProviderCompany, RideProviderPerson} from '../actors/rideProvider';
+import {AuthenticationService, MatchingService} from '../actors/services';
+import {SmartContract} from '../actors/smartContract';
 import {
   getRandomElement,
   getRandomId,
   getRandomIntFromInterval,
-} from './misc/helpers';
+} from '../misc/helpers';
 // Type imports
-import type {SmartContract as SmartContractType} from './types/blockchain';
+import type {SmartContract as SmartContractType} from '../actors/types/blockchain';
 import type {
   SimulationTypeCustomer as CustomerType,
   SimulationTypeRideProvider as RideProviderType,
-} from './types/participants';
+} from '../actors/types/participants';
 import type {
   AuthenticationService as AuthenticationServiceType,
   MatchingService as MatchingServiceType,
-} from './types/services';
-import type {SimulationConfigWithData} from './config/simulationConfigWithData';
+} from '../actors/types/services';
+import type {SimulationConfigWithData} from '../config/simulationConfigWithData';
 
 export interface StartPos {
   lat: number;
@@ -125,22 +125,16 @@ export class Simulation {
   /** Run simulation */
   run(): void {
     this.state = 'ACTIVE';
-    // eslint-disable-next-line no-restricted-syntax
-    for (const customerObject of this.customerObjects) {
-      customerObject.run(this);
-    }
-    // eslint-disable-next-line no-restricted-syntax
-    for (const rideProviderObject of this.rideProviderObjects) {
-      rideProviderObject.run(this);
-    }
+    Promise.all(this.customerObjects.map(a => a.run(this)))
+      .then(() => console.log('Ran all customers'))
+      .catch(console.error);
+    Promise.all(this.rideProviderObjects.map(a => a.run(this)))
+      .then(() => console.log('Ran all ride providers'))
+      .catch(console.error);
   }
 
   pause(): void {
     this.state = 'PAUSED';
-  }
-
-  resume(): void {
-    this.state = 'ACTIVE';
   }
 
   // Debug methods
@@ -163,6 +157,31 @@ export class Simulation {
 
   get smartContracts(): SmartContractType[] {
     return this.smartContractObjects.map(a => a.json);
+  }
+
+  // Simulate the actual platform actor routes
+
+  generateRoutes(): express.Router {
+    const routerAuthenticationServers = express.Router();
+    const routerMatchingServers = express.Router();
+    const routerBlockchain = express.Router();
+
+    routerAuthenticationServers.route('/routes').get((req, res) => {
+      res.json({routes: ['TODO AS']});
+    });
+    routerMatchingServers.route('/routes').get((req, res) => {
+      res.json({routes: ['TODO MS']});
+    });
+    routerBlockchain.route('/routes').get((req, res) => {
+      res.json({routes: ['TODO BLOCKCHAIN']});
+    });
+
+    const router = express.Router();
+    router.use('/authentication_servers', routerAuthenticationServers);
+    router.use('/matching_services', routerMatchingServers);
+    router.use('/blockchain', routerBlockchain);
+
+    return router;
   }
 
   // Frontend routes

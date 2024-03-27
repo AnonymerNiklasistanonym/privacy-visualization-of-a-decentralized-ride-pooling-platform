@@ -9,8 +9,8 @@ import {Participant} from './participant';
 import type {
   Coordinates,
   SimulationTypeCustomer as CustomerType,
-} from '../types/participants';
-import type {Simulation} from '../simulation';
+} from './types/participants';
+import type {Simulation} from '../simulation/simulation';
 
 const h3Res = 7;
 
@@ -47,7 +47,8 @@ export class Customer extends Participant<CustomerType> {
     this.homeAddress = homeAddress;
   }
 
-  run(simulation: Simulation): Promise<void> {
+  async run(simulation: Simulation): Promise<void> {
+    console.debug('run customer', this.id);
     // Setup:
     // 1. Register to a random AS
     const randAuthService = getRandomElement(
@@ -62,6 +63,7 @@ export class Customer extends Participant<CustomerType> {
       this.phoneNumber,
       this.homeAddress
     );
+    this.registeredAuthService = randAuthService;
     // Loop:
     while (simulation.state === 'ACTIVE') {
       // 1. Authenticate to the platform via AS
@@ -87,6 +89,9 @@ export class Customer extends Participant<CustomerType> {
       // 3. Accept auction result from MS
       // 4. Be part of the ride
       // 5. Stay idle for a random duration and then repeat
+      await new Promise(resolve => {
+        setTimeout(resolve, 5 * 1000);
+      });
     }
 
     throw new Error('Method not implemented.');

@@ -6,8 +6,8 @@ import type {
   SimulationTypeRideProviderCompany as RideProviderCompanyType,
   SimulationTypeRideProviderPerson as RideProviderPersonType,
   SimulationTypeRideProvider as RideProviderType,
-} from '../types/participants';
-import type {Simulation} from '../simulation';
+} from './types/participants';
+import type {Simulation} from '../simulation/simulation';
 
 export abstract class RideProvider<
   JsonType extends RideProviderType,

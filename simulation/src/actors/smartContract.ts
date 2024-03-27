@@ -1,7 +1,7 @@
 /* eslint-disable max-classes-per-file */
 import {wait} from '../misc/wait';
-import type {SmartContract as SmartContractType} from '../types/blockchain';
-import {SmartContractState} from '../types/blockchain';
+import type {SmartContract as SmartContractType} from './types/blockchain';
+import {SmartContractState} from './types/blockchain';
 import {Actor} from './actor';
 
 export class SmartContract extends Actor<SmartContractType> {

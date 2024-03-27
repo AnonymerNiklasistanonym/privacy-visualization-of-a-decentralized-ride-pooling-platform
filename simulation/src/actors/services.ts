@@ -7,13 +7,13 @@ import type {
   AuthenticationService as AuthenticationServiceType,
   MatchingServiceAuction,
   MatchingService as MatchingServiceType,
-} from '../types/services';
+} from './types/services';
 import type {
   SimulationTypeCustomer,
   SimulationTypeRideProviderCompany,
   SimulationTypeRideProviderPerson,
-} from '../types/participants';
-import type {Simulation} from '../simulation';
+} from './types/participants';
+import type {Simulation} from '../simulation/simulation';
 
 abstract class Service<JsonType> extends Actor<JsonType> {
   latitude: number;
@@ -56,6 +56,7 @@ export class AuthenticationService extends Service<AuthenticationServiceType> {
     phoneNumber: string,
     homeAddress: string
   ): void {
+    console.log('Register customer', id, 'to AS', this.id);
     this.participantDb.push({
       contactDetails: {
         id,
@@ -83,6 +84,7 @@ export class AuthenticationService extends Service<AuthenticationServiceType> {
     vehicleNumberPlate: string,
     vehicleIdentificationNumber: string
   ): void {
+    console.log('Register ride provider', id, 'to AS', this.id);
     this.participantDb.push({
       contactDetails: {
         id,
@@ -111,6 +113,7 @@ export class AuthenticationService extends Service<AuthenticationServiceType> {
     vehicleIdentificationNumber: string,
     company: string
   ): void {
+    console.log('Register ride provider company', id, 'to AS', this.id);
     this.participantDb.push({
       contactDetails: {
         id,
