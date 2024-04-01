@@ -1,11 +1,14 @@
-<p> Participant {{id}}:</p>
+<p>Participant {{id}}:</p>
 <ul>
-    <li>Name: {{fullName}}</li>
-    <li>Date of birth: {{dateOfBirth}}</li>
-    <li>Gender: {{gender}}</li>
-    <li>Address: {{homeAddress}}</li>
-    <li>Email: {{emailAddress}}</li>
-    <li>Phone: {{phoneNumber}}</li>
+    <li>Contact Details:</li>
+    <ul>
+        <li>Name: {{contactDetails.fullName}}</li>
+        <li>Date of birth: {{contactDetails.dateOfBirth}}</li>
+        <li>Gender: {{contactDetails.gender}}</li>
+        <li>Address: {{contactDetails.homeAddress}}</li>
+        <li>Email: {{contactDetails.emailAddress}}</li>
+        <li>Phone: {{contactDetails.phoneNumber}}</li>
+    </ul>
     <li>Pseudonyms:</li>
     <ul>
     {{#each pseudonyms}}

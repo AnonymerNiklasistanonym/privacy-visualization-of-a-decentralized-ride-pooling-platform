@@ -1,0 +1,32 @@
+<p>Auction {{id}} (status: {{auctionStatus}}):</p>
+<ul>
+    <li>Auction started: {{auctionStartedTimestamp}}</li>
+    <li>Auction winner: {{auctionWinner}}</li>
+    <li>Bids: ({{bids.length}})</li>
+    <ul>
+    {{#each bids}}
+        <li>Bid:</li>
+        <ul>
+            <li>Ride Provider (Pseudonym): {{riderProviderId}}</li>
+            <li>Amount: {{amount}}</li>
+            <li>Rating: {{rating}}</li>
+            <li>Model: {{model}}</li>
+            <li>Estimated travel time: {{estimatedArrivalTime}}</li>
+            <li>Passenger count: {{passengerCount}}</li>
+            <li>Vehicle public key: {{vehiclePublicKey}}</li>
+        </ul>
+    {{/each}}
+    </ul>
+    <li>Ride request:</li>
+    <ul>
+        <li>dropoffLocation: {{request.dropoffLocation}}</li>
+        <li>maxPassengers: {{request.maxPassengers}}</li>
+        <li>maxWaitingTime: {{request.maxWaitingTime}}</li>
+        <li>minPassengerRating: {{request.minPassengerRating}}</li>
+        <li>minRating: {{request.minRating}}</li>
+        <li>pickupLocation: {{request.pickupLocation}}</li>
+        <li>rating: {{request.rating}}</li>
+        <li>userId: {{request.userId}}</li>
+        <li>userPublicKey: {{userPublicKey.rating}}</li>
+    </ul>
+</ul>

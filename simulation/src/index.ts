@@ -1,7 +1,7 @@
 import express from 'express';
 import {create as createHbs} from 'express-handlebars';
 import path from 'path';
-import {Simulation} from './simulation/simulation';
+import {Simulation} from './simulation';
 import {updateSimulationConfigWithData} from './config/simulationConfigWithData';
 // Type imports
 import type {SimulationConfig} from './config/simulationConfig';
@@ -79,7 +79,7 @@ async function main() {
       authenticationServices: simulation.authenticationServices,
       matchingServices: simulation.matchingServices,
       port: config.port,
-      smartContracts: simulation.smartContracts,
+      smartContracts: simulation.rideContracts,
       startPos: simulation.startPos,
     });
   });

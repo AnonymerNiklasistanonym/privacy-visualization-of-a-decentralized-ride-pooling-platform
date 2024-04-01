@@ -1,5 +1,5 @@
 // Type imports
-import type {Simulation} from '../simulation/simulation';
+import type {Simulation} from '../simulation';
 
 /**
  * Abstract Class that represents an actor of the simulation.
@@ -15,8 +15,20 @@ export abstract class Actor<JsonType> {
   constructor(id: string, type: string) {
     this.id = id;
     this.type = type;
-    // eslint-disable-next-line no-console
-    console.debug(`Create actor ${type}#${id}`);
+    this.printLog('Create actor');
+  }
+
+  printLog(...message: unknown[]) {
+    console.debug(
+      new Date().toISOString(),
+      this.type,
+      this.logInfo(),
+      ...message
+    );
+  }
+
+  logInfo(): unknown {
+    return {id: this.id};
   }
 
   /**

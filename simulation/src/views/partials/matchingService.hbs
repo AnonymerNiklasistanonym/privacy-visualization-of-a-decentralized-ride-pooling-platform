@@ -1,1 +1,7 @@
 <p>Matching Service: {{id}}</p>
+<p>Local database (auctions):</p>
+<ul>
+  {{#each auctionsDb}}
+    <li>{{> matchingServiceAuction}}</li>
+  {{/each}}
+</ul>
