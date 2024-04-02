@@ -2,6 +2,7 @@
 build
 docs
 dist
+!dist.ts
 # Ignore node dependencies
 node_modules
 # Ignore chached files
