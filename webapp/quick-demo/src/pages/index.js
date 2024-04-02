@@ -9,9 +9,12 @@ import Button from '@components/Button';
 import styles from '@styles/Home.module.scss';
 import { useEffect, useState } from 'react';
 
+//import CustomerIcon from "../assets/icons/directions_walk_FILL0_wght400_GRAD0_opsz24.svg"
+
 const DEFAULT_CENTER = [48.7784485, 9.1800132]
 
 export default function Home() {
+  const [view, setView] = useState("everything");
   const [time, setTime] = useState(new Date);
   const [customers, setCustomers] = useState([]);
   const [rideProviders, setRideProviders] = useState([]);
@@ -19,10 +22,10 @@ export default function Home() {
     const interval = setInterval(() => {
       setTime(new Date);
       fetchElement("customers").then((data) => {
-        setCustomers(data);
+        setCustomers(data.customers);
       });
       fetchElement("ride_providers").then((data) => {
-        setRideProviders(data);
+        setRideProviders(data.rideProviders);
       });
     }, 1000);
     return () => { clearInterval(interval); }
@@ -38,7 +41,13 @@ export default function Home() {
     const result = await fetch(`${baseUrl}/simulation/${endpoint}`).then(data => data.text());
     console.debug(`requested simulation endpoint '${endpoint}':`, result);
   }
-  //const iconCustomer = <Icon></Icon>L.icon({
+  const switchView = (newView) => {
+    if (newView !== view) {
+      setView(newView);
+      console.debug(`change view to '${view}'`);
+    }
+  }
+  //const iconCustomer = L.icon({
   //  iconUrl: "/icons/directions_walk_FILL0_wght400_GRAD0_opsz24.svg",
   //});
   //const iconRideProvider = L.icon({
@@ -81,11 +90,30 @@ export default function Home() {
       <Section>
         <Container>
           <h1 className={styles.title}>
-            Prototype ({time.toISOString()})
+            Prototype (<p suppressHydrationWarning>{time.toISOString()}</p>)
           </h1>
 
           <Map className={styles.homeMap} width="800" height="400" center={DEFAULT_CENTER} zoom={12}>
-            {({ TileLayer, Marker, Popup }) => (
+            {({ TileLayer, Marker, Popup }) => {
+                const L = require('leaflet');
+
+                const iconCustomer = L.icon({
+                    iconUrl: "/icons/directions_walk_FILL0_wght400_GRAD0_opsz24.svg",
+                    shadowUrl: null,
+                    shadowSize: null,
+                    shadowAnchor: null,
+                    iconSize: new L.Point(32, 32),
+                });
+
+                const iconRideProvider = L.icon({
+                    iconUrl: "/icons/directions_car_FILL0_wght400_GRAD0_opsz24.svg",
+                    shadowUrl: null,
+                    shadowSize: null,
+                    shadowAnchor: null,
+                    iconSize: new L.Point(32, 32),
+                });
+
+              return (
               <>
                 <TileLayer
                   url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -96,22 +124,24 @@ export default function Home() {
                     A pretty CSS3 popup. <br /> Easily customizable.
                   </Popup>
                 </Marker>
-                {
-                //customers.map((customer) => (
-                //  <Marker position={[customer.lat, customer.long]} icon={iconCustomer}>
-                //    <Popup>{createPopupContent(customer)}</Popup>
-                //  </Marker>
-                //))
-                }
-                {
-                //rideProviders.map((rideProvider) => (
-                //  <Marker position={[rideProvider.lat, rideProvider.long]} icon={iconRideProvider}>
-                //    <Popup>{createPopupContent(rideProvider)}</Popup>
-                //  </Marker>
-                //))
-                }
+                {customers.map((customer) => {
+                  return (
+                    <Marker key={`customer_${customer.id}`} position={[customer.currentLocation.lat, customer.currentLocation.long]} icon={iconCustomer}>
+                      <Popup>{createPopupContent(customer)}</Popup>
+                    </Marker>
+                  )
+                })}
+                {rideProviders.map((rideProvider) => {
+                  return (
+                    <Marker key={`rideProvider_${rideProvider.id}`} position={[rideProvider.currentLocation.lat, rideProvider.currentLocation.long]} icon={iconRideProvider}>
+                      <Popup>{createPopupContent(rideProvider)}</Popup>
+                    </Marker>
+                  )
+                })}
               </>
-            )}
+              )
+            }
+            }
           </Map>
 {
 /*
@@ -128,6 +158,13 @@ export default function Home() {
             <Button onClick={() => {buttonSimulation("state").catch(err => console.error(err))}}>State</Button>
             <Button onClick={() => {buttonSimulation("pause").catch(err => console.error(err))}}>Pause</Button>
             <Button onClick={() => {buttonSimulation("run").catch(err => console.error(err))}}>Run</Button>
+          </p>
+          <p className={styles.view}>
+            <Button onClick={() => {switchView("everything")}}>Everything</Button>
+            <Button onClick={() => {switchView("public")}}>Public</Button>
+            <Button onClick={() => {switchView("auth")}}>AuthService</Button>
+            <Button onClick={() => {switchView("match")}}>MatchService</Button>
+            <Button onClick={() => {console.error("Not yet implemented")}}>TODO: Specific Actor</Button>
           </p>
         </Container>
       </Section>
