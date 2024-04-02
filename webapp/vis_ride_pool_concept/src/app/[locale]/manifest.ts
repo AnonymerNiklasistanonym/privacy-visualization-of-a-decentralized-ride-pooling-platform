@@ -1,5 +1,5 @@
-import { MetadataRoute } from 'next'
-import { info } from "./info"
+import {MetadataRoute} from 'next';
+import {info} from './info';
 
 // Generate Web Manifest:
 // mdn docs: https://developer.mozilla.org/en-US/docs/Web/Manifest
@@ -16,15 +16,15 @@ export default function manifest(): MetadataRoute.Manifest {
     theme_color: '#07cf',
     icons: [
       {
-        src: "/main.svg",
+        src: '/main.svg',
         sizes: 'any',
-        type: 'image/svg+xml'
-    },
-    {
-      src: '/main.ico',
-      sizes: 'any',
-      type: 'image/x-icon',
-    }
+        type: 'image/svg+xml',
+      },
+      {
+        src: '/main.ico',
+        sizes: 'any',
+        type: 'image/x-icon',
+      },
     ],
-  }
+  };
 }

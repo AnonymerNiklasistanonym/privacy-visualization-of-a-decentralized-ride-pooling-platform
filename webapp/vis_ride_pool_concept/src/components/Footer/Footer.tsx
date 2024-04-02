@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import { FormattedMessage } from "react-intl";
+import {FormattedMessage} from 'react-intl';
 
-import FooterContainer from "./FooterContainer";
+import FooterContainer from './FooterContainer';
 
-function Footer({ locale }: { locale: string }) {
+function Footer({locale}: {locale: string}) {
   return (
     <FooterContainer locale={locale}>
       <div>

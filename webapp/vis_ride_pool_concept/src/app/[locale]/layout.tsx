@@ -1,17 +1,17 @@
-import type { Metadata } from 'next'
-import Header from "../../components/Header/Header";
-import Footer from "../../components/Footer/Footer";
-import { getDirection } from "../../services/intl";
-import { info } from "./info"
-import "./globals.css";
+//import type {Metadata} from 'next';
+import Header from '../../components/Header/Header';
+import Footer from '../../components/Footer/Footer';
+import {getDirection} from '../../services/intl';
+//import {info} from './info';
+import './globals.css';
 
 type LayoutProps = {
-  params: { locale: string };
+  params: {locale: string};
   children: React.ReactNode;
 };
 
-export default function RootLayout({ params, children }: LayoutProps) {
-  const { locale } = params;
+export default function RootLayout({params, children}: LayoutProps) {
+  const {locale} = params;
 
   const dir = getDirection(locale);
 

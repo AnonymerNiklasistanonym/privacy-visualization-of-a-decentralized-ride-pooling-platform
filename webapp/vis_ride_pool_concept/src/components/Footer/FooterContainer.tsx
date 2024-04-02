@@ -1,5 +1,5 @@
-import React from "react";
-import { IntlProvider } from "react-intl";
+import React from 'react';
+import {IntlProvider} from 'react-intl';
 
 async function getMessages(locale: string) {
   return await import(`../../lang/${locale}.json`);
@@ -10,7 +10,7 @@ type FooterContainerProps = {
   children: React.ReactNode;
 };
 
-async function FooterContainer({ locale, children }: FooterContainerProps) {
+async function FooterContainer({locale, children}: FooterContainerProps) {
   const messages = await getMessages(locale);
 
   return (

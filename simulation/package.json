@@ -21,7 +21,7 @@
     "h3-js": "^4.1.0"
   },
   "engines": {
-    "node": ">=21"
+    "node": ">=21.0.0"
   },
   "devDependencies": {
     "@types/express": "^4.17.21",

@@ -54,6 +54,20 @@ const hbs = createHbs({
   partialsDir: path.join(SRC_DIR, 'views', 'partials'),
 });
 
+// CORS
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', 'localhost');
+  res.header(
+    'Access-Control-Allow-Methods',
+    'OPTIONS, GET, PUT, PATCH, POST, DELETE'
+  );
+  res.header(
+    'Access-Control-Allow-Headers',
+    'Content-Type, X-Requested-With, Authorization'
+  );
+  next();
+});
+
 // Express setup additional static directories
 app.use('/styles', express.static(path.join(SRC_DIR, 'public', 'styles')));
 app.use('/icons', express.static(path.join(SRC_DIR, 'public', 'icons')));

@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-    // Optional: Change the output directory
-    //distDir: 'dist',
-}
+  // Optional: Change the output directory
+  //distDir: 'dist',
+};
 
-module.exports = nextConfig
+module.exports = nextConfig;

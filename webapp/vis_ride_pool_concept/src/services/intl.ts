@@ -1,7 +1,7 @@
-import "server-only";
+import 'server-only';
 
-import { createIntl } from "@formatjs/intl";
-import type { Locale } from "../../i18n-config";
+import {createIntl} from 'react-intl';
+import type {Locale} from '../../i18n-config';
 
 export async function getIntl(locale: Locale) {
   return createIntl({
@@ -12,11 +12,11 @@ export async function getIntl(locale: Locale) {
 
 export function getDirection(locale: Locale) {
   switch (locale) {
-    case "ar":
-      return "rtl";
-    case "en":
-    case "fr":
-    case "nl-NL":
-      return "ltr";
+    case 'ar':
+      return 'rtl';
+    case 'en':
+    case 'fr':
+    case 'nl-NL':
+      return 'ltr';
   }
 }

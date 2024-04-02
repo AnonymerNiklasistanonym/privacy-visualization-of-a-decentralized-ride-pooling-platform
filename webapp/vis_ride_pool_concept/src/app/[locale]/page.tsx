@@ -1,11 +1,14 @@
-import { Metadata, ResolvingMetadata } from "next";
+import {Metadata, ResolvingMetadata} from 'next';
 
-import { getIntl } from "../../services/intl";
-import styles from "./page.module.css";
+import {getIntl} from '../../services/intl';
+import styles from './page.module.css';
+
+import type {PrimitiveType} from 'react-intl';
+import GenerateMap from '@/components/Map/generateMap';
 
 type RouteProps = {
-  params: { locale: string };
-  searchParams: { [key: string]: string | string[] | undefined };
+  params: {locale: string};
+  searchParams: {[key: string]: string | string[] | undefined};
 };
 
 export async function generateMetadata(
@@ -15,28 +18,28 @@ export async function generateMetadata(
   const intl = await getIntl(props.params.locale);
 
   return {
-    title: intl.formatMessage({ id: "page.home.head.title" }),
+    title: intl.formatMessage({id: 'page.home.head.title'}),
     description: intl.formatMessage({
-      id: "page.home.head.meta.description",
+      id: 'page.home.head.meta.description',
     }),
     alternates: {
-      canonical: "https://example.com",
+      canonical: 'https://example.com',
       languages: {
-        ar: "http://example.com/ar",
-        en: "http://example.com",
-        fr: "http://example.com/fr",
-        "nl-NL": "http://example.com/nl-NL",
-        "x-default": "http://example.com",
+        ar: 'http://example.com/ar',
+        en: 'http://example.com',
+        fr: 'http://example.com/fr',
+        'nl-NL': 'http://example.com/nl-NL',
+        'x-default': 'http://example.com',
       },
     },
   };
 }
 
 type HomeProps = {
-  params: { locale: string };
+  params: {locale: string};
 };
 
-export default async function Home({ params: { locale } }: HomeProps) {
+export default async function Home({params: {locale}}: HomeProps) {
   const intl = await getIntl(locale);
 
   return (
@@ -44,15 +47,20 @@ export default async function Home({ params: { locale } }: HomeProps) {
       <main className={styles.main}>
         <h1 className={styles.title}>
           {intl.formatMessage(
-            { id: "page.home.title" },
+            {id: 'page.home.title'},
             // @ts-ignore
-            { b: (chunks) => <b key="bold">{chunks}</b> }
+            {b: chunks => <b key="bold">{chunks}</b>} satisfies Record<
+              string,
+              PrimitiveType
+            >
           )}
         </h1>
 
         <p className={styles.description}>
-          {intl.formatMessage({ id: "page.home.description" })}
+          {intl.formatMessage({id: 'page.home.description'})}
         </p>
+
+        {GenerateMap()}
       </main>
     </div>
   );
