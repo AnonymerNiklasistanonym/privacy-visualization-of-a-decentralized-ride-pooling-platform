@@ -3,6 +3,9 @@ import Leaflet from 'leaflet';
 import * as ReactLeaflet from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 
+import "react-leaflet-fullscreen/styles.css";
+import { FullscreenControl } from "react-leaflet-fullscreen";
+
 import styles from './Map.module.scss';
 
 const { MapContainer } = ReactLeaflet;
@@ -28,6 +31,7 @@ const Map = ({ children, className, width, height, ...rest }) => {
   return (
     <MapContainer className={mapClassName} {...rest}>
       {children(ReactLeaflet, Leaflet)}
+      <FullscreenControl/>
     </MapContainer>
   )
 }
