@@ -5,11 +5,19 @@ import Button from '@components/Button';
 export function PopupContentCustomer({ customer, spectatorState }) {
   return (<>
     {Object.keys(customer).filter(key => !["id", "type", "currentLocation", "currentArea", "passengers",
-      "rideRequest",
       "participantDb",
       "auctionsDb"].includes(key)).map(key => {
         if (spectatorState !== "everything" && spectatorState !== customer.id) {
           return <p>{key}: *****</p>
+        }
+        if (key === "rideRequest") {
+          return <>
+          <p>{key}:</p>
+          <ul className="scrolling">
+            <li>state: {customer[key]['state']}</li>
+            <li>destination: {customer[key]['address']}</li>
+          </ul>
+          </>
         }
       return <p>{key}: {customer[key]}</p>
 })}

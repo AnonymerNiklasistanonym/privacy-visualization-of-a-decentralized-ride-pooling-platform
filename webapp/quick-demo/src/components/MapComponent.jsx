@@ -4,6 +4,8 @@ import styles from '@styles/Home.module.scss';
 
 import PopupContentActor from "./PopupContentActor"
 
+import {latLngToCell,cellsToMultiPolygon} from "h3-js";
+
 
 //import "react-leaflet-fullscreen/styles.css";
 //import { FullscreenControl } from "react-leaflet-fullscreen";
@@ -14,7 +16,7 @@ export default function MapComponent ({customersState, customersSignal, rideProv
 
     return (
 <Map className={styles.homeMap} width="800" height="400" center={[startPos.lat, startPos.long]} zoom={startPos.zoom}>
-{({ TileLayer, Marker, Popup }) => {
+{({ TileLayer, Marker, Popup, Circle, Polygon }) => {
     const L = require('leaflet');
 
     const iconCustomer = L.icon({
@@ -43,18 +45,34 @@ export default function MapComponent ({customersState, customersSignal, rideProv
       <Popup>{spectatorState} (signal={spectatorSignal.value})</Popup>
     </Marker>
     {customersState.map((customer) => {
-      return (
+      const marker = (
         <Marker key={`customer_${customer.id}`} position={[customer.currentLocation.lat, customer.currentLocation.long]} icon={iconCustomer}>
         <Popup><PopupContentActor actor={customer} spectatorState={spectatorState} setStateSpectator={setStateSpectator}/></Popup>
         </Marker>
-      )
+      );
+      if (customer.rideRequest) {
+        const circle = <Circle
+        center={{lat: customer.rideRequest.coordinates.lat, lng: customer.rideRequest.coordinates.long}}
+        color={spectatorState === customer.id ? "blue" : "red"}
+        fillColor={spectatorState === customer.id ? "blue" : "red"}
+        radius={spectatorState === customer.id ? 400 : 50}>
+            <Popup>Ride request of {customer.id} ({customer.rideRequest.address}) {spectatorState} === {customer.id} = {spectatorState === customer.id ? "true" : "false"}</Popup>
+        </Circle>
+        const h3Index = latLngToCell(customer.rideRequest.coordinates.lat, customer.rideRequest.coordinates.long, 7);
+        const polygonData = cellsToMultiPolygon([h3Index])[0][0];
+        //console.debug(JSON.stringify(polygonData.map(a => ({ lat: a[0], long: a[1] }))))
+        const polygon = <Polygon positions={polygonData} />
+        return <>{polygon}{circle}{marker}</>
+      }
+      return marker;
     })}
     {rideProvidersState.map((rideProvider) => {
-      return (
+      const marker = (
         <Marker key={`rideProvider_${rideProvider.id}`} position={[rideProvider.currentLocation.lat, rideProvider.currentLocation.long]} icon={iconRideProvider}>
           <Popup><PopupContentActor actor={rideProvider} spectatorState={spectatorState} setStateSpectator={setStateSpectator}/></Popup>
         </Marker>
-      )
+      );
+      return marker;
     })}
     {
     //<FullscreenControl />

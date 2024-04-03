@@ -37,12 +37,17 @@ export default function Home() {
   const [customersState, setStateCustomers] = useState([])
   const [rideProvidersState, setStateRideProviders] = useState([])
   effect(() => {
-    // Run this when signal changes
+    // Run this when any signal changes
     //console.log("Signals updated titleDate:", titleDate.value)
     //console.log("Signals updated spectator:", spectator.value)
     //console.log("Signals updated customers:", customers.value)
     //console.log("Signals updated rideProviders:", rideProviders.value)
   })
+  useEffect(() => {
+    // Run this when any listed state dependency changes
+    console.log('Listening to spectator state:', spectatorState);
+    spectatorSignal.value = spectatorState;
+  }, [spectatorState]);
   useEffect(() => {
     // Run this code client side
     const interval = setInterval(() => {
@@ -68,7 +73,6 @@ export default function Home() {
     }
   })
   const switchSpectator = (newSpectator) => {
-    spectatorSignal.value = newSpectator;
     setStateSpectator(newSpectator);
   }
   return (
