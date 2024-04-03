@@ -60,7 +60,7 @@ export default function Home() {
         rideProvidersSignal.value = data.rideProviders;
         setStateRideProviders(data.rideProviders);
       });
-    }, 500);
+    }, 50);
     const intervalTime = setInterval(() => {
       const currentTime = getCurrentTime();
       if (dateStringSignal.value !== currentTime) {

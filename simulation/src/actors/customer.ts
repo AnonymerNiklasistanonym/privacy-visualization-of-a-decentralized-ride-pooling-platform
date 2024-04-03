@@ -142,6 +142,7 @@ export class Customer extends Participant<SimulationTypeCustomer> {
         rideRequest.auctionWinner,
         getRandomIntFromInterval(5, 20)
       );
+      // Check: Contacts Ride Provider
       randMatchService.getSetContractAddress(rideRequestId, contractAddress);
       this.rideRequest = {
         address: `${randLocation.postcode} ${randLocation.city} ${randLocation.street} ${randLocation.houseNumber}`,
