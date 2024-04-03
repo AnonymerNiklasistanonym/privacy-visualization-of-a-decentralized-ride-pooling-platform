@@ -6,14 +6,27 @@ import Container from '@components/Container';
 import Map from '@components/Map';
 import Button from '@components/Button';
 
+import DynamicTitle from '../components/DynamicTitle';
+
 import styles from '@styles/Home.module.scss';
 import { useEffect, useState } from 'react';
+
+import { signal, effect } from "@preact/signals-react";
+
+//import { FullscreenControl } from "react-leaflet-fullscreen";
+import "react-leaflet-fullscreen/styles.css";
 
 //import CustomerIcon from "../assets/icons/directions_walk_FILL0_wght400_GRAD0_opsz24.svg"
 
 const DEFAULT_CENTER = [48.7784485, 9.1800132]
 
 export default function Home() {
+  const titleDate = signal(() => new Date().toISOString());
+  effect(() => {
+    setInterval(() => {
+      titleDate.value = new Date().toISOString();
+    }, 1000);
+  })
   const [view, setView] = useState("everything");
   const [time, setTime] = useState(new Date);
   const [customers, setCustomers] = useState([]);
@@ -27,6 +40,8 @@ export default function Home() {
       fetchElement("ride_providers").then((data) => {
         setRideProviders(data.rideProviders);
       });
+      titleDate.value = new Date().toISOString()
+      console.log(titleDate)
     }, 1000);
     return () => { clearInterval(interval); }
   })
@@ -54,30 +69,40 @@ export default function Home() {
   //    iconUrl: "/icons/directions_car_FILL0_wght400_GRAD0_opsz24.svg",
   //});
   const createPopupContent = (obj) => {
-      const header = `<h2>${obj.type} (${obj.id})</h2>`;
       const content = [];
       for (const key in obj) {
           if (["id", "type", "currentLocation", "currentArea"].includes(key)) {
             continue;
           }
+          /*
           if (obj.hasOwnProperty(key)) {
               let value = obj[key];
               if (key === "passengers") {
-                value = `<ul class="scrolling">${obj[key].map(a => `<li>${a}</li>`).join("")}</ul>`
+                value = <ul className="scrolling">{obj[key].map(a => <li>{a}</li>)}</ul>
               }
               if (key === "rideRequest") {
-                value = `<ul class="scrolling"><li>state: ${obj[key]['state']}</li><li>destination: ${obj[key]['address']}</li></ul>`
+                value = <ul className="scrolling"><li>state: {obj[key]['state']}</li><li>destination: {obj[key]['address']}</li></ul>
               }
               if (key === "participantDb") {
-                value = `<ul class="scrolling">${obj[key].map(a => `<li>${a.contactDetails.id}<ul>${a.pseudonyms.map(b => `<li>${b}</li>`).join("")}</ul></li>`).join("")}</ul>`
+                value = <ul className="scrolling">{obj[key].map(a => <><li>{a.contactDetails.id}</li><ul>${a.pseudonyms.map(b => <li>{b}</li>)}</ul></>)}</ul>
               }
               if (key === "auctionsDb") {
-                value = `<ul class="scrolling">${obj[key].map(a => `<li>${JSON.stringify(a)}</li>`).join("")}</ul>`
+                value = <ul className="scrolling">{obj[key].map(a => <li>{JSON.stringify(a)}</li>)}</ul>
               }
-              content.push(`<p style="font-size: 1em; margin-top: 0.2em; margin-bottom: 0.2em"><strong>${key}</strong>: ${value}</p>`)
+              content.push(<p style="font-size: 1em; margin-top: 0.2em; margin-bottom: 0.2em"><strong>{key}</strong>: {value}</p>)
+          }*/
+
+          if (["rideRequest", "participantDb", "auctionsDb"].includes(key)) {
+            continue;
           }
+          if (obj.hasOwnProperty(key)) {
+            content.push(<p>{key}: {obj[key]}</p>)
+        }
       }
-      return header + content.join("")
+      return (<>
+        <h2>{obj.type} ({obj.id})</h2>
+        <p>fullName: {obj.fullName}</p>
+      </>)
   }
   return (
     <Layout>
@@ -89,9 +114,7 @@ export default function Home() {
 
       <Section>
         <Container>
-          <h1 className={styles.title}>
-            Prototype (<p suppressHydrationWarning>{time.toISOString()}</p>)
-          </h1>
+          <DynamicTitle titleDate={titleDate}/>
 
           <Map className={styles.homeMap} width="800" height="400" center={DEFAULT_CENTER} zoom={12}>
             {({ TileLayer, Marker, Popup }) => {
@@ -138,6 +161,9 @@ export default function Home() {
                     </Marker>
                   )
                 })}
+                {
+                //<FullscreenControl />
+                }
               </>
               )
             }

@@ -1,4 +1,5 @@
 import express from 'express';
+import cors from 'cors';
 import {create as createHbs} from 'express-handlebars';
 import path from 'path';
 import {Simulation} from './simulation';
@@ -55,18 +56,7 @@ const hbs = createHbs({
 });
 
 // CORS
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', 'localhost');
-  res.header(
-    'Access-Control-Allow-Methods',
-    'OPTIONS, GET, PUT, PATCH, POST, DELETE'
-  );
-  res.header(
-    'Access-Control-Allow-Headers',
-    'Content-Type, X-Requested-With, Authorization'
-  );
-  next();
-});
+app.use(cors());
 
 // Express setup additional static directories
 app.use('/styles', express.static(path.join(SRC_DIR, 'public', 'styles')));

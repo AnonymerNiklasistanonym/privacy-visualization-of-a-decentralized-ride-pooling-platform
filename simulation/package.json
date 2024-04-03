@@ -16,6 +16,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "cors": "^2.8.5",
     "express": "^4.19.2",
     "express-handlebars": "^7.1.2",
     "h3-js": "^4.1.0"
@@ -24,6 +25,7 @@
     "node": ">=21.0.0"
   },
   "devDependencies": {
+    "@types/cors": "^2.8.17",
     "@types/express": "^4.17.21",
     "@types/node": "20.12.2",
     "@typescript-eslint/eslint-plugin": "^7.5.0",
