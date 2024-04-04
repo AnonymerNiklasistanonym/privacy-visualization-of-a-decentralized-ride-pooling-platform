@@ -11,7 +11,7 @@
     "tsc": "tsc",
     "clean": "gts clean",
     "compile": "tsc",
-    "dev": "nodemon --ignore 'dist' --ignore 'build' --ignore 'cache' --exec 'npm run compile; npm run dist; npm run start -- $@'",
+    "dev": "nodemon --ignore 'dist' --ignore 'build' --ignore 'cache' --watch 'src' --watch 'dist.ts' -e ts --exec 'npm run compile; npm run dist; npm run start -- $@'",
     "fix": "gts fix"
   },
   "author": "",

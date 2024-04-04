@@ -14,8 +14,12 @@ export const printRouterPaths = (
   rootLayers: ReadonlyArray<ExpressLayer>,
   rootPath = ''
 ) => {
+  const paths: string[] = [];
   for (const rootLayer of rootLayers) {
-    printRouterLayerPaths(rootLayer, [rootPath]);
+    paths.push(...getRouterLayerPaths(rootLayer, [rootPath]));
+  }
+  for (const sortedPath of paths.sort()) {
+    console.info(sortedPath);
   }
 };
 
@@ -25,33 +29,43 @@ export const printRouterPaths = (
  * @param parentPath Parent path
  * @param layer Child layer
  */
-export const printRouterLayerPaths = (
+export const getRouterLayerPaths = (
   layer: Readonly<ExpressLayer>,
   parentPath: ReadonlyArray<string> = []
-) => {
+): string[] => {
+  const paths: string[] = [];
   if (layer.route) {
     for (const layerRoute of layer.route.stack) {
-      printRouterLayerPaths(layerRoute, [
-        ...parentPath,
-        ...splitPathOrRegexToRoutePaths(layer.route.path),
-      ]);
+      paths.push(
+        ...getRouterLayerPaths(layerRoute, [
+          ...parentPath,
+          ...splitPathOrRegexToRoutePaths(layer.route.path),
+        ])
+      );
     }
   } else if (layer.name === 'router' && layer.handle.stack) {
     for (const layerHandleRoute of layer.handle.stack) {
-      printRouterLayerPaths(layerHandleRoute, [
-        ...parentPath,
-        ...splitPathOrRegexToRoutePaths(layer.regexp),
-      ]);
+      paths.push(
+        ...getRouterLayerPaths(layerHandleRoute, [
+          ...parentPath,
+          ...splitPathOrRegexToRoutePaths(layer.regexp),
+        ])
+      );
     }
   } else if (layer.method) {
-    console.info(
-      layer.method.toUpperCase(),
-      [...parentPath, ...splitPathOrRegexToRoutePaths(layer.regexp)].join('/')
+    paths.push(
+      `${layer.method.toUpperCase()} ${[
+        ...parentPath,
+        ...splitPathOrRegexToRoutePaths(layer.regexp),
+      ].join('/')}`
     );
   }
+  return paths;
 };
 
-const splitPathOrRegexToRoutePaths = (pathOrRegex: string | RegExp) => {
+const splitPathOrRegexToRoutePaths = (
+  pathOrRegex: string | RegExp
+): string[] => {
   if (typeof pathOrRegex === 'string') {
     return pathOrRegex.split('/').filter(a => a.length > 0);
   } else if (pathOrRegex instanceof RegExp) {
@@ -60,12 +74,13 @@ const splitPathOrRegexToRoutePaths = (pathOrRegex: string | RegExp) => {
       .replace('\\/?', '')
       .replace('(?=\\/|$)', '$')
       .match(/^\/\^((?:\\[.*+?^${}()|[\]\\/]|[^.*+?^${}()|[\]\\/])*)\$\//);
-    return match
-      ? match[1]
-          .replace(/\\(.)/g, '$1')
-          .split('/')
-          .filter(a => a.length > 0)
-      : ['<complex:' + pathOrRegex.toString() + '>'];
+    if (match) {
+      return match[1]
+        .replace(/\\(.)/g, '$1')
+        .split('/')
+        .filter(a => a.length > 0);
+    }
+    return ['<complex:' + pathOrRegex.toString() + '>'];
   }
   return [];
 };

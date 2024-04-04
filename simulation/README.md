@@ -99,14 +99,25 @@ npm run start -- --port 3000
 
 The web server has the following endpoints:
 
-- `/` Frontend that displays the current simulation state
-- `/json` JSON API for all simulated stakeholders
-  - `/customers`
-  - `/ride_providers`
-  - `/authentication_services`
-  - `/matching_services`
-  - `/smart_contracts`
-- TODO: Add the actual routes that the visualization will use
+- Frontend
+  - `GET` `http://localhost:2222`
+- Frontend JSON
+  - `GET` `http://localhost:2222/json/customers`
+  - `GET` `http://localhost:2222/json/ride_providers`
+  - `GET` `http://localhost:2222/json/authentication_services`
+  - `GET` `http://localhost:2222/json/matching_services`
+  - `GET` `http://localhost:2222/jshylilyson/smart_contracts`
+- Simulation
+  - `GET` `http://localhost:2222/simulation/authentication_servers/routes`
+  - `GET` `http://localhost:2222/simulation/authentication_servers/as_$ID/rating/:pseudonym`
+  - `GET` `http://localhost:2222/simulation/matching_services/routes`
+  - `GET` `http://localhost:2222/simulation/matching_services/ms_$ID/rideRequest/:rideRequestId`
+  - `GET` `http://localhost:2222/simulation/matching_services/ms_$ID/rideRequests`
+  - `GET` `http://localhost:2222/simulation/blockchain/routes`
+  - `GET` `http://localhost:2222/simulation/blockchain/blockchain_$ID/rideContracts`
+  - `GET` `http://localhost:2222/simulation/pause`
+  - `GET` `http://localhost:2222/simulation/run`
+  - `GET` `http://localhost:2222/simulation/state`
 
 **Development:**
 
@@ -118,4 +129,6 @@ npm run fix
 # Create documentation in docs directory
 npm run docs
 npx http-server -o docs -p 8000
+# Auto update server on change
+npm run dev -- --port 2222
 ```
