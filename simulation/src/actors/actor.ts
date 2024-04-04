@@ -11,14 +11,20 @@ export abstract class Actor<JsonType> {
   /** Actor type ID. */
   protected readonly type: string;
 
+  protected readonly verbose: boolean;
+
   /** Create instance of actor. */
-  constructor(id: string, type: string) {
+  constructor(id: string, type: string, verbose = false) {
     this.id = id;
     this.type = type;
+    this.verbose = verbose;
     this.printLog('Create actor');
   }
 
   printLog(...message: unknown[]) {
+    if (!this.verbose) {
+      return;
+    }
     console.debug(
       new Date().toISOString(),
       this.type,

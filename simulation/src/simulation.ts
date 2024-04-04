@@ -16,126 +16,147 @@ export interface StartPos extends Coordinates {
   zoom: number;
 }
 
+export const createMockedCustomer = (
+  index: number,
+  config: Readonly<SimulationConfigWithData>
+): Customer => {
+  const id = `customer_${getRandomId()}`;
+  const randCity = getRandomElement(config.citiesData);
+  const randLocation = getRandomElement(randCity.places);
+  const fakePerson = config.peopleData[index];
+  return new Customer(
+    id,
+    fakePerson.fullName,
+    /[0-9]*(?<gender>\S*)/.exec(fakePerson.gender)?.groups?.gender ||
+      fakePerson.gender,
+    fakePerson.dateOfBirth,
+    fakePerson.emailAddress,
+    fakePerson.phoneNumber,
+    `${randLocation.postcode} ${randLocation.city} ${randLocation.street} ${randLocation.houseNumber}`,
+    {lat: randLocation.lat, long: randLocation.lon},
+    config.verbose
+  );
+};
+
+export const createMockedRideProviderPerson = (
+  index: number,
+  config: Readonly<SimulationConfigWithData>
+): RideProviderPerson => {
+  const id = `ride_provider_${getRandomId()}`;
+  const city = getRandomElement(config.citiesData);
+  const randLocation = getRandomElement(city.places);
+  const fakePerson = config.peopleData[index + config.customer.count];
+  return new RideProviderPerson(
+    id,
+    {lat: randLocation.lat, long: randLocation.lon},
+    `${id}_vehicleNumberPlate`,
+    `${id}_vehicleIdentificationNumber`,
+    fakePerson.fullName,
+    /[0-9]*(?<gender>\S*)/.exec(fakePerson.gender)?.groups?.gender ||
+      fakePerson.gender,
+    fakePerson.dateOfBirth,
+    fakePerson.emailAddress,
+    fakePerson.phoneNumber,
+    `${randLocation.postcode} ${randLocation.city} ${randLocation.street} ${randLocation.houseNumber}`,
+    config.verbose
+  );
+};
+
+export const createMockedRideProviderCompany = (
+  company: string,
+  config: Readonly<SimulationConfigWithData>
+): RideProviderCompany => {
+  const id = `ride_provider_company_${getRandomId()}`;
+  const city = getRandomElement(config.citiesData);
+  const randLocation = getRandomElement(city.places);
+  return new RideProviderCompany(
+    id,
+    {lat: randLocation.lat, long: randLocation.lon},
+    `${id}_vehicleNumberPlate`,
+    `${id}_vehicleIdentificationNumber`,
+    company,
+    config.verbose
+  );
+};
+
+export const createMockedAuthenticationService = (
+  config: Readonly<SimulationConfigWithData>
+): AuthenticationService => {
+  const id = `as_${getRandomId()}`;
+  const city = getRandomElement(config.citiesData);
+  return new AuthenticationService(
+    id,
+    city.lat + getRandomIntFromInterval(-100, 100) * 0.001,
+    city.lon + getRandomIntFromInterval(-100, 100) * 0.001,
+    getRandomIntFromInterval(5000, 20000),
+    config.verbose
+  );
+};
+
+export const createMockedMatchingService = (
+  config: Readonly<SimulationConfigWithData>
+): MatchingService => {
+  const id = `ms_${getRandomId()}`;
+  const city = getRandomElement(config.citiesData);
+  return new MatchingService(
+    id,
+    city.lat + getRandomIntFromInterval(-100, 100) * 0.001,
+    city.lon + getRandomIntFromInterval(-100, 100) * 0.001,
+    getRandomIntFromInterval(5000, 20000),
+    config.verbose
+  );
+};
+
 export class Simulation {
   // Properties
-  public customerObjects: Customer[];
+  public customers: Customer[];
 
-  public rideProviderObjects: (RideProviderPerson | RideProviderCompany)[];
+  public readonly rideProviders: (RideProviderPerson | RideProviderCompany)[];
 
-  public authenticationServiceObjects: AuthenticationService[];
+  public readonly authenticationServices: AuthenticationService[];
 
-  public matchingServiceObjects: MatchingService[];
+  public readonly matchingServices: MatchingService[];
 
-  public blockchain: Blockchain;
+  public readonly blockchain: Blockchain;
 
-  public startPos: StartPos;
+  public readonly startPos: StartPos;
 
-  public availableLocations;
+  public readonly availableLocations;
 
-  public state: 'ACTIVE' | 'PAUSED' | 'INACTIVE' = 'ACTIVE';
+  public state: 'RUNNING' | 'PAUSING' | 'INACTIVE' = 'INACTIVE';
 
-  constructor(config: SimulationConfigWithData) {
+  constructor(config: Readonly<SimulationConfigWithData>) {
     // Create participants
-    this.customerObjects = [];
-    for (let index = 0; index < config.customer.count; index++) {
-      const id = `customer_${getRandomId()}`;
-      const randCity = getRandomElement(config.citiesData);
-      const randLocation = getRandomElement(randCity.places);
-      const fakePerson = config.peopleData[index];
-      this.customerObjects.push(
-        new Customer(
-          id,
-          fakePerson.fullName,
-          /[0-9]*(?<gender>\S*)/.exec(fakePerson.gender)?.groups?.gender ||
-            fakePerson.gender,
-          fakePerson.dateOfBirth,
-          fakePerson.emailAddress,
-          fakePerson.phoneNumber,
-          `${randLocation.postcode} ${randLocation.city} ${randLocation.street} ${randLocation.houseNumber}`,
-          {lat: randLocation.lat, long: randLocation.lon}
-        )
-      );
-    }
-    this.rideProviderObjects = [];
-    for (let index = 0; index < config.rideProvider.countPerson; index++) {
-      const id = `ride_provider_${getRandomId()}`;
-      const city = getRandomElement(config.citiesData);
-      const randLocation = getRandomElement(city.places);
-      const fakePerson = config.peopleData[index + config.customer.count];
-      this.rideProviderObjects.push(
-        new RideProviderPerson(
-          id,
-          {lat: randLocation.lat, long: randLocation.lon},
-          `${id}_vehicleNumberPlate`,
-          `${id}_vehicleIdentificationNumber`,
-
-          fakePerson.fullName,
-          /[0-9]*(?<gender>\S*)/.exec(fakePerson.gender)?.groups?.gender ||
-            fakePerson.gender,
-          fakePerson.dateOfBirth,
-          fakePerson.emailAddress,
-          fakePerson.phoneNumber,
-          `${randLocation.postcode} ${randLocation.city} ${randLocation.street} ${randLocation.houseNumber}`
-        )
-      );
-    }
-    const companyNames = [
-      'Car2Go',
-      'ShareACar',
-      'CarsWithFriends',
-      'OnlyCars',
-      'CarSharing',
-      'PoolCars',
-    ];
+    this.customers = Array.from({length: config.customer.count}, (val, index) =>
+      createMockedCustomer(index, config)
+    );
+    this.rideProviders = Array.from(
+      {length: config.rideProvider.countPerson},
+      (val, index) => createMockedRideProviderPerson(index, config)
+    );
     for (let index = 0; index < config.rideProvider.countCompany; index++) {
-      const company = getRandomElement(companyNames);
       const fleetSize = getRandomIntFromInterval(
         config.rideProvider.countCompanyFleetMin,
         config.rideProvider.countCompanyFleetMax
       );
-      for (let index2 = 0; index2 < fleetSize; index2++) {
-        const id = `ride_provider_company_${getRandomId()}`;
-        const city = getRandomElement(config.citiesData);
-        const randLocation = getRandomElement(city.places);
-        this.rideProviderObjects.push(
-          new RideProviderCompany(
-            id,
-            {lat: randLocation.lat, long: randLocation.lon},
-            `${id}_vehicleNumberPlate`,
-            `${id}_vehicleIdentificationNumber`,
-
-            company
+      this.rideProviders.push(
+        ...Array.from({length: fleetSize}, () =>
+          createMockedRideProviderCompany(
+            getRandomElement(config.companyNames),
+            config
           )
-        );
-      }
+        )
+      );
     }
     // Create services
-    this.authenticationServiceObjects = [];
-    for (let index = 0; index < config.authenticationService.count; index++) {
-      const id = `as_${getRandomId()}`;
-      const city = getRandomElement(config.citiesData);
-      this.authenticationServiceObjects.push(
-        new AuthenticationService(
-          id,
-          city.lat + getRandomIntFromInterval(-100, 100) * 0.001,
-          city.lon + getRandomIntFromInterval(-100, 100) * 0.001,
-          getRandomIntFromInterval(5000, 20000)
-        )
-      );
-    }
-    this.matchingServiceObjects = [];
-    for (let index = 0; index < config.matchingService.count; index++) {
-      const id = `ms_${getRandomId()}`;
-      const city = getRandomElement(config.citiesData);
-      this.matchingServiceObjects.push(
-        new MatchingService(
-          id,
-          city.lat + getRandomIntFromInterval(-100, 100) * 0.001,
-          city.lon + getRandomIntFromInterval(-100, 100) * 0.001,
-          getRandomIntFromInterval(5000, 20000)
-        )
-      );
-    }
+    this.authenticationServices = Array.from(
+      {length: config.authenticationService.count},
+      () => createMockedAuthenticationService(config)
+    );
+    this.matchingServices = Array.from(
+      {length: config.authenticationService.count},
+      () => createMockedMatchingService(config)
+    );
     // Create blockchain
     this.blockchain = new Blockchain('demo_blockchain');
     // Additional properties
@@ -148,42 +169,39 @@ export class Simulation {
   }
 
   /** Run simulation */
-  run(): void {
-    this.state = 'ACTIVE';
-    Promise.allSettled(this.customerObjects.map(a => a.run(this)))
-      .then(() => console.log('Ran all customers'))
-      .catch(console.error);
-    Promise.allSettled(this.rideProviderObjects.map(a => a.run(this)))
-      .then(() => console.log('Ran all ride providers'))
-      .catch(console.error);
-    Promise.allSettled(this.matchingServiceObjects.map(a => a.run(this)))
-      .then(() => console.log('Ran all matching services'))
-      .catch(console.error);
+  async run(): Promise<void> {
+    this.state = 'RUNNING';
+    await Promise.allSettled(
+      [...this.customers, ...this.rideProviders, ...this.matchingServices].map(
+        a => a.run(this)
+      )
+    );
+    this.state = 'INACTIVE';
   }
 
   pause(): void {
-    this.state = 'PAUSED';
+    this.state = 'PAUSING';
   }
 
   // Debug methods
 
-  get rideProviders() {
-    return this.rideProviderObjects.map(a => a.json);
+  get rideProvidersJson() {
+    return this.rideProviders.map(a => a.json);
   }
 
-  get customers() {
-    return this.customerObjects.map(a => a.json);
+  get customersJson() {
+    return this.customers.map(a => a.json);
   }
 
-  get authenticationServices() {
-    return this.authenticationServiceObjects.map(a => a.json);
+  get authenticationServicesJson() {
+    return this.authenticationServices.map(a => a.json);
   }
 
-  get matchingServices() {
-    return this.matchingServiceObjects.map(a => a.json);
+  get matchingServicesJson() {
+    return this.matchingServices.map(a => a.json);
   }
 
-  get rideContracts() {
+  get rideContractsJson() {
     return this.blockchain.rideContracts;
   }
 
@@ -195,9 +213,9 @@ export class Simulation {
     const routerBlockchain = express.Router();
 
     routerAuthenticationServers.route('/routes').get((req, res) => {
-      res.json({routes: this.authenticationServiceObjects.map(a => a.json.id)});
+      res.json({routes: this.authenticationServices.map(a => a.json.id)});
     });
-    for (const as of this.authenticationServiceObjects) {
+    for (const as of this.authenticationServices) {
       const asRouter = express.Router();
       asRouter.route('/rating/:pseudonym').get((req, res) => {
         res.json({
@@ -208,9 +226,9 @@ export class Simulation {
       routerAuthenticationServers.use(`/${as.json.id}`, asRouter);
     }
     routerMatchingServers.route('/routes').get((req, res) => {
-      res.json({routes: this.matchingServiceObjects.map(a => a.json.id)});
+      res.json({routes: this.matchingServices.map(a => a.json.id)});
     });
-    for (const ms of this.matchingServiceObjects) {
+    for (const ms of this.matchingServices) {
       const msRouter = express.Router();
       msRouter.route('/rideRequest/:rideRequestId').get((req, res) => {
         res.json({
@@ -259,19 +277,19 @@ export class Simulation {
   generateFrontendRoutes(): express.Router {
     const router = express.Router();
     router.route('/customers').get((req, res) => {
-      res.json({customers: this.customers});
+      res.json({customers: this.customersJson});
     });
     router.route('/ride_providers').get((req, res) => {
-      res.json({rideProviders: this.rideProviders});
+      res.json({rideProviders: this.rideProvidersJson});
     });
     router.route('/authentication_services').get((req, res) => {
-      res.json({authenticationServices: this.authenticationServices});
+      res.json({authenticationServices: this.authenticationServicesJson});
     });
     router.route('/matching_services').get((req, res) => {
-      res.json({matchingServices: this.matchingServices});
+      res.json({matchingServices: this.matchingServicesJson});
     });
     router.route('/smart_contracts').get((req, res) => {
-      res.json({smartContracts: this.rideContracts});
+      res.json({smartContracts: this.rideContractsJson});
     });
     return router;
   }

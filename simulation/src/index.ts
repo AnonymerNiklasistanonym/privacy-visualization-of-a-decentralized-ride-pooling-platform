@@ -2,11 +2,13 @@ import express from 'express';
 import cors from 'cors';
 import {create as createHbs} from 'express-handlebars';
 import path from 'path';
+// Local imports
+import {getCliFlag, getCliOverride} from './misc/cli';
+import {printRouterPaths} from './misc/printExpressRoutes';
 import {Simulation} from './simulation';
 import {updateSimulationConfigWithData} from './config/simulationConfigWithData';
 // Type imports
 import type {SimulationConfig} from './config/simulationConfig';
-import {getCliOverride} from './misc/cli';
 
 const ROOT_DIR = path.join(__dirname, '..');
 const SRC_DIR = path.join(__dirname);
@@ -14,6 +16,7 @@ const SRC_DIR = path.join(__dirname);
 // Check for CLI overrides
 // > Port
 const port = getCliOverride('--port', 4321, a => parseInt(a));
+const verbose = getCliFlag('--verbose');
 
 /** The simulation configuration. */
 const config: Readonly<SimulationConfig> = {
@@ -45,6 +48,7 @@ const config: Readonly<SimulationConfig> = {
   port,
   // Misc
   cacheDir: path.join(ROOT_DIR, 'cache'),
+  verbose,
 };
 
 /** The webserver of the simulation. */
@@ -78,12 +82,12 @@ async function main() {
   app.get('/', (req, res) => {
     res.render('main', {
       layout: 'index',
-      customers: simulation.customers,
-      rideProviders: simulation.rideProviders,
-      authenticationServices: simulation.authenticationServices,
-      matchingServices: simulation.matchingServices,
+      customers: simulation.customersJson,
+      rideProviders: simulation.rideProvidersJson,
+      authenticationServices: simulation.authenticationServicesJson,
+      matchingServices: simulation.matchingServicesJson,
       port: config.port,
-      smartContracts: simulation.rideContracts,
+      smartContracts: simulation.rideContractsJson,
       startPos: simulation.startPos,
     });
   });
@@ -91,11 +95,12 @@ async function main() {
   app.use('/json', simulation.generateFrontendRoutes());
 
   app.listen(config.port, () => {
-    // eslint-disable-next-line no-console
     console.info(`Express is listening at http://localhost:${config.port}`);
+    console.info('Routes:');
+    printRouterPaths(app._router.stack, `http://localhost:${config.port}`);
   });
 
-  simulation.run();
+  simulation.run().catch(err => console.error(err));
 }
 
 main().catch(err => console.error(err));

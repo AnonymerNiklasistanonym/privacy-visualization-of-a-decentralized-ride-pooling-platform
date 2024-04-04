@@ -30,16 +30,17 @@ export abstract class RideProvider<
     id: string,
     currentLocation: Coordinates,
     vehicleNumberPlate: string,
-    vehicleIdentificationNumber: string
+    vehicleIdentificationNumber: string,
+    verbose = false
   ) {
-    super(id, 'ride_provider', currentLocation);
+    super(id, 'ride_provider', currentLocation, verbose);
     this.vehicleNumberPlate = vehicleNumberPlate;
     this.vehicleIdentificationNumber = vehicleIdentificationNumber;
   }
 
   async runGenericLoop(simulation: Simulation) {
     // Loop:
-    while (simulation.state === 'ACTIVE') {
+    while (simulation.state === 'RUNNING') {
       // 0. Stay idle for a random duration
       await wait(1 * 1000);
       // 1. Authenticate to the platform via AS
@@ -48,9 +49,7 @@ export abstract class RideProvider<
       }
       const pseudonym = this.registeredAuthService.getVerify(this.id);
       // 2. Bid on open ride requests
-      const randMatchService = getRandomElement(
-        simulation.matchingServiceObjects
-      );
+      const randMatchService = getRandomElement(simulation.matchingServices);
       const openRideRequests = randMatchService.getRideRequests();
       if (openRideRequests.length === 0) {
         this.printLog('No open ride requests found');
@@ -117,7 +116,7 @@ export abstract class RideProvider<
         lat: coordinatesDropoffLocation[0],
         long: coordinatesDropoffLocation[1],
       });
-      this.passengers.slice(0, 0);
+      this.passengers.pop();
     }
   }
 }
@@ -146,9 +145,16 @@ export class RideProviderPerson extends RideProvider<SimulationTypeRideProviderP
     dateOfBirth: string,
     emailAddress: string,
     phoneNumber: string,
-    homeAddress: string
+    homeAddress: string,
+    verbose = false
   ) {
-    super(id, currentLocation, vehicleNumberPlate, vehicleIdentificationNumber);
+    super(
+      id,
+      currentLocation,
+      vehicleNumberPlate,
+      vehicleIdentificationNumber,
+      verbose
+    );
     this.fullName = fullName;
     this.gender = gender;
     this.dateOfBirth = dateOfBirth;
@@ -167,12 +173,10 @@ export class RideProviderPerson extends RideProvider<SimulationTypeRideProviderP
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars, class-methods-use-this
   async run(simulation: Simulation): Promise<void> {
-    this.printLog('Run');
+    this.printLog('run');
     // Setup:
     // 1. Register to a random AS
-    const randAuthService = getRandomElement(
-      simulation.authenticationServiceObjects
-    );
+    const randAuthService = getRandomElement(simulation.authenticationServices);
     randAuthService.getRegisterRideProvider(
       this.id,
       this.fullName,
@@ -218,9 +222,16 @@ export class RideProviderCompany extends RideProvider<SimulationTypeRideProvider
     currentLocation: Coordinates,
     vehicleNumberPlate: string,
     vehicleIdentificationNumber: string,
-    company: string
+    company: string,
+    verbose = false
   ) {
-    super(id, currentLocation, vehicleNumberPlate, vehicleIdentificationNumber);
+    super(
+      id,
+      currentLocation,
+      vehicleNumberPlate,
+      vehicleIdentificationNumber,
+      verbose
+    );
     this.company = company;
   }
 
@@ -233,12 +244,10 @@ export class RideProviderCompany extends RideProvider<SimulationTypeRideProvider
   }
 
   async run(simulation: Simulation): Promise<void> {
-    this.printLog('Run');
+    this.printLog('run');
     // Setup:
     // 1. Register to a random AS
-    const randAuthService = getRandomElement(
-      simulation.authenticationServiceObjects
-    );
+    const randAuthService = getRandomElement(simulation.authenticationServices);
     randAuthService.getRegisterRideProviderCompany(
       this.id,
       this.vehicleNumberPlate,

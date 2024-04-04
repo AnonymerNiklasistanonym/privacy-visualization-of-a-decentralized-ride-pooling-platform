@@ -63,9 +63,10 @@ export abstract class Participant<JsonType> extends Actor<JsonType> {
   constructor(
     id: string,
     type: 'customer' | 'ride_provider',
-    currentLocation: Coordinates
+    currentLocation: Coordinates,
+    verbose = false
   ) {
-    super(id, type);
+    super(id, type, verbose);
     this.currentLocation = currentLocation;
   }
 

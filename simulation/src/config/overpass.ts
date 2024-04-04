@@ -23,27 +23,31 @@ const checkFileExists = (file: string) =>
 export const overpassRequestOrCache = async <JsonResponseType>(
   query: string,
   cacheDir: string,
-  cacheFile: string
+  cacheFile: string,
+  verbose = false
 ): Promise<JsonResponseType> => {
   const requestCache = path.join(cacheDir, cacheFile);
   if (await checkFileExists(requestCache)) {
-    console.debug(
-      `Use cached file ${requestCache} instead of doing a web request`
-    );
+    if (verbose) {
+      console.info(`Use cached web request ${requestCache}`);
+    }
     const content = await fs.readFile(requestCache, {encoding: 'utf-8'});
     return JSON.parse(content) as JsonResponseType;
   }
   const request = await overpassRequest<JsonResponseType>(query);
   await fs.mkdir(cacheDir, {recursive: true});
   await fs.writeFile(requestCache, JSON.stringify(request));
-  console.debug(`Wrote web response to cached file ${requestCache}`);
+  if (verbose) {
+    console.info(`Cache web request ${requestCache}`);
+  }
   return request;
 };
 
 export const overpassRequestCityData = async (
   city: string,
   countryCode: string,
-  cacheDir: string
+  cacheDir: string,
+  verbose = false
 ): Promise<OverpassRequestCityDataType> => {
   const requestNodeArea = await overpassRequestOrCache<
     OverpassApiResponse<
@@ -59,7 +63,8 @@ export const overpassRequestCityData = async (
                out;
            );`,
     cacheDir,
-    `cache_${city}_node_area.json`
+    `cache_${city}_node_area.json`,
+    verbose
   );
   const requestBbRelation = await overpassRequestOrCache<
     OverpassApiResponse<[OverpassApiResponseDataCityBoundingBoxRelation]>
@@ -67,7 +72,8 @@ export const overpassRequestCityData = async (
     `relation["name:${countryCode}"="${city}"][boundary=administrative];
             out skel bb qt;`,
     cacheDir,
-    `cache_${city}_bb_relation.json`
+    `cache_${city}_bb_relation.json`,
+    verbose
   );
 
   const area = requestNodeArea.elements.find(a => a.type === 'area');
@@ -96,7 +102,8 @@ export const overpassRequestCityData = async (
     `nwr["addr:street"](${boundingBoxRelation.bounds.minlat},${boundingBoxRelation.bounds.minlon},${boundingBoxRelation.bounds.maxlat},${boundingBoxRelation.bounds.maxlon});
     out geom;`,
     cacheDir,
-    `cache_${city}_bb_nodes.json`
+    `cache_${city}_bb_nodes.json`,
+    verbose
   );
 
   return {

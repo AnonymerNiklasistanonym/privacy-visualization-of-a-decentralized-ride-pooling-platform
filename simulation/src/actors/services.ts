@@ -103,9 +103,10 @@ abstract class Service<JsonType> extends Actor<JsonType> {
     type: string,
     latitude: number,
     longitude: number,
-    radius: number
+    radius: number,
+    verbose = false
   ) {
-    super(id, type);
+    super(id, type, verbose);
     this.latitude = latitude;
     this.longitude = longitude;
     this.radius = radius;
@@ -115,8 +116,14 @@ abstract class Service<JsonType> extends Actor<JsonType> {
 export class AuthenticationService extends Service<SimulationTypeAuthenticationService> {
   private participantDb: AuthenticationServiceParticipantDb;
 
-  constructor(id: string, latitude: number, longitude: number, radius: number) {
-    super(id, 'auth_service', latitude, longitude, radius);
+  constructor(
+    id: string,
+    latitude: number,
+    longitude: number,
+    radius: number,
+    verbose = false
+  ) {
+    super(id, 'auth_service', latitude, longitude, radius, verbose);
     this.participantDb = [];
   }
 
@@ -256,46 +263,24 @@ export class AuthenticationService extends Service<SimulationTypeAuthenticationS
 }
 
 export class MatchingService extends Service<SimulationTypeMatchingService> {
-  postBid(
-    rideRequestId: string,
-    rideProviderPseudonym: string,
-    amount: number,
-    rating: number,
-    model: string,
-    estimatedArrivalTime: Date,
-    passengerCount: number,
-    vehiclePublicKey: string
-  ) {
-    const rideRequestAuction = this.auctions.find(a => a.id === rideRequestId);
-    if (rideRequestAuction === undefined) {
-      throw new Error('Ride request does not exist.');
-    }
-    if (rideRequestAuction.auctionStatus !== 'open') {
-      throw new Error('Ride auction is not open.');
-    }
-    rideRequestAuction.bids.push({
-      rideRequestId,
-      rideProviderPseudonym,
-      amount,
-      rating,
-      model,
-      estimatedArrivalTime,
-      passengerCount,
-      vehiclePublicKey,
-    });
-    return rideRequestAuction;
-  }
   private auctions: MatchingServiceAuction[] = [];
 
   // eslint-disable-next-line @typescript-eslint/no-useless-constructor
-  constructor(id: string, latitude: number, longitude: number, radius: number) {
-    super(id, 'matching_service', latitude, longitude, radius);
+  constructor(
+    id: string,
+    latitude: number,
+    longitude: number,
+    radius: number,
+    verbose = false
+  ) {
+    super(id, 'matching_service', latitude, longitude, radius, verbose);
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars, class-methods-use-this
   async run(simulation: Simulation): Promise<void> {
+    this.printLog('run');
     // Loop:
-    while (simulation.state === 'ACTIVE') {
+    while (simulation.state === 'RUNNING') {
       await wait(1 * 1000);
       const currentTime = new Date().getTime();
       // Determine the winner
@@ -387,6 +372,36 @@ export class MatchingService extends Service<SimulationTypeMatchingService> {
       maxWaitingTime,
     });
     return requestId;
+  }
+
+  postBid(
+    rideRequestId: string,
+    rideProviderPseudonym: string,
+    amount: number,
+    rating: number,
+    model: string,
+    estimatedArrivalTime: Date,
+    passengerCount: number,
+    vehiclePublicKey: string
+  ) {
+    const rideRequestAuction = this.auctions.find(a => a.id === rideRequestId);
+    if (rideRequestAuction === undefined) {
+      throw new Error('Ride request does not exist.');
+    }
+    if (rideRequestAuction.auctionStatus !== 'open') {
+      throw new Error('Ride auction is not open.');
+    }
+    rideRequestAuction.bids.push({
+      rideRequestId,
+      rideProviderPseudonym,
+      amount,
+      rating,
+      model,
+      estimatedArrivalTime,
+      passengerCount,
+      vehiclePublicKey,
+    });
+    return rideRequestAuction;
   }
 
   getRideRequest(rideRequestId: string) {

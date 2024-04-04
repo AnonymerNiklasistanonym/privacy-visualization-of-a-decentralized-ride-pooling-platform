@@ -47,9 +47,10 @@ export class Customer extends Participant<SimulationTypeCustomer> {
     emailAddress: string,
     phoneNumber: string,
     homeAddress: string,
-    currentLocation: Coordinates
+    currentLocation: Coordinates,
+    verbose = false
   ) {
-    super(id, 'customer', currentLocation);
+    super(id, 'customer', currentLocation, verbose);
     this.fullName = fullName;
     this.gender = gender;
     this.dateOfBirth = dateOfBirth;
@@ -67,12 +68,10 @@ export class Customer extends Participant<SimulationTypeCustomer> {
   }
 
   async run(simulation: Simulation): Promise<void> {
-    console.debug('run customer', this.id);
+    this.printLog('run');
     // Setup:
     // 1. Register to a random AS
-    const randAuthService = getRandomElement(
-      simulation.authenticationServiceObjects
-    );
+    const randAuthService = getRandomElement(simulation.authenticationServices);
     randAuthService.getRegisterCustomer(
       this.id,
       this.fullName,
@@ -84,7 +83,7 @@ export class Customer extends Participant<SimulationTypeCustomer> {
     );
     this.registeredAuthService = randAuthService;
     // Loop:
-    while (simulation.state === 'ACTIVE') {
+    while (simulation.state === 'RUNNING') {
       this.rideRequest = undefined;
       // 0. Stay idle for a random duration
       await wait(getRandomIntFromInterval(5 * 1000, 20 * 1000));
@@ -93,9 +92,7 @@ export class Customer extends Participant<SimulationTypeCustomer> {
       // 2. Request ride to a random location via a random MS
       const randCity = getRandomElement(simulation.availableLocations);
       const randLocation = getRandomElement(randCity.places);
-      const randMatchService = getRandomElement(
-        simulation.matchingServiceObjects
-      );
+      const randMatchService = getRandomElement(simulation.matchingServices);
       const rideRequestId = randMatchService.postRequestRide(
         pseudonym,
         latLngToCell(

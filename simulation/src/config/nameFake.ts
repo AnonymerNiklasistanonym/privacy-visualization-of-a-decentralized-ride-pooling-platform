@@ -5,7 +5,6 @@ export const nameFakeRequest = async (): Promise<NameFakeResponse> => {
   const result = await fetch('https://api.namefake.com').then(
     data => data.json() as Promise<NameFakeResponse>
   );
-  console.log(result);
   return result;
 };
 
@@ -18,13 +17,14 @@ const checkFileExists = (file: string) =>
 export const nameFakeRequestOrCache = async (
   count: number,
   cacheDir: string,
-  cacheFile: string
+  cacheFile: string,
+  verbose = false
 ): Promise<NameFakeResponse[]> => {
   const requestCache = path.join(cacheDir, cacheFile);
   if (await checkFileExists(requestCache)) {
-    console.debug(
-      `Use cached file ${requestCache} instead of doing a web request`
-    );
+    if (verbose) {
+      console.info(`Use cached web request ${requestCache}`);
+    }
     const content = await fs.readFile(requestCache, {encoding: 'utf-8'});
     return JSON.parse(content) as NameFakeResponse[];
   }
@@ -33,7 +33,9 @@ export const nameFakeRequestOrCache = async (
   );
   await fs.mkdir(cacheDir, {recursive: true});
   await fs.writeFile(requestCache, JSON.stringify(requests));
-  console.debug(`Wrote web responses to cached file ${requestCache}`);
+  if (verbose) {
+    console.info(`Cache web request ${requestCache}`);
+  }
   return requests;
 };
 

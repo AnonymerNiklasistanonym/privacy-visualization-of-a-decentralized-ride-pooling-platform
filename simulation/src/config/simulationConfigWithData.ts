@@ -1,16 +1,22 @@
+// Local imports
 import {nameFakeRequestOrCache} from './nameFake';
 import {overpassRequestCityData} from './overpass';
 // Type imports
 import type {SimulationConfig} from './simulationConfig';
 
 export const updateSimulationConfigWithData = async (
-  config: SimulationConfig
+  config: Readonly<SimulationConfig>
 ): Promise<SimulationConfigWithData> => ({
   ...config,
   citiesData: (
     await Promise.all(
       config.cities.map(city =>
-        overpassRequestCityData(city.name, city.countryCode, config.cacheDir)
+        overpassRequestCityData(
+          city.name,
+          city.countryCode,
+          config.cacheDir,
+          config.verbose
+        )
       )
     )
   ).map(cityData => ({
@@ -27,13 +33,22 @@ export const updateSimulationConfigWithData = async (
     },
     places: cityData.places.map(a => ({...a, houseNumber: a.housenumber})),
   })),
+  companyNames: [
+    'Car2Go',
+    'ShareACar',
+    'CarsWithFriends',
+    'OnlyCars',
+    'CarSharing',
+    'PoolCars',
+  ],
   peopleData: (
     await nameFakeRequestOrCache(
       config.customer.count + config.rideProvider.countPerson,
       config.cacheDir,
       `cache_${
         config.customer.count + config.rideProvider.countPerson
-      }_people.json`
+      }_people.json`,
+      config.verbose
     )
   ).map(a => ({
     fullName: a.name,
@@ -81,4 +96,5 @@ export interface SimulationConfigPeopleData {
 export interface SimulationConfigWithData extends SimulationConfig {
   citiesData: ReadonlyArray<SimulationConfigCityData>;
   peopleData: ReadonlyArray<SimulationConfigPeopleData>;
+  companyNames: ReadonlyArray<string>;
 }
