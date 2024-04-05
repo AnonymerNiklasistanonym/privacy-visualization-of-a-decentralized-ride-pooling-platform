@@ -3,7 +3,7 @@ import Header from '../../components/Header/Header';
 import Footer from '../../components/Footer/Footer';
 import {getDirection} from '../../services/intl';
 //import {info} from './info';
-import './globals.css';
+import '@styles/globals.css';
 
 type LayoutProps = {
   params: {locale: string};

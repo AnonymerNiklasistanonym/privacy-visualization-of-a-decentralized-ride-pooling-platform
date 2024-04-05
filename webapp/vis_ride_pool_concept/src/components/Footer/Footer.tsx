@@ -4,7 +4,7 @@ import {FormattedMessage} from 'react-intl';
 
 import FooterContainer from './FooterContainer';
 
-function Footer({locale}: {locale: string}) {
+const Footer = ({locale}: {locale: string}) => {
   return (
     <FooterContainer locale={locale}>
       <div>
@@ -16,6 +16,6 @@ function Footer({locale}: {locale: string}) {
       </div>
     </FooterContainer>
   );
-}
+};
 
 export default Footer;

@@ -1,39 +1,9 @@
-import {Metadata, ResolvingMetadata} from 'next';
-
 import {getIntl} from '../../services/intl';
-import styles from './page.module.css';
+import styles from '@styles/page.module.css';
 
-import type {PrimitiveType} from 'react-intl';
-import GenerateMap from '@/components/Map/generateMap';
+import Buttons from '@components/Buttons/Buttons';
 
-type RouteProps = {
-  params: {locale: string};
-  searchParams: {[key: string]: string | string[] | undefined};
-};
-
-export async function generateMetadata(
-  props: RouteProps,
-  parent: ResolvingMetadata
-): Promise<Metadata> {
-  const intl = await getIntl(props.params.locale);
-
-  return {
-    title: intl.formatMessage({id: 'page.home.head.title'}),
-    description: intl.formatMessage({
-      id: 'page.home.head.meta.description',
-    }),
-    alternates: {
-      canonical: 'https://example.com',
-      languages: {
-        ar: 'http://example.com/ar',
-        en: 'http://example.com',
-        fr: 'http://example.com/fr',
-        'nl-NL': 'http://example.com/nl-NL',
-        'x-default': 'http://example.com',
-      },
-    },
-  };
-}
+import MapTestDynamic from '@components/Map/MapTestDynamic';
 
 type HomeProps = {
   params: {locale: string};
@@ -42,17 +12,16 @@ type HomeProps = {
 export default async function Home({params: {locale}}: HomeProps) {
   const intl = await getIntl(locale);
 
+  const serverValue = 'serverValue';
+
   return (
     <div className={styles.container}>
       <main className={styles.main}>
         <h1 className={styles.title}>
           {intl.formatMessage(
             {id: 'page.home.title'},
-            // @ts-ignore
-            {b: chunks => <b key="bold">{chunks}</b>} satisfies Record<
-              string,
-              PrimitiveType
-            >
+            // Replace b chunks with actual JSX element
+            {b: chunks => <b key="bold">{chunks}</b>}
           )}
         </h1>
 
@@ -60,7 +29,9 @@ export default async function Home({params: {locale}}: HomeProps) {
           {intl.formatMessage({id: 'page.home.description'})}
         </p>
 
-        {GenerateMap()}
+        <Buttons test={serverValue} />
+
+        <MapTestDynamic />
       </main>
     </div>
   );
