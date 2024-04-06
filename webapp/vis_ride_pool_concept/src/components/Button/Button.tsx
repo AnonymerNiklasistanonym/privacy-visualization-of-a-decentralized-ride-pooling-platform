@@ -1,5 +1,7 @@
 import Link from 'next/link';
 import styles from './Button.module.scss';
+// Type imports
+import type {FC} from 'react';
 
 export interface ButtonProps {
   children: string;
@@ -7,7 +9,7 @@ export interface ButtonProps {
   onClick: () => void;
 }
 
-const Button = ({children, href, ...rest}: ButtonProps) => {
+const Button: FC<ButtonProps> = ({children, href, ...rest}) => {
   const buttonClassName = styles.button;
 
   const buttonProps = {

@@ -19,6 +19,7 @@
   "dependencies": {
     "@formatjs/intl-localematcher": "^0.5.4",
     "@preact/signals-react": "^2.0.1",
+    "h3-js": "^4.1.0",
     "leaflet": "^1.9.4",
     "negotiator": "^0.6.3",
     "next": "14.1.4",

@@ -1,4 +1,4 @@
-import styles from '../../page.module.css';
+import styles from '@styles/page.module.css';
 import {getIntl} from '@/services/intl';
 
 type HomeProps = {

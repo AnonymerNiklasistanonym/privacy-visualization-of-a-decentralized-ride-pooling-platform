@@ -1,13 +1,16 @@
 'use client';
 
-import Button from '@components/Button';
 import {signal} from '@preact/signals-react';
+// Local imports
+import Button from '@components/Button';
+// Type imports
+import type {FC} from 'react';
 
 export interface ButtonsProps {
   test: string;
 }
 
-const Buttons = ({test}: ButtonsProps) => {
+const Buttons: FC<ButtonsProps> = ({test}) => {
   const spectatorSignal = signal('everything');
 
   const switchSpectator = (newSpectator: string) => {

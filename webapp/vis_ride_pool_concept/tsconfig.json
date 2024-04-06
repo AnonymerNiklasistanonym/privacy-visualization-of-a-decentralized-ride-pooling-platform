@@ -23,11 +23,15 @@
       }
     ],
     "paths": {
-      "@components/*": [ "./src/components/*" ],
-      "@styles/*": [ "./src/styles/*" ],
+      "@components/*": [
+        "./src/components/*"
+      ],
+      "@styles/*": [
+        "./src/styles/*"
+      ],
       "@/*": [
         "./src/*"
-      ],
+      ]
     }
   },
   "include": [
@@ -35,7 +39,8 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    "dist/types/**/*.ts"
+    "dist/types/**/*.ts",
+    "build/types/**/*.ts"
   ],
   "exclude": [
     "node_modules"

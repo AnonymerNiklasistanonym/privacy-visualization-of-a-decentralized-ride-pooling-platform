@@ -1,3 +1,5 @@
+// Middleware to fix locale routing
+
 import {NextResponse} from 'next/server';
 import type {NextRequest} from 'next/server';
 
@@ -17,30 +19,57 @@ function getLocale(request: NextRequest, i18nConfig: I18nConfig): string {
     locales
   );
 
+  console.debug('request1', request.url, i18nConfig);
+
   return match(languages, locales, defaultLocale);
 }
 
+/**
+ * Redirect web requests without a locale to the right route.
+ *
+ * @param request Current web request
+ * @returns response Fixed response
+ */
 export function middleware(request: NextRequest) {
   let response;
-  let nextLocale;
 
   const {locales, defaultLocale} = i18n;
-
   const {basePath, pathname} = request.nextUrl;
 
+  if (pathname.startsWith('/static/')) {
+    return request;
+  }
+
+  // Get the locale of the supplied path (either undefined or a supported locale)
   const pathLocale = locales.find(
     locale => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`
   );
 
+  console.debug('request2', {
+    url: request.url,
+    locale: pathLocale,
+  });
+
+  let nextLocale = defaultLocale;
   if (pathLocale) {
-    const isDefaultLocale = pathLocale === defaultLocale;
-    if (isDefaultLocale) {
+    // Redirect all requests with default locale to no locale URLs
+    if (pathLocale === defaultLocale) {
+      // > Remove the defaultLocale from the path
       let pathWithoutLocale = pathname.slice(`/${pathLocale}`.length) || '/';
-      if (request.nextUrl.search) pathWithoutLocale += request.nextUrl.search;
+      if (request.nextUrl.search) {
+        pathWithoutLocale += request.nextUrl.search;
+      }
+      // Redirect user to path without defaultLocale
+      const urlWithoutDefaultLocale = new URL(
+        basePath + pathWithoutLocale,
+        request.url
+      );
+      response = NextResponse.redirect(urlWithoutDefaultLocale);
 
-      const url = basePath + pathWithoutLocale;
-
-      response = NextResponse.redirect(new URL(url, request.url));
+      console.debug('request redirect to path without default locale', {
+        requestUrl: request.nextUrl.href,
+        responseUrl: urlWithoutDefaultLocale.href,
+      });
     }
 
     nextLocale = pathLocale;
@@ -54,17 +83,31 @@ export function middleware(request: NextRequest) {
 
     const url = basePath + newPath;
 
-    response =
-      locale === defaultLocale
-        ? NextResponse.rewrite(new URL(url, request.url))
-        : NextResponse.redirect(new URL(url, request.url));
+    if (locale === defaultLocale) {
+      response = NextResponse.rewrite(new URL(url, request.url).toString());
+      console.debug(
+        'request rewrite url',
+        request.url,
+        new URL(url, request.url)
+      );
+    } else {
+      response = NextResponse.redirect(new URL(url, request.url).toString());
+      console.debug(
+        'request redirect url',
+        request.url,
+        new URL(url, request.url)
+      );
+    }
     nextLocale = locale;
+    console.debug('request deduce nextLocale', nextLocale);
   }
 
-  if (!response) response = NextResponse.next();
+  if (!response) {
+    console.debug('request had no response, go next');
+    response = NextResponse.next();
+  }
 
-  if (nextLocale) response.cookies.set('NEXT_LOCALE', nextLocale);
-
+  response.cookies.set('NEXT_LOCALE', nextLocale);
   return response;
 }
 
