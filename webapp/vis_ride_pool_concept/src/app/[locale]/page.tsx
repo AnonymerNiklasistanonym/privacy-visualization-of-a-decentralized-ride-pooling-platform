@@ -2,12 +2,11 @@ import {getIntl} from '../../services/intl';
 import styles from '@styles/page.module.css';
 
 import OldMap from '@components/OldMap/OldMap';
+// Type imports
+import type {FC} from 'react';
+import type {DefaultPropsI18nRoot} from '@/types/react';
 
-type HomeProps = {
-  params: {locale: string};
-};
-
-export default async function Home({params: {locale}}: HomeProps) {
+const Home: FC<DefaultPropsI18nRoot> = async ({params: {locale}}) => {
   const intl = await getIntl(locale);
 
   const serverValue = 'serverValue';
@@ -34,4 +33,6 @@ export default async function Home({params: {locale}}: HomeProps) {
       </main>
     </div>
   );
-}
+};
+
+export default Home;

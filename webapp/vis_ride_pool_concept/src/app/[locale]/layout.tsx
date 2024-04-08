@@ -1,16 +1,25 @@
-//import type {Metadata} from 'next';
-import Header from '../../components/Header/Header';
-import Footer from '../../components/Footer/Footer';
+// Local imports
+// > Components
+import Header from '../../components/Header';
+import Footer from '../../components/Footer';
+// > Middleware
 import {getDirection} from '../../services/intl';
+// Type imports
+import type {FC} from 'react';
+import type {DefaultPropsI18nRoot} from '@/types/react';
+
 //import {info} from './info';
+
+// Include global styles
 import '@styles/globals.css';
 
-type LayoutProps = {
-  params: {locale: string};
-  children: React.ReactNode;
-};
+// Include roboto font (https://mui.com/material-ui/getting-started/installation/#roboto-font)
+import '@fontsource/roboto/300.css';
+import '@fontsource/roboto/400.css';
+import '@fontsource/roboto/500.css';
+import '@fontsource/roboto/700.css';
 
-export default function RootLayout({params, children}: LayoutProps) {
+const RootLayout: FC<DefaultPropsI18nRoot> = ({params, children}) => {
   const {locale} = params;
 
   const dir = getDirection(locale);
@@ -24,4 +33,6 @@ export default function RootLayout({params, children}: LayoutProps) {
       </body>
     </html>
   );
-}
+};
+
+export default RootLayout;

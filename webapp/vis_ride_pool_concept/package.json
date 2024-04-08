@@ -17,8 +17,12 @@
     "node": ">=21.0.0"
   },
   "dependencies": {
+    "@emotion/react": "^11.11.4",
+    "@emotion/styled": "^11.11.5",
+    "@fontsource/roboto": "^5.0.12",
     "@formatjs/intl-localematcher": "^0.5.4",
-    "@preact/signals-react": "^2.0.1",
+    "@mui/icons-material": "^5.15.15",
+    "@mui/material": "^5.15.15",
     "h3-js": "^4.1.0",
     "leaflet": "^1.9.4",
     "negotiator": "^0.6.3",

@@ -20,7 +20,6 @@ import styles from './MapTest.module.scss';
 // Type imports
 import type {FC} from 'react';
 import type {LatLngExpression} from 'leaflet';
-import type {Signal} from '@preact/signals-react';
 
 const position: LatLngExpression = [51.505, -0.09];
 
@@ -33,26 +32,18 @@ export interface StatPos {
 }
 
 export interface MapTestProps {
-  test: string;
   customersState: any[];
-  customersSignal: Signal<any[]>;
   rideProvidersState: any[];
-  rideProvidersSignal: Signal<any[]>;
   startPos: StatPos;
   spectatorState: string;
-  spectatorSignal: Signal<string>;
   setStateSpectator: (newState: string) => void;
 }
 
 const MapTest: FC<MapTestProps> = ({
-  test,
   customersState,
-  customersSignal,
   rideProvidersState,
-  rideProvidersSignal,
   startPos,
   spectatorState,
-  spectatorSignal,
   setStateSpectator,
 }) => {
   const iconCustomer = L.icon({
@@ -83,9 +74,7 @@ const MapTest: FC<MapTestProps> = ({
         </Popup>
       </Marker>
       <Marker key="test" position={[startPos.lat, startPos.long]}>
-        <Popup>
-          {spectatorState} (signal={spectatorSignal.value})
-        </Popup>
+        <Popup>{spectatorState}</Popup>
       </Marker>
       {customersState.map(customer => {
         const marker = (
