@@ -1,9 +1,31 @@
 # Webapp
 
+```sh
+# Dev
+npm install
+npm run dev
+# Prod
+# > Build
+npm install
+npm run build
+npm prune --omit=dev
+# > Run
+npm run start
+```
+
+TODO Automatically create a toc
+
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+
+This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+
+## Old
+
 The Webapp is built on top of the JavaScript front-end library React using the TypeScript language.
 This allows for strongly typed programming and makes building HTML user interfaces easy by integrating HTML elements into the syntax of the language.
 
-TODO Automatically create a toc
 
 ## TypeScript
 
