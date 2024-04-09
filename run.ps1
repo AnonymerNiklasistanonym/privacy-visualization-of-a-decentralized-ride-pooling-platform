@@ -16,6 +16,7 @@ $ErrorActionPreference = "Stop"
 # Variables
 $DirSimulation = Join-Path -Path $PSScriptRoot -ChildPath "simulation"
 $DirWebApp = Join-Path -Path $PSScriptRoot -ChildPath "webapp"
+$Ports = @($PortSimulation, $PortWebapp)
 
 # Stop previous jobs
 Write-Output "Stop jobs..."
@@ -110,7 +111,7 @@ if ($Verbose) {
 # Open relevant web pages
 Start-Sleep -Seconds 5
 Write-Output "Open URLs..."
-foreach ($port in $PortSimulation, $PortWebapp)
+foreach ($port in $Ports)
 {
 	Start-Process "${BaseUrl}:$port/"
 }

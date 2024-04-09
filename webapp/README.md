@@ -21,11 +21,37 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
 
+## Using Docker
+
+1. [Install Docker](https://docs.docker.com/get-docker/) on your machine and start the docker daemon
+   - linux with `systemd`: `systemctl start docker`
+2. Build your container: `docker build --tag nextjs-docker .`
+   - `docker build [OPTIONS] PATH`
+   - `--tag list`: Name and optionally a tag in the "name:tag" format
+3. Run your container: `docker run --publish 3000:3000 nextjs-docker`
+   - `docker run [OPTIONS] IMAGE [COMMAND] [ARG...]`
+   - `--publish list`: Publish a container's port(s) to the host
+
+You can view your images created with `docker images`.
+
+### In existing projects
+
+To add support for Docker to an existing project, just copy the [`Dockerfile`](https://github.com/vercel/next.js/blob/canary/examples/with-docker/Dockerfile) into the root of the project and add the following to the `next.config.js` file:
+
+```js
+// next.config.js
+module.exports = {
+  // ... rest of the configuration.
+  output: "standalone",
+};
+```
+
+This will build the project as a standalone app inside the Docker image.
+
 ## Old
 
 The Webapp is built on top of the JavaScript front-end library React using the TypeScript language.
 This allows for strongly typed programming and makes building HTML user interfaces easy by integrating HTML elements into the syntax of the language.
-
 
 ## TypeScript
 

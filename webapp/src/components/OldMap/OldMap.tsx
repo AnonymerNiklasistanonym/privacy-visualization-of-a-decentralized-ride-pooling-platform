@@ -1,6 +1,6 @@
 'use client';
 
-import MapTestDynamic from '@components/Map/MapTestDynamic';
+import Map from '@components/Map';
 
 import Container from '@components/Container';
 import Button from '@components/Button';
@@ -11,8 +11,8 @@ import DynamicTitle from './DynamicTitle';
 
 import {useEffect, useState} from 'react';
 import type {FC} from 'react';
-
-//import CustomerIcon from "../assets/icons/directions_walk_FILL0_wght400_GRAD0_opsz24.svg"
+import type {DefaultPropsI18n} from '@/types/reactProps';
+import {SimulationEndpointParticipantCoordinates} from '@/types/globals/simulation';
 
 const port = 2222;
 const baseUrl = `http://localhost:${port}`;
@@ -26,10 +26,17 @@ const buttonSimulation = async (endpoint: string) => {
   await fetch(`${baseUrl}/simulation/${endpoint}`).then(data => data.text());
 };
 
-const OldMap: FC = () => {
+export type OldMapProps = DefaultPropsI18n;
+
+const OldMap: FC<OldMapProps> = () => {
   const getCurrentTime = () => new Date().toLocaleTimeString('de-DE');
   const [dateStringTimeState, setStateDateString] = useState(getCurrentTime());
   const [spectatorState, setStateSpectator] = useState('everything');
+  const [participantsState, setStateParticipants] =
+    useState<SimulationEndpointParticipantCoordinates>({
+      customers: [],
+      rideProviders: [],
+    });
   const [customersState, setStateCustomers] = useState<any[]>([]);
   const [rideProvidersState, setStateRideProviders] = useState<any[]>([]);
   useEffect(() => {
@@ -55,6 +62,18 @@ const OldMap: FC = () => {
       clearInterval(intervalTime);
     };
   });
+  useEffect(() => {
+    const interval = setInterval(() => {
+      fetchElement<SimulationEndpointParticipantCoordinates>(
+        'participants'
+      ).then(data => {
+        setStateParticipants(data);
+      });
+    }, 10);
+    return () => {
+      clearInterval(interval);
+    };
+  });
   const switchSpectator = (newSpectator: string) => {
     setStateSpectator(newSpectator);
   };
@@ -66,9 +85,10 @@ const OldMap: FC = () => {
           spectatorState={spectatorState}
         />
 
-        <MapTestDynamic
+        <Map
           customersState={customersState}
           rideProvidersState={rideProvidersState}
+          participantsState={participantsState}
           startPos={{lat: 48.7784485, long: 9.1800132, zoom: 11}}
           spectatorState={spectatorState}
           setStateSpectator={setStateSpectator}

@@ -11,9 +11,10 @@ import {
 import {Participant} from './participant';
 import {wait} from '../misc/wait';
 // Type imports
-import type {Coordinates} from '../misc/coordinates';
+import type {Coordinates} from '../types/globals/coordinates';
 import type {Simulation} from '../simulation';
 import type {SimulationTypeCustomer} from './participant';
+import type {SimulationEndpointCustomer} from '../types/globals/simulation';
 
 const h3Res = 7;
 
@@ -153,6 +154,20 @@ export class Customer extends Participant<SimulationTypeCustomer> {
         long: randLocation.lon,
       });
     }
+  }
+
+  get endpointCustomer(): SimulationEndpointCustomer {
+    return {
+      id: this.id,
+      // Contact details
+      dateOfBirth: this.dateOfBirth,
+      emailAddress: this.emailAddress,
+      fullName: this.fullName,
+      gender: this.gender,
+      homeAddress: this.homeAddress,
+      phoneNumber: this.phoneNumber,
+      // TODO: Ride requests / passenger
+    };
   }
 
   get json(): SimulationTypeCustomer {

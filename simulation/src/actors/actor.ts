@@ -6,7 +6,7 @@ import type {Simulation} from '../simulation';
  */
 export abstract class Actor<JsonType> {
   /** Unique simulation ID. */
-  protected readonly id: string;
+  public readonly id: string;
 
   /** Actor type ID. */
   protected readonly type: string;

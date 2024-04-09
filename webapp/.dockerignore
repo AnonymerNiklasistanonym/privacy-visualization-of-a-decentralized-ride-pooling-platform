@@ -1,0 +1,11 @@
+Dockerfile
+.dockerignore
+node_modules
+npm-debug.log
+README.md
+.next
+.git
+dev.log
+setup_react_nextjs.sh
+setup_react_nextjs.sh.log
+docs

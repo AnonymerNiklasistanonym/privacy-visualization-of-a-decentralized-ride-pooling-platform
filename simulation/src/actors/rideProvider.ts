@@ -2,7 +2,7 @@
 import {Participant} from './participant';
 import {cellToLatLng} from 'h3-js';
 // Type imports
-import type {Coordinates} from '../misc/coordinates';
+import type {Coordinates} from '../types/globals/coordinates';
 import type {Simulation} from '../simulation';
 import type {
   SimulationTypeRideProvider,

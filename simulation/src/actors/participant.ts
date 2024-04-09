@@ -1,12 +1,13 @@
 import {Actor} from './actor';
 // Type imports
 import type {AuthenticationService} from './services';
-import type {Coordinates} from '../misc/coordinates';
+import type {Coordinates} from '../types/globals/coordinates';
 import {
   distanceInKmBetweenEarthCoordinates,
   getRandomFloatFromInterval,
 } from '../misc/helpers';
 import {wait} from '../misc/wait';
+import type {SimulationEndpointParticipantCoordinatesParticipant} from '../types/globals/simulation';
 
 export interface SimulationTypeParticipant {
   id: string;
@@ -78,6 +79,13 @@ export abstract class Participant<JsonType> extends Actor<JsonType> {
     }
     this.registeredAuthService.getVerify(this.id);
     return this.registeredAuthService.getRating(this.id);
+  }
+
+  get endpointCoordinates(): SimulationEndpointParticipantCoordinatesParticipant {
+    return {
+      id: this.id,
+      ...this.currentLocation,
+    };
   }
 
   async moveToLocation(newLocation: Coordinates): Promise<void> {

@@ -14,3 +14,8 @@ export interface DefaultPropsI18nHome {
 export interface DefaultPropsI18nRoot
   extends DefaultProps,
     DefaultPropsI18nHome {}
+
+export interface MapIconProps {
+  iconCustomerHTML: string;
+  iconRideProviderHTML: string;
+}

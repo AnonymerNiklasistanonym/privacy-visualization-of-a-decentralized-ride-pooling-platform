@@ -1,6 +1,6 @@
 import dynamic from 'next/dynamic';
 
-const MapTestDynamic = dynamic(() => import('./MapTest'), {
+const MapTestDynamic = dynamic(() => import('./Map'), {
   ssr: false,
 });
 

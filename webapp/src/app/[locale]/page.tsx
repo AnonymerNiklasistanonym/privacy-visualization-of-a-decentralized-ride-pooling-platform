@@ -27,7 +27,7 @@ const Home: FC<DefaultPropsI18nHome> = async ({params: {locale}}) => {
           {intl.formatMessage({id: 'page.home.description'})}
         </p>
 
-        <OldMap />
+        <OldMap locale={locale} />
       </main>
     </div>
   );
