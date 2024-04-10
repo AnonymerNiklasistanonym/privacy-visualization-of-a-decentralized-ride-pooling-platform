@@ -1,6 +1,6 @@
 {
-  "common.footer": "internationalization tutorial",
-  "page.home.head.title": "Next.js i18n example",
+  "common.footer": "Service Computing Department > Institute of Architecture of Application Systems > University of Stuttgart",
+  "page.home.head.title": "Visualization GETACAR Platform",
   "page.home.head.meta.description": "Next.js i18n example - English",
   "page.home.title": "Welcome to <b>Next.js i18n tutorial</b>",
   "page.home.description": "You are currently viewing the homepage in English 🚀",

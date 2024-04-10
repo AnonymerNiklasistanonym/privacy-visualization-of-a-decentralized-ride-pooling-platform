@@ -10,10 +10,6 @@ const Footer: FC<DefaultPropsI18n> = ({locale}) => {
   return (
     <FooterContainer locale={locale}>
       <div>
-        {/* eslint-disable-next-line */}
-        <img src="/img/next.svg" width={60} height={12} alt="NextJS " />
-      </div>
-      <div>
         <FormattedMessage tagName="p" id="common.footer" />
       </div>
     </FooterContainer>

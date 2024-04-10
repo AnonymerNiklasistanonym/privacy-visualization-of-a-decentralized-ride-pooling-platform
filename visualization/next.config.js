@@ -2,7 +2,8 @@
 const nextConfig = {
   // Optional: Change the output directory
   //distDir: 'dist',
-  output: "standalone",
+  // Optional: Uncomment next line for docker
+  //output: "standalone",
 };
 
 module.exports = nextConfig;

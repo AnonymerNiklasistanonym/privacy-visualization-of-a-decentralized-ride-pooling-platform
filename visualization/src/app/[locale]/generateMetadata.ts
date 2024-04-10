@@ -1,15 +1,17 @@
 import {Metadata} from 'next';
 import {getIntl} from '../../services/intl';
+import {FC} from 'react';
 
-type RouteProps = {
-  params: {locale: string};
-  searchParams: {[key: string]: string | string[] | undefined};
-};
+// TODO: https://nextjs.org/docs/app/api-reference/functions/generate-metadata
 
-export const generateMetadata = async (
-  props: RouteProps
-): Promise<Metadata> => {
-  const intl = await getIntl(props.params.locale);
+interface GenerateMetadata {
+  locale: string;
+}
+
+export const generateMetadata: FC<GenerateMetadata> = async ({
+  locale,
+}): Promise<Metadata> => {
+  const intl = await getIntl(locale);
 
   return {
     title: intl.formatMessage({id: 'page.home.head.title'}),
