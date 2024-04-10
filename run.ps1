@@ -1,8 +1,18 @@
 #!/usr/bin/env pwsh
 
 Param (
+	[PSCustomObject]$JobSimulation = [PSCustomObject]@{
+		Name = "Simulation"
+		Port = 2222
+		Dir = Join-Path -Path $PSScriptRoot -ChildPath "simulation"
+	},
+	[PSCustomObject]$JobVisualization = [PSCustomObject]@{
+		Name = "Visualization"
+		Port = 3000
+		Dir = Join-Path -Path $PSScriptRoot -ChildPath "visualization"
+	},
 	[string]$JobNameSimulation = "Simulation",
-	[string]$JobNameWebApp = "WebApp",
+	[string]$JobNameVisualization = "Visualization",
 	[int]$PortSimulation = 2222,
 	[int]$PortWebapp = 3000,
 	[bool]$Verbose = $false,
@@ -15,12 +25,12 @@ $ErrorActionPreference = "Stop"
 
 # Variables
 $DirSimulation = Join-Path -Path $PSScriptRoot -ChildPath "simulation"
-$DirWebApp = Join-Path -Path $PSScriptRoot -ChildPath "webapp"
-$Ports = @($PortSimulation, $PortWebapp)
+$DirWebApp = Join-Path -Path $PSScriptRoot -ChildPath "visualization"
+$Ports = @($JobSimulation.Port, $JobVisualization.Port)
 
 # Stop previous jobs
 Write-Output "Stop jobs..."
-foreach ($job in Get-Job -Name $JobNameSimulation, $JobNameWebApp -ErrorAction SilentlyContinue)
+foreach ($job in Get-Job -Name $JobNameSimulation, $JobNameVisualization -ErrorAction SilentlyContinue)
 {
 	Stop-Job $job
 	Remove-Job $job
@@ -66,7 +76,7 @@ function RunWriteJobProgress
 
 # Start prepare jobs
 Write-Output "Start prepare jobs..."
-$SimulationJobPrepare = Start-Job -Name $JobNameSimulation -WorkingDirectory $DirSimulation -ScriptBlock {
+$SimulationJobPrepare = Start-Job -Name $JobSimulation.Name -WorkingDirectory $JobSimulation.Dir -ScriptBlock {
 	Write-Progress -Activity "install" -PercentComplete 0;
 	npm install
 	Write-Progress -Activity "compile" -PercentComplete 33;
@@ -75,21 +85,21 @@ $SimulationJobPrepare = Start-Job -Name $JobNameSimulation -WorkingDirectory $Di
 	npm run dist
 	Write-Progress -Activity "finished" -PercentComplete 100;
 }
-$WebAppJobPrepare = Start-Job -Name $JobNameWebApp -WorkingDirectory $DirWebApp -ScriptBlock {
+$VisualizationJobPrepare = Start-Job -Name $JobVisualization.Name -WorkingDirectory $JobVisualization.Dir -ScriptBlock {
 	Write-Progress -Activity "install" -PercentComplete 0;
 	npm install
 	Write-Progress -Activity "finished" -PercentComplete 100;
 }
 if ($Verbose) {
-	$SimulationJobPrepare, $WebAppJobPrepare | Format-Table
+	$SimulationJobPrepare, $VisualizationJobPrepare | Format-Table
 }
-RunWriteJobProgress($SimulationJobPrepare, $WebAppJobPrepare)
+RunWriteJobProgress($SimulationJobPrepare, $VisualizationJobPrepare)
 
 Write-Output "Wait for prepare jobs..."
-Wait-Job -Job $SimulationJobPrepare, $WebAppJobPrepare -Timeout 60 | Out-Null
+Wait-Job -Job $SimulationJobPrepare, $VisualizationJobPrepare -Timeout 60 | Out-Null
 
 if ($Verbose) {
-	foreach ($job in $SimulationJobPrepare, $WebAppJobPrepare)
+	foreach ($job in $SimulationJobPrepare, $VisualizationJobPrepare)
 	{
 		Write-Output "Job $job.Name Output:"
 		Write-Output (Receive-Job -Job $job)
@@ -101,11 +111,11 @@ Write-Output "Start jobs..."
 $SimulationJob = Start-Job -Name $JobNameSimulation -WorkingDirectory $DirSimulation -ScriptBlock {
 	npm run start -- --port $using:PortSimulation | Tee-Object -FilePath dev.log
 }
-$WebAppJob = Start-Job -Name $JobNameWebApp -WorkingDirectory $DirWebApp -ScriptBlock {
+$VisualizationJob = Start-Job -Name $JobNameVisualization -WorkingDirectory $DirWebApp -ScriptBlock {
 	npm run dev | Tee-Object -FilePath dev.log
 }
 if ($Verbose) {
-	$SimulationJob, $WebAppJob | Format-Table
+	$SimulationJob, $VisualizationJob | Format-Table
 }
 
 # Open relevant web pages
@@ -117,4 +127,4 @@ foreach ($port in $Ports)
 }
 
 Write-Output "Wait for jobs..."
-Wait-Job -Job $SimulationJob, $WebAppJob | Out-Null
+Wait-Job -Job $SimulationJob, $VisualizationJob | Out-Null

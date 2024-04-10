@@ -4,8 +4,8 @@
 set -x
 
 INPUT_DIR_ICONS="icons"
-OUTPUT_DIR_ICONS="../webapp/public/en/icons"
-OUTPUT_DIR_ICONS_FAVICON="../webapp/src/app"
+OUTPUT_DIR_ICONS="../visualization/public/en/icons"
+OUTPUT_DIR_ICONS_FAVICON="../visualization/src/app"
 mkdir -p "$OUTPUT_DIR_ICONS"
 find . -regex '.*icons\/.*\.\(ico\|png\|svg\)' -exec cp {} "$OUTPUT_DIR_ICONS" \;
 # https://nextjs.org/docs/app/api-reference/file-conventions/metadata/app-icons#favicon

@@ -1,11 +1,13 @@
 #!/usr/bin/env pwsh
 
+# Copy the global types to the projects that use them with an additional header
+
 Param (
-	[string]$SourceDirGlobalTypes = (Join-Path -Path $PSScriptRoot -ChildPath "globals"),
+	[string]$SourceDir = (Join-Path -Path $PSScriptRoot -ChildPath "globals"),
 	[string]$DestinationFileHeaderContent = "// This file was copied from the global types directory, do not change!",
 	[string[]]$DestinationDirs = @(
 		(Join-Path -Path $PSScriptRoot -ChildPath ".." | Join-Path -ChildPath "simulation" | Join-Path -ChildPath "src" | Join-Path -ChildPath "types" | Join-Path -ChildPath "globals"),
-		(Join-Path -Path $PSScriptRoot -ChildPath ".." | Join-Path -ChildPath "webapp" | Join-Path -ChildPath "src" | Join-Path -ChildPath "types" | Join-Path -ChildPath "globals")
+		(Join-Path -Path $PSScriptRoot -ChildPath ".." | Join-Path -ChildPath "visualization" | Join-Path -ChildPath "src" | Join-Path -ChildPath "types" | Join-Path -ChildPath "globals")
 	)
 )
 
@@ -13,19 +15,20 @@ Param (
 # Stop script on error
 $ErrorActionPreference = "Stop"
 
-Write-Output "Copy global types..."
-foreach ($DestinationDir in $DestinationDirs)
-{
-	Write-Output "Copy global types from '$SourceDirGlobalTypes' to '$DestinationDir'"
+$DestinationDirs | ForEach-Object -Parallel {
+	$DestinationDir = $_
+	Write-Output "Copy files from '$using:SourceDir' to '$DestinationDir'"
 	Remove-Item $DestinationDir -Recurse -Force
-	New-Item $DestinationDir -ItemType Directory -Force
-	$Files = Get-ChildItem -Recurse $SourceDirGlobalTypes -Include *.ts -ErrorAction SilentlyContinue -Force
-	foreach ($File in $Files)
-	{
-		Write-Output $File.FullName
-		$OutputPath = Join-Path -Path $DestinationDir -ChildPath (Resolve-Path -Path $File -Relative -RelativeBasePath $SourceDirGlobalTypes)
-		$OutputContent = $DestinationFileHeaderContent + "`n`n" + (Get-Content -Path $File -Encoding UTF8 -Raw)
-		#Write-Output "Copy global type file '$File' to '$OutputPath'" $OutputContent
+	New-Item $DestinationDir -ItemType Directory -Force | Out-Null
+	$Files = Get-ChildItem -Recurse $using:SourceDir -Include *.ts -ErrorAction SilentlyContinue -Force
+	$SourceDir = $using:SourceDir
+	$DestinationFileHeaderContent = $using:DestinationFileHeaderContent
+	$Files | ForEach-Object -Parallel {
+		$File = $_
+		$RelativeFilePath = Resolve-Path -Path $File -Relative -RelativeBasePath $using:SourceDir
+		$OutputPath = Join-Path -Path $using:DestinationDir -ChildPath $RelativeFilePath
+		$OutputContent = $using:DestinationFileHeaderContent + "`n`n" + (Get-Content -Path $File -Encoding UTF8 -Raw)
+		Write-Output "Copy '$RelativeFilePath' to '$using:DestinationDir'"
 		Set-Content $OutputPath -NoNewline -Encoding UTF8 -Value $OutputContent
 	}
 }
