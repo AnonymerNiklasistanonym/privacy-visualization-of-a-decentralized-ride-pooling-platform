@@ -7,7 +7,7 @@ import {getCliFlag, getCliOverride} from './misc/cli';
 import {printRouterPaths} from './misc/printExpressRoutes';
 import {Simulation} from './simulation';
 import {updateSimulationConfigWithData} from './config/simulationConfigWithData';
-import {DEFAULT_PORT_SIMULATION} from './types/globals/ports';
+import {ports} from './globals/defaults/ports';
 // Type imports
 import type {SimulationConfig} from './config/simulationConfig';
 
@@ -16,7 +16,7 @@ const SRC_DIR = path.join(__dirname);
 
 // Check for CLI overrides
 // > Port
-const port = getCliOverride('--port', DEFAULT_PORT_SIMULATION, a => parseInt(a));
+const port = getCliOverride('--port', ports.simulation, a => parseInt(a));
 const verbose = getCliFlag('--verbose');
 
 /** The simulation configuration. */

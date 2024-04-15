@@ -34,6 +34,10 @@
       maxZoom: 19,
       attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
   }).addTo(map);
+  map.on("popupopen", (e) => {
+    const marker = e.popup._source;
+    console.log("A popup was opened", marker, e);
+  });
   const iconCustomer = L.icon({
       iconUrl: "/icons/directions_walk_FILL0_wght400_GRAD0_opsz24.svg",
   });
@@ -133,7 +137,9 @@
       }
       const marker = L.marker([customer.currentLocation.lat, customer.currentLocation.long], {icon: iconCustomer});
       marker.addTo(map);
-      marker.bindPopup(createPopupContent(customer));
+      const popup = L.popup();
+      popup.setContent(createPopupContent(customer));
+      marker.bindPopup(popup);
       marker._custom_id = customer.id;
       marker._custom_date = currentDate;
       currentElements.push(marker);

@@ -12,3 +12,8 @@ export interface Coordinates {
   /** Longitude */
   long: number;
 }
+
+export interface CoordinatesAddress extends Coordinates {
+  /** A string representation of the address. */
+  address: string;
+}

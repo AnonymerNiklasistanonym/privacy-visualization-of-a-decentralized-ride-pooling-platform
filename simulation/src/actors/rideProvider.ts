@@ -1,20 +1,26 @@
 /* eslint-disable max-classes-per-file */
-import {Participant} from './participant';
 import {cellToLatLng} from 'h3-js';
+// Local imports
+import {
+  distanceInKmBetweenEarthCoordinates,
+  getRandomElement,
+  getRandomIntFromInterval,
+} from '../misc/helpers';
+import {Participant} from './participant';
+import {wait} from '../misc/wait';
 // Type imports
-import type {Coordinates} from '../types/globals/coordinates';
+import type {Coordinates} from '../globals/types/coordinates';
 import type {Simulation} from '../simulation';
 import type {
   SimulationTypeRideProvider,
   SimulationTypeRideProviderCompany,
   SimulationTypeRideProviderPerson,
 } from './participant';
-import {
-  distanceInKmBetweenEarthCoordinates,
-  getRandomElement,
-  getRandomIntFromInterval,
-} from '../misc/helpers';
-import {wait} from '../misc/wait';
+import type {
+  SimulationEndpointParticipantInformationRideProvider,
+  SimulationEndpointParticipantInformationRideProviderCompany,
+  SimulationEndpointParticipantInformationRideProviderPerson,
+} from '../globals/types/simulation';
 
 export abstract class RideProvider<
   JsonType extends SimulationTypeRideProvider,
@@ -119,6 +125,8 @@ export abstract class RideProvider<
       this.passengers.pop();
     }
   }
+
+  abstract get endpointRideProvider(): SimulationEndpointParticipantInformationRideProvider;
 }
 
 export class RideProviderPerson extends RideProvider<SimulationTypeRideProviderPerson> {
@@ -211,6 +219,30 @@ export class RideProviderPerson extends RideProvider<SimulationTypeRideProviderP
       type: 'ride_provider',
     };
   }
+
+  get endpointRideProvider(): SimulationEndpointParticipantInformationRideProviderPerson {
+    return {
+      id: this.id,
+      // Location
+      currentLocation: this.currentLocation,
+      // Type
+      type: 'ride_provider',
+      // Ride Provider details
+      vehicleIdentificationNumber: this.vehicleIdentificationNumber,
+      vehicleNumberPlate: this.vehicleNumberPlate,
+      // Contact details
+      dateOfBirth: this.dateOfBirth,
+      emailAddress: this.emailAddress,
+      fullName: this.fullName,
+      gender: this.gender,
+      homeAddress: this.homeAddress,
+      phoneNumber: this.phoneNumber,
+      // TODO: Ride requests
+      rideRequest: undefined,
+      // TODO: Passenger
+      passenger: undefined,
+    };
+  }
 }
 
 export class RideProviderCompany extends RideProvider<SimulationTypeRideProviderCompany> {
@@ -270,6 +302,25 @@ export class RideProviderCompany extends RideProvider<SimulationTypeRideProvider
       passengers: this.passengers,
 
       type: 'ride_provider',
+    };
+  }
+
+  get endpointRideProvider(): SimulationEndpointParticipantInformationRideProviderCompany {
+    return {
+      id: this.id,
+      // Location
+      currentLocation: this.currentLocation,
+      // Type
+      type: 'ride_provider',
+      // Ride Provider details
+      vehicleIdentificationNumber: this.vehicleIdentificationNumber,
+      vehicleNumberPlate: this.vehicleNumberPlate,
+      // Contact details
+      company: this.company,
+      // TODO: Ride requests
+      rideRequest: undefined,
+      // TODO: Passenger
+      passenger: undefined,
     };
   }
 }

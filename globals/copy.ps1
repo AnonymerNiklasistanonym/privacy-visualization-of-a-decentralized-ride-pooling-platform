@@ -3,11 +3,11 @@
 # Copy the global types to the projects that use them with an additional header
 
 Param (
-	[string]$SourceDir = (Join-Path -Path $PSScriptRoot -ChildPath "globals"),
+	[string]$SourceDir = (Join-Path -Path $PSScriptRoot -ChildPath "typescript"),
 	[string]$DestinationFileHeaderContent = "// This file was copied from the global types directory, do not change!",
 	[string[]]$DestinationDirs = @(
-		(Join-Path -Path $PSScriptRoot -ChildPath ".." | Join-Path -ChildPath "simulation" | Join-Path -ChildPath "src" | Join-Path -ChildPath "types" | Join-Path -ChildPath "globals"),
-		(Join-Path -Path $PSScriptRoot -ChildPath ".." | Join-Path -ChildPath "visualization" | Join-Path -ChildPath "src" | Join-Path -ChildPath "types" | Join-Path -ChildPath "globals")
+		(Join-Path -Path $PSScriptRoot -ChildPath ".." | Join-Path -ChildPath "simulation" | Join-Path -ChildPath "src" | Join-Path -ChildPath "globals"),
+		(Join-Path -Path $PSScriptRoot -ChildPath ".." | Join-Path -ChildPath "visualization" | Join-Path -ChildPath "src" | Join-Path -ChildPath "globals")
 	)
 )
 
@@ -18,7 +18,7 @@ $ErrorActionPreference = "Stop"
 $DestinationDirs | ForEach-Object -Parallel {
 	$DestinationDir = $_
 	Write-Output "Copy files from '$using:SourceDir' to '$DestinationDir'"
-	Remove-Item $DestinationDir -Recurse -Force
+	Remove-Item $DestinationDir -Recurse -Force -ErrorAction SilentlyContinue
 	New-Item $DestinationDir -ItemType Directory -Force | Out-Null
 	$Files = Get-ChildItem -Recurse $using:SourceDir -Include *.ts -ErrorAction SilentlyContinue -Force
 	$SourceDir = $using:SourceDir
@@ -29,6 +29,7 @@ $DestinationDirs | ForEach-Object -Parallel {
 		$OutputPath = Join-Path -Path $using:DestinationDir -ChildPath $RelativeFilePath
 		$OutputContent = $using:DestinationFileHeaderContent + "`n`n" + (Get-Content -Path $File -Encoding UTF8 -Raw)
 		Write-Output "Copy '$RelativeFilePath' to '$using:DestinationDir'"
+		New-Item (Split-Path -Parent $OutputPath) -ItemType Directory -Force | Out-Null
 		Set-Content $OutputPath -NoNewline -Encoding UTF8 -Value $OutputContent
 	}
 }

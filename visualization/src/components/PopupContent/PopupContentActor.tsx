@@ -1,7 +1,8 @@
 // Local imports
-import Button from '@components/Button';
+import ChangeViewButton from './ChangeViewButton';
 // Type imports
 import type {FC} from 'react';
+import type {SimulationEndpointParticipantCoordinatesParticipant} from '@/globals/types/simulation';
 
 export interface PopupContentCustomerProps {
   customer: Record<string, any>;
@@ -32,21 +33,25 @@ export const PopupContentCustomer: FC<PopupContentCustomerProps> = ({
             spectatorState !== 'everything' &&
             spectatorState !== customer.id
           ) {
-            return <p key={customer.id + key}>{key}: *****</p>;
+            return <p key={`${customer.id}_${key}`}>{key}: *****</p>;
           }
           if (key === 'rideRequest') {
             return (
               <>
-                <p>{key}:</p>
-                <ul className="scrolling">
-                  <li>state: {customer[key]['state']}</li>
-                  <li>destination: {customer[key]['address']}</li>
+                <p key={`${customer.id}_${key}`}>{key}:</p>
+                <ul className="scrolling" key={`${customer.id}_${key}_ul`}>
+                  <li key={`${customer.id}_${key}_state`}>
+                    state: {customer[key]['state']}
+                  </li>
+                  <li key={`${customer.id}_${key}_destination`}>
+                    destination: {customer[key]['address']}
+                  </li>
                 </ul>
               </>
             );
           }
           return (
-            <p key={customer.id + key}>
+            <p key={`${customer.id}_${key}`}>
               {key}: {customer[key]}
             </p>
           );
@@ -83,8 +88,8 @@ export const PopupContentRideProvider: FC<PopupContentRideProviderProps> = ({
     if (key === 'passengers') {
       value = (
         <>
-          <p>{key}:</p>
-          <ul className="scrolling">
+          <p key={`${rideProvider.id}_${key}`}>{key}:</p>
+          <ul className="scrolling" key={`${rideProvider.id}_${key}_ul`}>
             {rideProvider[key].map((a: any, index: number) => (
               <li key={`${rideProvider.id}_${key}_${index}`}>{a}</li>
             ))}
@@ -93,7 +98,7 @@ export const PopupContentRideProvider: FC<PopupContentRideProviderProps> = ({
       );
     } else {
       value = (
-        <p>
+        <p key={`${rideProvider.id}_${key}`}>
           {key}: {rideProvider[key]}
         </p>
       );
@@ -127,6 +132,7 @@ export const PopupContentActor: FC<PopupContentActorProps> = ({
           marginTop: '0.2em',
           marginBottom: '0.2em',
         }}
+        key={`${actor.id}_title`}
       >
         {key}:
       </p>
@@ -138,6 +144,7 @@ export const PopupContentActor: FC<PopupContentActorProps> = ({
           marginTop: '0.2em',
           marginBottom: '0.2em',
         }}
+        key={`${actor.id}_title_value`}
       >
         {key}: {actor[key]}
       </p>
@@ -145,7 +152,7 @@ export const PopupContentActor: FC<PopupContentActorProps> = ({
     if (key === 'passengers') {
       content.push(
         title,
-        <ul className="scrolling">
+        <ul className="scrolling" key={`${actor.id}_${key}`}>
           {actor[key].map((a: any) => (
             <li key={actor.id + a}>{a}</li>
           ))}
@@ -154,7 +161,7 @@ export const PopupContentActor: FC<PopupContentActorProps> = ({
     } else if (key === 'rideRequest') {
       content.push(
         title,
-        <ul className="scrolling">
+        <ul className="scrolling" key={`${actor.id}_${key}`}>
           <li>state: {actor[key]['state']}</li>
           <li>destination: {actor[key]['address']}</li>
         </ul>
@@ -162,7 +169,7 @@ export const PopupContentActor: FC<PopupContentActorProps> = ({
     } else if (key === 'participantDb') {
       content.push(
         title,
-        <ul className="scrolling">
+        <ul className="scrolling" key={`${actor.id}_${key}`}>
           {actor[key].map((a: any) => (
             <>
               <li>{a.contactDetails.id}</li>
@@ -179,9 +186,9 @@ export const PopupContentActor: FC<PopupContentActorProps> = ({
     } else if (key === 'auctionsDb') {
       content.push(
         title,
-        <ul className="scrolling">
-          {actor[key].map((a: any) => (
-            <li key={a}>{JSON.stringify(a)}</li>
+        <ul className="scrolling" key={`${actor.id}_${key}`}>
+          {actor[key].map((a: any, index: number) => (
+            <li key={`${actor.id}_${key}_${index}`}>{JSON.stringify(a)}</li>
           ))}
         </ul>
       );
@@ -211,14 +218,12 @@ export const PopupContentActor: FC<PopupContentActorProps> = ({
         {actor.type} ({actor.id}) [{spectatorState}]
       </h2>
       {actorContent}
-      <Button
-        onClick={() => {
-          console.log(`Change view to this spectator: ${actor.id}`);
-          setStateSpectator(actor.id);
-        }}
-      >
-        Change view to this actor
-      </Button>
+      <ChangeViewButton
+        actorState={
+          actor as SimulationEndpointParticipantCoordinatesParticipant
+        }
+        setStateSpectator={setStateSpectator}
+      />
     </>
   );
 };

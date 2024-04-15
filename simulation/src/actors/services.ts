@@ -9,7 +9,7 @@ import {
   SimulationTypeRideProviderPerson,
   SimulationTypeRideProviderCompany,
 } from './participant';
-import type {Coordinates} from '../types/globals/coordinates';
+import type {Coordinates} from '../globals/types/coordinates';
 
 export interface Area extends Coordinates {
   radius: number;

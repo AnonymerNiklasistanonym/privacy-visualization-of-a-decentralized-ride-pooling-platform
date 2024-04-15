@@ -28,14 +28,14 @@
   "devDependencies": {
     "@types/cors": "^2.8.17",
     "@types/express": "^4.17.21",
-    "@types/node": "20.12.2",
-    "@typescript-eslint/eslint-plugin": "^7.5.0",
-    "@typescript-eslint/parser": "^7.5.0",
+    "@types/node": "20.12.7",
+    "@typescript-eslint/eslint-plugin": "^7.6.0",
+    "@typescript-eslint/parser": "^7.6.0",
     "gts": "^5.3.0",
     "nodemon": "^3.1.0",
     "ts-node": "^10.9.2",
-    "typedoc": "^0.25.12",
+    "typedoc": "^0.25.13",
     "typedoc-umlclass": "^0.8.0",
-    "typescript": "~5.4.3"
+    "typescript": "~5.4.5"
   }
 }

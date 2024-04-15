@@ -8,15 +8,14 @@ import {
   getRandomFloatFromInterval,
   getRandomIntFromInterval,
 } from '../misc/helpers';
+import {h3Resolution} from '../globals/defaults/h3';
 import {Participant} from './participant';
 import {wait} from '../misc/wait';
 // Type imports
-import type {Coordinates} from '../types/globals/coordinates';
+import type {Coordinates} from '../globals/types/coordinates';
 import type {Simulation} from '../simulation';
 import type {SimulationTypeCustomer} from './participant';
-import type {SimulationEndpointCustomer} from '../types/globals/simulation';
-
-const h3Res = 7;
+import type {SimulationEndpointParticipantInformationCustomer} from '../globals/types/simulation';
 
 export class Customer extends Participant<SimulationTypeCustomer> {
   // Private properties
@@ -99,9 +98,9 @@ export class Customer extends Participant<SimulationTypeCustomer> {
         latLngToCell(
           this.currentLocation.lat,
           this.currentLocation.long,
-          h3Res
+          h3Resolution
         ),
-        latLngToCell(randLocation.lat, randLocation.lon, h3Res),
+        latLngToCell(randLocation.lat, randLocation.lon, h3Resolution),
         this.getRating(),
         `TODO ${pseudonym} public key`,
         10 * 1000,
@@ -156,9 +155,13 @@ export class Customer extends Participant<SimulationTypeCustomer> {
     }
   }
 
-  get endpointCustomer(): SimulationEndpointCustomer {
+  get endpointCustomer(): SimulationEndpointParticipantInformationCustomer {
     return {
       id: this.id,
+      // Location
+      currentLocation: this.currentLocation,
+      // Type
+      type: 'customer',
       // Contact details
       dateOfBirth: this.dateOfBirth,
       emailAddress: this.emailAddress,
@@ -166,7 +169,10 @@ export class Customer extends Participant<SimulationTypeCustomer> {
       gender: this.gender,
       homeAddress: this.homeAddress,
       phoneNumber: this.phoneNumber,
-      // TODO: Ride requests / passenger
+      // TODO: Ride requests
+      rideRequest: undefined,
+      // TODO: Passenger
+      passenger: undefined,
     };
   }
 

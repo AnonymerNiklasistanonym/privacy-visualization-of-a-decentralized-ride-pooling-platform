@@ -9,9 +9,9 @@ import {
   getRandomIntFromInterval,
 } from './misc/helpers';
 // Type imports
-import type {Coordinates} from './types/globals/coordinates';
+import type {Coordinates} from './globals/types/coordinates';
 import type {SimulationConfigWithData} from './config/simulationConfigWithData';
-import type {SimulationEndpointParticipantCoordinates} from './types/globals/simulation';
+import type {SimulationEndpointParticipantCoordinates} from './globals/types/simulation';
 
 export interface StartPos extends Coordinates {
   zoom: number;
@@ -293,6 +293,14 @@ export class Simulation {
     });
     router.route('/customers').get((req, res) => {
       res.json({customers: this.customersJson});
+    });
+    router.route('/ride_provider/:id').get((req, res) => {
+      const rideProvider = this.rideProviders.find(a => a.id === req.params.id);
+      if (rideProvider) {
+        res.json(rideProvider.endpointRideProvider);
+        return;
+      }
+      res.status(404);
     });
     router.route('/ride_providers').get((req, res) => {
       res.json({rideProviders: this.rideProvidersJson});

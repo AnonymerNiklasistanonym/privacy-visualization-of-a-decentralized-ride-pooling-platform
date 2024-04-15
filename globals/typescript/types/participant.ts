@@ -1,18 +1,19 @@
 import type {Coordinates} from './coordinates';
 
-export type GetACarParticipantIdCustomer = 'customer';
-export type GetACarParticipantIdRideProvider = 'ride_provider';
-export type GetACarParticipantIds =
-  | GetACarParticipantIdCustomer
-  | GetACarParticipantIdRideProvider;
+export type GetACarParticipantId = string;
+export type GetACarParticipantTypeCustomer = 'customer';
+export type GetACarParticipantTypeRideProvider = 'ride_provider';
+export type GetACarParticipantTypes =
+  | GetACarParticipantTypeCustomer
+  | GetACarParticipantTypeRideProvider;
 
 /**
  * Represents a participant of the GETACAR platform.
  */
 export interface GetACarParticipant {
-  id: string;
+  id: GetACarParticipantId;
   currentLocation: Coordinates;
-  type: GetACarParticipantIds;
+  type: GetACarParticipantTypes;
 }
 
 /**
@@ -33,7 +34,7 @@ export interface GetACarParticipantPersonContactDetails {
 export interface GetACarCustomer
   extends GetACarParticipant,
     GetACarParticipantPersonContactDetails {
-  type: GetACarParticipantIdCustomer;
+  type: GetACarParticipantTypeCustomer;
 }
 
 /**
@@ -46,7 +47,7 @@ export type GetACarRideProvider =
 export interface GetACarRideProviderGeneric extends GetACarParticipant {
   vehicleNumberPlate: string;
   vehicleIdentificationNumber: string;
-  type: GetACarParticipantIdRideProvider;
+  type: GetACarParticipantTypeRideProvider;
 }
 
 export interface GetACarRideProviderPerson
@@ -55,4 +56,21 @@ export interface GetACarRideProviderPerson
 
 export interface GetACarRideProviderCompany extends GetACarRideProviderGeneric {
   company: string;
+}
+
+export interface GetACarRideRequest {
+  /** Customer pseudonym. */
+  userId: string;
+  /** Cloaked h3 hexagon of the real pickup location. */
+  pickupLocation: string;
+  /** Cloaked h3 hexagon of the real dropoff location. */
+  dropoffLocation: string;
+  /** Customer rating (self reported). */
+  rating: number;
+  /** Enables encrypted communication with ride provider. */
+  userPublicKey: string;
+  maxWaitingTime: number;
+  minRating: number;
+  minPassengerRating: number;
+  maxPassengers: number;
 }

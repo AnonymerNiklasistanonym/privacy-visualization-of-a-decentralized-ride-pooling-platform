@@ -1,71 +1,40 @@
 'use client';
 
+import {useEffect, useState} from 'react';
+// Local imports
+import {fetchJsonSimulation, fetchTextSimulation} from '@/globals/lib/fetch';
+// > Components
 import Map from '@components/Map';
-
 import Container from '@components/Container';
 import Button from '@components/Button';
-
-import styles from '@styles/Home.module.scss';
-
 import DynamicTitle from './DynamicTitle';
-
-import {useEffect, useState} from 'react';
+// > Styles
+import styles from '@styles/Home.module.scss';
+// Type imports
 import type {FC} from 'react';
-import type {DefaultPropsI18n} from '@/types/reactProps';
-import {SimulationEndpointParticipantCoordinates} from '@/types/globals/simulation';
+import type {DefaultPropsI18n} from '@/globals/types/react';
+import type {SimulationEndpointParticipantCoordinates} from '@/globals/types/simulation';
 
-const port = 2222;
-const baseUrl = `http://localhost:${port}`;
-const fetchElement = async <T,>(endpoint: string): Promise<T> => {
-  const result = await fetch(`${baseUrl}/json/${endpoint}`).then(data =>
-    data.json()
-  );
-  return result;
-};
-const buttonSimulation = async (endpoint: string) => {
-  await fetch(`${baseUrl}/simulation/${endpoint}`).then(data => data.text());
-};
-
-export type OldMapProps = DefaultPropsI18n;
+export type OldMapProps = DefaultPropsI18n<React.ReactNode>;
 
 const OldMap: FC<OldMapProps> = () => {
-  const getCurrentTime = () => new Date().toLocaleTimeString('de-DE');
-  const [dateStringTimeState, setStateDateString] = useState(getCurrentTime());
+  // React states
   const [spectatorState, setStateSpectator] = useState('everything');
   const [participantsState, setStateParticipants] =
     useState<SimulationEndpointParticipantCoordinates>({
       customers: [],
       rideProviders: [],
     });
-  const [customersState, setStateCustomers] = useState<any[]>([]);
-  const [rideProvidersState, setStateRideProviders] = useState<any[]>([]);
+
+  // React effects
   useEffect(() => {
     // Run this when any listed state dependency changes
     console.log('Spectator changed:', spectatorState);
   }, [spectatorState]);
   useEffect(() => {
-    // Run this code client side
     const interval = setInterval(() => {
-      //setTime(new Date);
-      fetchElement<{customers: any[]}>('customers').then(data => {
-        setStateCustomers(data.customers);
-      });
-      fetchElement<{rideProviders: any[]}>('ride_providers').then(data => {
-        setStateRideProviders(data.rideProviders);
-      });
-    }, 50);
-    const intervalTime = setInterval(() => {
-      setStateDateString(getCurrentTime());
-    }, 50);
-    return () => {
-      clearInterval(interval);
-      clearInterval(intervalTime);
-    };
-  });
-  useEffect(() => {
-    const interval = setInterval(() => {
-      fetchElement<SimulationEndpointParticipantCoordinates>(
-        'participants'
+      fetchJsonSimulation<SimulationEndpointParticipantCoordinates>(
+        'json/participants'
       ).then(data => {
         setStateParticipants(data);
       });
@@ -80,14 +49,9 @@ const OldMap: FC<OldMapProps> = () => {
   return (
     <>
       <Container>
-        <DynamicTitle
-          dateStringTimeState={dateStringTimeState}
-          spectatorState={spectatorState}
-        />
+        <DynamicTitle spectatorState={spectatorState} />
 
         <Map
-          customersState={customersState}
-          rideProvidersState={rideProvidersState}
           participantsState={participantsState}
           startPos={{lat: 48.7784485, long: 9.1800132, zoom: 11}}
           spectatorState={spectatorState}
@@ -97,21 +61,21 @@ const OldMap: FC<OldMapProps> = () => {
         <p className={styles.view}>
           <Button
             onClick={() => {
-              buttonSimulation('state').catch(err => console.error(err));
+              fetchTextSimulation('state').catch(err => console.error(err));
             }}
           >
             State
           </Button>
           <Button
             onClick={() => {
-              buttonSimulation('pause').catch(err => console.error(err));
+              fetchTextSimulation('pause').catch(err => console.error(err));
             }}
           >
             Pause
           </Button>
           <Button
             onClick={() => {
-              buttonSimulation('run').catch(err => console.error(err));
+              fetchTextSimulation('run').catch(err => console.error(err));
             }}
           >
             Run

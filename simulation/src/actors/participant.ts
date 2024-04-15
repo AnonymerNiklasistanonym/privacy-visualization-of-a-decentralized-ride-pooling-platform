@@ -1,13 +1,13 @@
 import {Actor} from './actor';
 // Type imports
 import type {AuthenticationService} from './services';
-import type {Coordinates} from '../types/globals/coordinates';
+import type {Coordinates} from '../globals/types/coordinates';
 import {
   distanceInKmBetweenEarthCoordinates,
   getRandomFloatFromInterval,
 } from '../misc/helpers';
 import {wait} from '../misc/wait';
-import type {SimulationEndpointParticipantCoordinatesParticipant} from '../types/globals/simulation';
+import type {SimulationEndpointParticipantCoordinatesParticipant} from '../globals/types/simulation';
 
 export interface SimulationTypeParticipant {
   id: string;
