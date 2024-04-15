@@ -1,3 +1,4 @@
+// Type imports
 import type {Coordinates} from '../types/coordinates';
 
 export const locations = Object.freeze({

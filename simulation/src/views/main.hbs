@@ -56,7 +56,7 @@
               if (key === "passengers") {
                 value = `<ul class="scrolling">${obj[key].map(a => `<li>${a}</li>`).join("")}</ul>`
               }
-              if (key === "rideRequest") {
+              if (key === "rideRequestOld") {
                 value = `<ul class="scrolling"><li>state: ${obj[key]['state']}</li><li>destination: ${obj[key]['address']}</li></ul>`
               }
               if (key === "participantDb") {

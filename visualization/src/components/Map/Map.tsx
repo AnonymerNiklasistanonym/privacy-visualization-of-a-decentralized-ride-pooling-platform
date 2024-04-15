@@ -2,16 +2,17 @@
 
 import 'react-leaflet-fullscreen/styles.css';
 import 'leaflet/dist/leaflet.css';
-import L from 'leaflet';
+//import L from 'leaflet';
 import {
   //Circle,
   //Polygon,
   LayerGroup,
-  //Marker,
+  Marker,
   MapContainer,
-  //Popup,
+  Popup,
   TileLayer,
   LayersControl,
+  useMapEvents,
 } from 'react-leaflet';
 import {FullscreenControl} from 'react-leaflet-fullscreen';
 //import {latLngToCell, cellsToMultiPolygon} from 'h3-js';
@@ -19,27 +20,54 @@ import {FullscreenControl} from 'react-leaflet-fullscreen';
 //import {PopupContentActor} from '@components/PopupContent/PopupContentActor';
 import './Map.module.scss';
 import styles from './Map.module.scss';
-import {locations} from '../../globals/defaults/locations';
+//import {locations} from '../../globals/defaults/locations';
 // Type imports
 import type {FC} from 'react';
-import type {LatLngExpression} from 'leaflet';
+//import type {LatLngExpression} from 'leaflet';
 import type {SimulationEndpointParticipantCoordinates} from '@/globals/types/simulation';
 
-import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
-import DirectionsWalkIcon from '@mui/icons-material/DirectionsWalk';
-import ReactDOMServer from 'react-dom/server';
+import {useState} from 'react';
+//import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
+//import DirectionsWalkIcon from '@mui/icons-material/DirectionsWalk';
+//import ReactDOMServer from 'react-dom/server';
 import ParticipantMarker from './ParticipantMarker';
 //import {h3Resolution} from '@/globals/defaults/h3';
 
-const iconCustomerHTML = ReactDOMServer.renderToString(<DirectionsWalkIcon />);
-const iconRideProviderHTML = ReactDOMServer.renderToString(
-  <DirectionsCarIcon />
-);
+//const iconCustomerHTML = ReactDOMServer.renderToString(<DirectionsWalkIcon />);
+//const iconRideProviderHTML = ReactDOMServer.renderToString(
+//  <DirectionsCarIcon />
+//);
 
 //const defaultStartPos: LatLngExpression = [
 //  locations.startPos.lat,
 //  locations.startPos.long,
 //];
+
+
+function LocationMarker() {
+  const [position, setPosition] = useState(null)
+  const map = useMapEvents({
+    popupopen(e) {
+      console.log("popup open", e);
+    },
+    click(e) {
+      console.log("map was clicked", e);
+    },
+    load() {
+      map.locate();
+    },
+    locationfound(e) {
+      setPosition(e.latlng)
+      map.flyTo(e.latlng, map.getZoom())
+    },
+  })
+
+  return position === null ? null : (
+    <Marker position={position}>
+      <Popup>You are here</Popup>
+    </Marker>
+  )
+}
 
 export interface StatPos {
   lat: number;
@@ -136,6 +164,7 @@ const MapTest: FC<MapTestProps> = ({
             },
           }}
         />
+        <LocationMarker/>
         {<FullscreenControl forceSeparateButton={true} title={'WTF'} />}
         <LayersControl position="topright">
           <LayersControl.Overlay checked={true} name="Customers">

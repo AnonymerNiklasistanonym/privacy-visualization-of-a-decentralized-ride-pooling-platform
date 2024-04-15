@@ -31,13 +31,17 @@ export class Customer extends Participant<SimulationTypeCustomer> {
 
   private readonly homeAddress: string;
 
-  private rideRequest:
+  private rideRequestOld:
     | {
         address: string;
         coordinates: Coordinates;
         state: string;
       }
     | undefined = undefined;
+
+  private rideRequest: string | undefined = undefined;
+
+  private passenger: string | undefined = undefined;
 
   constructor(
     id: string,
@@ -84,7 +88,9 @@ export class Customer extends Participant<SimulationTypeCustomer> {
     this.registeredAuthService = randAuthService;
     // Loop:
     while (simulation.state === 'RUNNING') {
+      this.rideRequestOld = undefined;
       this.rideRequest = undefined;
+      this.passenger = undefined;
       // 0. Stay idle for a random duration
       await wait(getRandomIntFromInterval(5 * 1000, 20 * 1000));
       // 1. Authenticate to the platform via AS
@@ -93,7 +99,7 @@ export class Customer extends Participant<SimulationTypeCustomer> {
       const randCity = getRandomElement(simulation.availableLocations);
       const randLocation = getRandomElement(randCity.places);
       const randMatchService = getRandomElement(simulation.matchingServices);
-      const rideRequestId = randMatchService.postRequestRide(
+      this.rideRequest = randMatchService.postRequestRide(
         pseudonym,
         latLngToCell(
           this.currentLocation.lat,
@@ -106,16 +112,22 @@ export class Customer extends Participant<SimulationTypeCustomer> {
         10 * 1000,
         getRandomFloatFromInterval(3, 4.5),
         getRandomFloatFromInterval(3, 4.5),
-        getRandomIntFromInterval(0, 4)
+        getRandomIntFromInterval(0, 4),
+        {...this.currentLocation, address: 'current location'},
+        {
+          lat: randLocation.lat,
+          long: randLocation.lon,
+          address: `${randLocation.postcode} ${randLocation.city} ${randLocation.street} ${randLocation.houseNumber}`,
+        }
       );
-      this.rideRequest = {
+      this.rideRequestOld = {
         address: `${randLocation.postcode} ${randLocation.city} ${randLocation.street} ${randLocation.houseNumber}`,
         coordinates: {lat: randLocation.lat, long: randLocation.lon},
         state: 'open',
       };
       // 3. Wait for the MS to determine the winning bid
       while (
-        randMatchService.getRideRequest(rideRequestId).auctionStatus !==
+        randMatchService.getRideRequest(this.rideRequest).auctionStatus !==
         'waiting-for-signature'
       ) {
         await wait(1 * 1000);
@@ -124,30 +136,31 @@ export class Customer extends Participant<SimulationTypeCustomer> {
       // Create a ride contract through the contract factory that contains the maximum ride cost as a deposit
       // They then need to use the GET setContractAddress/:rideRequestId/:contractAddress endpoint to update their ride request with the contacts address on the blockchain
       // As the creation of the contract is understood as the initial signing of the ride contract, the status of the auction changes from 'waiting-for-signature' to 'closed'.
-      const rideRequest = randMatchService.getRideRequest(rideRequestId);
-      this.rideRequest = {
+      const rideRequestInfo = randMatchService.getRideRequest(this.rideRequest);
+      this.rideRequestOld = {
         address: `${randLocation.postcode} ${randLocation.city} ${randLocation.street} ${randLocation.houseNumber}`,
         coordinates: {lat: randLocation.lat, long: randLocation.lon},
-        state: rideRequest.auctionStatus,
+        state: rideRequestInfo.auctionStatus,
       };
-      if (rideRequest.auctionWinner === null) {
+      if (rideRequestInfo.auctionWinner === null) {
         console.warn('customer ride request auction winner was null');
         continue;
       }
       const contractAddress = simulation.blockchain.createRideContract(
         pseudonym,
-        rideRequest.auctionWinner,
+        rideRequestInfo.auctionWinner,
         getRandomIntFromInterval(5, 20)
       );
       // Check: Contacts Ride Provider
-      randMatchService.getSetContractAddress(rideRequestId, contractAddress);
-      this.rideRequest = {
+      randMatchService.getSetContractAddress(this.rideRequest, contractAddress);
+      this.rideRequestOld = {
         address: `${randLocation.postcode} ${randLocation.city} ${randLocation.street} ${randLocation.houseNumber}`,
         coordinates: {lat: randLocation.lat, long: randLocation.lon},
         state: 'closed',
       };
       // 5. Be part of the ride and wait until the ride is over
       // TODO Fix this to correspond to the driver arriving at location, for now just wait the sky distance multiplied by a car speed
+      this.passenger = rideRequestInfo.auctionWinner;
       await this.moveToLocation({
         lat: randLocation.lat,
         long: randLocation.lon,
@@ -170,9 +183,9 @@ export class Customer extends Participant<SimulationTypeCustomer> {
       homeAddress: this.homeAddress,
       phoneNumber: this.phoneNumber,
       // TODO: Ride requests
-      rideRequest: undefined,
+      rideRequest: this.rideRequest,
       // TODO: Passenger
-      passenger: undefined,
+      passenger: this.passenger,
     };
   }
 
@@ -189,6 +202,9 @@ export class Customer extends Participant<SimulationTypeCustomer> {
       phoneNumber: this.phoneNumber,
 
       rideRequest: this.rideRequest,
+      passenger: this.passenger,
+
+      rideRequestOld: this.rideRequestOld,
 
       type: 'customer',
     };

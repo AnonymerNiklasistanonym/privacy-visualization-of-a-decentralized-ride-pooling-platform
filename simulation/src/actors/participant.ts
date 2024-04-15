@@ -22,11 +22,13 @@ export interface SimulationTypeCustomer extends SimulationTypeParticipant {
   emailAddress: string;
   phoneNumber: string;
   homeAddress: string;
-  rideRequest?: {
+  rideRequestOld?: {
     address: string;
     coordinates: Coordinates;
     state: string;
   };
+  rideRequest?: string;
+  passenger?: string;
   type: 'customer';
 }
 

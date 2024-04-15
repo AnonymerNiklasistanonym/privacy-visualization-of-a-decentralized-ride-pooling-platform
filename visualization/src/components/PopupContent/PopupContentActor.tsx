@@ -23,7 +23,6 @@ export const PopupContentCustomer: FC<PopupContentCustomerProps> = ({
               'type',
               'currentLocation',
               'currentArea',
-              'passengers',
               'participantDb',
               'auctionsDb',
             ].includes(key)
@@ -35,7 +34,7 @@ export const PopupContentCustomer: FC<PopupContentCustomerProps> = ({
           ) {
             return <p key={`${customer.id}_${key}`}>{key}: *****</p>;
           }
-          if (key === 'rideRequest') {
+          if (key === 'rideRequestOld') {
             return (
               <>
                 <p key={`${customer.id}_${key}`}>{key}:</p>
@@ -78,7 +77,6 @@ export const PopupContentRideProvider: FC<PopupContentRideProviderProps> = ({
         'type',
         'currentLocation',
         'currentArea',
-        'rideRequest',
         'participantDb',
         'auctionsDb',
       ].includes(key)
@@ -158,7 +156,7 @@ export const PopupContentActor: FC<PopupContentActorProps> = ({
           ))}
         </ul>
       );
-    } else if (key === 'rideRequest') {
+    } else if (key === 'rideRequestOld') {
       content.push(
         title,
         <ul className="scrolling" key={`${actor.id}_${key}`}>

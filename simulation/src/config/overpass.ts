@@ -110,6 +110,8 @@ export const overpassRequestCityData = async (
     area,
     boundingBoxRelation,
     node,
+    nodes: requestBbNodes.elements.filter(a => a.type === 'node'),
+    ways: requestBbNodes.elements.filter(a => a.type === 'way'),
     places: requestBbNodes.elements.map(
       a =>
         ({
@@ -125,11 +127,54 @@ export const overpassRequestCityData = async (
   };
 };
 
+export interface OverpassOsmNode {
+  type: 'node';
+  id: number;
+  lat: number;
+  lon: number;
+  tags: OverpassOsmTags;
+}
+
+export interface OverpassOsmWay {
+  type: 'way';
+  id: number;
+  bounds: {minlat: number; minlon: number; maxlat: number; maxlon: number};
+  geometry: {lat: number; lon: number}[];
+  nodes: number[];
+  tags: OverpassOsmTags;
+}
+
+export interface OverpassOsmTags {
+  'addr:city'?: string;
+  'addr:country'?: string;
+  'addr:housenumber'?: string;
+  'addr:postcode'?: string;
+  'addr:street'?: string;
+  amenity?: string;
+  'contact:email'?: string;
+  'contact:phone'?: string;
+  'contact:website'?: string;
+  name?: string;
+  operator?: string;
+  tourism?: string;
+  website?: string;
+  wheelchair?: string;
+  'wheelchair:description'?: string;
+  wikidata?: string;
+  'building:levels'?: string;
+  'roof:levels'?: string;
+  'roof:shape'?: string;
+  source?: string;
+}
+
 export interface OverpassRequestCityDataType {
   node: OverpassApiResponseDataCityNode;
   area: OverpassApiResponseDataCityArea;
   boundingBoxRelation: OverpassApiResponseDataCityBoundingBoxRelation;
   places: OverpassApiResponseDataCityPlace[];
+  // TODO
+  nodes: OverpassOsmNode[];
+  ways: OverpassOsmWay[];
 }
 
 export interface OverpassApiResponse<DATA> {

@@ -1,5 +1,6 @@
 // This file was copied from the global types directory, do not change!
 
+// Type imports
 import type {Coordinates} from '../types/coordinates';
 
 export const locations = Object.freeze({

@@ -16,7 +16,7 @@ export interface DefaultPropsI18nHome {
 
 export interface DefaultPropsI18nRoot<T>
   extends DefaultProps<T>,
-  DefaultPropsI18nHome {}
+    DefaultPropsI18nHome {}
 
 export interface MapIconProps {
   iconCustomerHTML: string;

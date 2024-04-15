@@ -14,11 +14,13 @@ import styles from '@styles/Home.module.scss';
 import type {FC} from 'react';
 import type {DefaultPropsI18n} from '@/globals/types/react';
 import type {SimulationEndpointParticipantCoordinates} from '@/globals/types/simulation';
+import CustomizedSnackbar from '@components/Test/Snackbar';
 
 export type OldMapProps = DefaultPropsI18n<React.ReactNode>;
 
 const OldMap: FC<OldMapProps> = () => {
   // React states
+  const [openState, setStateOpen] = useState(false);
   const [spectatorState, setStateSpectator] = useState('everything');
   const [participantsState, setStateParticipants] =
     useState<SimulationEndpointParticipantCoordinates>({
@@ -30,6 +32,7 @@ const OldMap: FC<OldMapProps> = () => {
   useEffect(() => {
     // Run this when any listed state dependency changes
     console.log('Spectator changed:', spectatorState);
+    setStateOpen(true);
   }, [spectatorState]);
   useEffect(() => {
     const interval = setInterval(() => {
@@ -38,7 +41,7 @@ const OldMap: FC<OldMapProps> = () => {
       ).then(data => {
         setStateParticipants(data);
       });
-    }, 10);
+    }, 100);
     return () => {
       clearInterval(interval);
     };
@@ -112,6 +115,11 @@ const OldMap: FC<OldMapProps> = () => {
           </Button>
         </p>
       </Container>
+      <CustomizedSnackbar
+        openState={openState}
+        textState={spectatorState}
+        setStateOpen={setStateOpen}
+      />
     </>
   );
 };

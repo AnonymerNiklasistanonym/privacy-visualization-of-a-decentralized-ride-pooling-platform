@@ -11,7 +11,10 @@ import {
 // Type imports
 import type {Coordinates} from './globals/types/coordinates';
 import type {SimulationConfigWithData} from './config/simulationConfigWithData';
-import type {SimulationEndpointParticipantCoordinates} from './globals/types/simulation';
+import type {
+  SimulationEndpointParticipantCoordinates,
+  SimulationEndpointParticipantInformationRideRequest,
+} from './globals/types/simulation';
 
 export interface StartPos extends Coordinates {
   zoom: number;
@@ -310,6 +313,25 @@ export class Simulation {
     });
     router.route('/matching_services').get((req, res) => {
       res.json({matchingServices: this.matchingServicesJson});
+    });
+    router.route('/ride_requests').get((req, res) => {
+      res.json({
+        rideRequests: this.matchingServices.flatMap(a => a.getAuctions()),
+      });
+    });
+    router.route('/ride_request/:id').get((req, res) => {
+      const rideRequests = this.matchingServices.flatMap(a => a.getAuctions());
+      const rideRequest = rideRequests.find(a => a.id === req.params.id);
+      if (rideRequest) {
+        res.json({
+          ...rideRequest.request,
+          dropoffLocationCoordinates: rideRequest.request.dropoffLocationReal,
+          pickupLocationCoordinates: rideRequest.request.pickupLocationReal,
+          id: rideRequest.id,
+        } as SimulationEndpointParticipantInformationRideRequest);
+        return;
+      }
+      res.status(404);
     });
     router.route('/smart_contracts').get((req, res) => {
       res.json({smartContracts: this.rideContractsJson});

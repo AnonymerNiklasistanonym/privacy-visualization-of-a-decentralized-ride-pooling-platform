@@ -20,7 +20,7 @@ $DestinationDirs | ForEach-Object -Parallel {
 	Write-Output "Copy files from '$using:SourceDir' to '$DestinationDir'"
 	Remove-Item $DestinationDir -Recurse -Force -ErrorAction SilentlyContinue
 	New-Item $DestinationDir -ItemType Directory -Force | Out-Null
-	$Files = Get-ChildItem -Recurse $using:SourceDir -Include *.ts -ErrorAction SilentlyContinue -Force
+	$Files = Get-ChildItem -Recurse $using:SourceDir -Include "*.ts" -ErrorAction SilentlyContinue -Force | Where-Object FullName -notmatch (@('node_modules') -join "|")
 	$SourceDir = $using:SourceDir
 	$DestinationFileHeaderContent = $using:DestinationFileHeaderContent
 	$Files | ForEach-Object -Parallel {

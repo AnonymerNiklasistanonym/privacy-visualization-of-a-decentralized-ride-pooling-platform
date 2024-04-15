@@ -1,5 +1,6 @@
 // This file was copied from the global types directory, do not change!
 
+// Local imports
 import {ports} from '../defaults/ports';
 
 export const fetchJson = async <T>(url: string): Promise<T> => {
@@ -14,7 +15,7 @@ export const fetchText = async (url: string): Promise<string> => {
   return result;
 };
 
-export const baseUrlSimulation = `http://localhost:${ports.simulation}`
+export const baseUrlSimulation = `http://localhost:${ports.simulation}`;
 
 export const fetchJsonSimulation = async <T>(endpoint: string): Promise<T> =>
   fetchJson<T>(`${baseUrlSimulation}/${endpoint}`);

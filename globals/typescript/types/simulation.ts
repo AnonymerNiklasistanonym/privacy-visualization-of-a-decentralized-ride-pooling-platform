@@ -1,11 +1,12 @@
+// Type imports
 import type {Coordinates, CoordinatesAddress} from './coordinates';
 import type {
   GetACarCustomer,
   GetACarParticipantPersonContactDetails,
   GetACarRideProviderPerson,
   GetACarRideProviderCompany,
-  GetACarRideRequest,
 } from './participant';
+import type {GetACarRideRequest} from './services';
 
 export type SimulationEndpointParticipantId = string;
 

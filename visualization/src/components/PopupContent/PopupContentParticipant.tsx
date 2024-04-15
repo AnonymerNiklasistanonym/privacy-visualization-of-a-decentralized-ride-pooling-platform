@@ -12,6 +12,7 @@ import type {
   SimulationEndpointParticipantCoordinatesParticipant,
   SimulationEndpointParticipantInformationRideProvider,
 } from '@/globals/types/simulation';
+import { Box, CircularProgress } from '@mui/material';
 
 export interface PopupContentParticipantProps {
   participantCoordinatesState: ReactState<SimulationEndpointParticipantCoordinatesParticipant>;
@@ -37,7 +38,9 @@ export const PopupContentParticipant: FC<PopupContentParticipantProps> = ({
         {participantCoordinatesState.id}) [{spectatorState}]
       </h2>
       {customerInformationState === null && participantType === 'customer' ? (
-        'Loading...'
+        <Box sx={{display: 'flex'}}>
+          <CircularProgress />
+        </Box>
       ) : customerInformationState !== null ? (
         <PopupContentCustomer
           customer={customerInformationState}
@@ -46,7 +49,9 @@ export const PopupContentParticipant: FC<PopupContentParticipantProps> = ({
       ) : null}
       {rideProviderInformationState === null &&
       participantType === 'ride_provider' ? (
-        'Loading...'
+        <Box sx={{display: 'flex'}}>
+          <CircularProgress />
+        </Box>
       ) : rideProviderInformationState !== null ? (
         <PopupContentRideProvider
           rideProvider={rideProviderInformationState}

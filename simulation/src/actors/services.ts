@@ -78,6 +78,9 @@ export interface MatchingServiceRequest {
   minRating: number;
   minPassengerRating: number;
   maxPassengers: number;
+
+  pickupLocationReal: {address: string} & Coordinates;
+  dropoffLocationReal: {address: string} & Coordinates;
 }
 
 export interface MatchingServiceBid {
@@ -344,7 +347,9 @@ export class MatchingService extends Service<SimulationTypeMatchingService> {
     maxWaitingTime: number,
     minRating: number,
     minPassengerRating: number,
-    maxPassengers: number
+    maxPassengers: number,
+    pickupLocationReal: {address: string} & Coordinates,
+    dropoffLocationReal: {address: string} & Coordinates
   ): string {
     const requestId = getRandomId();
     this.auctions.push({
@@ -365,6 +370,10 @@ export class MatchingService extends Service<SimulationTypeMatchingService> {
         rating,
         userId,
         userPublicKey,
+
+        // Update later
+        pickupLocationReal,
+        dropoffLocationReal,
       },
     });
     this.printLog('Ride request auction was opened', {
@@ -428,6 +437,11 @@ export class MatchingService extends Service<SimulationTypeMatchingService> {
 
   getRideRequests() {
     return this.auctions.filter(a => a.auctionStatus === 'open');
+  }
+
+  // TODO: Update
+  getAuctions() {
+    return this.auctions;
   }
 
   get json(): SimulationTypeMatchingService {
