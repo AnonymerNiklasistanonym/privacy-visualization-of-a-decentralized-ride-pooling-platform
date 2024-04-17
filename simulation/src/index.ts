@@ -8,6 +8,7 @@ import {printRouterPaths} from './misc/printExpressRoutes';
 import {Simulation} from './simulation';
 import {updateSimulationConfigWithData} from './config/simulationConfigWithData';
 import {ports} from './globals/defaults/ports';
+import {osmnxServerRequest} from './misc/osmnx';
 // Type imports
 import type {SimulationConfig} from './config/simulationConfig';
 

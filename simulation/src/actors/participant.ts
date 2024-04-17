@@ -1,13 +1,17 @@
+// Local imports
 import {Actor} from './actor';
-// Type imports
-import type {AuthenticationService} from './services';
-import type {Coordinates} from '../globals/types/coordinates';
+import {wait} from '../misc/wait';
 import {
   distanceInKmBetweenEarthCoordinates,
   getRandomFloatFromInterval,
 } from '../misc/helpers';
-import {wait} from '../misc/wait';
+// Type imports
+import type {AuthenticationService} from './services';
+import type {Coordinates} from '../globals/types/coordinates';
 import type {SimulationEndpointParticipantCoordinatesParticipant} from '../globals/types/simulation';
+import type {Simulation} from '../simulation';
+import {getClosestVertex, getShortestPathOsm} from '../pathfinder/osm';
+import { osmnxServerRequest } from '../misc/osmnx';
 
 export interface SimulationTypeParticipant {
   id: string;
@@ -90,10 +94,50 @@ export abstract class Participant<JsonType> extends Actor<JsonType> {
     };
   }
 
-  async moveToLocation(newLocation: Coordinates): Promise<void> {
+  async moveToLocation(
+    simulation: Readonly<Simulation>,
+    newLocation: Readonly<Coordinates>
+  ): Promise<void> {
     this.printLog('Move to new location', {
       currentLocation: this.currentLocation,
       newLocation,
+    });
+    const startVertex = getClosestVertex(
+      simulation.osmVertexGraph,
+      this.currentLocation
+    );
+    const targetVertex = getClosestVertex(
+      simulation.osmVertexGraph,
+      newLocation
+    );
+    this.printLog('Search shortest path', {
+      currentLocation: this.currentLocation,
+      newLocation,
+      startVertex,
+      targetVertex,
+    });
+    if (startVertex === null || targetVertex === null) {
+      throw Error(
+        'Could not determine start/target vertex ' +
+          +JSON.stringify(this.currentLocation) +
+          ' ' +
+          +JSON.stringify(newLocation)
+      );
+    }
+    const shortestPathOsx = await osmnxServerRequest(
+      this.currentLocation,
+      newLocation
+    );
+    const shortestPath = getShortestPathOsm(
+      simulation.osmVertexGraph,
+      startVertex.id,
+      targetVertex.id
+    );
+    this.printLog('Found shortest path', {
+      currentLocation: this.currentLocation,
+      newLocation,
+      shortestPath,
+      shortestPathOsx,
     });
     const oldLocation: Coordinates = {
       lat: this.currentLocation.lat,

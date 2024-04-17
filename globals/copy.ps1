@@ -8,7 +8,8 @@ Param (
 	[string[]]$DestinationDirs = @(
 		(Join-Path -Path $PSScriptRoot -ChildPath ".." | Join-Path -ChildPath "simulation" | Join-Path -ChildPath "src" | Join-Path -ChildPath "globals"),
 		(Join-Path -Path $PSScriptRoot -ChildPath ".." | Join-Path -ChildPath "visualization" | Join-Path -ChildPath "src" | Join-Path -ChildPath "globals")
-	)
+	),
+	[string[]]$IgnoreDirs = @('node_modules', 'tests')
 )
 
 
@@ -20,7 +21,7 @@ $DestinationDirs | ForEach-Object -Parallel {
 	Write-Output "Copy files from '$using:SourceDir' to '$DestinationDir'"
 	Remove-Item $DestinationDir -Recurse -Force -ErrorAction SilentlyContinue
 	New-Item $DestinationDir -ItemType Directory -Force | Out-Null
-	$Files = Get-ChildItem -Recurse $using:SourceDir -Include "*.ts" -ErrorAction SilentlyContinue -Force | Where-Object FullName -notmatch (@('node_modules') -join "|")
+	$Files = Get-ChildItem -Recurse $using:SourceDir -Include "*.ts" -ErrorAction SilentlyContinue -Force | Where-Object FullName -notmatch ($using:IgnoreDirs -join "|")
 	$SourceDir = $using:SourceDir
 	$DestinationFileHeaderContent = $using:DestinationFileHeaderContent
 	$Files | ForEach-Object -Parallel {

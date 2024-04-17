@@ -110,8 +110,12 @@ export const overpassRequestCityData = async (
     area,
     boundingBoxRelation,
     node,
-    nodes: requestBbNodes.elements.filter(a => a.type === 'node'),
-    ways: requestBbNodes.elements.filter(a => a.type === 'way'),
+    nodes: requestBbNodes.elements.filter(
+      a => a.type === 'node'
+    ) as OverpassApiResponseDataCityBoundingBoxNode[],
+    ways: requestBbNodes.elements.filter(
+      a => a.type === 'way'
+    ) as OverpassApiResponseDataCityBoundingBoxWay[],
     places: requestBbNodes.elements.map(
       a =>
         ({
@@ -242,9 +246,14 @@ export interface OverpassApiResponseDataCityBoundingBoxRelation {
   )[];
 }
 
-export interface OverpassApiResponseDataCityBoundingBoxWay {
+export interface OverpassApiResponseDataCityBoundingBoxObject {
+  type: string;
+  id: number;
+}
+
+export interface OverpassApiResponseDataCityBoundingBoxWay
+  extends OverpassApiResponseDataCityBoundingBoxObject {
   type: 'way';
-  id: number; // 263066852,
   bounds: {
     minlat: number; // 48.6920188,
     minlon: number; // 9.0386007,
@@ -262,9 +271,9 @@ export interface OverpassApiResponseDataCityBoundingBoxWay {
   };
 }
 
-export interface OverpassApiResponseDataCityBoundingBoxNode {
+export interface OverpassApiResponseDataCityBoundingBoxNode
+  extends OverpassApiResponseDataCityBoundingBoxObject {
   type: 'node';
-  id: number; // 263066852,
   lat: number;
   lon: number;
   tags: {

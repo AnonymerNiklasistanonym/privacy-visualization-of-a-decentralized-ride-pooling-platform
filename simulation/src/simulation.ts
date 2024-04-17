@@ -15,6 +15,8 @@ import type {
   SimulationEndpointParticipantCoordinates,
   SimulationEndpointParticipantInformationRideRequest,
 } from './globals/types/simulation';
+import type {OsmVertex, OsmVertexGraph} from './pathfinder/osm';
+import fs from 'node:fs/promises';
 
 export interface StartPos extends Coordinates {
   zoom: number;
@@ -127,9 +129,30 @@ export class Simulation {
 
   public readonly availableLocations;
 
+  public readonly osmVertexGraph: OsmVertexGraph;
+
   public state: 'RUNNING' | 'PAUSING' | 'INACTIVE' = 'INACTIVE';
 
   constructor(config: Readonly<SimulationConfigWithData>) {
+    // Create OSM vertex graph
+    this.osmVertexGraph = config.osmVertexGraph;
+
+    try {
+      fs.writeFile(
+        'test.json',
+        JSON.stringify({
+          vertices: Array.from(this.osmVertexGraph.vertices.entries()).reduce(
+            (o, [key, value]) => {
+              o[key] = value;
+              return o;
+            },
+            {} as Record<number, OsmVertex>
+          ),
+        })
+      );
+    } catch (err) {
+      console.log(err);
+    }
     // Create participants
     this.customers = Array.from({length: config.customer.count}, (val, index) =>
       createMockedCustomer(index, config)

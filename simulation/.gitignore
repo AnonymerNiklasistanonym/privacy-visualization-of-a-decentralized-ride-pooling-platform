@@ -7,3 +7,5 @@ dist
 node_modules
 # Ignore chached files
 cache
+
+test.json

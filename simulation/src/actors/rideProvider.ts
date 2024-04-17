@@ -114,11 +114,11 @@ export abstract class RideProvider<
       const coordinatesDropoffLocation = cellToLatLng(
         openRideRequest.request.dropoffLocation
       );
-      await this.moveToLocation({
+      await this.moveToLocation(simulation, {
         lat: coordinatesPickupLocation[0],
         long: coordinatesPickupLocation[1],
       });
-      await this.moveToLocation({
+      await this.moveToLocation(simulation, {
         lat: coordinatesDropoffLocation[0],
         long: coordinatesDropoffLocation[1],
       });
