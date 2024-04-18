@@ -7,6 +7,7 @@ import type {
   GetACarParticipantPersonContactDetails,
   GetACarRideProviderPerson,
   GetACarRideProviderCompany,
+  GetACarParticipant,
 } from './participant';
 import type {GetACarRideRequest} from './services';
 
@@ -28,6 +29,15 @@ export interface SimulationEndpointParticipantInformationMisc {
   rideRequest?: SimulationEndpointRideRequestId;
   /** Not undefined if currently passenger of a ride provider. */
   passenger?: SimulationEndpointParticipantId;
+}
+
+export interface SimulationEndpointParticipantInformation
+  extends SimulationEndpointParticipant,
+    GetACarParticipant {
+  /** Not undefined if there is a current route, null if the route is invalid. */
+  currentRoute?: Coordinates[] | null;
+  /** Not undefined if there is a current route (from OSMNX), null if the route is invalid. */
+  currentRouteOsmxn?: Coordinates[] | null;
 }
 
 export interface SimulationEndpointParticipantInformationCustomer

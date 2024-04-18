@@ -170,10 +170,7 @@ export class Customer extends Participant<SimulationTypeCustomer> {
 
   get endpointCustomer(): SimulationEndpointParticipantInformationCustomer {
     return {
-      id: this.id,
-      // Location
-      currentLocation: this.currentLocation,
-      // Type
+      ...this.endpointParticipant,
       type: 'customer',
       // Contact details
       dateOfBirth: this.dateOfBirth,
@@ -191,9 +188,9 @@ export class Customer extends Participant<SimulationTypeCustomer> {
 
   get json(): SimulationTypeCustomer {
     return {
-      id: this.id,
-
-      currentLocation: this.currentLocation,
+      ...this.endpointParticipant,
+      type: 'customer',
+      // Contact details
       dateOfBirth: this.dateOfBirth,
       emailAddress: this.emailAddress,
       fullName: this.fullName,
@@ -205,8 +202,6 @@ export class Customer extends Participant<SimulationTypeCustomer> {
       passenger: this.passenger,
 
       rideRequestOld: this.rideRequestOld,
-
-      type: 'customer',
     };
   }
 }

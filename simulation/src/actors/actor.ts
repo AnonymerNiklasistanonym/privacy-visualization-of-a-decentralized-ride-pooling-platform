@@ -4,17 +4,17 @@ import type {Simulation} from '../simulation';
 /**
  * Abstract Class that represents an actor of the simulation.
  */
-export abstract class Actor<JsonType> {
+export abstract class Actor<JsonType, T = string> {
   /** Unique simulation ID. */
   public readonly id: string;
 
   /** Actor type ID. */
-  protected readonly type: string;
+  protected readonly type: T;
 
   protected readonly verbose: boolean;
 
   /** Create instance of actor. */
-  constructor(id: string, type: string, verbose = false) {
+  constructor(id: string, type: T, verbose = false) {
     this.id = id;
     this.type = type;
     this.verbose = verbose;

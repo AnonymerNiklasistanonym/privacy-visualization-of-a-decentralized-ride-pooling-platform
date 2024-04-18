@@ -179,7 +179,7 @@ export const getShortestPath = <
   targetId: VertexId,
   heuristic?: (currentNode: Readonly<T>, targetNode: Readonly<T>) => number,
   options: GetShortestPathOptions = {}
-): Vertex[] | null => {
+): T[] | null => {
   // A vertex (besides the source and target vertex) can have 3 possible states:
   // 1. Unknown:  It is unknown if the vertex is even connected to the source/target
   //              - Stored in the *graph* [Map<ID,vertex>]

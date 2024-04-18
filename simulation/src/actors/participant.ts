@@ -5,13 +5,23 @@ import {
   distanceInKmBetweenEarthCoordinates,
   getRandomFloatFromInterval,
 } from '../misc/helpers';
+import {getShortestPathOsmCoordinates} from '../pathfinder/osm';
+import {
+  osmnxServerRequest,
+  updateRouteCoordinatesWithTime,
+} from '../misc/osmnx';
 // Type imports
 import type {AuthenticationService} from './services';
 import type {Coordinates} from '../globals/types/coordinates';
-import type {SimulationEndpointParticipantCoordinatesParticipant} from '../globals/types/simulation';
+import type {
+  SimulationEndpointParticipant,
+  SimulationEndpointParticipantCoordinatesParticipant,
+  SimulationEndpointParticipantInformation,
+  SimulationEndpointParticipantInformationCustomer,
+  SimulationEndpointParticipantInformationMisc,
+} from '../globals/types/simulation';
 import type {Simulation} from '../simulation';
-import {getClosestVertex, getShortestPathOsm} from '../pathfinder/osm';
-import { osmnxServerRequest } from '../misc/osmnx';
+import {GetACarParticipantTypes} from '../globals/types/participant';
 
 export interface SimulationTypeParticipant {
   id: string;
@@ -57,19 +67,32 @@ export interface SimulationTypeRideProviderCompany
   company: string;
 }
 
+export interface CurrentRoutes {
+  custom: Coordinates[] | null;
+  osmnxLength: Coordinates[] | null;
+  osmnxTime: Coordinates[] | null;
+}
+
 /**
  * Abstract Class that represents a participant of the simulation.
  */
-export abstract class Participant<JsonType> extends Actor<JsonType> {
+export abstract class Participant<JsonType> extends Actor<
+  JsonType,
+  GetACarParticipantTypes
+> {
   // Private dynamic information
   protected currentLocation: Coordinates;
 
   protected registeredAuthService: AuthenticationService | null = null;
 
+  protected currentRoute?: Coordinates[] | null = undefined;
+
+  protected currentRoutes?: CurrentRoutes | null = undefined;
+
   /** Create instance of participant. */
   constructor(
     id: string,
-    type: 'customer' | 'ride_provider',
+    type: GetACarParticipantTypes,
     currentLocation: Coordinates,
     verbose = false
   ) {
@@ -102,32 +125,58 @@ export abstract class Participant<JsonType> extends Actor<JsonType> {
       currentLocation: this.currentLocation,
       newLocation,
     });
-    const startVertex = getClosestVertex(
-      simulation.osmVertexGraph,
-      this.currentLocation
-    );
-    const targetVertex = getClosestVertex(
-      simulation.osmVertexGraph,
+    const shortestPathOsmnx = await osmnxServerRequest(
+      this.currentLocation,
       newLocation
+    );
+    const shortestPathCustom = getShortestPathOsmCoordinates(
+      simulation.osmVertexGraph,
+      this.currentLocation,
+      newLocation
+    );
+    this.currentRoute = shortestPathCustom;
+    this.currentRoutes = {
+      custom: shortestPathCustom,
+      osmnxLength: shortestPathOsmnx.shortest_route_length ?? null,
+      osmnxTime: shortestPathOsmnx.shortest_route_travel_time ?? null,
+    };
+    const shortestPathFinal = updateRouteCoordinatesWithTime(
+      shortestPathOsmnx.shortest_route_length === undefined
+        ? [{...this.currentLocation}, {...newLocation}]
+        : shortestPathOsmnx.shortest_route_length
     );
     this.printLog('Search shortest path', {
       currentLocation: this.currentLocation,
       newLocation,
-      startVertex,
-      targetVertex,
+      shortestPathCustom,
+      shortestPathOsmnx,
+      shortestPathFinal,
     });
-    if (startVertex === null || targetVertex === null) {
-      throw Error(
-        'Could not determine start/target vertex ' +
-          +JSON.stringify(this.currentLocation) +
-          ' ' +
-          +JSON.stringify(newLocation)
-      );
+    let currentTime = 0;
+    while (currentTime <= timeOfArrival) {
+      this.currentLocation.lat =
+        oldLocation.lat +
+        (newLocation.lat - oldLocation.lat) * (currentTime / timeOfArrival);
+      this.currentLocation.long =
+        oldLocation.long +
+        (newLocation.long - oldLocation.long) * (currentTime / timeOfArrival);
+      //this.printLog('Updated location', {
+      //  currentLocation: this.currentLocation,
+      //  destination: newLocation,
+      //  currentTime,
+      //  timeOfArrival,
+      //});
+      await wait(1000 / 4);
+      currentTime += 1000 / 4;
     }
-    const shortestPathOsx = await osmnxServerRequest(
-      this.currentLocation,
-      newLocation
-    );
+    this.currentRoute = undefined;
+    this.currentRoutes = undefined;
+
+    if (shortestPathOsmnx.error !== undefined) {
+      // go in a straight line
+      return;
+    }
+    shortestPathOsmnx = updateRouteCoordinatesWithTime;
     const shortestPath = getShortestPathOsm(
       simulation.osmVertexGraph,
       startVertex.id,
@@ -169,5 +218,18 @@ export abstract class Participant<JsonType> extends Actor<JsonType> {
       await wait(1000 / 4);
       currentTime += 1000 / 4;
     }
+  }
+
+  get endpointParticipant(): SimulationEndpointParticipantInformation {
+    return {
+      id: this.id,
+      // Type
+      type: this.type,
+      // Location
+      currentLocation: this.currentLocation,
+      // TODO: Routes
+      currentRoute: this.currentRoute,
+      currentRouteOsmxn: this.currentRoutes?.osmnxTime,
+    };
   }
 }

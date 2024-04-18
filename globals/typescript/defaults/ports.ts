@@ -4,4 +4,6 @@ export const ports = Object.freeze({
   simulation: 2222,
   /** The default port of the visualization. */
   visualization: 3000,
+  /** The default port of the pathfinder. */
+  pathfinder: 6000,
 });

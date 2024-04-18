@@ -26,12 +26,17 @@ export interface SimulationEndpointParticipantInformationMisc {
   rideRequest?: SimulationEndpointRideRequestId;
   /** Not undefined if currently passenger of a ride provider. */
   passenger?: SimulationEndpointParticipantId;
+  /** Not undefined if there is a current route, null if the route is invalid. */
+  currentRoute?: Coordinates[] | null;
+  /** Not undefined if there is a current route (from OSMNX), null if the route is invalid. */
+  currentRouteOsmxn?: Coordinates[] | null;
 }
 
 export interface SimulationEndpointParticipantInformationCustomer
   extends SimulationEndpointParticipant,
     GetACarCustomer,
-    SimulationEndpointParticipantInformationMisc {}
+    SimulationEndpointParticipantInformationMisc {
+}
 
 export type SimulationEndpointParticipantInformationRideProvider =
   | SimulationEndpointParticipantInformationRideProviderPerson
