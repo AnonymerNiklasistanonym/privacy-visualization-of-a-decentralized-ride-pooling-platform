@@ -1,4 +1,4 @@
-import 'server-only';
+//import 'server-only';
 
 import {createIntl} from 'react-intl';
 import type {Locale} from '../../i18n-config';

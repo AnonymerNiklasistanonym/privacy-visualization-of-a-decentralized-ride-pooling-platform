@@ -43,30 +43,29 @@ import ParticipantMarker from './ParticipantMarker';
 //  locations.startPos.long,
 //];
 
-
 function LocationMarker() {
-  const [position, setPosition] = useState(null)
+  const [position, setPosition] = useState(null);
   const map = useMapEvents({
     popupopen(e) {
-      console.log("popup open", e);
+      console.log('popup open', e);
     },
     click(e) {
-      console.log("map was clicked", e);
+      console.log('map was clicked', e);
     },
     load() {
       map.locate();
     },
     locationfound(e) {
-      setPosition(e.latlng)
-      map.flyTo(e.latlng, map.getZoom())
+      setPosition(e.latlng);
+      map.flyTo(e.latlng, map.getZoom());
     },
-  })
+  });
 
   return position === null ? null : (
     <Marker position={position}>
       <Popup>You are here</Popup>
     </Marker>
-  )
+  );
 }
 
 export interface StatPos {
@@ -164,7 +163,7 @@ const MapTest: FC<MapTestProps> = ({
             },
           }}
         />
-        <LocationMarker/>
+        <LocationMarker />
         {<FullscreenControl forceSeparateButton={true} title={'WTF'} />}
         <LayersControl position="topright">
           <LayersControl.Overlay checked={true} name="Customers">

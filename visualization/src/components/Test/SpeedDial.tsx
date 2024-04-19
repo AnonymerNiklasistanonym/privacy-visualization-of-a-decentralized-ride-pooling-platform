@@ -1,7 +1,6 @@
 'use client';
 
 import * as React from 'react';
-import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
 import SpeedDial from '@mui/material/SpeedDial';
 import SpeedDialIcon from '@mui/material/SpeedDialIcon';
@@ -24,26 +23,25 @@ export default function SpeedDialTooltipOpen() {
   const handleClose = () => setOpen(false);
 
   return (
-    <Paper sx={{ position: 'fixed', bottom: 0, left: 0, right: 0 }} elevation={4}>
-    <SpeedDial
-      ariaLabel="SpeedDial tooltip example"
-      sx={{position: 'absolute', bottom: 16, right: 16}}
-      icon={<SpeedDialIcon />}
-      onClose={handleClose}
-      onOpen={handleOpen}
-      open={open}
-    >
-      {actions.map(action => (
-        <SpeedDialAction
-          key={action.name}
-          icon={action.icon}
-          tooltipTitle={action.name}
-          tooltipOpen
-          onClick={handleClose}
-
-        />
-      ))}
-    </SpeedDial>
+    <Paper sx={{position: 'fixed', bottom: 0, left: 0, right: 0}} elevation={4}>
+      <SpeedDial
+        ariaLabel="SpeedDial tooltip example"
+        sx={{position: 'absolute', bottom: 16, right: 16}}
+        icon={<SpeedDialIcon />}
+        onClose={handleClose}
+        onOpen={handleOpen}
+        open={open}
+      >
+        {actions.map(action => (
+          <SpeedDialAction
+            key={action.name}
+            icon={action.icon}
+            tooltipTitle={action.name}
+            tooltipOpen
+            onClick={handleClose}
+          />
+        ))}
+      </SpeedDial>
     </Paper>
   );
 }

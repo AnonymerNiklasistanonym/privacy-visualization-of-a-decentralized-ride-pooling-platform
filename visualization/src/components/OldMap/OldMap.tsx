@@ -2,7 +2,7 @@
 
 import {useEffect, useState} from 'react';
 // Local imports
-import {fetchJsonSimulation, fetchTextSimulation} from '@/globals/lib/fetch';
+import {fetchJsonSimulation, fetchTextSimulation} from '@globals/lib/fetch';
 // > Components
 import Map from '@components/Map';
 import Container from '@components/Container';
@@ -12,8 +12,8 @@ import DynamicTitle from './DynamicTitle';
 import styles from '@styles/Home.module.scss';
 // Type imports
 import type {FC} from 'react';
-import type {DefaultPropsI18n} from '@/globals/types/react';
-import type {SimulationEndpointParticipantCoordinates} from '@/globals/types/simulation';
+import type {DefaultPropsI18n} from '@globals/types/react';
+import type {SimulationEndpointParticipantCoordinates} from '@globals/types/simulation';
 import CustomizedSnackbar from '@components/Test/Snackbar';
 
 export type OldMapProps = DefaultPropsI18n<React.ReactNode>;

@@ -2,7 +2,6 @@
 import type {Coordinates, CoordinatesAddress} from './coordinates';
 import type {
   GetACarCustomer,
-  GetACarParticipantPersonContactDetails,
   GetACarRideProviderPerson,
   GetACarRideProviderCompany,
   GetACarParticipant,
@@ -43,19 +42,19 @@ export type SimulationEndpointParticipantInformationRideProvider =
   | SimulationEndpointParticipantInformationRideProviderPerson
   | SimulationEndpointParticipantInformationRideProviderCompany;
 
-export interface SimulationEndpointParticipantInformationRideProviderPerson
-  extends SimulationEndpointParticipantInformation,
-    GetACarRideProviderPerson {
+export interface SimulationEndpointParticipantInformationRideProviderGeneric
+  extends SimulationEndpointParticipantInformation {
   /** Not undefined if currently passengers/customers are being carried. */
   passengerList?: SimulationEndpointParticipantId[];
 }
 
+export interface SimulationEndpointParticipantInformationRideProviderPerson
+  extends SimulationEndpointParticipantInformationRideProviderGeneric,
+    GetACarRideProviderPerson {}
+
 export interface SimulationEndpointParticipantInformationRideProviderCompany
-  extends SimulationEndpointParticipantInformation,
-    GetACarRideProviderCompany {
-  /** Not undefined if currently passengers/customers are being carried. */
-  passengerList?: SimulationEndpointParticipantId[];
-}
+  extends SimulationEndpointParticipantInformationRideProviderGeneric,
+    GetACarRideProviderCompany {}
 
 export interface SimulationEndpointParticipantInformationRideRequest
   extends GetACarRideRequest {
@@ -72,10 +71,4 @@ export interface SimulationEndpointParticipantCoordinates {
 export interface SimulationEndpointGraph {
   vertices: Array<Coordinates>;
   edges: Array<[Coordinates, Coordinates]>;
-}
-
-export interface SimulationEndpointCustomer
-  extends GetACarParticipantPersonContactDetails {
-  id: string;
-  // TODO: Ride requests / passenger
 }

@@ -12,7 +12,7 @@ import type {
   SimulationEndpointParticipantCoordinatesParticipant,
   SimulationEndpointParticipantInformationRideProvider,
 } from '@/globals/types/simulation';
-import { Box, CircularProgress } from '@mui/material';
+import {Box, CircularProgress} from '@mui/material';
 
 export interface PopupContentParticipantProps {
   participantCoordinatesState: ReactState<SimulationEndpointParticipantCoordinatesParticipant>;
