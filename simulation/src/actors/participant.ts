@@ -1,24 +1,15 @@
 // Local imports
 import {Actor} from './actor';
 import {wait} from '../misc/wait';
-import {
-  distanceInKmBetweenEarthCoordinates,
-  getRandomFloatFromInterval,
-} from '../misc/helpers';
+import {interpolateCurrentCoordinatesFromPath} from '../misc/helpers';
 import {getShortestPathOsmCoordinates} from '../pathfinder/osm';
-import {
-  osmnxServerRequest,
-  updateRouteCoordinatesWithTime,
-} from '../misc/osmnx';
+import {osmnxServerRequest} from '../misc/osmnx';
 // Type imports
 import type {AuthenticationService} from './services';
 import type {Coordinates} from '../globals/types/coordinates';
 import type {
-  SimulationEndpointParticipant,
   SimulationEndpointParticipantCoordinatesParticipant,
   SimulationEndpointParticipantInformation,
-  SimulationEndpointParticipantInformationCustomer,
-  SimulationEndpointParticipantInformationMisc,
 } from '../globals/types/simulation';
 import type {Simulation} from '../simulation';
 import {GetACarParticipantTypes} from '../globals/types/participant';
@@ -140,11 +131,10 @@ export abstract class Participant<JsonType> extends Actor<
       osmnxLength: shortestPathOsmnx.shortest_route_length ?? null,
       osmnxTime: shortestPathOsmnx.shortest_route_travel_time ?? null,
     };
-    const shortestPathFinal = updateRouteCoordinatesWithTime(
+    const shortestPathFinal =
       shortestPathOsmnx.shortest_route_length === undefined
         ? [{...this.currentLocation}, {...newLocation}]
-        : shortestPathOsmnx.shortest_route_length
-    );
+        : shortestPathOsmnx.shortest_route_length;
     this.printLog('Search shortest path', {
       currentLocation: this.currentLocation,
       newLocation,
@@ -152,79 +142,27 @@ export abstract class Participant<JsonType> extends Actor<
       shortestPathOsmnx,
       shortestPathFinal,
     });
-    let currentTime = 0;
-    while (currentTime <= timeOfArrival) {
-      this.currentLocation.lat =
-        oldLocation.lat +
-        (newLocation.lat - oldLocation.lat) * (currentTime / timeOfArrival);
-      this.currentLocation.long =
-        oldLocation.long +
-        (newLocation.long - oldLocation.long) * (currentTime / timeOfArrival);
-      //this.printLog('Updated location', {
-      //  currentLocation: this.currentLocation,
-      //  destination: newLocation,
-      //  currentTime,
-      //  timeOfArrival,
-      //});
+    const interpolatedCoordinatesInfo = interpolateCurrentCoordinatesFromPath(
+      shortestPathFinal,
+      35
+    );
+    let currentTravelTimeInMs = 0;
+    while (
+      currentTravelTimeInMs <= interpolatedCoordinatesInfo.travelTimeInMs
+    ) {
+      this.currentLocation = interpolatedCoordinatesInfo.getCurrentPosition(
+        currentTravelTimeInMs
+      );
       await wait(1000 / 4);
-      currentTime += 1000 / 4;
+      currentTravelTimeInMs += 1000 / 4;
     }
     this.currentRoute = undefined;
     this.currentRoutes = undefined;
-
-    if (shortestPathOsmnx.error !== undefined) {
-      // go in a straight line
-      return;
-    }
-    shortestPathOsmnx = updateRouteCoordinatesWithTime;
-    const shortestPath = getShortestPathOsm(
-      simulation.osmVertexGraph,
-      startVertex.id,
-      targetVertex.id
-    );
-    this.printLog('Found shortest path', {
-      currentLocation: this.currentLocation,
-      newLocation,
-      shortestPath,
-      shortestPathOsx,
-    });
-    const oldLocation: Coordinates = {
-      lat: this.currentLocation.lat,
-      long: this.currentLocation.long,
-    };
-    const timeOfArrival =
-      distanceInKmBetweenEarthCoordinates(
-        this.currentLocation.lat,
-        this.currentLocation.long,
-        newLocation.lat,
-        newLocation.long
-      ) *
-      getRandomFloatFromInterval(20, 30) *
-      1000;
-    let currentTime = 0;
-    while (currentTime <= timeOfArrival) {
-      this.currentLocation.lat =
-        oldLocation.lat +
-        (newLocation.lat - oldLocation.lat) * (currentTime / timeOfArrival);
-      this.currentLocation.long =
-        oldLocation.long +
-        (newLocation.long - oldLocation.long) * (currentTime / timeOfArrival);
-      //this.printLog('Updated location', {
-      //  currentLocation: this.currentLocation,
-      //  destination: newLocation,
-      //  currentTime,
-      //  timeOfArrival,
-      //});
-      await wait(1000 / 4);
-      currentTime += 1000 / 4;
-    }
   }
 
   get endpointParticipant(): SimulationEndpointParticipantInformation {
     return {
       id: this.id,
-      // Type
-      type: this.type,
       // Location
       currentLocation: this.currentLocation,
       // TODO: Routes

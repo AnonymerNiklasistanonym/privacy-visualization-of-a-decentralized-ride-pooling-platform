@@ -1,5 +1,6 @@
 // Package imports
-import {describe, test, expect} from '@jest/globals';
+// eslint-disable-next-line node/no-unpublished-import
+import {describe, expect, test} from '@jest/globals';
 // Local imports
 import {getShortestPath} from '../../src/pathfinder/shortestPath';
 // Type imports

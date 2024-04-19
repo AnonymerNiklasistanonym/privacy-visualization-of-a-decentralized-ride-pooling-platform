@@ -30,7 +30,7 @@ export abstract class RideProvider<
 
   protected readonly vehicleIdentificationNumber: string;
 
-  protected readonly passengers: string[] = [];
+  protected readonly passengerList: string[] = [];
 
   constructor(
     id: string,
@@ -108,7 +108,7 @@ export abstract class RideProvider<
       this.printLog('Bid for open ride request was successful', {
         closedRideRequest,
       });
-      this.passengers.push(closedRideRequest.request.userId);
+      this.passengerList.push(closedRideRequest.request.userId);
       // 4. Drive to customer and drive them to the dropoff location
       // TODO Fix this to correspond to the driver arriving at location, for now just wait the sky distance multiplied by a car speed
       const coordinatesDropoffLocation = cellToLatLng(
@@ -122,7 +122,7 @@ export abstract class RideProvider<
         lat: coordinatesDropoffLocation[0],
         long: coordinatesDropoffLocation[1],
       });
-      this.passengers.pop();
+      this.passengerList.pop();
     }
   }
 
@@ -202,30 +202,26 @@ export class RideProviderPerson extends RideProvider<SimulationTypeRideProviderP
 
   get json(): SimulationTypeRideProviderPerson {
     return {
-      id: this.id,
-
-      currentLocation: this.currentLocation,
+      ...this.endpointParticipant,
+      type: 'ride_provider',
+      // Ride Provider details
+      vehicleIdentificationNumber: this.vehicleIdentificationNumber,
+      vehicleNumberPlate: this.vehicleNumberPlate,
+      // Contact details
       dateOfBirth: this.dateOfBirth,
       emailAddress: this.emailAddress,
       fullName: this.fullName,
       gender: this.gender,
       homeAddress: this.homeAddress,
       phoneNumber: this.phoneNumber,
-      vehicleIdentificationNumber: this.vehicleIdentificationNumber,
-      vehicleNumberPlate: this.vehicleNumberPlate,
 
-      passengers: this.passengers,
-
-      type: 'ride_provider',
+      passengers: this.passengerList,
     };
   }
 
   get endpointRideProvider(): SimulationEndpointParticipantInformationRideProviderPerson {
     return {
-      id: this.id,
-      // Location
-      currentLocation: this.currentLocation,
-      // Type
+      ...this.endpointParticipant,
       type: 'ride_provider',
       // Ride Provider details
       vehicleIdentificationNumber: this.vehicleIdentificationNumber,
@@ -240,7 +236,7 @@ export class RideProviderPerson extends RideProvider<SimulationTypeRideProviderP
       // TODO: Ride requests
       rideRequest: undefined,
       // TODO: Passenger
-      passenger: undefined,
+      passengerList: this.passengerList,
     };
   }
 }
@@ -292,25 +288,21 @@ export class RideProviderCompany extends RideProvider<SimulationTypeRideProvider
 
   get json(): SimulationTypeRideProviderCompany {
     return {
-      id: this.id,
+      ...this.endpointParticipant,
+      type: 'ride_provider',
 
       company: this.company,
       currentLocation: this.currentLocation,
       vehicleIdentificationNumber: this.vehicleIdentificationNumber,
       vehicleNumberPlate: this.vehicleNumberPlate,
 
-      passengers: this.passengers,
-
-      type: 'ride_provider',
+      passengers: this.passengerList,
     };
   }
 
   get endpointRideProvider(): SimulationEndpointParticipantInformationRideProviderCompany {
     return {
-      id: this.id,
-      // Location
-      currentLocation: this.currentLocation,
-      // Type
+      ...this.endpointParticipant,
       type: 'ride_provider',
       // Ride Provider details
       vehicleIdentificationNumber: this.vehicleIdentificationNumber,
@@ -320,7 +312,7 @@ export class RideProviderCompany extends RideProvider<SimulationTypeRideProvider
       // TODO: Ride requests
       rideRequest: undefined,
       // TODO: Passenger
-      passenger: undefined,
+      passengerList: this.passengerList,
     };
   }
 }

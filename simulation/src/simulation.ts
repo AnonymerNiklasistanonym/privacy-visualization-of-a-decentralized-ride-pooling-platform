@@ -12,6 +12,7 @@ import {
 import type {Coordinates} from './globals/types/coordinates';
 import type {SimulationConfigWithData} from './config/simulationConfigWithData';
 import type {
+  SimulationEndpointGraph,
   SimulationEndpointParticipantCoordinates,
   SimulationEndpointParticipantInformationRideRequest,
 } from './globals/types/simulation';
@@ -337,9 +338,11 @@ export class Simulation {
     router.route('/matching_services').get((req, res) => {
       res.json({matchingServices: this.matchingServicesJson});
     });
+    // REMOVE
     router.route('/ride_requests').get((req, res) => {
       res.json({
         rideRequests: this.matchingServices.flatMap(a => a.getAuctions()),
+        delete: 'delete this',
       });
     });
     router.route('/ride_request/:id').get((req, res) => {
@@ -358,6 +361,38 @@ export class Simulation {
     });
     router.route('/smart_contracts').get((req, res) => {
       res.json({smartContracts: this.rideContractsJson});
+    });
+    // DEBUG: Created route graph
+    router.route('/graph').get((req, res) => {
+      let edges: [Coordinates, Coordinates][] = [];
+      if (this.osmVertexGraph.edges instanceof Map) {
+        edges = Array.from(this.osmVertexGraph.edges).map(a => [
+          this.osmVertexGraph.vertices.get(a[1].vertexA)?.coordinates ?? {
+            lat: 0,
+            long: 0,
+          },
+          this.osmVertexGraph.vertices.get(a[1].vertexB)?.coordinates ?? {
+            lat: 0,
+            long: 0,
+          },
+        ]);
+      } else {
+        for (const [, vertex] of this.osmVertexGraph.vertices) {
+          for (const vertexNeighborId of vertex.neighbors) {
+            const vertexNeighbor =
+              this.osmVertexGraph.vertices.get(vertexNeighborId);
+            if (vertexNeighbor) {
+              edges.push([vertex.coordinates, vertexNeighbor.coordinates]);
+            }
+          }
+        }
+      }
+      res.json({
+        vertices: Array.from(this.osmVertexGraph.vertices).map(
+          a => a[1].coordinates
+        ),
+        edges,
+      } as SimulationEndpointGraph);
     });
     return router;
   }

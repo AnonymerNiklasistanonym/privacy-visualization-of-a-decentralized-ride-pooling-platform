@@ -1,3 +1,8 @@
+// Package imports
+import haversineDistance from 'haversine-distance';
+// Type imports
+import type {Coordinates} from '../globals/types/coordinates';
+
 export const getRandomId = (): string => Math.random().toString(36).slice(2);
 
 export const getRandomElement = <TYPE>(array: ReadonlyArray<TYPE>): TYPE => {
@@ -13,8 +18,72 @@ export const getRandomIntFromInterval = (min: number, max: number): number =>
 export const getRandomFloatFromInterval = (min: number, max: number): number =>
   Math.random() * (max - min) + min;
 
+export interface InterpolatedCoordinatesFromPath {
+  travelTimeInMs: number;
+  getCurrentPosition: (currentTravelTimeInMs: number) => Coordinates;
+}
+
+export interface CoordinatesWithTime extends Coordinates {
+  distanceInM: number;
+  travelTimeInMs: number;
+}
+
+export const updateRouteCoordinatesWithTime = (
+  coordinates: ReadonlyArray<Coordinates>,
+  speedInKmH: number = 50
+): CoordinatesWithTime[] => {
+  if (coordinates.length === 0) {
+    return [];
+  }
+  return coordinates.map((a, index) => {
+    const distanceInM = haversineDistance(
+      {
+        lat: coordinates[index > 0 ? index - 1 : index].lat,
+        lon: coordinates[index > 0 ? index - 1 : index].long,
+      },
+      {
+        lat: a.lat,
+        lon: a.long,
+      }
+    );
+    return {
+      ...a,
+      distanceInM,
+      travelTimeInMs: (distanceInM / 1000) * speedInKmH * 3600000,
+    };
+  });
+};
+
+export const interpolateCurrentCoordinatesFromPath = (
+  path: ReadonlyArray<Coordinates>,
+  speedInKmH: number
+): InterpolatedCoordinatesFromPath => {
+  const coordinatesWithTime = updateRouteCoordinatesWithTime(path, speedInKmH);
+  const travelTimeInMs = coordinatesWithTime.reduce(
+    (sum, a) => sum + a.travelTimeInMs,
+    0
+  );
+  return {
+    travelTimeInMs,
+    getCurrentPosition: (currentTravelTimeInMs: number) => {
+      return {
+        lat:
+          path[0].lat +
+          (path.slice(-1)[0].lat - path[0].lat) *
+            (currentTravelTimeInMs / travelTimeInMs),
+        long:
+          path[0].long +
+          (path.slice(-1)[0].long - path[0].long) *
+            (currentTravelTimeInMs / travelTimeInMs),
+      };
+    },
+  };
+};
+
+// Remove this
 export const degreesToRadians = (degrees: number) => (degrees * Math.PI) / 180;
 
+// Remove this
 export const distanceInKmBetweenEarthCoordinates = (
   lat1: number,
   lon1: number,

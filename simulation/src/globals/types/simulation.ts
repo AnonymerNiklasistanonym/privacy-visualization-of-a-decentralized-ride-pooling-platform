@@ -23,41 +23,41 @@ export interface SimulationEndpointParticipantCoordinatesParticipant
   extends SimulationEndpointParticipant,
     Coordinates {}
 
-// TODO Update later
-export interface SimulationEndpointParticipantInformationMisc {
-  /** Not undefined if there is currently an active ride request. */
-  rideRequest?: SimulationEndpointRideRequestId;
-  /** Not undefined if currently passenger of a ride provider. */
-  passenger?: SimulationEndpointParticipantId;
-}
-
 export interface SimulationEndpointParticipantInformation
   extends SimulationEndpointParticipant,
-    GetACarParticipant {
+    Omit<GetACarParticipant, 'type'> {
   /** Not undefined if there is a current route, null if the route is invalid. */
   currentRoute?: Coordinates[] | null;
   /** Not undefined if there is a current route (from OSMNX), null if the route is invalid. */
   currentRouteOsmxn?: Coordinates[] | null;
+  /** Not undefined if there is currently an active ride request. */
+  rideRequest?: SimulationEndpointRideRequestId;
 }
 
 export interface SimulationEndpointParticipantInformationCustomer
-  extends SimulationEndpointParticipant,
-    GetACarCustomer,
-    SimulationEndpointParticipantInformationMisc {}
+  extends SimulationEndpointParticipantInformation,
+    GetACarCustomer {
+  /** Not undefined if currently a passenger of a ride provider. */
+  passenger?: SimulationEndpointParticipantId;
+}
 
 export type SimulationEndpointParticipantInformationRideProvider =
   | SimulationEndpointParticipantInformationRideProviderPerson
   | SimulationEndpointParticipantInformationRideProviderCompany;
 
 export interface SimulationEndpointParticipantInformationRideProviderPerson
-  extends SimulationEndpointParticipant,
-    GetACarRideProviderPerson,
-    SimulationEndpointParticipantInformationMisc {}
+  extends SimulationEndpointParticipantInformation,
+    GetACarRideProviderPerson {
+  /** Not undefined if currently passengers/customers are being carried. */
+  passengerList?: SimulationEndpointParticipantId[];
+}
 
 export interface SimulationEndpointParticipantInformationRideProviderCompany
-  extends SimulationEndpointParticipant,
-    GetACarRideProviderCompany,
-    SimulationEndpointParticipantInformationMisc {}
+  extends SimulationEndpointParticipantInformation,
+    GetACarRideProviderCompany {
+  /** Not undefined if currently passengers/customers are being carried. */
+  passengerList?: SimulationEndpointParticipantId[];
+}
 
 export interface SimulationEndpointParticipantInformationRideRequest
   extends GetACarRideRequest {
@@ -69,6 +69,11 @@ export interface SimulationEndpointParticipantInformationRideRequest
 export interface SimulationEndpointParticipantCoordinates {
   customers: Array<SimulationEndpointParticipantCoordinatesParticipant>;
   rideProviders: Array<SimulationEndpointParticipantCoordinatesParticipant>;
+}
+
+export interface SimulationEndpointGraph {
+  vertices: Array<Coordinates>;
+  edges: Array<[Coordinates, Coordinates]>;
 }
 
 export interface SimulationEndpointCustomer

@@ -20,6 +20,8 @@ export interface VertexEdge {
   id: VertexEdgeId;
   /** The vertex edge weight */
   weight: number;
+  vertexA: VertexId;
+  vertexB: VertexId;
 }
 
 export interface VertexGraph<
