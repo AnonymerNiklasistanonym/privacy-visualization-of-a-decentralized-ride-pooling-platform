@@ -1,12 +1,10 @@
 /* eslint-disable max-classes-per-file */
 import {cellToLatLng} from 'h3-js';
 // Local imports
-import {
-  distanceInKmBetweenEarthCoordinates,
-  getRandomElement,
-  getRandomIntFromInterval,
-} from '../misc/helpers';
+import {getRandomElement, getRandomIntFromInterval} from '../misc/helpers';
+import {getTravelTimeInMsCoordinates} from '../misc/coordinatesInterpolation';
 import {Participant} from './participant';
+import {speeds} from '../globals/defaults/speed';
 import {wait} from '../misc/wait';
 // Type imports
 import type {Coordinates} from '../globals/types/coordinates';
@@ -21,6 +19,7 @@ import type {
   SimulationEndpointParticipantInformationRideProviderCompany,
   SimulationEndpointParticipantInformationRideProviderPerson,
 } from '../globals/types/simulation';
+import type {AuthenticationService} from './services';
 
 export abstract class RideProvider<
   JsonType extends SimulationTypeRideProvider,
@@ -44,11 +43,17 @@ export abstract class RideProvider<
     this.vehicleIdentificationNumber = vehicleIdentificationNumber;
   }
 
-  async runGenericLoop(simulation: Simulation) {
+  abstract runRegisterToRandomAuthService(
+    simulation: Simulation
+  ): AuthenticationService;
+
+  async run(simulation: Simulation): Promise<void> {
+    this.printLog('run');
+    // 1. Register to a random AS
+    this.registeredAuthService =
+      this.runRegisterToRandomAuthService(simulation);
     // Loop:
     while (simulation.state === 'RUNNING') {
-      // 0. Stay idle for a random duration
-      await wait(1 * 1000);
       // 1. Authenticate to the platform via AS
       if (this.registeredAuthService === null) {
         throw Error('No registered auth server!');
@@ -59,6 +64,7 @@ export abstract class RideProvider<
       const openRideRequests = randMatchService.getRideRequests();
       if (openRideRequests.length === 0) {
         this.printLog('No open ride requests found');
+        await wait(1 * 1000);
         continue;
       }
       const openRideRequest = getRandomElement(
@@ -66,12 +72,6 @@ export abstract class RideProvider<
       );
       const coordinatesPickupLocation = cellToLatLng(
         openRideRequest.request.pickupLocation
-      );
-      const differenceInKm = distanceInKmBetweenEarthCoordinates(
-        this.currentLocation.lat,
-        this.currentLocation.long,
-        coordinatesPickupLocation[0],
-        coordinatesPickupLocation[1]
       );
       this.printLog('Post bid for open ride request', {openRideRequest});
       randMatchService.postBid(
@@ -83,7 +83,14 @@ export abstract class RideProvider<
         getRandomElement(['Tesla', 'Mercedes', 'Smart']),
         new Date(
           new Date().getTime() +
-            differenceInKm * getRandomIntFromInterval(20, 30) * 1000 * 60
+            getTravelTimeInMsCoordinates(
+              this.currentLocation,
+              {
+                lat: coordinatesPickupLocation[0],
+                long: coordinatesPickupLocation[1],
+              },
+              speeds.carInKmH
+            )
         ),
         // TODO Handle multiple passengers
         0,
@@ -123,6 +130,8 @@ export abstract class RideProvider<
         long: coordinatesDropoffLocation[1],
       });
       this.passengerList.pop();
+      // 5. Stay idle for a random duration
+      await wait(getRandomIntFromInterval(1, 20) * 1000);
     }
   }
 
@@ -179,11 +188,9 @@ export class RideProviderPerson extends RideProvider<SimulationTypeRideProviderP
     };
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars, class-methods-use-this
-  async run(simulation: Simulation): Promise<void> {
-    this.printLog('run');
-    // Setup:
-    // 1. Register to a random AS
+  runRegisterToRandomAuthService(
+    simulation: Simulation
+  ): AuthenticationService {
     const randAuthService = getRandomElement(simulation.authenticationServices);
     randAuthService.getRegisterRideProvider(
       this.id,
@@ -196,8 +203,7 @@ export class RideProviderPerson extends RideProvider<SimulationTypeRideProviderP
       this.vehicleNumberPlate,
       this.vehicleIdentificationNumber
     );
-    this.registeredAuthService = randAuthService;
-    await this.runGenericLoop(simulation);
+    return randAuthService;
   }
 
   get json(): SimulationTypeRideProviderPerson {
@@ -235,7 +241,7 @@ export class RideProviderPerson extends RideProvider<SimulationTypeRideProviderP
       phoneNumber: this.phoneNumber,
       // TODO: Ride requests
       rideRequest: undefined,
-      // TODO: Passenger
+      // Passenger list
       passengerList: this.passengerList,
     };
   }
@@ -271,10 +277,9 @@ export class RideProviderCompany extends RideProvider<SimulationTypeRideProvider
     };
   }
 
-  async run(simulation: Simulation): Promise<void> {
-    this.printLog('run');
-    // Setup:
-    // 1. Register to a random AS
+  runRegisterToRandomAuthService(
+    simulation: Simulation
+  ): AuthenticationService {
     const randAuthService = getRandomElement(simulation.authenticationServices);
     randAuthService.getRegisterRideProviderCompany(
       this.id,
@@ -282,8 +287,7 @@ export class RideProviderCompany extends RideProvider<SimulationTypeRideProvider
       this.vehicleIdentificationNumber,
       this.company
     );
-    this.registeredAuthService = randAuthService;
-    await this.runGenericLoop(simulation);
+    return randAuthService;
   }
 
   get json(): SimulationTypeRideProviderCompany {
@@ -311,7 +315,7 @@ export class RideProviderCompany extends RideProvider<SimulationTypeRideProvider
       company: this.company,
       // TODO: Ride requests
       rideRequest: undefined,
-      // TODO: Passenger
+      // Passenger list
       passengerList: this.passengerList,
     };
   }

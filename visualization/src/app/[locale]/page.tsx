@@ -7,7 +7,7 @@ import Navigation1 from '@components/Test/Navigation1';
 import Navigation3 from '@components/Test/Navigation3';
 import SpeedDialTooltipOpen from '@components/Test/SpeedDial';
 import SearchAppBar from '@components/Test/SearchBar';
-import OldMap from '@components/OldMap/OldMap';
+import TabMap from '@components/Tabs/TabMap';
 // Type imports
 import type {FC} from 'react';
 import type {DefaultPropsI18nHome} from '@globals/types/react';
@@ -39,7 +39,7 @@ const Home: FC<DefaultPropsI18nHome> = async ({params: {locale}}) => {
 
           <Navigation3 />
 
-          <OldMap locale={locale} />
+          <TabMap locale={locale} />
 
           <SpeedDialTooltipOpen />
         </main>

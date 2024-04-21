@@ -1,7 +1,7 @@
 // Local imports
 import {Actor} from './actor';
 import {wait} from '../misc/wait';
-import {interpolateCurrentCoordinatesFromPath} from '../misc/helpers';
+import {interpolateCurrentCoordinatesFromPath} from '../misc/coordinatesInterpolation';
 import {getShortestPathOsmCoordinates} from '../pathfinder/osm';
 import {osmnxServerRequest} from '../misc/osmnx';
 // Type imports
@@ -120,6 +120,9 @@ export abstract class Participant<JsonType> extends Actor<
       this.currentLocation,
       newLocation
     );
+    this.printLog('Received path Osmnx', {
+      shortestPathOsmnx,
+    });
     const shortestPathCustom = getShortestPathOsmCoordinates(
       simulation.osmVertexGraph,
       this.currentLocation,
@@ -135,17 +138,18 @@ export abstract class Participant<JsonType> extends Actor<
       shortestPathOsmnx.shortest_route_length === undefined
         ? [{...this.currentLocation}, {...newLocation}]
         : shortestPathOsmnx.shortest_route_length;
+    const interpolatedCoordinatesInfo = interpolateCurrentCoordinatesFromPath(
+      shortestPathFinal,
+      35
+    );
     this.printLog('Search shortest path', {
       currentLocation: this.currentLocation,
       newLocation,
       shortestPathCustom,
       shortestPathOsmnx,
       shortestPathFinal,
+      interpolatedCoordinatesInfo,
     });
-    const interpolatedCoordinatesInfo = interpolateCurrentCoordinatesFromPath(
-      shortestPathFinal,
-      35
-    );
     let currentTravelTimeInMs = 0;
     while (
       currentTravelTimeInMs <= interpolatedCoordinatesInfo.travelTimeInMs
@@ -153,8 +157,10 @@ export abstract class Participant<JsonType> extends Actor<
       this.currentLocation = interpolatedCoordinatesInfo.getCurrentPosition(
         currentTravelTimeInMs
       );
+      const startPerformanceTime = performance.timeOrigin;
       await wait(1000 / 4);
-      currentTravelTimeInMs += 1000 / 4;
+      currentTravelTimeInMs +=
+        (performance.now() + startPerformanceTime) * 1000;
     }
     this.currentRoute = undefined;
     this.currentRoutes = undefined;

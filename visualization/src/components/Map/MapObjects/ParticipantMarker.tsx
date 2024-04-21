@@ -1,15 +1,21 @@
 'use client';
 
+// Package imports
 import {useState} from 'react';
-import {Circle, Marker, Polygon, Popup} from 'react-leaflet';
-import L from 'leaflet';
-import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
-import DirectionsWalkIcon from '@mui/icons-material/DirectionsWalk';
-import ReactDOMServer from 'react-dom/server';
+import {Circle, Marker, Polygon, Popup, Tooltip} from 'react-leaflet';
+// Local imports
+// > Components
+import PopupContentParticipant from '@components/Map/MapObjects/PopupContent/PopupContentParticipant';
+// > Globals
 import {fetchJsonSimulation} from '@/globals/lib/fetch';
-import PopupContentParticipant from '@components/PopupContent/PopupContentParticipant';
 import {getH3Polygon} from '@/globals/lib/h3';
-
+// > Other
+import {
+  iconCustomer,
+  iconRideProvider,
+  participantIconSize,
+} from './LIcons/ParticipantIcons';
+// Type imports
 import type {
   SimulationEndpointParticipantInformationCustomer,
   SimulationEndpointParticipantInformationRideProvider,
@@ -18,18 +24,6 @@ import type {
 import type {FC} from 'react';
 import type {ReactSetState, ReactState} from '@/globals/types/react';
 import type {SimulationEndpointParticipantCoordinatesParticipant} from '@/globals/types/simulation';
-import type {CoordinatesAddress} from '@/globals/types/coordinates';
-
-const iconCustomerHTML = ReactDOMServer.renderToString(<DirectionsWalkIcon />);
-const iconRideProviderHTML = ReactDOMServer.renderToString(
-  <DirectionsCarIcon />
-);
-const iconCustomerHTMLGray = ReactDOMServer.renderToString(
-  <DirectionsWalkIcon fill="gray" />
-);
-const iconRideProviderHTMLGray = ReactDOMServer.renderToString(
-  <DirectionsCarIcon fill="gray" />
-);
 
 interface ParticipantMarkerProps {
   participantCoordinatesState: SimulationEndpointParticipantCoordinatesParticipant;
@@ -44,28 +38,6 @@ const ParticipantMarker: FC<ParticipantMarkerProps> = ({
   setStateSpectator,
   participantType,
 }) => {
-  const iconCustomer = L.divIcon({
-    html: iconCustomerHTML,
-    className: '',
-    iconSize: new L.Point(32, 32),
-  });
-  const iconRideProvider = L.divIcon({
-    html: iconRideProviderHTML,
-    className: '',
-    iconSize: new L.Point(32, 32),
-  });
-  // Different color icons
-  const iconCustomerGray = L.divIcon({
-    html: iconCustomerHTMLGray,
-    className: '',
-    iconSize: new L.Point(32, 32),
-  });
-  const iconRideProviderGray = L.divIcon({
-    html: iconRideProviderHTMLGray,
-    className: '',
-    iconSize: new L.Point(32, 32),
-  });
-
   const [customerInformationState, setCustomerInformationState] =
     useState<null | SimulationEndpointParticipantInformationCustomer>(null);
   const [rideProviderInformationState, setRideProviderInformationState] =
@@ -145,6 +117,9 @@ const ParticipantMarker: FC<ParticipantMarkerProps> = ({
         },
       }}
     >
+      <Tooltip direction="bottom" offset={[0, 0]} opacity={1} interactive>
+        {participantType} {participantCoordinatesState.id}
+      </Tooltip>
       <Popup
         eventHandlers={{
           click: e => {
@@ -293,6 +268,26 @@ const ParticipantMarker: FC<ParticipantMarkerProps> = ({
     );
     return (
       <>
+        <Circle
+          center={{
+            lat: participantCoordinatesState.lat,
+            lng: participantCoordinatesState.long,
+          }}
+          color={'green'}
+          fillColor={'green'}
+          radius={participantIconSize / 2}
+          key={`participant_position_${participantCoordinatesState.id}`}
+        />
+        <Marker
+          position={[
+            participantCoordinatesState.lat,
+            participantCoordinatesState.long,
+          ]}
+        >
+          <Popup>
+            A pretty CSS3 popup. <br /> Easily customizable.
+          </Popup>
+        </Marker>
         {polygons}
         {realLocations}
         {marker}

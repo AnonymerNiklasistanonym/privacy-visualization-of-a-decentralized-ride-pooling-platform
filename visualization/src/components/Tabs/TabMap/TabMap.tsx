@@ -13,12 +13,15 @@ import styles from '@styles/Home.module.scss';
 // Type imports
 import type {FC} from 'react';
 import type {DefaultPropsI18n} from '@globals/types/react';
-import type {SimulationEndpointParticipantCoordinates} from '@globals/types/simulation';
+import type {
+  SimulationEndpointGraph,
+  SimulationEndpointParticipantCoordinates,
+} from '@globals/types/simulation';
 import CustomizedSnackbar from '@components/Test/Snackbar';
 
-export type OldMapProps = DefaultPropsI18n<React.ReactNode>;
+export type TabMapProps = DefaultPropsI18n<React.ReactNode>;
 
-const OldMap: FC<OldMapProps> = () => {
+const TabMap: FC<TabMapProps> = () => {
   // React states
   const [openState, setStateOpen] = useState(false);
   const [spectatorState, setStateSpectator] = useState('everything');
@@ -27,6 +30,10 @@ const OldMap: FC<OldMapProps> = () => {
       customers: [],
       rideProviders: [],
     });
+  const [graphState, setStateGraph] = useState<SimulationEndpointGraph>({
+    edges: [],
+    vertices: [],
+  });
 
   // React effects
   useEffect(() => {
@@ -34,6 +41,11 @@ const OldMap: FC<OldMapProps> = () => {
     console.log('Spectator changed:', spectatorState);
     setStateOpen(true);
   }, [spectatorState]);
+  useEffect(() => {
+    fetchJsonSimulation<SimulationEndpointGraph>('json/graph').then(data => {
+      setStateGraph(data);
+    });
+  });
   useEffect(() => {
     const interval = setInterval(() => {
       fetchJsonSimulation<SimulationEndpointParticipantCoordinates>(
@@ -59,6 +71,7 @@ const OldMap: FC<OldMapProps> = () => {
           startPos={{lat: 48.7784485, long: 9.1800132, zoom: 11}}
           spectatorState={spectatorState}
           setStateSpectator={setStateSpectator}
+          graphState={graphState}
         />
 
         <p className={styles.view}>
@@ -124,4 +137,4 @@ const OldMap: FC<OldMapProps> = () => {
   );
 };
 
-export default OldMap;
+export default TabMap;

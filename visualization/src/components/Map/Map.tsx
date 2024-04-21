@@ -1,72 +1,26 @@
 'use client';
 
-import 'react-leaflet-fullscreen/styles.css';
-import 'leaflet/dist/leaflet.css';
-//import L from 'leaflet';
-import {
-  //Circle,
-  //Polygon,
-  LayerGroup,
-  Marker,
-  MapContainer,
-  Popup,
-  TileLayer,
-  LayersControl,
-  useMapEvents,
-} from 'react-leaflet';
-import {FullscreenControl} from 'react-leaflet-fullscreen';
-//import {latLngToCell, cellsToMultiPolygon} from 'h3-js';
-// Local imports
-//import {PopupContentActor} from '@components/PopupContent/PopupContentActor';
+// Style imports
 import './Map.module.scss';
+import 'leaflet/dist/leaflet.css';
+// Package imports
+import {
+  Circle,
+  LayerGroup,
+  LayersControl,
+  MapContainer,
+  Polyline,
+  TileLayer,
+} from 'react-leaflet';
+import ParticipantMarker from './MapObjects/ParticipantMarker';
+// Local imports
 import styles from './Map.module.scss';
-//import {locations} from '../../globals/defaults/locations';
 // Type imports
 import type {FC} from 'react';
-//import type {LatLngExpression} from 'leaflet';
-import type {SimulationEndpointParticipantCoordinates} from '@/globals/types/simulation';
-
-import {useState} from 'react';
-//import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
-//import DirectionsWalkIcon from '@mui/icons-material/DirectionsWalk';
-//import ReactDOMServer from 'react-dom/server';
-import ParticipantMarker from './ParticipantMarker';
-//import {h3Resolution} from '@/globals/defaults/h3';
-
-//const iconCustomerHTML = ReactDOMServer.renderToString(<DirectionsWalkIcon />);
-//const iconRideProviderHTML = ReactDOMServer.renderToString(
-//  <DirectionsCarIcon />
-//);
-
-//const defaultStartPos: LatLngExpression = [
-//  locations.startPos.lat,
-//  locations.startPos.long,
-//];
-
-function LocationMarker() {
-  const [position, setPosition] = useState(null);
-  const map = useMapEvents({
-    popupopen(e) {
-      console.log('popup open', e);
-    },
-    click(e) {
-      console.log('map was clicked', e);
-    },
-    load() {
-      map.locate();
-    },
-    locationfound(e) {
-      setPosition(e.latlng);
-      map.flyTo(e.latlng, map.getZoom());
-    },
-  });
-
-  return position === null ? null : (
-    <Marker position={position}>
-      <Popup>You are here</Popup>
-    </Marker>
-  );
-}
+import type {
+  SimulationEndpointGraph,
+  SimulationEndpointParticipantCoordinates,
+} from '@/globals/types/simulation';
 
 export interface StatPos {
   lat: number;
@@ -74,66 +28,21 @@ export interface StatPos {
   zoom: number;
 }
 
-export interface MapTestProps {
+export interface MapProps {
+  graphState: SimulationEndpointGraph;
   participantsState: SimulationEndpointParticipantCoordinates;
   startPos: StatPos;
   spectatorState: string;
   setStateSpectator: (newState: string) => void;
 }
 
-const MapTest: FC<MapTestProps> = ({
+const Map: FC<MapProps> = ({
+  graphState,
   participantsState,
   startPos,
   spectatorState,
   setStateSpectator,
 }) => {
-  //const iconCustomer = L.divIcon({
-  //  html: iconCustomerHTML,
-  //  className: '',
-  //  iconSize: new L.Point(32, 32),
-  //});
-  //const iconCustomer = L.icon({
-  //  iconUrl: '/icons/directions_walk_FILL0_wght400_GRAD0_opsz24.svg',
-  //  iconSize: new L.Point(32, 32)
-  //});
-
-  //const iconRideProvider = L.divIcon({
-  //  html: iconRideProviderHTML,
-  //  className: '',
-  //  iconSize: new L.Point(32, 32),
-  //});
-  //const iconRideProvider = L.icon({
-  //  iconUrl: '/icons/directions_car_FILL0_wght400_GRAD0_opsz24.svg',
-  //  iconSize: new L.Point(32, 32)
-  //});
-
-  //const [map, setMap] = useState<L.Map | null>(null);
-  //const mapContainerRef = useRef(null);
-
-  //function FlyToButton() {
-  //  return (
-  //    <button
-  //      onClick={() => {
-  //        console.log('Button was clicked', map);
-  //        if (map === null) {
-  //          console.error('Map is null');
-  //          return;
-  //        }
-  //        map.flyTo([48.864716, 2.349014], 7);
-  //      }}
-  //    >
-  //      Add marker on click
-  //    </button>
-  //  );
-  //}
-
-  //useEffect(() => {
-  //  console.log('mapContainerRef changed', mapContainerRef);
-  //}, [mapContainerRef]);
-  //useEffect(() => {
-  //  console.log('map changed', map);
-  //}, [map]);
-
   return (
     <>
       <MapContainer
@@ -163,8 +72,6 @@ const MapTest: FC<MapTestProps> = ({
             },
           }}
         />
-        <LocationMarker />
-        {<FullscreenControl forceSeparateButton={true} title={'WTF'} />}
         <LayersControl position="topright">
           <LayersControl.Overlay checked={true} name="Customers">
             <LayerGroup>
@@ -192,132 +99,29 @@ const MapTest: FC<MapTestProps> = ({
               ))}
             </LayerGroup>
           </LayersControl.Overlay>
-          <LayersControl.Overlay checked={false} name="Old">
-            <LayerGroup
-              eventHandlers={{
-                zoom: function (event) {
-                  console.log('zoom old layer group', event);
-                },
-                popupopen: e => {
-                  console.log('popupopen old layer group', e);
-                },
-                popupclose: e => {
-                  console.log('popupclose old layer group', e);
-                },
-              }}
-            >
-              {/*customersState.map(customer => {
-                const marker = (
-                  <Marker
-                    key={`customer_${customer.id}_old`}
-                    position={[
-                      customer.currentLocation.lat,
-                      customer.currentLocation.long,
-                    ]}
-                    icon={iconCustomer}
-                  >
-                    <Popup
-                      eventHandlers={{
-                        popupopen: e => {
-                          console.log('popupopen', customer, e);
-                        },
-                        popupclose: e => {
-                          console.log('popupclose', customer, e);
-                        },
-                      }}
-                    >
-                      <PopupContentActor
-                        actor={customer}
-                        spectatorState={spectatorState}
-                        setStateSpectator={setStateSpectator}
-                      />
-                    </Popup>
-                  </Marker>
-                );
-                if (customer.rideRequest) {
-                  const circle = (
-                    <Circle
-                      center={{
-                        lat: customer.rideRequest.coordinates.lat,
-                        lng: customer.rideRequest.coordinates.long,
-                      }}
-                      color={spectatorState === customer.id ? 'blue' : 'red'}
-                      fillColor={
-                        spectatorState === customer.id ? 'blue' : 'red'
-                      }
-                      radius={spectatorState === customer.id ? 400 : 50}
-                      key={`customer_${customer.id}_old_ride_request`}
-                    >
-                      <Popup
-                        eventHandlers={{
-                          popupopen: e => {
-                            console.log('popupopen', customer, e);
-                          },
-                          popupclose: e => {
-                            console.log('popupclose', customer, e);
-                          },
-                        }}
-                      >
-                        Ride request of {customer.id} (
-                        {customer.rideRequest.address}) {spectatorState} ==={' '}
-                        {customer.id} ={' '}
-                        {spectatorState === customer.id ? 'true' : 'false'}
-                      </Popup>
-                    </Circle>
-                  );
-                  const h3Index = latLngToCell(
-                    customer.rideRequest.coordinates.lat,
-                    customer.rideRequest.coordinates.long,
-                    h3Resolution
-                  );
-                  const polygonData = cellsToMultiPolygon([h3Index])[0][0];
-                  //console.debug(JSON.stringify(polygonData.map(a => ({ lat: a[0], long: a[1] }))))
-                  const polygon = (
-                    <Polygon
-                      positions={polygonData}
-                      key={`customer_${customer.id}_old_polygon`}
-                    />
-                  );
-                  return (
-                    <>
-                      {polygon}
-                      {circle}
-                      {marker}
-                    </>
-                  );
-                }
-                return marker;
-              })*/}
-              {/*rideProvidersState.map(rideProvider => {
-                const marker = (
-                  <Marker
-                    key={`rideProvider_${rideProvider.id}_old`}
-                    position={[
-                      rideProvider.currentLocation.lat,
-                      rideProvider.currentLocation.long,
-                    ]}
-                    icon={iconRideProvider}
-                  >
-                    <Popup
-                      eventHandlers={{
-                        popupopen: e => {
-                          console.log('popupopen', rideProvider, e);
-                        },
-                        popupclose: e => {
-                          console.log('popupclose', rideProvider, e);
-                        },
-                      }}
-                    >
-                      <PopupContentActor
-                        actor={rideProvider}
-                        spectatorState={spectatorState}
-                        setStateSpectator={setStateSpectator}
-                      />
-                    </Popup>
-                  </Marker>
-                );
-                return marker;
-              })*/}
+          <LayersControl.Overlay checked={false} name="Debug: Dijkstra Graph">
+            <LayerGroup>
+              {graphState.edges.map(edgeCoordinates => (
+                <Polyline
+                  key={`graph_edge_${edgeCoordinates[0].lat}_${edgeCoordinates[0].long}_${edgeCoordinates[1].lat}_${edgeCoordinates[1].long}`}
+                  positions={[
+                    [edgeCoordinates[0].lat, edgeCoordinates[0].long],
+                    [edgeCoordinates[1].lat, edgeCoordinates[1].long],
+                  ]}
+                  color={'cyan'}
+                  weight={3}
+                  smoothFactor={1}
+                />
+              ))}
+              {graphState.vertices.map(coordinates => (
+                <Circle
+                  key={`graph_circle_${coordinates.lat}_${coordinates.long}`}
+                  radius={5}
+                  color={'red'}
+                  fillColor={'red'}
+                  center={[coordinates.lat, coordinates.long]}
+                />
+              ))}
             </LayerGroup>
           </LayersControl.Overlay>
         </LayersControl>
@@ -326,4 +130,4 @@ const MapTest: FC<MapTestProps> = ({
   );
 };
 
-export default MapTest;
+export default Map;

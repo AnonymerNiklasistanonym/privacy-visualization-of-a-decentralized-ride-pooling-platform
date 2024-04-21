@@ -91,8 +91,6 @@ export class Customer extends Participant<SimulationTypeCustomer> {
       this.rideRequestOld = undefined;
       this.rideRequest = undefined;
       this.passenger = undefined;
-      // 0. Stay idle for a random duration
-      await wait(getRandomIntFromInterval(5 * 1000, 20 * 1000));
       // 1. Authenticate to the platform via AS
       const pseudonym = randAuthService.getVerify(this.id);
       // 2. Request ride to a random location via a random MS
@@ -165,6 +163,8 @@ export class Customer extends Participant<SimulationTypeCustomer> {
         lat: randLocation.lat,
         long: randLocation.lon,
       });
+      // 6. Stay idle for a random duration
+      await wait(getRandomIntFromInterval(1, 20) * 1000);
     }
   }
 

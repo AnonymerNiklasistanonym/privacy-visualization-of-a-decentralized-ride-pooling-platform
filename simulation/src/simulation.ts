@@ -18,6 +18,8 @@ import type {
 } from './globals/types/simulation';
 import type {OsmVertex, OsmVertexGraph} from './pathfinder/osm';
 import fs from 'node:fs/promises';
+import {osmnxServerRequest} from './misc/osmnx';
+import {updateRouteCoordinatesWithTime} from './misc/coordinatesInterpolation';
 
 export interface StartPos extends Coordinates {
   zoom: number;
@@ -393,6 +395,26 @@ export class Simulation {
         ),
         edges,
       } as SimulationEndpointGraph);
+    });
+    router.route('/shortest_path').get(async (req, res) => {
+      const vertices = Array.from(this.osmVertexGraph.vertices);
+      console.log(vertices);
+      const coordinatesPath = [
+        vertices[0][1],
+        vertices[vertices.length - 1][1],
+      ];
+      const shortestPath = await osmnxServerRequest(
+        coordinatesPath[0].coordinates,
+        coordinatesPath[1].coordinates
+      );
+      res.json({
+        coordinatesPath,
+        shortestPath,
+        shortestPathTime:
+          shortestPath.error === null
+            ? updateRouteCoordinatesWithTime(shortestPath.shortest_route_length)
+            : null,
+      });
     });
     return router;
   }

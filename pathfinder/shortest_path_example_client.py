@@ -11,7 +11,7 @@ def make_request(url: str, body: dict):
 
 
 if __name__ == "__main__":
-    base_url = "http://localhost:6000"
+    base_url = "http://localhost:3010"
     make_request(
         f"{base_url}/shortest_path",
         {"sourceId": 243642, "targetId": 11690554069},
