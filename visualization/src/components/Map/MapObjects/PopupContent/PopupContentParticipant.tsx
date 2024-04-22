@@ -1,18 +1,18 @@
+// Package imports
+// > Components
+import {Box, CircularProgress} from '@mui/material';
 // Local imports
 import ChangeViewButton from './ChangeViewButton';
-import {
-  PopupContentCustomer,
-  PopupContentRideProvider,
-} from './PopupContentActor';
+import PopupContentCustomer from './PopupContentCustomer';
+import PopupContentRideProvider from './PopupContentRideProvider';
 // Type imports
-import type {FC} from 'react';
-import type {ReactSetState, ReactState} from '@/globals/types/react';
+import type {ReactSetState, ReactState} from '@misc/react';
 import type {
   SimulationEndpointParticipantInformationCustomer,
   SimulationEndpointParticipantCoordinatesParticipant,
   SimulationEndpointParticipantInformationRideProvider,
-} from '@/globals/types/simulation';
-import {Box, CircularProgress} from '@mui/material';
+  SimulationEndpointParticipantTypes,
+} from '@globals/types/simulation';
 
 export interface PopupContentParticipantProps {
   participantCoordinatesState: ReactState<SimulationEndpointParticipantCoordinatesParticipant>;
@@ -20,17 +20,17 @@ export interface PopupContentParticipantProps {
   rideProviderInformationState: ReactState<null | SimulationEndpointParticipantInformationRideProvider>;
   spectatorState: ReactState<string>;
   setStateSpectator: ReactSetState<string>;
-  participantType: 'customer' | 'ride_provider';
+  participantType: SimulationEndpointParticipantTypes;
 }
 
-export const PopupContentParticipant: FC<PopupContentParticipantProps> = ({
+export default function PopupContentParticipant({
   participantCoordinatesState,
   customerInformationState,
   rideProviderInformationState,
   spectatorState,
   setStateSpectator,
   participantType,
-}) => {
+}: PopupContentParticipantProps) {
   return (
     <>
       <h2>
@@ -64,6 +64,4 @@ export const PopupContentParticipant: FC<PopupContentParticipantProps> = ({
       />
     </>
   );
-};
-
-export default PopupContentParticipant;
+}

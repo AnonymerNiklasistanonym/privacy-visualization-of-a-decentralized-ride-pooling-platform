@@ -12,17 +12,19 @@ import Snackbar from '@components/Snackbar';
 // > Styles
 import styles from '@styles/Home.module.scss';
 // Type imports
-import type {FC} from 'react';
-import type {ReactPropsI18n} from '@globals/types/react';
+import type {ReactPropsI18n} from '@misc/react';
 import type {
   SimulationEndpointGraph,
   SimulationEndpointParticipantCoordinates,
 } from '@globals/types/simulation';
-import type {SettingsPropsStatesMap} from '../TabSettings/Settings';
+import type {SettingsPropsStatesMap} from '@misc/settings';
 
 export interface TabMapProps extends ReactPropsI18n, SettingsPropsStatesMap {}
 
-const TabMap: FC<TabMapProps> = ({locale, stateSettingsMapShowTooltips}) => {
+export default function TabMap({
+  stateSettingsMapShowTooltips,
+  stateSettingsMapOpenPopupOnHover,
+}: TabMapProps) {
   // React states
   const [openState, setStateOpen] = useState(false);
   const [spectatorState, setStateSpectator] = useState('everything');
@@ -75,6 +77,7 @@ const TabMap: FC<TabMapProps> = ({locale, stateSettingsMapShowTooltips}) => {
           setStateSpectator={setStateSpectator}
           graphState={graphState}
           stateSettingsMapShowTooltips={stateSettingsMapShowTooltips}
+          stateSettingsMapOpenPopupOnHover={stateSettingsMapOpenPopupOnHover}
         />
 
         <p className={styles.view}>
@@ -138,6 +141,4 @@ const TabMap: FC<TabMapProps> = ({locale, stateSettingsMapShowTooltips}) => {
       />
     </>
   );
-};
-
-export default TabMap;
+}

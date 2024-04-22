@@ -1,14 +1,17 @@
 // Local imports
 import styles from './Container.module.scss';
 // Type imports
-import type {FC, ReactNode} from 'react';
+import type {PropsWithChildren} from 'react';
 
 export interface ContainerProps {
-  children?: ReactNode;
   className?: string;
 }
 
-const Container: FC<ContainerProps> = ({children, className, ...rest}) => {
+export default function Container({
+  children,
+  className,
+  ...rest
+}: PropsWithChildren<ContainerProps>) {
   let containerClassName = styles.container;
 
   if (className) {
@@ -20,6 +23,4 @@ const Container: FC<ContainerProps> = ({children, className, ...rest}) => {
       {children}
     </div>
   );
-};
-
-export default Container;
+}

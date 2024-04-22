@@ -9,11 +9,10 @@ import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 // Local imports imports
 // > Components
-import TabMap from '@components/Tabs/TabMap';
+import TabMap from '@components/TabPanel/TabMap';
 // Type imports
 import type {PropsWithChildren} from 'react';
-import type {ReactPropsI18n} from '@globals/types/react';
-import type {ReactHandleChange} from '@misc/React';
+import type {ReactPropsI18n, ReactHandleChange} from '@misc/react';
 
 const ariaNameTabCollection = 'tabpanel-getacar';
 const ariaNameTabCollectionTab = `${ariaNameTabCollection}-tab`;

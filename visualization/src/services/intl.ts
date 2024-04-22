@@ -1,6 +1,6 @@
-//import 'server-only';
-
+// Package imports
 import {createIntl} from 'react-intl';
+// Type imports
 import type {Locale} from '../../i18n-config';
 
 export async function getIntl(locale: Locale) {

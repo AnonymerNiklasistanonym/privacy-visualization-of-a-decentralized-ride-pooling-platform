@@ -5,12 +5,15 @@ import type {
   GetACarRideProviderPerson,
   GetACarRideProviderCompany,
   GetACarParticipant,
+  GetACarParticipantTypes,
 } from './participant';
 import type {GetACarRideRequest} from './services';
 
 export type SimulationEndpointParticipantId = string;
 
 export type SimulationEndpointRideRequestId = string;
+
+export type SimulationEndpointParticipantTypes = GetACarParticipantTypes;
 
 export interface SimulationEndpointParticipant {
   id: SimulationEndpointParticipantId;

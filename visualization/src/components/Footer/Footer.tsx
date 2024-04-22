@@ -3,17 +3,12 @@
 import {FormattedMessage} from 'react-intl';
 import FooterContainer from './FooterContainer';
 // Type imports
-import type {FC} from 'react';
-import type {DefaultPropsI18n} from '@/types/reactProps';
+import type {ReactPropsI18n} from '@misc/react';
 
-const Footer: FC<DefaultPropsI18n> = ({locale}) => {
+export default function Footer({locale, messages}: ReactPropsI18n) {
   return (
-    <FooterContainer locale={locale}>
-      <div>
-        <FormattedMessage tagName="p" id="common.footer" />
-      </div>
+    <FooterContainer locale={locale} messages={messages}>
+      <FormattedMessage tagName="p" id="common.footer" />
     </FooterContainer>
   );
-};
-
-export default Footer;
+}

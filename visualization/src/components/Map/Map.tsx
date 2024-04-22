@@ -1,9 +1,7 @@
 'use client';
 
-// Style imports
-import './Map.module.scss';
-import 'leaflet/dist/leaflet.css';
 // Package imports
+// > Components
 import {
   Circle,
   LayerGroup,
@@ -12,16 +10,21 @@ import {
   Polyline,
   TileLayer,
 } from 'react-leaflet';
-import ParticipantMarker from './MapObjects/ParticipantMarker';
+// > Styles
+import 'leaflet/dist/leaflet.css';
 // Local imports
 import styles from './Map.module.scss';
+// > Components
+import ParticipantMarker from './MapObjects/ParticipantMarker';
+// > Styles
+import './Map.module.scss';
 // Type imports
-import type {FC} from 'react';
 import type {
   SimulationEndpointGraph,
   SimulationEndpointParticipantCoordinates,
-} from '@/globals/types/simulation';
-import type {SettingsPropsStates} from '@components/Tabs/TabSettings/Settings';
+} from '@globals/types/simulation';
+import type {SettingsPropsStates} from '@misc/settings';
+import {Box} from '@mui/material';
 
 export interface StatPos {
   lat: number;
@@ -37,16 +40,17 @@ export interface MapProps extends SettingsPropsStates {
   setStateSpectator: (newState: string) => void;
 }
 
-const Map: FC<MapProps> = ({
+export default function Map({
   graphState,
   participantsState,
   startPos,
   spectatorState,
   setStateSpectator,
   stateSettingsMapShowTooltips,
-}) => {
+  stateSettingsMapOpenPopupOnHover,
+}: MapProps) {
   return (
-    <>
+    <Box sx={{width: 1}}>
       <MapContainer
         center={[startPos.lat, startPos.long]}
         zoom={12}
@@ -69,6 +73,7 @@ const Map: FC<MapProps> = ({
                   setStateSpectator={setStateSpectator}
                   participantType="customer"
                   stateShowTooltip={stateSettingsMapShowTooltips}
+                  stateOpenPopupOnHover={stateSettingsMapOpenPopupOnHover}
                 />
               ))}
             </LayerGroup>
@@ -83,6 +88,7 @@ const Map: FC<MapProps> = ({
                   setStateSpectator={setStateSpectator}
                   participantType="ride_provider"
                   stateShowTooltip={stateSettingsMapShowTooltips}
+                  stateOpenPopupOnHover={stateSettingsMapOpenPopupOnHover}
                 />
               ))}
             </LayerGroup>
@@ -115,8 +121,6 @@ const Map: FC<MapProps> = ({
           </LayersControl.Overlay>
         </LayersControl>
       </MapContainer>
-    </>
+    </Box>
   );
-};
-
-export default Map;
+}

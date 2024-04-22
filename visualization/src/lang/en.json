@@ -1,8 +1,12 @@
 {
   "common.footer": "Service Computing Department > Institute of Architecture of Application Systems > University of Stuttgart",
-  "page.home.head.title": "Visualization GETACAR Platform",
-  "page.home.head.meta.description": "Next.js i18n example - English",
-  "page.home.title": "Welcome to <b>Next.js i18n tutorial</b>",
   "page.home.description": "You are currently viewing the homepage in English 🚀",
+  "page.home.head.meta.description": "Next.js i18n example - English",
+  "page.home.head.title": "Visualization GETACAR Platform",
+  "page.home.tab.blockchain.title": "Blockchain",
+  "page.home.tab.map.title": "Map",
+  "page.home.tab.overview.title": "Overview",
+  "page.home.tab.settings.title": "Settings",
+  "page.home.title": "Welcome to <b>Next.js i18n tutorial</b>",
   "page.nested.title": "Nested route example"
 }

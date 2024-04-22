@@ -1,19 +1,20 @@
-// Type imports
-import type {FC} from 'react';
-// Test
+// Package imports
+// > Components
 import MuiButton from '@mui/material/Button';
+// Type imports
+import type {PropsWithChildren} from 'react';
 
 export interface ButtonProps {
-  children: string;
   onClick: () => void;
 }
 
-const Button: FC<ButtonProps> = ({children, onClick}) => {
+export default function Button({
+  children,
+  onClick,
+}: PropsWithChildren<ButtonProps>) {
   return (
     <MuiButton variant="contained" onClick={onClick}>
       {children}
     </MuiButton>
   );
-};
-
-export default Button;
+}

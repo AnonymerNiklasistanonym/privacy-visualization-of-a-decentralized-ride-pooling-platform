@@ -2,28 +2,25 @@
 
 // Package imports
 import {useState} from 'react';
+// > Components
 import {Circle, Marker, Polygon, Popup, Tooltip} from 'react-leaflet';
 // Local imports
+import {participantIconSize} from './LIcons/ParticipantIcons';
 // > Components
+import {iconCustomer, iconRideProvider} from './LIcons/ParticipantIcons';
 import PopupContentParticipant from '@components/Map/MapObjects/PopupContent/PopupContentParticipant';
 // > Globals
-import {fetchJsonSimulation} from '@/globals/lib/fetch';
-import {getH3Polygon} from '@/globals/lib/h3';
-// > Other
-import {
-  iconCustomer,
-  iconRideProvider,
-  participantIconSize,
-} from './LIcons/ParticipantIcons';
+import {fetchJsonSimulation} from '@globals/lib/fetch';
+import {getH3Polygon} from '@globals/lib/h3';
 // Type imports
 import type {
   SimulationEndpointParticipantInformationCustomer,
   SimulationEndpointParticipantInformationRideProvider,
   SimulationEndpointParticipantInformationRideRequest,
 } from '@globals/types/simulation';
-import type {FC} from 'react';
-import type {ReactSetState, ReactState} from '@globals/types/react';
+import type {ReactSetState, ReactState} from '@misc/react';
 import type {SimulationEndpointParticipantCoordinatesParticipant} from '@globals/types/simulation';
+import {LeafletMouseEvent} from 'leaflet';
 
 interface ParticipantMarkerProps {
   participantCoordinatesState: SimulationEndpointParticipantCoordinatesParticipant;
@@ -31,15 +28,17 @@ interface ParticipantMarkerProps {
   setStateSpectator: ReactSetState<string>;
   participantType: 'customer' | 'ride_provider';
   stateShowTooltip: boolean;
+  stateOpenPopupOnHover: boolean;
 }
 
-const ParticipantMarker: FC<ParticipantMarkerProps> = ({
+export default function ParticipantMarker({
   participantCoordinatesState,
   spectatorState,
   setStateSpectator,
   participantType,
   stateShowTooltip,
-}) => {
+  stateOpenPopupOnHover,
+}: ParticipantMarkerProps) {
   const [customerInformationState, setCustomerInformationState] =
     useState<null | SimulationEndpointParticipantInformationCustomer>(null);
   const [rideProviderInformationState, setRideProviderInformationState] =
@@ -47,6 +46,75 @@ const ParticipantMarker: FC<ParticipantMarkerProps> = ({
 
   const [rideRequestState, setRideRequestState] =
     useState<null | SimulationEndpointParticipantInformationRideRequest>(null);
+
+  const fetchParticipantInformation = () => {
+    console.log('fetch', participantType, participantCoordinatesState.id);
+    if (participantType === 'customer') {
+      fetchJsonSimulation<SimulationEndpointParticipantInformationCustomer>(
+        `json/customer/${participantCoordinatesState.id}`
+      )
+        .then(newCustomerInformation => {
+          setCustomerInformationState(newCustomerInformation);
+          console.log('Fetched customer', newCustomerInformation);
+          if (newCustomerInformation.rideRequest !== undefined) {
+            fetchJsonSimulation<SimulationEndpointParticipantInformationRideRequest>(
+              `json/ride_request/${newCustomerInformation.rideRequest}`
+            )
+              .then(newRideRequestInformation => {
+                setRideRequestState(newRideRequestInformation);
+                console.log('Fetched rideRequest', newRideRequestInformation);
+              })
+              .catch(err => {
+                console.error(err);
+              });
+          }
+        })
+        .catch(err => {
+          console.error(err);
+        });
+    }
+    if (participantType === 'ride_provider') {
+      fetchJsonSimulation<SimulationEndpointParticipantInformationRideProvider>(
+        `json/ride_provider/${participantCoordinatesState.id}`
+      )
+        .then(newRideProviderInformation => {
+          setRideProviderInformationState(newRideProviderInformation);
+          console.log('Fetched ride provider', newRideProviderInformation);
+          if (newRideProviderInformation.rideRequest !== undefined) {
+            fetchJsonSimulation<SimulationEndpointParticipantInformationRideRequest>(
+              `json/ride_request/${newRideProviderInformation.rideRequest}`
+            )
+              .then(newRideRequestInformation => {
+                setRideRequestState(newRideRequestInformation);
+              })
+              .catch(err => {
+                console.error(err);
+              });
+          }
+        })
+        .catch(err => {
+          console.error(err);
+        });
+    }
+  };
+
+  const eventId = 'participant_marker:event:';
+
+  let timeoutHoverMarker: NodeJS.Timeout | undefined = undefined;
+  const hoverMarkerTimeInMs = 1000;
+
+  function start(e: LeafletMouseEvent) {
+    timeoutHoverMarker = setTimeout(() => showTooltip(e), hoverMarkerTimeInMs);
+  }
+
+  function showTooltip(e: LeafletMouseEvent) {
+    e.target.openPopup();
+    fetchParticipantInformation();
+  }
+
+  function stop() {
+    clearTimeout(timeoutHoverMarker);
+  }
 
   const marker = (
     <Marker
@@ -58,75 +126,34 @@ const ParticipantMarker: FC<ParticipantMarkerProps> = ({
       icon={participantType === 'customer' ? iconCustomer : iconRideProvider}
       eventHandlers={{
         mouseover: e => {
-          e.target.openPopup();
+          console.log(`${eventId}mouseover`, participantCoordinatesState.id);
+          //start(e);
+          if (stateOpenPopupOnHover) {
+            e.target.openPopup();
+            fetchParticipantInformation();
+          }
         },
         mouseout: e => {
-          setTimeout(() => {
-            e.target.closePopup();
-          }, 1000);
-        },
-        popupopen: e => {
-          console.log('Popup opened', participantCoordinatesState.id);
-        },
-        click: e => {
-          console.log(
-            `participant marker clicked ${participantType}`,
-            participantCoordinatesState,
-            e
-          );
-          if (participantType === 'customer') {
-            fetchJsonSimulation<SimulationEndpointParticipantInformationCustomer>(
-              `json/customer/${participantCoordinatesState.id}`
-            )
-              .then(newCustomerInformation => {
-                setCustomerInformationState(newCustomerInformation);
-                console.log('Fetched customer', newCustomerInformation);
-                if (newCustomerInformation.rideRequest !== undefined) {
-                  fetchJsonSimulation<SimulationEndpointParticipantInformationRideRequest>(
-                    `json/ride_request/${newCustomerInformation.rideRequest}`
-                  )
-                    .then(newRideRequestInformation => {
-                      setRideRequestState(newRideRequestInformation);
-                      console.log(
-                        'Fetched rideRequest',
-                        newRideRequestInformation
-                      );
-                    })
-                    .catch(err => {
-                      console.error(err);
-                    });
-                }
-              })
-              .catch(err => {
-                console.error(err);
-              });
+          console.log(`${eventId}mouseout`, participantCoordinatesState.id);
+          //stop();
+          if (stateOpenPopupOnHover) {
+            setTimeout(() => {
+              e.target.closePopup();
+            }, 1000);
           }
-          if (participantType === 'ride_provider') {
-            fetchJsonSimulation<SimulationEndpointParticipantInformationRideProvider>(
-              `json/ride_provider/${participantCoordinatesState.id}`
-            )
-              .then(newRideProviderInformation => {
-                setRideProviderInformationState(newRideProviderInformation);
-                console.log(
-                  'Fetched ride provider',
-                  newRideProviderInformation
-                );
-                if (newRideProviderInformation.rideRequest !== undefined) {
-                  fetchJsonSimulation<SimulationEndpointParticipantInformationRideRequest>(
-                    `json/ride_request/${newRideProviderInformation.rideRequest}`
-                  )
-                    .then(newRideRequestInformation => {
-                      setRideRequestState(newRideRequestInformation);
-                    })
-                    .catch(err => {
-                      console.error(err);
-                    });
-                }
-              })
-              .catch(err => {
-                console.error(err);
-              });
-          }
+        },
+        popupopen: () => {
+          console.log(`${eventId}popupopen`, participantCoordinatesState.id);
+        },
+        popupclose: () => {
+          console.log(`${eventId}popupclose`, participantCoordinatesState.id);
+        },
+        click: () => {
+          console.log(`${eventId}click`, participantCoordinatesState.id);
+          fetchParticipantInformation();
+        },
+        loading: () => {
+          console.log(`${eventId}loading`, participantCoordinatesState.id);
         },
       }}
     >
@@ -313,6 +340,4 @@ const ParticipantMarker: FC<ParticipantMarkerProps> = ({
     );
   }
   return marker;
-};
-
-export default ParticipantMarker;
+}

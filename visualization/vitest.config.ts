@@ -1,4 +1,6 @@
+// eslint-disable-next-line node/no-unpublished-import
 import {defineConfig} from 'vitest/config';
+// eslint-disable-next-line node/no-unpublished-import
 import react from '@vitejs/plugin-react';
 import {resolve} from 'node:path';
 

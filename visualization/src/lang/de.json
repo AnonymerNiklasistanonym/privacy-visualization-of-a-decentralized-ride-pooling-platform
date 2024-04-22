@@ -1,7 +1,12 @@
 {
-  "page.home.head.title": "Visualisierung der GETACAR Platform",
-  "page.home.head.meta.description": "Next.js i18n Beispiel - Deutsch",
-  "page.home.title": "Willkommen zum <b>Next.js i18n Tutorial</b>",
+  "common.footer": "Abteilung Service Computing > Institut für Architektur von Anwendungssystemen > Universität Stuttgart",
   "page.home.description": "Sie betrachten momentan die Homepage in Deutsch 🚀",
+  "page.home.head.meta.description": "Next.js i18n Beispiel - Deutsch",
+  "page.home.head.title": "Visualisierung der GETACAR Platform",
+  "page.home.tab.blockchain.title": "Blockchain",
+  "page.home.tab.map.title": "Karte",
+  "page.home.tab.overview.title": "Übersicht",
+  "page.home.tab.settings.title": "Einstellungen",
+  "page.home.title": "Willkommen zum <b>Next.js i18n Tutorial</b>",
   "page.nested.title": "Verschachtelte Route Beispiel"
 }

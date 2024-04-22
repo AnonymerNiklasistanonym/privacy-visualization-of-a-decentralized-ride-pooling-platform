@@ -7,14 +7,14 @@ import TranslationWrapper from '@components/TranslationWrapper';
 import type {PropsWithChildren} from 'react';
 import type {ReactPropsI18n} from '@misc/react';
 
-export default function FooterContainer({
+export default function TabPanelContainer({
   locale,
   messages,
   children,
 }: PropsWithChildren<ReactPropsI18n>) {
   return (
     <TranslationWrapper locale={locale} messages={messages}>
-      <div className="footer">{children}</div>
+      {children}
     </TranslationWrapper>
   );
 }

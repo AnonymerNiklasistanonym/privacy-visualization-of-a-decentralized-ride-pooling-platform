@@ -7,16 +7,17 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
 import {Divider} from '@mui/material';
 // Type imports
-import type {FC} from 'react';
-import type {ReactPropsI18n} from '@globals/types/react';
-import type {SettingsProps} from './Settings';
+import type {ReactPropsI18n} from '@misc/react';
+import type {SettingsProps} from '@misc/settings';
 
 export interface TabSettingsProps extends ReactPropsI18n, SettingsProps {}
 
-const TabSettings: FC<TabSettingsProps> = ({
+export default function TabSettings({
   stateSettingsMapShowTooltips,
+  stateSettingsMapOpenPopupOnHover,
   setStateSettingsMapShowTooltips,
-}) => {
+  setStateSettingsMapOpenPopupOnHover,
+}: TabSettingsProps) {
   return (
     <FormGroup>
       <Divider textAlign="left">MAP</Divider>
@@ -32,12 +33,22 @@ const TabSettings: FC<TabSettingsProps> = ({
         }
         label="Show Tooltips"
       />
+      <FormControlLabel
+        control={
+          <Checkbox
+            checked={stateSettingsMapOpenPopupOnHover}
+            onChange={event =>
+              setStateSettingsMapOpenPopupOnHover(event.target.checked)
+            }
+            inputProps={{'aria-label': 'controlled'}}
+          />
+        }
+        label="Open Popup on hover"
+      />
       {
         //<FormControlLabel required control={<Checkbox />} label="Required" />
         //<FormControlLabel disabled control={<Checkbox />} label="Disabled" />
       }
     </FormGroup>
   );
-};
-
-export default TabSettings;
+}

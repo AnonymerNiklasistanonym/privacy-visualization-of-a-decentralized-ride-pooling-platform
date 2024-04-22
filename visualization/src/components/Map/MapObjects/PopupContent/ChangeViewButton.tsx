@@ -1,19 +1,19 @@
 // Local imports
+// > Components
 import Button from '@components/Button';
 // Type imports
-import type {FC} from 'react';
-import type {ReactSetState, ReactState} from '@/globals/types/react';
-import type {SimulationEndpointParticipantCoordinatesParticipant} from '@/globals/types/simulation';
+import type {ReactSetState, ReactState} from '@misc/react';
+import type {SimulationEndpointParticipantCoordinatesParticipant} from '@globals/types/simulation';
 
 export interface ChangeViewButtonProps {
   actorState: ReactState<SimulationEndpointParticipantCoordinatesParticipant>;
   setStateSpectator: ReactSetState<string>;
 }
 
-export const ChangeViewButton: FC<ChangeViewButtonProps> = ({
+export default function ChangeViewButton({
   actorState,
   setStateSpectator,
-}) => {
+}: ChangeViewButtonProps) {
   return (
     <Button
       onClick={() => {
@@ -24,6 +24,4 @@ export const ChangeViewButton: FC<ChangeViewButtonProps> = ({
       Change view to this actor
     </Button>
   );
-};
-
-export default ChangeViewButton;
+}
