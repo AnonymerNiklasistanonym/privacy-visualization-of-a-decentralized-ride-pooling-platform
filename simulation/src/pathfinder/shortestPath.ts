@@ -9,6 +9,8 @@ export interface Vertex {
   id: VertexId;
   /** The closest neighbor vertex (for reconstructing the path) */
   shortestDistanceNeighbor?: VertexId;
+  /** The closest neighbor vertex edge (for reconstructing the path) */
+  shortestDistanceEdge?: VertexEdgeId;
   /** Cost function $g$ (shortest distance from start vertex to this vertex) */
   shortestDistanceG?: number;
   /** Neighbor vertices of this vertex */
@@ -16,20 +18,30 @@ export interface Vertex {
 }
 
 export interface VertexEdge {
-  /** Unique vertex edge ID for indexing it in a map */
+  /** Unique vertex edge ID for indexing it in a map (ignored when using a function) */
   id: VertexEdgeId;
   /** The vertex edge weight */
   weight: number;
-  vertexA: VertexId;
-  vertexB: VertexId;
+}
+
+export interface VertexEdgeMaps<U extends VertexEdge = VertexEdge> {
+  vertexEdgeIdMap: Map<VertexEdgeId, U>;
+  idMap: Map<VertexId, Map<VertexId, VertexEdgeId>>;
 }
 
 export interface VertexGraph<
   T extends Vertex = Vertex,
   U extends VertexEdge = VertexEdge,
 > {
+  /** The vertices of the graph. */
   vertices: Map<VertexId, T>;
-  edges: ((vertexA: T, vertexB: T) => number) | Map<VertexEdgeId, U>;
+  /**
+   * The edges of the graph.
+   * This can either be:
+   * - A function that returns the vertex edge between 2 vertices (or null if no edge)
+   * - A map that contains all edges
+   */
+  edges: ((vertexA: T, vertexB: T) => U | null) | VertexEdgeMaps<U>;
 }
 
 export const getVertexFromGraphError = <
@@ -73,6 +85,26 @@ export interface GetShortestPathOptions {
   /** Ignore when a vertex ID cannot be found (default = false). */
   ignoreMissingIds?: boolean;
 }
+
+export const getVertexEdge = <
+  T extends Vertex = Vertex,
+  U extends VertexEdge = VertexEdge,
+>(
+  graph: Readonly<VertexGraph<T, U>>,
+  vertexA: T,
+  vertexB: T
+): U | null => {
+  if (graph.edges instanceof Function) {
+    return graph.edges(vertexA, vertexB);
+  }
+  const edgeId =
+    graph.edges.idMap.get(vertexA.id)?.get(vertexB.id) ??
+    graph.edges.idMap.get(vertexB.id)?.get(vertexA.id);
+  if (edgeId === undefined) {
+    return null;
+  }
+  return graph.edges.vertexEdgeIdMap.get(edgeId) ?? null;
+};
 
 /**
  * A* implementation between 2 nodes in an OSM graph.
@@ -191,9 +223,6 @@ export const getShortestPath = <
   // 3. Explored: The shortest path to this vertex is known
   //              - Stored in the *closed list* to prevent being loaded into the
   //                *open list* again [Set<ID>]
-  if (graph.edges instanceof Map) {
-    throw Error('Shortest path does not yet support edge maps');
-  }
   const source = getVertexFromGraphError(graph, sourceId, 'source');
   const target = getVertexFromGraphError(graph, targetId, 'target');
   // Reset cost function g and the connected neighbor
@@ -247,12 +276,18 @@ export const getShortestPath = <
         }
       }
       // 2.2c Update the neighbor vertex distance/neighbor if a smaller one is found
+      const edge = getVertexEdge(graph, currentVertex, neighborVertex);
+      if (edge === null) {
+        throw Error(
+          `Expected edge between vertex ${currentVertex.id} and vertex ${neighborVertex.id}`
+        );
+      }
       const distanceToNeighbor =
-        (currentVertex.shortestDistanceG ?? Infinity) +
-        graph.edges(currentVertex, neighborVertex);
+        (currentVertex.shortestDistanceG ?? Infinity) + edge.weight;
       if (distanceToNeighbor < (neighborVertex.shortestDistanceG ?? Infinity)) {
         neighborVertex.shortestDistanceG = distanceToNeighbor;
         neighborVertex.shortestDistanceNeighbor = currentVertex.id;
+        neighborVertex.shortestDistanceEdge = edge.id;
       }
       // 2.2d Enqueue the neighbor vertex to the priority queue
       openList.remove(a => a.id === neighborVertex.id);

@@ -22,6 +22,10 @@ export default defineConfig({
         replacement: resolve(__dirname, 'src', 'globals'),
       },
       {
+        find: '@misc',
+        replacement: resolve(__dirname, 'src', 'misc'),
+      },
+      {
         find: '@',
         replacement: resolve(__dirname, 'src', '@/'),
       },

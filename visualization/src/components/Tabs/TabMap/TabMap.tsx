@@ -8,20 +8,21 @@ import Map from '@components/Map';
 import Container from '@components/Container';
 import Button from '@components/Button';
 import DynamicTitle from './DynamicTitle';
+import Snackbar from '@components/Snackbar';
 // > Styles
 import styles from '@styles/Home.module.scss';
 // Type imports
 import type {FC} from 'react';
-import type {DefaultPropsI18n} from '@globals/types/react';
+import type {ReactPropsI18n} from '@globals/types/react';
 import type {
   SimulationEndpointGraph,
   SimulationEndpointParticipantCoordinates,
 } from '@globals/types/simulation';
-import CustomizedSnackbar from '@components/Test/Snackbar';
+import type {SettingsPropsStatesMap} from '../TabSettings/Settings';
 
-export type TabMapProps = DefaultPropsI18n<React.ReactNode>;
+export interface TabMapProps extends ReactPropsI18n, SettingsPropsStatesMap {}
 
-const TabMap: FC<TabMapProps> = () => {
+const TabMap: FC<TabMapProps> = ({locale, stateSettingsMapShowTooltips}) => {
   // React states
   const [openState, setStateOpen] = useState(false);
   const [spectatorState, setStateSpectator] = useState('everything');
@@ -42,10 +43,11 @@ const TabMap: FC<TabMapProps> = () => {
     setStateOpen(true);
   }, [spectatorState]);
   useEffect(() => {
+    console.log('fetch json/graph');
     fetchJsonSimulation<SimulationEndpointGraph>('json/graph').then(data => {
       setStateGraph(data);
     });
-  });
+  }, []);
   useEffect(() => {
     const interval = setInterval(() => {
       fetchJsonSimulation<SimulationEndpointParticipantCoordinates>(
@@ -72,6 +74,7 @@ const TabMap: FC<TabMapProps> = () => {
           spectatorState={spectatorState}
           setStateSpectator={setStateSpectator}
           graphState={graphState}
+          stateSettingsMapShowTooltips={stateSettingsMapShowTooltips}
         />
 
         <p className={styles.view}>
@@ -128,7 +131,7 @@ const TabMap: FC<TabMapProps> = () => {
           </Button>
         </p>
       </Container>
-      <CustomizedSnackbar
+      <Snackbar
         openState={openState}
         textState={spectatorState}
         setStateOpen={setStateOpen}

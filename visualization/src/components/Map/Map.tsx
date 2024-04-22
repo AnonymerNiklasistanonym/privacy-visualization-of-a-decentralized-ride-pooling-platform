@@ -21,6 +21,7 @@ import type {
   SimulationEndpointGraph,
   SimulationEndpointParticipantCoordinates,
 } from '@/globals/types/simulation';
+import type {SettingsPropsStates} from '@components/Tabs/TabSettings/Settings';
 
 export interface StatPos {
   lat: number;
@@ -28,7 +29,7 @@ export interface StatPos {
   zoom: number;
 }
 
-export interface MapProps {
+export interface MapProps extends SettingsPropsStates {
   graphState: SimulationEndpointGraph;
   participantsState: SimulationEndpointParticipantCoordinates;
   startPos: StatPos;
@@ -42,35 +43,20 @@ const Map: FC<MapProps> = ({
   startPos,
   spectatorState,
   setStateSpectator,
+  stateSettingsMapShowTooltips,
 }) => {
   return (
     <>
       <MapContainer
-        //ref={mapContainerRef}
         center={[startPos.lat, startPos.long]}
         zoom={12}
         // Allow scroll wheel zooming
         scrollWheelZoom={true}
         className={styles.map}
-        //whenReady={setMap}
       >
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          eventHandlers={{
-            zoomend: function (event) {
-              console.log('zoomies end', event);
-            },
-            zoom: function (event) {
-              console.log('zoomies', event);
-            },
-            popupopen: e => {
-              console.log('popupopen tile layer', e);
-            },
-            popupclose: e => {
-              console.log('popupclose tile layer', e);
-            },
-          }}
         />
         <LayersControl position="topright">
           <LayersControl.Overlay checked={true} name="Customers">
@@ -82,6 +68,7 @@ const Map: FC<MapProps> = ({
                   spectatorState={spectatorState}
                   setStateSpectator={setStateSpectator}
                   participantType="customer"
+                  stateShowTooltip={stateSettingsMapShowTooltips}
                 />
               ))}
             </LayerGroup>
@@ -95,6 +82,7 @@ const Map: FC<MapProps> = ({
                   spectatorState={spectatorState}
                   setStateSpectator={setStateSpectator}
                   participantType="ride_provider"
+                  stateShowTooltip={stateSettingsMapShowTooltips}
                 />
               ))}
             </LayerGroup>
@@ -103,11 +91,12 @@ const Map: FC<MapProps> = ({
             <LayerGroup>
               {graphState.edges.map(edgeCoordinates => (
                 <Polyline
-                  key={`graph_edge_${edgeCoordinates[0].lat}_${edgeCoordinates[0].long}_${edgeCoordinates[1].lat}_${edgeCoordinates[1].long}`}
-                  positions={[
-                    [edgeCoordinates[0].lat, edgeCoordinates[0].long],
-                    [edgeCoordinates[1].lat, edgeCoordinates[1].long],
-                  ]}
+                  key={`graph_edge_${edgeCoordinates[0].lat}_${
+                    edgeCoordinates[0].long
+                  }_${edgeCoordinates[edgeCoordinates.length - 1].lat}_${
+                    edgeCoordinates[edgeCoordinates.length - 1].long
+                  }`}
+                  positions={edgeCoordinates.map(a => [a.lat, a.long])}
                   color={'cyan'}
                   weight={3}
                   smoothFactor={1}

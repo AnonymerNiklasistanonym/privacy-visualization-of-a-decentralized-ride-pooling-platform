@@ -366,19 +366,8 @@ export class Simulation {
     });
     // DEBUG: Created route graph
     router.route('/graph').get((req, res) => {
-      let edges: [Coordinates, Coordinates][] = [];
-      if (this.osmVertexGraph.edges instanceof Map) {
-        edges = Array.from(this.osmVertexGraph.edges).map(a => [
-          this.osmVertexGraph.vertices.get(a[1].vertexA)?.coordinates ?? {
-            lat: 0,
-            long: 0,
-          },
-          this.osmVertexGraph.vertices.get(a[1].vertexB)?.coordinates ?? {
-            lat: 0,
-            long: 0,
-          },
-        ]);
-      } else {
+      const edges: Coordinates[][] = [];
+      if (this.osmVertexGraph.edges instanceof Function) {
         for (const [, vertex] of this.osmVertexGraph.vertices) {
           for (const vertexNeighborId of vertex.neighbors) {
             const vertexNeighbor =
@@ -388,6 +377,25 @@ export class Simulation {
             }
           }
         }
+      } else {
+        for (const [, a] of this.osmVertexGraph.edges.vertexEdgeIdMap) {
+          edges.push(a.geometry);
+        }
+        ////console.log(this.osmVertexGraph.edges.idMap);
+        //for (const [idVertexA, a] of this.osmVertexGraph.edges.idMap) {
+        //  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        //  for (const [idVertexB, edgeId] of a) {
+        //    const vertexA = this.osmVertexGraph.vertices.get(idVertexA);
+        //    const vertexB = this.osmVertexGraph.vertices.get(idVertexB);
+        //    if (vertexA === undefined || vertexB === undefined) {
+        //      //console.warn(
+        //      //  `Could not find vertex A ${idVertexA} to vertex B ${idVertexB}`
+        //      //);
+        //      continue;
+        //    }
+        //    edges.push([vertexA.coordinates, vertexB.coordinates]);
+        //  }
+        //}
       }
       res.json({
         vertices: Array.from(this.osmVertexGraph.vertices).map(

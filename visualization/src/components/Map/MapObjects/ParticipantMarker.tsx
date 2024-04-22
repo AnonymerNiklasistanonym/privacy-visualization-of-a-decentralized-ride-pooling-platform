@@ -20,16 +20,17 @@ import type {
   SimulationEndpointParticipantInformationCustomer,
   SimulationEndpointParticipantInformationRideProvider,
   SimulationEndpointParticipantInformationRideRequest,
-} from '@/globals/types/simulation';
+} from '@globals/types/simulation';
 import type {FC} from 'react';
-import type {ReactSetState, ReactState} from '@/globals/types/react';
-import type {SimulationEndpointParticipantCoordinatesParticipant} from '@/globals/types/simulation';
+import type {ReactSetState, ReactState} from '@globals/types/react';
+import type {SimulationEndpointParticipantCoordinatesParticipant} from '@globals/types/simulation';
 
 interface ParticipantMarkerProps {
   participantCoordinatesState: SimulationEndpointParticipantCoordinatesParticipant;
   spectatorState: ReactState<string>;
   setStateSpectator: ReactSetState<string>;
   participantType: 'customer' | 'ride_provider';
+  stateShowTooltip: boolean;
 }
 
 const ParticipantMarker: FC<ParticipantMarkerProps> = ({
@@ -37,6 +38,7 @@ const ParticipantMarker: FC<ParticipantMarkerProps> = ({
   spectatorState,
   setStateSpectator,
   participantType,
+  stateShowTooltip,
 }) => {
   const [customerInformationState, setCustomerInformationState] =
     useState<null | SimulationEndpointParticipantInformationCustomer>(null);
@@ -55,6 +57,17 @@ const ParticipantMarker: FC<ParticipantMarkerProps> = ({
       ]}
       icon={participantType === 'customer' ? iconCustomer : iconRideProvider}
       eventHandlers={{
+        mouseover: e => {
+          e.target.openPopup();
+        },
+        mouseout: e => {
+          setTimeout(() => {
+            e.target.closePopup();
+          }, 1000);
+        },
+        popupopen: e => {
+          console.log('Popup opened', participantCoordinatesState.id);
+        },
         click: e => {
           console.log(
             `participant marker clicked ${participantType}`,
@@ -117,9 +130,13 @@ const ParticipantMarker: FC<ParticipantMarkerProps> = ({
         },
       }}
     >
-      <Tooltip direction="bottom" offset={[0, 0]} opacity={1} interactive>
-        {participantType} {participantCoordinatesState.id}
-      </Tooltip>
+      {stateShowTooltip ? (
+        <Tooltip direction="bottom" offset={[0, 0]} opacity={1} permanent>
+          {participantType} {participantCoordinatesState.id}
+        </Tooltip>
+      ) : (
+        <></>
+      )}
       <Popup
         eventHandlers={{
           click: e => {
@@ -130,6 +147,7 @@ const ParticipantMarker: FC<ParticipantMarkerProps> = ({
             );
           },
         }}
+        interactive
       >
         <PopupContentParticipant
           participantCoordinatesState={participantCoordinatesState}

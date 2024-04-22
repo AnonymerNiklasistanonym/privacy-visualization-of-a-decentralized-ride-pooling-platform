@@ -131,17 +131,43 @@ export const overpassRequestCityData = async (
   };
 };
 
-export interface OverpassOsmNode {
-  type: 'node';
+export interface OverpassOsmElement {
+  type: 'node' | 'way' | 'relation';
+  /** integer (64-bit): Used for identifying the element */
   id: number;
+}
+
+/**
+ * A node represents a specific point on the earth's surface defined by its latitude and longitude, referred to the World Geodetic System 1984[1]. Each node comprises at least an id number and a pair of coordinates.
+ *
+ * Nodes can be used to define standalone point features. For example, a node could represent a park bench or a water well.
+ *
+ * Nodes are also used to define the shape of a way. When used as points along ways, nodes usually have no tags, though some of them could. For example, highway=traffic_signals marks traffic signals on a road, and power=tower represents a pylon along an electric power line.
+ *
+ * A node can be included as a member of a relation. The relation also may indicate the member's role: that is, the node's function in this particular set of related data elements.
+ *
+ * https://wiki.openstreetmap.org/wiki/Elements#Node
+ */
+export interface OverpassOsmNode extends OverpassOsmElement {
+  type: 'node';
   lat: number;
   lon: number;
   tags: OverpassOsmTags;
 }
 
-export interface OverpassOsmWay {
+/**
+ * A way is an ordered list of between 1 (!) and 2,000 nodes that define a  polyline. Ways are used to represent linear features such as rivers and roads.
+ *
+ * Ways can also represent the boundaries of areas (solid  polygons) such as buildings or forests. In this case, the way's first and last node will be the same. This is called a "closed way".
+ *
+ * Note that closed ways occasionally represent loops, such as roundabouts on highways, rather than solid areas. This is usually inferred from tags on the way, for example landuse=* can never pertain to a linear feature. However, some real-life objects (such as man_made=pier) can have both a linear closed way or an areal representation area, and the tag area=yes or area=no can be used to avoid ambiguity or misinterpretation. See also: Way#Differences between linear and area representation of features.
+ *
+ * Areas with holes, or with boundaries of more than 2,000 nodes, cannot be represented by a single way. Instead, the feature will require a more complex multipolygon relation data structure.
+ *
+ * https://wiki.openstreetmap.org/wiki/Elements#Way
+ */
+export interface OverpassOsmWay extends OverpassOsmElement {
   type: 'way';
-  id: number;
   bounds: {minlat: number; minlon: number; maxlat: number; maxlon: number};
   geometry: {lat: number; lon: number}[];
   nodes: number[];

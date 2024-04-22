@@ -32,6 +32,9 @@
       "@globals/*": [
         "./src/globals/*"
       ],
+      "@misc/*": [
+        "./src/misc/*"
+      ],
       "@/*": [
         "./src/*"
       ]

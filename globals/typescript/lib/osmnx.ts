@@ -8,13 +8,13 @@ export type OsmnxServerResponse =
 export interface OsmnxServerResponseGeneric {
   shortest_route_travel_time?: Coordinates[];
   shortest_route_length?: Coordinates[];
-  error?: string;
+  error: string | null;
 }
 export interface OsmnxServerResponseSuccessful
   extends OsmnxServerResponseGeneric {
   shortest_route_travel_time: Coordinates[];
   shortest_route_length: Coordinates[];
-  error: undefined;
+  error: null;
 }
 export interface OsmnxServerResponseError extends OsmnxServerResponseGeneric {
   shortest_route_travel_time: undefined;

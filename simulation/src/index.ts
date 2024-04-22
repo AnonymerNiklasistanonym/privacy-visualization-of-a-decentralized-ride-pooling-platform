@@ -49,7 +49,7 @@ const config: Readonly<SimulationConfig> = {
   port,
   // Misc
   cacheDir: path.join(ROOT_DIR, 'cache'),
-  verbose: true,
+  verbose,
 };
 
 /** The webserver of the simulation. */
