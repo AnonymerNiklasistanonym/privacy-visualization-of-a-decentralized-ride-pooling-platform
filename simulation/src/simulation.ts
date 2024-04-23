@@ -366,20 +366,23 @@ export class Simulation {
     });
     // DEBUG: Created route graph
     router.route('/graph').get((req, res) => {
-      const edges: Coordinates[][] = [];
+      const geometry: Array<{id: number; geometry: Coordinates[]}> = [];
       if (this.osmVertexGraph.edges instanceof Function) {
         for (const [, vertex] of this.osmVertexGraph.vertices) {
           for (const vertexNeighborId of vertex.neighbors) {
             const vertexNeighbor =
               this.osmVertexGraph.vertices.get(vertexNeighborId);
             if (vertexNeighbor) {
-              edges.push([vertex.coordinates, vertexNeighbor.coordinates]);
+              geometry.push({
+                id: -1,
+                geometry: [vertex.coordinates, vertexNeighbor.coordinates],
+              });
             }
           }
         }
       } else {
-        for (const [, a] of this.osmVertexGraph.edges.vertexEdgeIdMap) {
-          edges.push(a.geometry);
+        for (const [id, a] of this.osmVertexGraph.edges.vertexEdgeIdMap) {
+          geometry.push({id, geometry: a.geometry});
         }
         ////console.log(this.osmVertexGraph.edges.idMap);
         //for (const [idVertexA, a] of this.osmVertexGraph.edges.idMap) {
@@ -398,10 +401,11 @@ export class Simulation {
         //}
       }
       res.json({
-        vertices: Array.from(this.osmVertexGraph.vertices).map(
-          a => a[1].coordinates
-        ),
-        edges,
+        vertices: Array.from(this.osmVertexGraph.vertices).map(a => ({
+          id: a[0],
+          ...a[1].coordinates,
+        })),
+        geometry,
       } as SimulationEndpointGraph);
     });
     router.route('/shortest_path').get(async (req, res) => {

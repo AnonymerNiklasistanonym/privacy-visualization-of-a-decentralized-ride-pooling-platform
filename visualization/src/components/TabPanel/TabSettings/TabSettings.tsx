@@ -7,10 +7,10 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
 import {Divider} from '@mui/material';
 // Type imports
-import type {ReactPropsI18n} from '@misc/react';
 import type {SettingsProps} from '@misc/settings';
 
-export interface TabSettingsProps extends ReactPropsI18n, SettingsProps {}
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface TabSettingsProps extends SettingsProps {}
 
 export default function TabSettings({
   stateSettingsMapShowTooltips,

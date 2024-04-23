@@ -1,15 +1,14 @@
 'use client';
 
-import * as React from 'react';
+// Package imports
+import {useState} from 'react';
 import {styled, alpha} from '@mui/material/styles';
-import AppBar from '@mui/material/AppBar';
-import Box from '@mui/material/Box';
-import Toolbar from '@mui/material/Toolbar';
-import IconButton from '@mui/material/IconButton';
-import Typography from '@mui/material/Typography';
-import InputBase from '@mui/material/InputBase';
-
+import {useIntl} from 'react-intl';
+// > Components
 import {
+  AppBar,
+  Box,
+  Toolbar,
   List,
   ListItem,
   ListItemButton,
@@ -18,11 +17,19 @@ import {
   Divider,
   Drawer,
 } from '@mui/material';
-
+// > Icons
+import IconButton from '@mui/material/IconButton';
+import Typography from '@mui/material/Typography';
+import InputBase from '@mui/material/InputBase';
 import MenuIcon from '@mui/icons-material/Menu';
 import SearchIcon from '@mui/icons-material/Search';
 import InboxIcon from '@mui/icons-material/MoveToInbox';
 import MailIcon from '@mui/icons-material/Mail';
+// Local imports
+// > Components
+import SearchAppBarContainer from './SearchAppBarContainer';
+// Type imports
+import type {ReactPropsI18n} from '@misc/react';
 
 const Search = styled('div')(({theme}) => ({
   position: 'relative',
@@ -66,15 +73,19 @@ const StyledInputBase = styled(InputBase)(({theme}) => ({
   },
 }));
 
-export default function SearchAppBar() {
-  const [open, setOpen] = React.useState(false);
+export interface SearchAppBarElementProps {
+  toggleDrawer: (newOpen: boolean) => void;
+}
 
-  const toggleDrawer = (newOpen: boolean) => () => {
-    setOpen(newOpen);
-  };
-
-  const DrawerList = (
-    <Box sx={{width: 250}} role="presentation" onClick={toggleDrawer(false)}>
+export function SearchAppBarDrawerList({
+  toggleDrawer,
+}: SearchAppBarElementProps) {
+  return (
+    <Box
+      sx={{width: 250}}
+      role="presentation"
+      onClick={() => toggleDrawer(false)}
+    >
       <List>
         {['Inbox', 'Starred', 'Send email', 'Drafts'].map((text, index) => (
           <ListItem key={text} disablePadding>
@@ -102,45 +113,60 @@ export default function SearchAppBar() {
       </List>
     </Box>
   );
+}
+
+export function SearchAppBarToolbar({toggleDrawer}: SearchAppBarElementProps) {
+  const intl = useIntl();
+  return (
+    <Toolbar>
+      <IconButton
+        size="large"
+        edge="start"
+        color="inherit"
+        aria-label="open drawer"
+        sx={{mr: 2}}
+        onClick={() => toggleDrawer(true)}
+      >
+        <MenuIcon />
+      </IconButton>
+      <Typography
+        variant="h6"
+        noWrap
+        component="div"
+        sx={{flexGrow: 1, display: {xs: 'none', sm: 'block'}}}
+      >
+        {intl.formatMessage({id: 'page.home.title'})}
+      </Typography>
+      <Search>
+        <SearchIconWrapper>
+          <SearchIcon />
+        </SearchIconWrapper>
+        <StyledInputBase
+          placeholder="Search…"
+          inputProps={{'aria-label': 'search'}}
+        />
+      </Search>
+    </Toolbar>
+  );
+}
+
+export default function SearchAppBar({locale, messages}: ReactPropsI18n) {
+  const [open, setOpen] = useState(false);
+
+  const toggleDrawer = (newOpen: boolean) => {
+    setOpen(newOpen);
+  };
 
   return (
-    <>
+    <SearchAppBarContainer locale={locale} messages={messages}>
       <Box sx={{flexGrow: 1}}>
         <AppBar position="static">
-          <Toolbar>
-            <IconButton
-              size="large"
-              edge="start"
-              color="inherit"
-              aria-label="open drawer"
-              sx={{mr: 2}}
-              onClick={toggleDrawer(true)}
-            >
-              <MenuIcon />
-            </IconButton>
-            <Typography
-              variant="h6"
-              noWrap
-              component="div"
-              sx={{flexGrow: 1, display: {xs: 'none', sm: 'block'}}}
-            >
-              MUI
-            </Typography>
-            <Search>
-              <SearchIconWrapper>
-                <SearchIcon />
-              </SearchIconWrapper>
-              <StyledInputBase
-                placeholder="Search…"
-                inputProps={{'aria-label': 'search'}}
-              />
-            </Search>
-          </Toolbar>
+          <SearchAppBarToolbar toggleDrawer={toggleDrawer} />
         </AppBar>
       </Box>
-      <Drawer open={open} onClose={toggleDrawer(false)}>
-        {DrawerList}
+      <Drawer open={open} onClose={() => toggleDrawer(false)}>
+        <SearchAppBarDrawerList toggleDrawer={toggleDrawer} />
       </Drawer>
-    </>
+    </SearchAppBarContainer>
   );
 }

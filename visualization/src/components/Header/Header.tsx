@@ -1,16 +1,14 @@
+'use client';
+
+// Package imports
 import Link from 'next/link';
+// Local imports
 import {i18n} from '../../../i18n-config';
-// Type imports
-import type {FC} from 'react';
 
-const Header: FC = () => {
+export default function Header() {
   const {locales, defaultLocale} = i18n;
-
   return (
     <header>
-      {
-        // Create link list of supported languages
-      }
       <div dir="ltr" className="languages">
         {[...locales].sort().map(locale => (
           <Link
@@ -23,6 +21,4 @@ const Header: FC = () => {
       </div>
     </header>
   );
-};
-
-export default Header;
+}

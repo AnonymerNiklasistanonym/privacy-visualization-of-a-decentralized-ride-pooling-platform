@@ -1,11 +1,12 @@
 // Package imports
 import {useIntl} from 'react-intl';
 // > Components
+import {Tabs, Tab} from '@mui/material';
+// > Icons
 import ArticleIcon from '@mui/icons-material/Article';
 import MapIcon from '@mui/icons-material/Map';
 import TableRowsIcon from '@mui/icons-material/TableRows';
 import SettingsIcon from '@mui/icons-material/Settings';
-import {Tabs, Tab} from '@mui/material';
 // Type imports
 import type {ReactElement} from 'react';
 

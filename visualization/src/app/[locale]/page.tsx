@@ -10,7 +10,6 @@ import TabPanel from '@components/TabPanel';
 import styles from '@styles/page.module.css';
 // Type imports
 import type {ReactI18nMessages, ReactPropsI18nHome} from '@misc/react';
-import type {ReactNode} from 'react';
 
 export default async function Home({params: {locale}}: ReactPropsI18nHome) {
   // Server translations
@@ -22,23 +21,10 @@ export default async function Home({params: {locale}}: ReactPropsI18nHome) {
 
   return (
     <>
-      <SearchAppBar />
+      <SearchAppBar locale={locale} messages={messages} />
       <div className={styles.container}>
         <main className={styles.main}>
-          <h1 className={styles.title}>
-            {intl.formatMessage(
-              {id: 'page.home.title'},
-              // Replace b chunks with actual JSX element
-              {b: (chunks: ReactNode[]) => <strong>{chunks}</strong>}
-            )}
-          </h1>
-
-          <p className={styles.description}>
-            {intl.formatMessage({id: 'page.home.description'})}
-          </p>
-
           <TabPanel locale={locale} messages={messages} />
-
           <SpeedDialTooltipOpen />
         </main>
       </div>

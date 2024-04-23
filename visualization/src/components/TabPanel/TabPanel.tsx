@@ -7,8 +7,10 @@ import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 // Local imports
 // > Components
-import TabMap from '@components/TabPanel/TabMap';
-import TabSettings from '@components/TabPanel/TabSettings';
+import TabMap from './TabMap';
+import TabSettings from './TabSettings';
+import TabOverview from './TabOverview';
+import TabBlockchain from './TabBlockchain';
 import TabPanelContainer from './TabPanelContainer';
 import TabPanelHeader from './TabPanelHeader';
 // Type imports
@@ -66,27 +68,23 @@ export default function TabPanel({
           <TabPanelHeader stateValue={value} handleChange={handleChange} />
         </Box>
         <CustomTabPanel value={value} index={0}>
-          TODO
+          <TabOverview />
         </CustomTabPanel>
         <CustomTabPanel value={value} index={1}>
           <TabMap
-            locale={locale}
             stateSettingsMapShowTooltips={stateSettingsMapShowTooltips}
             stateSettingsMapOpenPopupOnHover={stateOpenPopupOnHover}
-            messages={{}}
           />
         </CustomTabPanel>
         <CustomTabPanel value={value} index={2}>
-          TODO
+          <TabBlockchain />
         </CustomTabPanel>
         <CustomTabPanel value={value} index={3}>
           <TabSettings
-            locale={locale}
             stateSettingsMapShowTooltips={stateSettingsMapShowTooltips}
             setStateSettingsMapShowTooltips={setStateSettingsMapShowTooltips}
             stateSettingsMapOpenPopupOnHover={stateOpenPopupOnHover}
             setStateSettingsMapOpenPopupOnHover={setStateOpenPopupOnHover}
-            messages={{}}
           />
         </CustomTabPanel>
       </Box>

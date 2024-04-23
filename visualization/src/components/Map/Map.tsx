@@ -23,7 +23,7 @@ import type {
   SimulationEndpointGraph,
   SimulationEndpointParticipantCoordinates,
 } from '@globals/types/simulation';
-import type {SettingsPropsStates} from '@misc/settings';
+import type {SettingsMapPropsStates} from '@misc/settings';
 import {Box} from '@mui/material';
 
 export interface StatPos {
@@ -32,12 +32,12 @@ export interface StatPos {
   zoom: number;
 }
 
-export interface MapProps extends SettingsPropsStates {
+export interface MapProps extends SettingsMapPropsStates {
   graphState: SimulationEndpointGraph;
   participantsState: SimulationEndpointParticipantCoordinates;
   startPos: StatPos;
   spectatorState: string;
-  setStateSpectator: (newState: string) => void;
+  setSpectatorState: (newState: string) => void;
 }
 
 export default function Map({
@@ -45,7 +45,7 @@ export default function Map({
   participantsState,
   startPos,
   spectatorState,
-  setStateSpectator,
+  setSpectatorState: setStateSpectator,
   stateSettingsMapShowTooltips,
   stateSettingsMapOpenPopupOnHover,
 }: MapProps) {
@@ -95,26 +95,22 @@ export default function Map({
           </LayersControl.Overlay>
           <LayersControl.Overlay checked={false} name="Debug: Dijkstra Graph">
             <LayerGroup>
-              {graphState.edges.map(edgeCoordinates => (
+              {graphState.geometry.map(a => (
                 <Polyline
-                  key={`graph_edge_${edgeCoordinates[0].lat}_${
-                    edgeCoordinates[0].long
-                  }_${edgeCoordinates[edgeCoordinates.length - 1].lat}_${
-                    edgeCoordinates[edgeCoordinates.length - 1].long
-                  }`}
-                  positions={edgeCoordinates.map(a => [a.lat, a.long])}
+                  key={`graph_geometry_${a.id}`}
+                  positions={a.geometry.map(a => [a.lat, a.long])}
                   color={'cyan'}
                   weight={3}
                   smoothFactor={1}
                 />
               ))}
-              {graphState.vertices.map(coordinates => (
+              {graphState.vertices.map(a => (
                 <Circle
-                  key={`graph_circle_${coordinates.lat}_${coordinates.long}`}
+                  key={`graph_circle_${a.id}`}
                   radius={5}
                   color={'red'}
                   fillColor={'red'}
-                  center={[coordinates.lat, coordinates.long]}
+                  center={[a.lat, a.long]}
                 />
               ))}
             </LayerGroup>

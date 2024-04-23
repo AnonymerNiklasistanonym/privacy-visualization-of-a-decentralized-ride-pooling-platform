@@ -72,6 +72,6 @@ export interface SimulationEndpointParticipantCoordinates {
 }
 
 export interface SimulationEndpointGraph {
-  vertices: Array<Coordinates>;
-  edges: Array<Array<Coordinates>>;
+  vertices: Array<{id: number} & Coordinates>;
+  geometry: Array<{id: number; geometry: Array<Coordinates>}>;
 }

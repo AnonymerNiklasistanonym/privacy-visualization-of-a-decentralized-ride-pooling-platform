@@ -7,34 +7,42 @@ import {fetchJsonSimulation, fetchTextSimulation} from '@globals/lib/fetch';
 import Map from '@components/Map';
 import Container from '@components/Container';
 import Button from '@components/Button';
-import DynamicTitle from './DynamicTitle';
 import Snackbar from '@components/Snackbar';
+import SelectSpectator from '@components/Sort/SelectSpectator';
 // > Styles
 import styles from '@styles/Home.module.scss';
 // Type imports
-import type {ReactPropsI18n} from '@misc/react';
 import type {
   SimulationEndpointGraph,
   SimulationEndpointParticipantCoordinates,
 } from '@globals/types/simulation';
-import type {SettingsPropsStatesMap} from '@misc/settings';
+import type {SettingsMapPropsStates} from '@misc/settings';
+import type {SelectSpectatorOptionStateType} from '@components/Sort/SelectSpectator';
 
-export interface TabMapProps extends ReactPropsI18n, SettingsPropsStatesMap {}
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface TabMapProps extends SettingsMapPropsStates {}
 
 export default function TabMap({
   stateSettingsMapShowTooltips,
   stateSettingsMapOpenPopupOnHover,
 }: TabMapProps) {
   // React states
-  const [openState, setStateOpen] = useState(false);
-  const [spectatorState, setStateSpectator] = useState('everything');
-  const [participantsState, setStateParticipants] =
+  const [snackbarOpenState, setSnackbarOpenState] = useState(false);
+  const [spectatorState, setSpectatorState] = useState('everything');
+  const defaultOptions: SelectSpectatorOptionStateType = [
+    {label: 'everything', type: 'everything'},
+    {label: 'public', type: 'public'},
+    {label: 'auth', type: 'auth'},
+    {label: 'match', type: 'match'},
+  ];
+  const [selectOptionsState, setSelectOptionsState] = useState(defaultOptions);
+  const [participantsState, setParticipantsState] =
     useState<SimulationEndpointParticipantCoordinates>({
       customers: [],
       rideProviders: [],
     });
-  const [graphState, setStateGraph] = useState<SimulationEndpointGraph>({
-    edges: [],
+  const [graphState, setGraphState] = useState<SimulationEndpointGraph>({
+    geometry: [],
     vertices: [],
   });
 
@@ -42,12 +50,12 @@ export default function TabMap({
   useEffect(() => {
     // Run this when any listed state dependency changes
     console.log('Spectator changed:', spectatorState);
-    setStateOpen(true);
+    setSnackbarOpenState(true);
   }, [spectatorState]);
   useEffect(() => {
     console.log('fetch json/graph');
     fetchJsonSimulation<SimulationEndpointGraph>('json/graph').then(data => {
-      setStateGraph(data);
+      setGraphState(data);
     });
   }, []);
   useEffect(() => {
@@ -55,7 +63,18 @@ export default function TabMap({
       fetchJsonSimulation<SimulationEndpointParticipantCoordinates>(
         'json/participants'
       ).then(data => {
-        setStateParticipants(data);
+        setParticipantsState(data);
+        setSelectOptionsState([
+          ...defaultOptions,
+          ...(participantsState.customers.map(a => ({
+            label: `${a.id}`,
+            type: 'customer',
+          })) as SelectSpectatorOptionStateType),
+          ...(participantsState.rideProviders.map(a => ({
+            label: `${a.id}`,
+            type: 'rideProvider',
+          })) as SelectSpectatorOptionStateType),
+        ]);
       });
     }, 100);
     return () => {
@@ -63,18 +82,22 @@ export default function TabMap({
     };
   });
   const switchSpectator = (newSpectator: string) => {
-    setStateSpectator(newSpectator);
+    setSpectatorState(newSpectator);
   };
   return (
     <>
       <Container>
-        <DynamicTitle spectatorState={spectatorState} />
+        <SelectSpectator
+          optionsState={selectOptionsState}
+          spectatorState={spectatorState}
+          setSpectatorState={setSpectatorState}
+        />
 
         <Map
           participantsState={participantsState}
           startPos={{lat: 48.7784485, long: 9.1800132, zoom: 11}}
           spectatorState={spectatorState}
-          setStateSpectator={setStateSpectator}
+          setSpectatorState={setSpectatorState}
           graphState={graphState}
           stateSettingsMapShowTooltips={stateSettingsMapShowTooltips}
           stateSettingsMapOpenPopupOnHover={stateSettingsMapOpenPopupOnHover}
@@ -135,9 +158,9 @@ export default function TabMap({
         </p>
       </Container>
       <Snackbar
-        openState={openState}
+        openState={snackbarOpenState}
         textState={spectatorState}
-        setStateOpen={setStateOpen}
+        setStateOpen={setSnackbarOpenState}
       />
     </>
   );
