@@ -74,6 +74,15 @@ describe('Coordinates Interpolation', () => {
         testData.path[0]
       );
       expect(
+        interpolated.getCurrentPosition(interpolated.travelTimeInMs / 4)
+      ).not.toStrictEqual(testData.path[0]);
+      expect(
+        interpolated.getCurrentPosition(interpolated.travelTimeInMs / 2)
+      ).not.toStrictEqual(testData.path[0]);
+      expect(
+        interpolated.getCurrentPosition(interpolated.travelTimeInMs / 0.75)
+      ).not.toStrictEqual(testData.path[0]);
+      expect(
         interpolated.getCurrentPosition(interpolated.travelTimeInMs)
       ).toStrictEqual(testData.path[testData.path.length - 1]);
     }

@@ -154,13 +154,18 @@ export abstract class Participant<JsonType> extends Actor<
     while (
       currentTravelTimeInMs <= interpolatedCoordinatesInfo.travelTimeInMs
     ) {
+      console.log(
+        this.id,
+        this.currentLocation,
+        currentTravelTimeInMs / 1000,
+        interpolatedCoordinatesInfo.travelTimeInMs / 1000
+      );
       this.currentLocation = interpolatedCoordinatesInfo.getCurrentPosition(
         currentTravelTimeInMs
       );
-      const startPerformanceTime = performance.timeOrigin;
+      const startPerformanceTime = performance.now();
       await wait(1000 / 4);
-      currentTravelTimeInMs +=
-        (performance.now() + startPerformanceTime) * 1000;
+      currentTravelTimeInMs += performance.now() - startPerformanceTime;
     }
     this.currentRoute = undefined;
     this.currentRoutes = undefined;
