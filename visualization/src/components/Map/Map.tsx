@@ -13,14 +13,14 @@ import {
 // > Styles
 import 'leaflet/dist/leaflet.css';
 // Local imports
-import styles from './Map.module.scss';
+import styles from '@styles/Map.module.scss';
 // > Components
 import ParticipantMarker from './MapObjects/ParticipantMarker';
 // > Styles
-import './Map.module.scss';
+import '@styles/Map.module.scss';
 // Type imports
 import type {
-  SimulationEndpointGraph,
+  SimulationEndpointGraphInformation,
   SimulationEndpointParticipantCoordinates,
 } from '@globals/types/simulation';
 import type {SettingsMapPropsStates} from '@misc/settings';
@@ -33,7 +33,7 @@ export interface StatPos {
 }
 
 export interface MapProps extends SettingsMapPropsStates {
-  graphState: SimulationEndpointGraph;
+  graphState: SimulationEndpointGraphInformation;
   participantsState: SimulationEndpointParticipantCoordinates;
   startPos: StatPos;
   spectatorState: string;

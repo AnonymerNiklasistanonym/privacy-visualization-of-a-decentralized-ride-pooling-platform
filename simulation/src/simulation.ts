@@ -12,7 +12,7 @@ import {
 import type {Coordinates} from './globals/types/coordinates';
 import type {SimulationConfigWithData} from './config/simulationConfigWithData';
 import type {
-  SimulationEndpointGraph,
+  SimulationEndpointGraphInformation,
   SimulationEndpointParticipantCoordinates,
   SimulationEndpointParticipantInformationRideRequest,
 } from './globals/types/simulation';
@@ -406,7 +406,7 @@ export class Simulation {
           ...a[1].coordinates,
         })),
         geometry,
-      } as SimulationEndpointGraph);
+      } as SimulationEndpointGraphInformation);
     });
     router.route('/shortest_path').get(async (req, res) => {
       const vertices = Array.from(this.osmVertexGraph.vertices);

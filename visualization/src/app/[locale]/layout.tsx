@@ -1,7 +1,7 @@
 'use server';
 
-// Style imports
-import '@styles/globals.css';
+// Package imports
+import {Metadata} from 'next';
 // > MUI roboto font (https://mui.com/material-ui/getting-started/installation/#roboto-font)
 import '@fontsource/roboto/300.css';
 import '@fontsource/roboto/400.css';
@@ -13,6 +13,8 @@ import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 // > Middleware
 import {getDirection, getIntl} from '../../services/intl';
+// > Styles
+import '@styles/globals.css';
 // Type imports
 import type {PropsWithChildren} from 'react';
 import type {ReactI18nMessages, ReactPropsI18nHome} from '@misc/react';

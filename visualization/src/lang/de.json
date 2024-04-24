@@ -7,6 +7,12 @@
   "page.home.tab.map.title": "Karte",
   "page.home.tab.overview.title": "Übersicht",
   "page.home.tab.settings.title": "Einstellungen",
-  "page.home.title": "Willkommen zum <b>Next.js i18n Tutorial</b>",
-  "page.nested.title": "Verschachtelte Route Beispiel"
+  "page.home.title": "Visualisierung der GETACAR Platform",
+  "page.nested.title": "Verschachtelte Route Beispiel",
+  "getacar.spectator.everything": "Alles",
+  "getacar.spectator.public": "Öffentlich",
+  "getacar.spectator.service.matching": "Matching Service",
+  "getacar.spectator.service.authentication": "Authentication Service",
+  "getacar.spectator.participant.customerid": "Customer ({id})",
+  "getacar.spectator.participant.rideProviderid": "Ride Provider ({id})"
 }

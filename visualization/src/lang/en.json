@@ -7,6 +7,12 @@
   "page.home.tab.map.title": "Map",
   "page.home.tab.overview.title": "Overview",
   "page.home.tab.settings.title": "Settings",
-  "page.home.title": "Welcome to <b>Next.js i18n tutorial</b>",
-  "page.nested.title": "Nested route example"
+  "page.home.title": "Visualization of the GETACAR Platform",
+  "page.nested.title": "Nested route example",
+  "getacar.spectator.everything": "Everything",
+  "getacar.spectator.public": "Public",
+  "getacar.spectator.service.matching": "Matching Service",
+  "getacar.spectator.service.authentication": "Authentication Service",
+  "getacar.spectator.participant.customerid": "Customer ({id})",
+  "getacar.spectator.participant.rideProviderid": "Ride Provider ({id})"
 }

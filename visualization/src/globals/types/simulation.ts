@@ -73,7 +73,7 @@ export interface SimulationEndpointParticipantCoordinates {
   rideProviders: Array<SimulationEndpointParticipantCoordinatesParticipant>;
 }
 
-export interface SimulationEndpointGraph {
+export interface SimulationEndpointGraphInformation {
   vertices: Array<{id: number} & Coordinates>;
   geometry: Array<{id: number; geometry: Array<Coordinates>}>;
 }

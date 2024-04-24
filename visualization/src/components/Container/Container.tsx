@@ -1,5 +1,5 @@
 // Local imports
-import styles from './Container.module.scss';
+import styles from '@styles/Container.module.scss';
 // Type imports
 import type {PropsWithChildren} from 'react';
 

@@ -17,20 +17,29 @@ import type {
   SimulationEndpointParticipantInformationCustomer,
   SimulationEndpointParticipantInformationRideProvider,
   SimulationEndpointParticipantInformationRideRequest,
+  SimulationEndpointParticipantTypes,
 } from '@globals/types/simulation';
 import type {ReactSetState, ReactState} from '@misc/react';
 import type {SimulationEndpointParticipantCoordinatesParticipant} from '@globals/types/simulation';
 import {LeafletMouseEvent} from 'leaflet';
+import {simulationEndpoints} from '@globals/defaults/endpoints';
 
 interface ParticipantMarkerProps {
-  participantCoordinatesState: SimulationEndpointParticipantCoordinatesParticipant;
-  spectatorState: ReactState<string>;
+  /** The participant ID and current coordinates */
+  participantCoordinatesState: ReactState<SimulationEndpointParticipantCoordinatesParticipant>;
+  /** The participant ID and current coordinates */
+  participantType: SimulationEndpointParticipantTypes;
   setStateSpectator: ReactSetState<string>;
-  participantType: 'customer' | 'ride_provider';
-  stateShowTooltip: boolean;
-  stateOpenPopupOnHover: boolean;
+  spectatorState: ReactState<string>;
+  stateOpenPopupOnHover: ReactState<boolean>;
+  stateShowTooltip: ReactState<boolean>;
 }
 
+/**
+ * Marker that represents a participant on the map.
+ * On click it opens a popup element which allows further interaction and prints detailed information.
+ * The displayed content changes depending on who the current spectator is.
+ */
 export default function ParticipantMarker({
   participantCoordinatesState,
   spectatorState,
@@ -39,11 +48,12 @@ export default function ParticipantMarker({
   stateShowTooltip,
   stateOpenPopupOnHover,
 }: ParticipantMarkerProps) {
+  // React states
+  // > Fetch additional participant information
   const [customerInformationState, setCustomerInformationState] =
     useState<null | SimulationEndpointParticipantInformationCustomer>(null);
   const [rideProviderInformationState, setRideProviderInformationState] =
     useState<null | SimulationEndpointParticipantInformationRideProvider>(null);
-
   const [rideRequestState, setRideRequestState] =
     useState<null | SimulationEndpointParticipantInformationRideRequest>(null);
 
@@ -51,14 +61,18 @@ export default function ParticipantMarker({
     console.log('fetch', participantType, participantCoordinatesState.id);
     if (participantType === 'customer') {
       fetchJsonSimulation<SimulationEndpointParticipantInformationCustomer>(
-        `json/customer/${participantCoordinatesState.id}`
+        simulationEndpoints.participantInformationCustomer(
+          participantCoordinatesState.id
+        )
       )
         .then(newCustomerInformation => {
           setCustomerInformationState(newCustomerInformation);
           console.log('Fetched customer', newCustomerInformation);
           if (newCustomerInformation.rideRequest !== undefined) {
             fetchJsonSimulation<SimulationEndpointParticipantInformationRideRequest>(
-              `json/ride_request/${newCustomerInformation.rideRequest}`
+              simulationEndpoints.participantInformationRideRequest(
+                newCustomerInformation.rideRequest
+              )
             )
               .then(newRideRequestInformation => {
                 setRideRequestState(newRideRequestInformation);
@@ -75,14 +89,18 @@ export default function ParticipantMarker({
     }
     if (participantType === 'ride_provider') {
       fetchJsonSimulation<SimulationEndpointParticipantInformationRideProvider>(
-        `json/ride_provider/${participantCoordinatesState.id}`
+        simulationEndpoints.participantInformationRideProvider(
+          participantCoordinatesState.id
+        )
       )
         .then(newRideProviderInformation => {
           setRideProviderInformationState(newRideProviderInformation);
           console.log('Fetched ride provider', newRideProviderInformation);
           if (newRideProviderInformation.rideRequest !== undefined) {
             fetchJsonSimulation<SimulationEndpointParticipantInformationRideRequest>(
-              `json/ride_request/${newRideProviderInformation.rideRequest}`
+              simulationEndpoints.participantInformationRideRequest(
+                newRideProviderInformation.rideRequest
+              )
             )
               .then(newRideRequestInformation => {
                 setRideRequestState(newRideRequestInformation);

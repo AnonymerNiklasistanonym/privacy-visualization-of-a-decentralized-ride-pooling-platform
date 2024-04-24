@@ -3,6 +3,7 @@
 import {useEffect, useState} from 'react';
 // Local imports
 import {fetchJsonSimulation, fetchTextSimulation} from '@globals/lib/fetch';
+import {simulationEndpoints} from '@globals/defaults/endpoints';
 // > Components
 import Map from '@components/Map';
 import Container from '@components/Container';
@@ -13,7 +14,7 @@ import SelectSpectator from '@components/Sort/SelectSpectator';
 import styles from '@styles/Home.module.scss';
 // Type imports
 import type {
-  SimulationEndpointGraph,
+  SimulationEndpointGraphInformation,
   SimulationEndpointParticipantCoordinates,
 } from '@globals/types/simulation';
 import type {SettingsMapPropsStates} from '@misc/settings';
@@ -30,10 +31,26 @@ export default function TabMap({
   const [snackbarOpenState, setSnackbarOpenState] = useState(false);
   const [spectatorState, setSpectatorState] = useState('everything');
   const defaultOptions: SelectSpectatorOptionStateType = [
-    {label: 'everything', type: 'everything'},
-    {label: 'public', type: 'public'},
-    {label: 'auth', type: 'auth'},
-    {label: 'match', type: 'match'},
+    {
+      label: 'everything',
+      type: 'everything',
+      translationId: 'getacar.spectator.everything',
+    },
+    {
+      label: 'public',
+      type: 'public',
+      translationId: 'getacar.spectator.public',
+    },
+    {
+      label: 'auth',
+      type: 'auth',
+      translationId: 'getacar.spectator.service.authentication',
+    },
+    {
+      label: 'match',
+      type: 'match',
+      translationId: 'getacar.spectator.service.matching',
+    },
   ];
   const [selectOptionsState, setSelectOptionsState] = useState(defaultOptions);
   const [participantsState, setParticipantsState] =
@@ -41,10 +58,11 @@ export default function TabMap({
       customers: [],
       rideProviders: [],
     });
-  const [graphState, setGraphState] = useState<SimulationEndpointGraph>({
-    geometry: [],
-    vertices: [],
-  });
+  const [graphState, setGraphState] =
+    useState<SimulationEndpointGraphInformation>({
+      geometry: [],
+      vertices: [],
+    });
 
   // React effects
   useEffect(() => {
@@ -53,15 +71,14 @@ export default function TabMap({
     setSnackbarOpenState(true);
   }, [spectatorState]);
   useEffect(() => {
-    console.log('fetch json/graph');
-    fetchJsonSimulation<SimulationEndpointGraph>('json/graph').then(data => {
-      setGraphState(data);
-    });
+    fetchJsonSimulation<SimulationEndpointGraphInformation>(
+      simulationEndpoints.graphInformation
+    ).then(data => setGraphState(data));
   }, []);
   useEffect(() => {
     const interval = setInterval(() => {
       fetchJsonSimulation<SimulationEndpointParticipantCoordinates>(
-        'json/participants'
+        simulationEndpoints.participantCoordinates
       ).then(data => {
         setParticipantsState(data);
         setSelectOptionsState([
@@ -69,10 +86,12 @@ export default function TabMap({
           ...(participantsState.customers.map(a => ({
             label: `${a.id}`,
             type: 'customer',
+            translationId: 'getacar.spectator.participant.customerid',
           })) as SelectSpectatorOptionStateType),
           ...(participantsState.rideProviders.map(a => ({
             label: `${a.id}`,
             type: 'rideProvider',
+            translationId: 'getacar.spectator.participant.rideProviderid',
           })) as SelectSpectatorOptionStateType),
         ]);
       });

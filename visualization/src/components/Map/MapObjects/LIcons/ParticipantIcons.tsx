@@ -5,6 +5,8 @@ import L from 'leaflet';
 import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
 import DirectionsWalkIcon from '@mui/icons-material/DirectionsWalk';
 import ReactDOMServer from 'react-dom/server';
+// Local imports
+//import styles from '@styles/Map.module.scss';
 
 export const participantIconSize = 32;
 

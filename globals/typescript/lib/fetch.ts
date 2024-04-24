@@ -1,9 +1,23 @@
 // Local imports
-import {ports} from '../defaults/ports';
+import {baseUrlSimulation} from '../defaults/urls';
 
-export const fetchJson = async <T>(url: string): Promise<T> => {
+export interface FetchJsonOptions {
+  showFetch?: boolean;
+  showResponse?: boolean;
+}
+
+export const fetchJson = async <T>(
+  url: string,
+  options?: FetchJsonOptions
+): Promise<T> => {
+  if (options?.showFetch) {
+    console.info(`fetch ${url}...`);
+  }
   const response = await fetch(url);
   const result = response.json() as T;
+  if (options?.showResponse) {
+    console.info(`fetched ${url}`, result);
+  }
   return result;
 };
 
@@ -13,10 +27,10 @@ export const fetchText = async (url: string): Promise<string> => {
   return result;
 };
 
-export const baseUrlSimulation = `http://localhost:${ports.simulation}`;
-
-export const fetchJsonSimulation = async <T>(endpoint: string): Promise<T> =>
-  fetchJson<T>(`${baseUrlSimulation}/${endpoint}`);
+export const fetchJsonSimulation = async <T>(
+  endpoint: string,
+  options?: FetchJsonOptions
+): Promise<T> => fetchJson<T>(`${baseUrlSimulation}/${endpoint}`, options);
 
 export const fetchTextSimulation = async (endpoint: string): Promise<string> =>
   fetchText(`${baseUrlSimulation}/${endpoint}`);

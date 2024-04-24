@@ -14,6 +14,7 @@ import GroupIcon from '@mui/icons-material/Group';
 import VerifiedIcon from '@mui/icons-material/Verified';
 // Type imports
 import type {ReactSetState, ReactState} from '@misc/react';
+import {useIntl} from 'react-intl';
 
 export type SelectSpectatorOptionTypes =
   | 'error'
@@ -25,7 +26,11 @@ export type SelectSpectatorOptionTypes =
   | 'rideProvider';
 
 export type SelectSpectatorOptionStateType = ReactState<
-  Array<{label: string; type: SelectSpectatorOptionTypes}>
+  Array<{
+    label: string;
+    type: SelectSpectatorOptionTypes;
+    translationId?: string;
+  }>
 >;
 
 export interface SelectSpectatorProps {
@@ -48,6 +53,8 @@ export default function SelectSpectator({
   useEffect(() => {
     setVal(getCurrentValue());
   }, [spectatorState]);
+
+  const intl = useIntl();
   return (
     <Box sx={{minWidth: 120, maxWidth: 600}} margin={2}>
       <Autocomplete
@@ -62,7 +69,16 @@ export default function SelectSpectator({
             : setVal(getCurrentValue())
         }
         onInputChange={(e, val) => setVal({label: val, type: 'error'})}
-        getOptionLabel={option => option.label}
+        getOptionLabel={option =>
+          option.translationId !== undefined
+            ? intl.formatMessage(
+                {
+                  id: option.translationId,
+                },
+                {id: option.label}
+              )
+            : option.label
+        }
         renderInput={params => <TextField {...params} label="Spectator" />}
         renderOption={(props, option) => (
           <Box
@@ -85,7 +101,14 @@ export default function SelectSpectator({
             ) : (
               <QuestionMarkIcon />
             )}{' '}
-            {option.label}
+            {option.translationId !== undefined
+              ? intl.formatMessage(
+                  {
+                    id: option.translationId,
+                  },
+                  {id: option.label}
+                )
+              : option.label}
           </Box>
         )}
       />
