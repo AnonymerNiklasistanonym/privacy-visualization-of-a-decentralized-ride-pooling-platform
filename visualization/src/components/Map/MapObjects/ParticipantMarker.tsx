@@ -10,8 +10,10 @@ import {participantIconSize} from './LIcons/ParticipantIcons';
 import {iconCustomer, iconRideProvider} from './LIcons/ParticipantIcons';
 import PopupContentParticipant from '@components/Map/MapObjects/PopupContent/PopupContentParticipant';
 // > Globals
-import {fetchJsonSimulation} from '@globals/lib/fetch';
+import {simulationEndpoints} from '@globals/defaults/endpoints';
+import {fetchJson} from '@globals/lib/fetch';
 import {getH3Polygon} from '@globals/lib/h3';
+import {baseUrlSimulation} from '@globals/defaults/urls';
 // Type imports
 import type {
   SimulationEndpointParticipantInformationCustomer,
@@ -21,8 +23,13 @@ import type {
 } from '@globals/types/simulation';
 import type {ReactSetState, ReactState} from '@misc/react';
 import type {SimulationEndpointParticipantCoordinatesParticipant} from '@globals/types/simulation';
-import {LeafletMouseEvent} from 'leaflet';
-import {simulationEndpoints} from '@globals/defaults/endpoints';
+import type {LeafletMouseEvent} from 'leaflet';
+import type {FetchJsonOptions} from '@globals/lib/fetch';
+
+export const fetchJsonSimulation = async <T,>(
+  endpoint: string,
+  options?: FetchJsonOptions
+): Promise<T> => fetchJson<T>(`${baseUrlSimulation}/${endpoint}`, options);
 
 interface ParticipantMarkerProps {
   /** The participant ID and current coordinates */

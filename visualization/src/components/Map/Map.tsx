@@ -10,6 +10,7 @@ import {
   Polyline,
   TileLayer,
 } from 'react-leaflet';
+import {Box} from '@mui/material';
 // > Styles
 import 'leaflet/dist/leaflet.css';
 // Local imports
@@ -24,7 +25,7 @@ import type {
   SimulationEndpointParticipantCoordinates,
 } from '@globals/types/simulation';
 import type {SettingsMapPropsStates} from '@misc/settings';
-import {Box} from '@mui/material';
+import type {PathfinderEndpointGraphInformation} from '@globals/types/pathfinder';
 
 export interface StatPos {
   lat: number;
@@ -34,6 +35,7 @@ export interface StatPos {
 
 export interface MapProps extends SettingsMapPropsStates {
   graphState: SimulationEndpointGraphInformation;
+  graphPathfinderState: PathfinderEndpointGraphInformation;
   participantsState: SimulationEndpointParticipantCoordinates;
   startPos: StatPos;
   spectatorState: string;
@@ -42,6 +44,7 @@ export interface MapProps extends SettingsMapPropsStates {
 
 export default function Map({
   graphState,
+  graphPathfinderState,
   participantsState,
   startPos,
   spectatorState,
@@ -107,6 +110,28 @@ export default function Map({
               {graphState.vertices.map(a => (
                 <Circle
                   key={`graph_circle_${a.id}`}
+                  radius={5}
+                  color={'red'}
+                  fillColor={'red'}
+                  center={[a.lat, a.long]}
+                />
+              ))}
+            </LayerGroup>
+          </LayersControl.Overlay>
+          <LayersControl.Overlay checked={false} name="Debug: Pathfinder Graph">
+            <LayerGroup>
+              {graphPathfinderState.edges.map((a, index) => (
+                <Polyline
+                  key={`graph_pathfinder_edge_${index}`}
+                  positions={a.map(a => [a.lat, a.long])}
+                  color={'cyan'}
+                  weight={3}
+                  smoothFactor={1}
+                />
+              ))}
+              {graphPathfinderState.vertices.map(a => (
+                <Circle
+                  key={`graph_pathfinder_vertice_${a.id}`}
                   radius={5}
                   color={'red'}
                   fillColor={'red'}

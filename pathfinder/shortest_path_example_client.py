@@ -1,9 +1,12 @@
 import requests
 
 
-def make_request(url: str, body: dict):
+def make_request(url: str, body: dict = None):
     print(f"send request to {url=} {body=}")
-    res = requests.post(url, json=body)
+    if body is None:
+        res = requests.get(url, json=body)
+    else:
+        res = requests.post(url, json=body)
     if res.ok:
         print(res.json())
     else:
@@ -27,3 +30,4 @@ if __name__ == "__main__":
             "target": {"lat": 48.83962171673551, "long": 9.28015233602136},
         },
     )
+    make_request(f"{base_url}/graph")

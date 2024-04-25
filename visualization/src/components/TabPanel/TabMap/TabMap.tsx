@@ -2,8 +2,12 @@
 
 import {useEffect, useState} from 'react';
 // Local imports
-import {fetchJsonSimulation, fetchTextSimulation} from '@globals/lib/fetch';
-import {simulationEndpoints} from '@globals/defaults/endpoints';
+import {baseUrlSimulation, baseUrlPathfinder} from '@globals/defaults/urls';
+import {fetchJson, fetchText} from '@globals/lib/fetch';
+import {
+  pathfinderEndpoints,
+  simulationEndpoints,
+} from '@globals/defaults/endpoints';
 // > Components
 import Map from '@components/Map';
 import Container from '@components/Container';
@@ -19,6 +23,21 @@ import type {
 } from '@globals/types/simulation';
 import type {SettingsMapPropsStates} from '@misc/settings';
 import type {SelectSpectatorOptionStateType} from '@components/Sort/SelectSpectator';
+import type {PathfinderEndpointGraphInformation} from '@globals/types/pathfinder';
+import type {FetchJsonOptions} from '@globals/lib/fetch';
+
+export const fetchJsonSimulation = async <T,>(
+  endpoint: string,
+  options?: FetchJsonOptions
+): Promise<T> => fetchJson<T>(`${baseUrlSimulation}/${endpoint}`, options);
+
+export const fetchTextSimulation = async (endpoint: string): Promise<string> =>
+  fetchText(`${baseUrlSimulation}/${endpoint}`);
+
+export const fetchJsonPathfinder = async <T,>(
+  endpoint: string,
+  options?: FetchJsonOptions
+): Promise<T> => fetchJson<T>(`${baseUrlPathfinder}/${endpoint}`, options);
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface TabMapProps extends SettingsMapPropsStates {}
@@ -63,6 +82,33 @@ export default function TabMap({
       geometry: [],
       vertices: [],
     });
+  const [graphPathfinderState, setPathfinderGraphState] =
+    useState<PathfinderEndpointGraphInformation>({
+      edges: [],
+      vertices: [],
+    });
+
+  const fetchGraphs = (clear = false) => {
+    if (clear === true) {
+      setGraphState({
+        geometry: [],
+        vertices: [],
+      });
+      setPathfinderGraphState({
+        edges: [],
+        vertices: [],
+      });
+      return;
+    }
+    fetchJsonSimulation<SimulationEndpointGraphInformation>(
+      simulationEndpoints.graphInformation,
+      {showFetch: true, showResponse: true}
+    ).then(data => setGraphState(data));
+    fetchJsonPathfinder<PathfinderEndpointGraphInformation>(
+      pathfinderEndpoints.graphInformation,
+      {showFetch: true, showResponse: true}
+    ).then(data => setPathfinderGraphState(data));
+  };
 
   // React effects
   useEffect(() => {
@@ -70,11 +116,17 @@ export default function TabMap({
     console.log('Spectator changed:', spectatorState);
     setSnackbarOpenState(true);
   }, [spectatorState]);
-  useEffect(() => {
-    fetchJsonSimulation<SimulationEndpointGraphInformation>(
-      simulationEndpoints.graphInformation
-    ).then(data => setGraphState(data));
-  }, []);
+  //useEffect(() => {
+  //  fetchJsonSimulation<SimulationEndpointGraphInformation>(
+  //    simulationEndpoints.graphInformation
+  //  ).then(data => setGraphState(data));
+  //}, []);
+  //useEffect(() => {
+  //  fetchJsonPathfinder<PathfinderEndpointGraphInformation>(
+  //    pathfinderEndpoints.graphInformation,
+  //    {showFetch: true, showResponse: true}
+  //  ).then(data => setPathfinderGraphState(data));
+  //}, []);
   useEffect(() => {
     const interval = setInterval(() => {
       fetchJsonSimulation<SimulationEndpointParticipantCoordinates>(
@@ -118,11 +170,12 @@ export default function TabMap({
           spectatorState={spectatorState}
           setSpectatorState={setSpectatorState}
           graphState={graphState}
+          graphPathfinderState={graphPathfinderState}
           stateSettingsMapShowTooltips={stateSettingsMapShowTooltips}
           stateSettingsMapOpenPopupOnHover={stateSettingsMapOpenPopupOnHover}
         />
 
-        <p className={styles.view}>
+        <div className={styles.view}>
           <Button
             onClick={() => {
               fetchTextSimulation('state').catch(err => console.error(err));
@@ -144,37 +197,19 @@ export default function TabMap({
           >
             Run
           </Button>
-        </p>
-        <p className={styles.view}>
-          <Button
-            onClick={() => {
-              switchSpectator('everything');
-            }}
-          >
+        </div>
+        <div className={styles.view}>
+          <Button onClick={() => switchSpectator('everything')}>
             Everything
           </Button>
-          <Button
-            onClick={() => {
-              switchSpectator('public');
-            }}
-          >
-            Public
-          </Button>
-          <Button
-            onClick={() => {
-              switchSpectator('auth');
-            }}
-          >
-            AuthService
-          </Button>
-          <Button
-            onClick={() => {
-              switchSpectator('match');
-            }}
-          >
-            MatchService
-          </Button>
-        </p>
+          <Button onClick={() => switchSpectator('public')}>Public</Button>
+          <Button onClick={() => switchSpectator('auth')}>AuthService</Button>
+          <Button onClick={() => switchSpectator('match')}>MatchService</Button>
+        </div>
+        <div className={styles.view}>
+          <Button onClick={() => fetchGraphs()}>Fetch Graphs</Button>
+          <Button onClick={() => fetchGraphs(true)}>Clear Graphs</Button>
+        </div>
       </Container>
       <Snackbar
         openState={snackbarOpenState}

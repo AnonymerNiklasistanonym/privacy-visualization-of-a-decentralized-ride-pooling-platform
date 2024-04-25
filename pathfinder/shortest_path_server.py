@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify, Response
+from flask_cors import CORS
 import networkx as nx
 import osmnx as ox
 from dataclasses import dataclass
@@ -6,13 +7,14 @@ from dataclasses import dataclass
 # run with:
 # python -m venv venv_flask
 # source venv_flask/bin/activate
-# python -m pip install networkx osmnx flask scikit-learn
+# python -m pip install networkx osmnx flask scikit-learn flask-cors
 # python -m shortest_path_server
 
 ox.settings.use_cache = True
 ox.settings.log_console = True
 
 app = Flask(__name__)
+cors = CORS(app, resources={r"/*": {"origins": "*"}})
 
 G: nx.MultiDiGraph
 
@@ -33,7 +35,7 @@ class ShortestPathResponse:
 @app.route("/shortest_path", methods=["POST"])
 def shortest_path():
     content = request.get_json(silent=True)
-    return get_shortest_path_ids(content["sourceId"], content["targetId"])
+    return jsonify(get_shortest_path_ids(content["sourceId"], content["targetId"]))
 
 
 @app.route("/shortest_path_coordinates", methods=["POST"])
@@ -49,14 +51,61 @@ def shortest_path_coordinates():
     target_id = ox.nearest_nodes(
         G, target_coordinates["long"], target_coordinates["lat"]
     )
-    return get_shortest_path_ids(
-        source_id, target_id, source_coordinates, target_coordinates
+    return jsonify(
+        get_shortest_path_ids(
+            source_id, target_id, source_coordinates, target_coordinates
+        )
+    )
+
+
+@dataclass
+class GraphResponse:
+    error: str | None
+    vertices: list[Coordinates] | None
+    edges: list[Coordinates] | None
+
+
+@app.route("/graph", methods=["GET", "POST"])
+def graph():
+    return jsonify(get_graph())
+
+
+def get_graph() -> GraphResponse:
+    try:
+        # Get the shortest paths
+        gdf_nodes, gdf_edges = ox.graph_to_gdfs(G, nodes=True, edges=True)
+        vertices = list(
+            map(
+                lambda x: dict({"lat": x[1]["y"], "long": x[1]["x"], "id": x[0]}),
+                gdf_nodes.iterrows(),
+            )
+        )
+        edges = list(
+            map(
+                lambda x: list(
+                    map(
+                        lambda y: {"lat": y[1], "long": y[0]},
+                        x[1]["geometry"].coords,
+                    )
+                ),
+                gdf_edges.iterrows(),
+            )
+        )
+        error = None
+    except nx.NetworkXNoPath as e:
+        vertices = None
+        edges = None
+        error = str(e)
+    return GraphResponse(
+        error=error,
+        edges=edges,
+        vertices=vertices,
     )
 
 
 def get_shortest_path_ids(
     source_id: int, target_id: int, source_coordinates=None, target_coordinates=None
-) -> Response:
+) -> ShortestPathResponse:
     try:
         # Get the shortest paths
         shortest_route_travel_time = convert_node_ids_to_coordinates(
@@ -87,15 +136,11 @@ def get_shortest_path_ids(
             ]
         if shortest_route_length is not None:
             shortest_route_length = shortest_route_length + [target_coordinates]
-    json_response = jsonify(
-        ShortestPathResponse(
-            error=error,
-            shortest_route_travel_time=shortest_route_travel_time,
-            shortest_route_length=shortest_route_length,
-        )
+    return ShortestPathResponse(
+        error=error,
+        shortest_route_travel_time=shortest_route_travel_time,
+        shortest_route_length=shortest_route_length,
     )
-    #print(json_response, shortest_route_travel_time, shortest_route_length, error)
-    return json_response
 
 
 def convert_node_ids_to_coordinates(node_ids: list[int]):
