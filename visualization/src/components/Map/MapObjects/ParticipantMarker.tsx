@@ -26,11 +26,6 @@ import type {SimulationEndpointParticipantCoordinatesParticipant} from '@globals
 import type {LeafletMouseEvent} from 'leaflet';
 import type {FetchJsonOptions} from '@globals/lib/fetch';
 
-export const fetchJsonSimulation = async <T,>(
-  endpoint: string,
-  options?: FetchJsonOptions
-): Promise<T> => fetchJson<T>(`${baseUrlSimulation}/${endpoint}`, options);
-
 interface ParticipantMarkerProps {
   /** The participant ID and current coordinates */
   participantCoordinatesState: ReactState<SimulationEndpointParticipantCoordinatesParticipant>;
@@ -40,6 +35,7 @@ interface ParticipantMarkerProps {
   spectatorState: ReactState<string>;
   stateOpenPopupOnHover: ReactState<boolean>;
   stateShowTooltip: ReactState<boolean>;
+  stateBaseUrlSimulation: ReactState<string>;
 }
 
 /**
@@ -54,7 +50,13 @@ export default function ParticipantMarker({
   participantType,
   stateShowTooltip,
   stateOpenPopupOnHover,
+  stateBaseUrlSimulation,
 }: ParticipantMarkerProps) {
+  const fetchJsonSimulation = async <T,>(
+    endpoint: string,
+    options?: FetchJsonOptions
+  ): Promise<T> =>
+    fetchJson<T>(`${stateBaseUrlSimulation}/${endpoint}`, options);
   // React states
   // > Fetch additional participant information
   const [customerInformationState, setCustomerInformationState] =

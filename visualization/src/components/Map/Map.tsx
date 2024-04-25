@@ -51,6 +51,7 @@ export default function Map({
   setSpectatorState: setStateSpectator,
   stateSettingsMapShowTooltips,
   stateSettingsMapOpenPopupOnHover,
+  stateSettingsMapBaseUrlSimulation,
 }: MapProps) {
   return (
     <Box sx={{width: 1}}>
@@ -77,6 +78,7 @@ export default function Map({
                   participantType="customer"
                   stateShowTooltip={stateSettingsMapShowTooltips}
                   stateOpenPopupOnHover={stateSettingsMapOpenPopupOnHover}
+                  stateBaseUrlSimulation={stateSettingsMapBaseUrlSimulation}
                 />
               ))}
             </LayerGroup>
@@ -92,6 +94,7 @@ export default function Map({
                   participantType="ride_provider"
                   stateShowTooltip={stateSettingsMapShowTooltips}
                   stateOpenPopupOnHover={stateSettingsMapOpenPopupOnHover}
+                  stateBaseUrlSimulation={stateSettingsMapBaseUrlSimulation}
                 />
               ))}
             </LayerGroup>

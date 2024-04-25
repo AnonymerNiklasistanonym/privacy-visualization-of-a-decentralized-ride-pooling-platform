@@ -1,21 +1,22 @@
 'use client';
 
+// Package imports
 import {useEffect, useState} from 'react';
+// > Components
+import {Box, ButtonGroup, Chip, Divider} from '@mui/material';
 // Local imports
-import {baseUrlSimulation, baseUrlPathfinder} from '@globals/defaults/urls';
-import {fetchJson, fetchText} from '@globals/lib/fetch';
-import {
-  pathfinderEndpoints,
-  simulationEndpoints,
-} from '@globals/defaults/endpoints';
 // > Components
 import Map from '@components/Map';
 import Container from '@components/Container';
 import Button from '@components/Button';
 import Snackbar from '@components/Snackbar';
 import SelectSpectator from '@components/Sort/SelectSpectator';
-// > Styles
-import styles from '@styles/Home.module.scss';
+// > Globals
+import {fetchJson, fetchText} from '@globals/lib/fetch';
+import {
+  pathfinderEndpoints,
+  simulationEndpoints,
+} from '@globals/defaults/endpoints';
 // Type imports
 import type {
   SimulationEndpointGraphInformation,
@@ -26,26 +27,29 @@ import type {SelectSpectatorOptionStateType} from '@components/Sort/SelectSpecta
 import type {PathfinderEndpointGraphInformation} from '@globals/types/pathfinder';
 import type {FetchJsonOptions} from '@globals/lib/fetch';
 
-export const fetchJsonSimulation = async <T,>(
-  endpoint: string,
-  options?: FetchJsonOptions
-): Promise<T> => fetchJson<T>(`${baseUrlSimulation}/${endpoint}`, options);
-
-export const fetchTextSimulation = async (endpoint: string): Promise<string> =>
-  fetchText(`${baseUrlSimulation}/${endpoint}`);
-
-export const fetchJsonPathfinder = async <T,>(
-  endpoint: string,
-  options?: FetchJsonOptions
-): Promise<T> => fetchJson<T>(`${baseUrlPathfinder}/${endpoint}`, options);
-
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface TabMapProps extends SettingsMapPropsStates {}
 
 export default function TabMap({
   stateSettingsMapShowTooltips,
   stateSettingsMapOpenPopupOnHover,
+  stateSettingsMapBaseUrlPathfinder,
+  stateSettingsMapBaseUrlSimulation,
 }: TabMapProps) {
+  const fetchJsonSimulation = async <T,>(
+    endpoint: string,
+    options?: FetchJsonOptions
+  ): Promise<T> =>
+    fetchJson<T>(`${stateSettingsMapBaseUrlSimulation}/${endpoint}`, options);
+
+  const fetchTextSimulation = async (endpoint: string): Promise<string> =>
+    fetchText(`${stateSettingsMapBaseUrlSimulation}/${endpoint}`);
+
+  const fetchJsonPathfinder = async <T,>(
+    endpoint: string,
+    options?: FetchJsonOptions
+  ): Promise<T> =>
+    fetchJson<T>(`${stateSettingsMapBaseUrlPathfinder}/${endpoint}`, options);
   // React states
   const [snackbarOpenState, setSnackbarOpenState] = useState(false);
   const [spectatorState, setSpectatorState] = useState('everything');
@@ -173,43 +177,70 @@ export default function TabMap({
           graphPathfinderState={graphPathfinderState}
           stateSettingsMapShowTooltips={stateSettingsMapShowTooltips}
           stateSettingsMapOpenPopupOnHover={stateSettingsMapOpenPopupOnHover}
+          stateSettingsMapBaseUrlPathfinder={stateSettingsMapBaseUrlPathfinder}
+          stateSettingsMapBaseUrlSimulation={stateSettingsMapBaseUrlSimulation}
         />
 
-        <div className={styles.view}>
-          <Button
-            onClick={() => {
-              fetchTextSimulation('state').catch(err => console.error(err));
-            }}
-          >
-            State
-          </Button>
-          <Button
-            onClick={() => {
-              fetchTextSimulation('pause').catch(err => console.error(err));
-            }}
-          >
-            Pause
-          </Button>
-          <Button
-            onClick={() => {
-              fetchTextSimulation('run').catch(err => console.error(err));
-            }}
-          >
-            Run
-          </Button>
-        </div>
-        <div className={styles.view}>
-          <Button onClick={() => switchSpectator('everything')}>
-            Everything
-          </Button>
-          <Button onClick={() => switchSpectator('public')}>Public</Button>
-          <Button onClick={() => switchSpectator('auth')}>AuthService</Button>
-          <Button onClick={() => switchSpectator('match')}>MatchService</Button>
-        </div>
-        <div className={styles.view}>
-          <Button onClick={() => fetchGraphs()}>Fetch Graphs</Button>
-          <Button onClick={() => fetchGraphs(true)}>Clear Graphs</Button>
-        </div>
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            '& > *': {
+              m: 1,
+            },
+          }}
+        >
+          <Divider>
+            <Chip label="Control Simulation" size="small" />
+          </Divider>
+          <ButtonGroup variant="contained" aria-label="Basic button group">
+            <Button
+              onClick={() => {
+                fetchTextSimulation('state')
+                  .then(a => alert(`Simulation state: ${a}`))
+                  .catch(err => console.error(err));
+              }}
+            >
+              State
+            </Button>
+            <Button
+              onClick={() => {
+                fetchTextSimulation('pause').catch(err => console.error(err));
+              }}
+            >
+              Pause
+            </Button>
+            <Button
+              onClick={() => {
+                fetchTextSimulation('run').catch(err => console.error(err));
+              }}
+            >
+              Run
+            </Button>
+          </ButtonGroup>
+
+          <Divider>
+            <Chip label="Change Spectator" size="small" />
+          </Divider>
+          <ButtonGroup variant="contained" aria-label="Basic button group">
+            <Button onClick={() => switchSpectator('everything')}>
+              Everything
+            </Button>
+            <Button onClick={() => switchSpectator('public')}>Public</Button>
+            <Button onClick={() => switchSpectator('auth')}>AuthService</Button>
+            <Button onClick={() => switchSpectator('match')}>
+              MatchService
+            </Button>
+          </ButtonGroup>
+          <Divider>
+            <Chip label="Debug Graphs/Pathfinder" size="small" />
+          </Divider>
+          <ButtonGroup variant="contained" aria-label="Basic button group">
+            <Button onClick={() => fetchGraphs()}>Fetch Graphs</Button>
+            <Button onClick={() => fetchGraphs(true)}>Clear Graphs</Button>
+          </ButtonGroup>
+        </Box>
       </Container>
       <Snackbar
         openState={snackbarOpenState}

@@ -16,6 +16,7 @@ import TabPanelHeader from './TabPanelHeader';
 // Type imports
 import type {ReactPropsI18n} from '@misc/react';
 import type {PropsWithChildren} from 'react';
+import {baseUrlPathfinder, baseUrlSimulation} from '@globals/defaults/urls';
 
 interface CustomTabPanelProps {
   index: number;
@@ -55,6 +56,14 @@ export default function TabPanel({
   // > Settings
   const [stateSettingsMapShowTooltips, setStateSettingsMapShowTooltips] =
     useState(false);
+  const [
+    stateSettingsMapBaseUrlPathfinder,
+    setStateSettingsMapBaseUrlPathfinder,
+  ] = useState(baseUrlPathfinder);
+  const [
+    stateSettingsMapBaseUrlSimulation,
+    setStateSettingsMapBaseUrlSimulation,
+  ] = useState(baseUrlSimulation);
   const [stateOpenPopupOnHover, setStateOpenPopupOnHover] = useState(false);
   // React change handlers
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
@@ -74,6 +83,12 @@ export default function TabPanel({
           <TabMap
             stateSettingsMapShowTooltips={stateSettingsMapShowTooltips}
             stateSettingsMapOpenPopupOnHover={stateOpenPopupOnHover}
+            stateSettingsMapBaseUrlPathfinder={
+              stateSettingsMapBaseUrlPathfinder
+            }
+            stateSettingsMapBaseUrlSimulation={
+              stateSettingsMapBaseUrlSimulation
+            }
           />
         </CustomTabPanel>
         <CustomTabPanel value={value} index={2}>
@@ -85,6 +100,18 @@ export default function TabPanel({
             setStateSettingsMapShowTooltips={setStateSettingsMapShowTooltips}
             stateSettingsMapOpenPopupOnHover={stateOpenPopupOnHover}
             setStateSettingsMapOpenPopupOnHover={setStateOpenPopupOnHover}
+            stateSettingsMapBaseUrlPathfinder={
+              stateSettingsMapBaseUrlPathfinder
+            }
+            stateSettingsMapBaseUrlSimulation={
+              stateSettingsMapBaseUrlSimulation
+            }
+            setStateSettingsMapBaseUrlPathfinder={
+              setStateSettingsMapBaseUrlPathfinder
+            }
+            setStateSettingsMapBaseUrlSimulation={
+              setStateSettingsMapBaseUrlSimulation
+            }
           />
         </CustomTabPanel>
       </Box>
