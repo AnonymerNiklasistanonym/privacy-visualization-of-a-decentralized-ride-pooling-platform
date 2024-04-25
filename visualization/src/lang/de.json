@@ -1,5 +1,12 @@
 {
   "common.footer": "Abteilung Service Computing > Institut für Architektur von Anwendungssystemen > Universität Stuttgart",
+  "getacar.spectator.everything": "Alles",
+  "getacar.spectator.participant.customerid": "Customer ({id})",
+  "getacar.spectator.participant.rideProviderid": "Ride Provider ({id})",
+  "getacar.spectator.public": "Öffentlich",
+  "getacar.spectator.service.authentication": "Authentication Service",
+  "getacar.spectator.service.matching": "Matching Service",
+  "getacar.spectator.title": "Perspektive",
   "page.home.description": "Sie betrachten momentan die Homepage in Deutsch 🚀",
   "page.home.head.meta.description": "Next.js i18n Beispiel - Deutsch",
   "page.home.head.title": "Visualisierung der GETACAR Platform",
@@ -8,11 +15,5 @@
   "page.home.tab.overview.title": "Übersicht",
   "page.home.tab.settings.title": "Einstellungen",
   "page.home.title": "Visualisierung der GETACAR Platform",
-  "page.nested.title": "Verschachtelte Route Beispiel",
-  "getacar.spectator.everything": "Alles",
-  "getacar.spectator.public": "Öffentlich",
-  "getacar.spectator.service.matching": "Matching Service",
-  "getacar.spectator.service.authentication": "Authentication Service",
-  "getacar.spectator.participant.customerid": "Customer ({id})",
-  "getacar.spectator.participant.rideProviderid": "Ride Provider ({id})"
+  "page.nested.title": "Verschachtelte Route Beispiel"
 }

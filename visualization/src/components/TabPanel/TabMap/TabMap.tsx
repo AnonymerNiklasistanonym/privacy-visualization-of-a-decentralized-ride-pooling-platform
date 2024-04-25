@@ -5,6 +5,7 @@ import {useEffect, useState} from 'react';
 // > Components
 import {Box, ButtonGroup, Chip, Divider} from '@mui/material';
 // Local imports
+import {showErrorBuilder} from '@misc/modals';
 // > Components
 import Map from '@components/Map';
 import Container from '@components/Container';
@@ -26,30 +27,38 @@ import type {SettingsMapPropsStates} from '@misc/settings';
 import type {SelectSpectatorOptionStateType} from '@components/Sort/SelectSpectator';
 import type {PathfinderEndpointGraphInformation} from '@globals/types/pathfinder';
 import type {FetchJsonOptions} from '@globals/lib/fetch';
+import type {ErrorModalPropsErrorBuilder} from '@misc/modals';
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface TabMapProps extends SettingsMapPropsStates {}
+export interface TabMapProps
+  extends SettingsMapPropsStates,
+    ErrorModalPropsErrorBuilder {}
 
 export default function TabMap({
   stateSettingsMapShowTooltips,
   stateSettingsMapOpenPopupOnHover,
   stateSettingsMapBaseUrlPathfinder,
   stateSettingsMapBaseUrlSimulation,
+  stateErrorModalContent,
+  setStateErrorModalContent,
+  setStateErrorModalOpen,
 }: TabMapProps) {
   const fetchJsonSimulation = async <T,>(
     endpoint: string,
     options?: FetchJsonOptions
   ): Promise<T> =>
     fetchJson<T>(`${stateSettingsMapBaseUrlSimulation}/${endpoint}`, options);
-
   const fetchTextSimulation = async (endpoint: string): Promise<string> =>
     fetchText(`${stateSettingsMapBaseUrlSimulation}/${endpoint}`);
-
   const fetchJsonPathfinder = async <T,>(
     endpoint: string,
     options?: FetchJsonOptions
   ): Promise<T> =>
     fetchJson<T>(`${stateSettingsMapBaseUrlPathfinder}/${endpoint}`, options);
+  const showError = showErrorBuilder({
+    setStateErrorModalOpen,
+    setStateErrorModalContent,
+    stateErrorModalContent,
+  });
   // React states
   const [snackbarOpenState, setSnackbarOpenState] = useState(false);
   const [spectatorState, setSpectatorState] = useState('everything');
@@ -107,11 +116,15 @@ export default function TabMap({
     fetchJsonSimulation<SimulationEndpointGraphInformation>(
       simulationEndpoints.graphInformation,
       {showFetch: true, showResponse: true}
-    ).then(data => setGraphState(data));
+    )
+      .then(data => setGraphState(data))
+      .catch(err => showError('Fetch simulation graph', err));
     fetchJsonPathfinder<PathfinderEndpointGraphInformation>(
       pathfinderEndpoints.graphInformation,
       {showFetch: true, showResponse: true}
-    ).then(data => setPathfinderGraphState(data));
+    )
+      .then(data => setPathfinderGraphState(data))
+      .catch(err => showError('Fetch pathfinder graph', err));
   };
 
   // React effects
@@ -135,22 +148,26 @@ export default function TabMap({
     const interval = setInterval(() => {
       fetchJsonSimulation<SimulationEndpointParticipantCoordinates>(
         simulationEndpoints.participantCoordinates
-      ).then(data => {
-        setParticipantsState(data);
-        setSelectOptionsState([
-          ...defaultOptions,
-          ...(participantsState.customers.map(a => ({
-            label: `${a.id}`,
-            type: 'customer',
-            translationId: 'getacar.spectator.participant.customerid',
-          })) as SelectSpectatorOptionStateType),
-          ...(participantsState.rideProviders.map(a => ({
-            label: `${a.id}`,
-            type: 'rideProvider',
-            translationId: 'getacar.spectator.participant.rideProviderid',
-          })) as SelectSpectatorOptionStateType),
-        ]);
-      });
+      )
+        .then(data => {
+          setParticipantsState(data);
+          setSelectOptionsState([
+            ...defaultOptions,
+            ...(participantsState.customers.map(a => ({
+              label: `${a.id}`,
+              type: 'customer',
+              translationId: 'getacar.spectator.participant.customerid',
+            })) as SelectSpectatorOptionStateType),
+            ...(participantsState.rideProviders.map(a => ({
+              label: `${a.id}`,
+              type: 'rideProvider',
+              translationId: 'getacar.spectator.participant.rideProviderid',
+            })) as SelectSpectatorOptionStateType),
+          ]);
+        })
+        .catch(err =>
+          showError('Fetch simulation participant coordinates', err)
+        );
     }, 100);
     return () => {
       clearInterval(interval);
@@ -183,6 +200,7 @@ export default function TabMap({
 
         <Box
           sx={{
+            marginTop: '1vh',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
@@ -199,21 +217,25 @@ export default function TabMap({
               onClick={() => {
                 fetchTextSimulation('state')
                   .then(a => alert(`Simulation state: ${a}`))
-                  .catch(err => console.error(err));
+                  .catch(err => showError('Fetch simulation state', err));
               }}
             >
               State
             </Button>
             <Button
               onClick={() => {
-                fetchTextSimulation('pause').catch(err => console.error(err));
+                fetchTextSimulation('pause').catch(err =>
+                  showError('Fetch simulation state pause', err)
+                );
               }}
             >
               Pause
             </Button>
             <Button
               onClick={() => {
-                fetchTextSimulation('run').catch(err => console.error(err));
+                fetchTextSimulation('run').catch(err =>
+                  showError('Fetch simulation state run', err)
+                );
               }}
             >
               Run

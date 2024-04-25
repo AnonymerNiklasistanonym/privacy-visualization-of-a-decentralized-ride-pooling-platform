@@ -79,7 +79,14 @@ export default function SelectSpectator({
               )
             : option.label
         }
-        renderInput={params => <TextField {...params} label="Spectator" />}
+        renderInput={params => (
+          <TextField
+            {...params}
+            label={intl.formatMessage({
+              id: 'getacar.spectator.title',
+            })}
+          />
+        )}
         renderOption={(props, option) => (
           <Box
             component="li"

@@ -3,10 +3,13 @@
 // Package imports
 import {useState} from 'react';
 // > Components
-import Typography from '@mui/material/Typography';
-import Box from '@mui/material/Box';
+import {Typography, Box, ButtonGroup, Chip, Divider} from '@mui/material';
+import ErrorModal from '@components/Modal/ErrorModal';
+// > Globals
+import {baseUrlPathfinder, baseUrlSimulation} from '@globals/defaults/urls';
 // Local imports
 // > Components
+import Button from '@components/Button';
 import TabMap from './TabMap';
 import TabSettings from './TabSettings';
 import TabOverview from './TabOverview';
@@ -16,7 +19,7 @@ import TabPanelHeader from './TabPanelHeader';
 // Type imports
 import type {ReactPropsI18n} from '@misc/react';
 import type {PropsWithChildren} from 'react';
-import {baseUrlPathfinder, baseUrlSimulation} from '@globals/defaults/urls';
+import type {ErrorModalContentElement} from '@misc/modals';
 
 interface CustomTabPanelProps {
   index: number;
@@ -51,6 +54,11 @@ export default function TabPanel({
   messages,
 }: PropsWithChildren<TabPanelProps>) {
   // React states
+  // > Error Modal
+  const [stateErrorModalOpen, setStateErrorModalOpen] = useState(false);
+  const [stateErrorModalContent, setStateErrorModalContent] = useState<
+    ErrorModalContentElement[]
+  >([]);
   // > Tabpanel
   const [value, setValue] = useState(1);
   // > Settings
@@ -89,6 +97,9 @@ export default function TabPanel({
             stateSettingsMapBaseUrlSimulation={
               stateSettingsMapBaseUrlSimulation
             }
+            stateErrorModalContent={stateErrorModalContent}
+            setStateErrorModalOpen={setStateErrorModalOpen}
+            setStateErrorModalContent={setStateErrorModalContent}
           />
         </CustomTabPanel>
         <CustomTabPanel value={value} index={2}>
@@ -115,6 +126,32 @@ export default function TabPanel({
           />
         </CustomTabPanel>
       </Box>
+      <Box
+        sx={{
+          marginTop: '1vh',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          '& > *': {
+            m: 1,
+          },
+        }}
+      >
+        <Divider>
+          <Chip label="Debugging" size="small" />
+        </Divider>
+        <ButtonGroup variant="contained" aria-label="Basic button group">
+          <Button onClick={() => setStateErrorModalOpen(true)}>
+            Open Error Modal
+          </Button>
+        </ButtonGroup>
+      </Box>
+      <ErrorModal
+        setStateErrorModalOpen={setStateErrorModalOpen}
+        setStateErrorModalContent={setStateErrorModalContent}
+        stateErrorModalContent={stateErrorModalContent}
+        stateErrorModalOpen={stateErrorModalOpen}
+      />
     </TabPanelContainer>
   );
 }
