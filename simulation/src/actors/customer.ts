@@ -8,14 +8,14 @@ import {
   getRandomFloatFromInterval,
   getRandomIntFromInterval,
 } from '../misc/helpers';
-import {h3Resolution} from '../globals/defaults/h3';
 import {Participant} from './participant';
+import {h3Resolution} from '../globals/defaults/h3';
 import {wait} from '../misc/wait';
 // Type imports
 import type {Coordinates} from '../globals/types/coordinates';
 import type {Simulation} from '../simulation';
-import type {SimulationTypeCustomer} from './participant';
 import type {SimulationEndpointParticipantInformationCustomer} from '../globals/types/simulation';
+import type {SimulationTypeCustomer} from './participant';
 
 export class Customer extends Participant<SimulationTypeCustomer> {
   // Private properties
@@ -66,6 +66,7 @@ export class Customer extends Participant<SimulationTypeCustomer> {
   logInfo(): unknown {
     return {
       id: this.id,
+
       fullName: this.fullName,
       homeAddress: this.homeAddress,
     };
@@ -113,9 +114,9 @@ export class Customer extends Participant<SimulationTypeCustomer> {
         getRandomIntFromInterval(0, 4),
         {...this.currentLocation, address: 'current location'},
         {
+          address: `${randLocation.postcode} ${randLocation.city} ${randLocation.street} ${randLocation.houseNumber}`,
           lat: randLocation.lat,
           long: randLocation.lon,
-          address: `${randLocation.postcode} ${randLocation.city} ${randLocation.street} ${randLocation.houseNumber}`,
         }
       );
       this.rideRequestOld = {
@@ -172,6 +173,7 @@ export class Customer extends Participant<SimulationTypeCustomer> {
     return {
       ...this.endpointParticipant,
       type: 'customer',
+
       // Contact details
       dateOfBirth: this.dateOfBirth,
       emailAddress: this.emailAddress,
@@ -179,8 +181,10 @@ export class Customer extends Participant<SimulationTypeCustomer> {
       gender: this.gender,
       homeAddress: this.homeAddress,
       phoneNumber: this.phoneNumber,
+
       // TODO: Ride requests
       rideRequest: this.rideRequest,
+
       // TODO: Passenger
       passenger: this.passenger,
     };
@@ -190,6 +194,7 @@ export class Customer extends Participant<SimulationTypeCustomer> {
     return {
       ...this.endpointParticipant,
       type: 'customer',
+
       // Contact details
       dateOfBirth: this.dateOfBirth,
       emailAddress: this.emailAddress,
@@ -199,6 +204,7 @@ export class Customer extends Participant<SimulationTypeCustomer> {
       phoneNumber: this.phoneNumber,
 
       rideRequest: this.rideRequest,
+
       passenger: this.passenger,
 
       rideRequestOld: this.rideRequestOld,

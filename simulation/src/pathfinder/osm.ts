@@ -1,8 +1,8 @@
 // Package imports
 import haversine from 'haversine-distance';
+// Local imports
 import {getShortestPath} from './shortestPath';
 // Type imports
-import type {Coordinates} from '../globals/types/coordinates';
 import type {
   OverpassOsmNode,
   OverpassRequestCityDataType,
@@ -15,6 +15,7 @@ import type {
   VertexGraph,
   VertexId,
 } from './shortestPath';
+import type {Coordinates} from '../globals/types/coordinates';
 
 export interface OsmVertex extends Vertex {
   /** Coordinates on the map */
@@ -42,10 +43,10 @@ export const createOsmVertexGraph = (
     nodes.map(a => [
       a.id,
       {
-        id: a.id,
         coordinates: {lat: a.lat, long: a.lon},
-        neighbors: [],
+        id: a.id,
         info: a,
+        neighbors: [],
       } satisfies OsmVertex,
     ])
   );
@@ -71,6 +72,7 @@ export const createOsmVertexGraph = (
     }
     if (wayWasAdded) {
       vertexEdgeIdMap.set(way.id, {
+        geometry: way.geometry.map(a => ({lat: a.lat, long: a.lon})),
         id: way.id,
         weight: way.geometry
           .map((a, index) =>
@@ -87,7 +89,6 @@ export const createOsmVertexGraph = (
             )
           )
           .reduce((sum, a) => sum + a, 0),
-        geometry: way.geometry.map(a => ({lat: a.lat, long: a.lon})),
       });
     }
   }
@@ -120,7 +121,7 @@ export const createOsmVertexGraph = (
     `Found ${edges.vertexEdgeIdMap.size} edges of original ${ways.length} ways`
   );
   //return {vertices, edges: edgeFunc};
-  return {vertices, edges};
+  return {edges, vertices};
 };
 
 export const getClosestVertex = (

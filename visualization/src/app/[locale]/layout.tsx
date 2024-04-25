@@ -1,7 +1,5 @@
 'use server';
 
-// Package imports
-import {Metadata} from 'next';
 // > MUI roboto font (https://mui.com/material-ui/getting-started/installation/#roboto-font)
 import '@fontsource/roboto/300.css';
 import '@fontsource/roboto/400.css';
@@ -9,15 +7,15 @@ import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
 // Local imports
 // > Components
-import Header from '../../components/Header';
 import Footer from '../../components/Footer';
+import Header from '../../components/Header';
 // > Middleware
 import {getDirection, getIntl} from '../../services/intl';
 // > Styles
 import '@styles/globals.css';
 // Type imports
-import type {PropsWithChildren} from 'react';
 import type {ReactI18nMessages, ReactPropsI18nHome} from '@misc/react';
+import type {PropsWithChildren} from 'react';
 
 export default async function PageLayout({
   params: {locale},

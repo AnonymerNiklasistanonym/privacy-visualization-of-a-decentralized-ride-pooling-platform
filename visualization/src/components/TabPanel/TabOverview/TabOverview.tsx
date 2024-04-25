@@ -13,7 +13,13 @@ export interface TabOverviewProps extends SettingsOverviewPropsStates {}
 export default function TabOverview({}: TabOverviewProps) {
   return (
     <Box display="flex" justifyContent="center">
-      <Box component="section" sx={{width: '100%', maxWidth: 800}}>
+      <Box
+        component="section"
+        sx={{
+          maxWidth: 800,
+          width: '100%',
+        }}
+      >
         <Typography variant="h1" gutterBottom>
           GETACAR Platform
         </Typography>

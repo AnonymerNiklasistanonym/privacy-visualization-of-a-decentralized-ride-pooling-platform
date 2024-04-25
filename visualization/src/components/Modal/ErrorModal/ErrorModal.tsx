@@ -1,32 +1,20 @@
 // Package imports
 // > Components
 import {
+  Badge,
   Box,
-  Modal,
+  IconButton,
   List,
-  ListSubheader,
   ListItem,
   ListItemIcon,
   ListItemText,
-  IconButton,
-  Badge,
+  ListSubheader,
+  Modal,
 } from '@mui/material';
-import ErrorIcon from '@mui/icons-material/Error';
 import DeleteIcon from '@mui/icons-material/Delete';
+import ErrorIcon from '@mui/icons-material/Error';
 // Type imports
-import {compareErrorModalContent, type ErrorModalProps} from '@misc/modals';
-
-const style = {
-  position: 'absolute' as const,
-  top: '50%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
-  maxWidth: 1200,
-  bgcolor: 'background.paper',
-  border: '2px solid #000',
-  boxShadow: 24,
-  p: 4,
-};
+import {type ErrorModalProps, compareErrorModalContent} from '@misc/modals';
 
 export default function ErrorModal({
   stateErrorModalOpen,
@@ -46,9 +34,24 @@ export default function ErrorModal({
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
       >
-        <Box sx={style}>
+        <Box
+          sx={{
+            bgcolor: 'background.paper',
+            border: '2px solid #000',
+            boxShadow: 24,
+            left: '50%',
+            maxWidth: 1200,
+            p: 4,
+            position: 'absolute' as const,
+            top: '50%',
+            transform: 'translate(-50%, -50%)',
+          }}
+        >
           <List
-            sx={{width: '100%', bgcolor: 'background.paper'}}
+            sx={{
+              bgcolor: 'background.paper',
+              width: '100%',
+            }}
             component="nav"
             aria-labelledby="nested-list-subheader"
             subheader={
@@ -90,8 +93,8 @@ export default function ErrorModal({
                     primary={`${a.title} (${a.error.name})`}
                     secondary={
                       a.error.message +
-                      (a.error.stack ? `\nStack:\n${a.error.stack}` : '') +
-                      (a.error.cause ? `\nCause:\n${a.error.cause}` : '')
+                      (a.error.stack ? ` [Stack: ${a.error.stack}]` : '') +
+                      (a.error.cause ? ` [Cause:\n\n${a.error.cause}]` : '')
                     }
                   />
                 </ListItem>

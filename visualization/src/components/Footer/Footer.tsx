@@ -1,6 +1,8 @@
 'use client';
 
+// Package imports
 import {FormattedMessage} from 'react-intl';
+// Local imports
 import FooterContainer from './FooterContainer';
 // Type imports
 import type {ReactPropsI18n} from '@misc/react';

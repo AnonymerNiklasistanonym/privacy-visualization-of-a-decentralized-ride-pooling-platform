@@ -8,8 +8,8 @@ import PopupContentRideProvider from './PopupContentRideProvider';
 // Type imports
 import type {ReactSetState, ReactState} from '@misc/react';
 import type {
-  SimulationEndpointParticipantInformationCustomer,
   SimulationEndpointParticipantCoordinatesParticipant,
+  SimulationEndpointParticipantInformationCustomer,
   SimulationEndpointParticipantInformationRideProvider,
   SimulationEndpointParticipantTypes,
 } from '@globals/types/simulation';

@@ -1,5 +1,6 @@
 .PHONY: build clean format
 .PHONY: installNecessaryPackagesPacman installNecessaryPackagesUbuntu
+.PHONY: copyGlobals createCopyImages lintFix
 
 NECESSARY_PACKAGES_PACMAN = make texlive-latex texlive-binextra texlive-xetex texlive-latexextra texlive-luatex texlive-fontsrecommended texlive-langgerman texlive-langenglish texlive-mathscience texlive-bibtexextra texlive-plaingeneric texlive-publishers perl-yaml-tiny perl-file-homedir aspell aspell-en biber
 NECESSARY_PACKAGES_UBUNTU_WSL = make texlive-full latexmk python3-pygments biber aspell
@@ -35,3 +36,21 @@ installNecessaryPackagesUbuntu:
 	@$(foreach NECESSARY_PACKAGE_UBUNTU_WSL, $(sort $(NECESSARY_PACKAGES_UBUNTU_WSL)), \
 		echo "  - \`$(NECESSARY_PACKAGE_UBUNTU_WSL)\` ($(shell dpkg -s $(NECESSARY_PACKAGE_UBUNTU_WSL) | grep Version | cut -d' ' -f2))"; \
 	)
+
+copyGlobals:
+	cd globals; \
+	./copy.ps1
+
+createCopyImages:
+	cd images; \
+	./create_images.sh 2>&1 | tee create_images.sh.log
+	cd images; \
+	./copy_images.sh 2>&1 | tee copy_images.sh.log
+
+lintFix:
+	cd globals/typescript; \
+	npm run fix
+	cd simulation; \
+	npm run fix
+	cd visualization; \
+	npm run fix

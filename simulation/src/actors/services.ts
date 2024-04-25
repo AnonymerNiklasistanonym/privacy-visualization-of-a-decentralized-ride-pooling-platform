@@ -1,15 +1,16 @@
 /* eslint-disable max-classes-per-file */
+// Local imports
 import {getRandomId, getRandomIntFromInterval} from '../misc/helpers';
 import {Actor} from './actor';
 import {wait} from '../misc/wait';
 // Type imports
-import type {Simulation} from '../simulation';
-import {
+import type {
   SimulationTypeCustomer,
-  SimulationTypeRideProviderPerson,
   SimulationTypeRideProviderCompany,
+  SimulationTypeRideProviderPerson,
 } from './participant';
 import type {Coordinates} from '../globals/types/coordinates';
+import type {Simulation} from '../simulation';
 
 export interface Area extends Coordinates {
   radius: number;
@@ -141,8 +142,8 @@ export class AuthenticationService extends Service<SimulationTypeAuthenticationS
     homeAddress: string
   ): void {
     this.printLog('Register customer', {
-      id,
       fullName,
+      id,
     });
     this.participantDb.push({
       contactDetails: {
@@ -172,8 +173,8 @@ export class AuthenticationService extends Service<SimulationTypeAuthenticationS
     vehicleIdentificationNumber: string
   ): void {
     this.printLog('Register ride provider', {
-      id,
       fullName,
+      id,
     });
     this.participantDb.push({
       contactDetails: {
@@ -205,8 +206,8 @@ export class AuthenticationService extends Service<SimulationTypeAuthenticationS
   ): void {
     this.printLog('Register ride provider company', {
       id,
-      vehicleNumberPlate,
       vehicleIdentificationNumber,
+      vehicleNumberPlate,
     });
     this.participantDb.push({
       contactDetails: {
@@ -372,13 +373,13 @@ export class MatchingService extends Service<SimulationTypeMatchingService> {
         userPublicKey,
 
         // Update later
-        pickupLocationReal,
         dropoffLocationReal,
+        pickupLocationReal,
       },
     });
     this.printLog('Ride request auction was opened', {
-      userId,
       maxWaitingTime,
+      userId,
     });
     return requestId;
   }
@@ -401,13 +402,13 @@ export class MatchingService extends Service<SimulationTypeMatchingService> {
       throw new Error('Ride auction is not open.');
     }
     rideRequestAuction.bids.push({
-      rideRequestId,
-      rideProviderPseudonym,
       amount,
-      rating,
-      model,
       estimatedArrivalTime,
+      model,
       passengerCount,
+      rating,
+      rideProviderPseudonym,
+      rideRequestId,
       vehiclePublicKey,
     });
     return rideRequestAuction;
@@ -430,8 +431,8 @@ export class MatchingService extends Service<SimulationTypeMatchingService> {
     }
     rideRequestAuction.auctionStatus = 'closed';
     this.printLog('Ride request auction was closed', {
-      rideRequestAuction,
       contractAddress,
+      rideRequestAuction,
     });
   }
 

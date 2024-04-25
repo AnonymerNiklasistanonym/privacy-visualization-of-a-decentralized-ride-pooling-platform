@@ -5,12 +5,12 @@ import {useEffect, useState} from 'react';
 // > Components
 import {Autocomplete, Box, TextField} from '@mui/material';
 // > Icons
+import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
 import DirectionsWalkIcon from '@mui/icons-material/DirectionsWalk';
-import QuestionMarkIcon from '@mui/icons-material/QuestionMark';
-import PublicIcon from '@mui/icons-material/Public';
-import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import GroupIcon from '@mui/icons-material/Group';
+import PublicIcon from '@mui/icons-material/Public';
+import QuestionMarkIcon from '@mui/icons-material/QuestionMark';
 import VerifiedIcon from '@mui/icons-material/Verified';
 // Type imports
 import type {ReactSetState, ReactState} from '@misc/react';
@@ -51,12 +51,23 @@ export default function SelectSpectator({
     };
   const [val, setVal] = useState(getCurrentValue());
   useEffect(() => {
-    setVal(getCurrentValue());
-  }, [spectatorState]);
+    setVal(
+      optionsState.find(a => a.label === spectatorState) ?? {
+        label: 'error',
+        type: 'error',
+      }
+    );
+  }, [spectatorState, optionsState]);
 
   const intl = useIntl();
   return (
-    <Box sx={{minWidth: 120, maxWidth: 600}} margin={2}>
+    <Box
+      sx={{
+        maxWidth: 600,
+        minWidth: 120,
+      }}
+      margin={2}
+    >
       <Autocomplete
         id="combo-box-demo"
         options={optionsState}
@@ -90,7 +101,7 @@ export default function SelectSpectator({
         renderOption={(props, option) => (
           <Box
             component="li"
-            sx={{'& > svg': {mr: 2, flexShrink: 0}}}
+            sx={{'& > svg': {flexShrink: 0, mr: 2}}}
             {...props}
           >
             {option.type === 'customer' ? (

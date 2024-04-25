@@ -1,5 +1,5 @@
 // Local imports
-import type {ReactState, ReactSetState} from './react';
+import type {ReactSetState, ReactState} from './react';
 
 export interface SettingsMapPropsStates {
   stateSettingsMapShowTooltips: ReactState<boolean>;

@@ -5,5 +5,23 @@
   ],
   "env": {
     "jest/globals": true
+  },
+  "rules": {
+    "sort-keys": [
+      "error",
+      "asc",
+      {
+        "allowLineSeparatedGroups": true,
+        "caseSensitive": true,
+        "natural": true,
+        "minKeys": 2
+      }
+    ],
+    "sort-imports": [
+      "error",
+      {
+        "allowSeparatedGroups": true
+      }
+    ]
   }
 }

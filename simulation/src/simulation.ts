@@ -1,25 +1,27 @@
+// Package imports
 import express from 'express';
-import {Blockchain} from './actors/blockchain';
-import {Customer} from './actors/customer';
-import {RideProviderCompany, RideProviderPerson} from './actors/rideProvider';
+import fs from 'node:fs/promises';
+// Local imports
 import {AuthenticationService, MatchingService} from './actors/services';
+import {RideProviderCompany, RideProviderPerson} from './actors/rideProvider';
 import {
   getRandomElement,
   getRandomId,
   getRandomIntFromInterval,
 } from './misc/helpers';
+import {Blockchain} from './actors/blockchain';
+import {Customer} from './actors/customer';
+import {osmnxServerRequest} from './misc/osmnx';
+import {updateRouteCoordinatesWithTime} from './misc/coordinatesInterpolation';
 // Type imports
-import type {Coordinates} from './globals/types/coordinates';
-import type {SimulationConfigWithData} from './config/simulationConfigWithData';
+import type {OsmVertex, OsmVertexGraph} from './pathfinder/osm';
 import type {
   SimulationEndpointGraphInformation,
   SimulationEndpointParticipantCoordinates,
   SimulationEndpointParticipantInformationRideRequest,
 } from './globals/types/simulation';
-import type {OsmVertex, OsmVertexGraph} from './pathfinder/osm';
-import fs from 'node:fs/promises';
-import {osmnxServerRequest} from './misc/osmnx';
-import {updateRouteCoordinatesWithTime} from './misc/coordinatesInterpolation';
+import type {Coordinates} from './globals/types/coordinates';
+import type {SimulationConfigWithData} from './config/simulationConfigWithData';
 
 export interface StartPos extends Coordinates {
   zoom: number;
@@ -262,8 +264,8 @@ export class Simulation {
       const msRouter = express.Router();
       msRouter.route('/rideRequest/:rideRequestId').get((req, res) => {
         res.json({
-          rideRequestId: req.params.rideRequestId,
           rideRequest: ms.getRideRequest(req.params.rideRequestId),
+          rideRequestId: req.params.rideRequestId,
         });
       });
       msRouter.route('/rideRequests').get((req, res) => {
@@ -343,8 +345,8 @@ export class Simulation {
     // REMOVE
     router.route('/ride_requests').get((req, res) => {
       res.json({
-        rideRequests: this.matchingServices.flatMap(a => a.getAuctions()),
         delete: 'delete this',
+        rideRequests: this.matchingServices.flatMap(a => a.getAuctions()),
       });
     });
     router.route('/ride_request/:id').get((req, res) => {
@@ -354,8 +356,8 @@ export class Simulation {
         res.json({
           ...rideRequest.request,
           dropoffLocationCoordinates: rideRequest.request.dropoffLocationReal,
-          pickupLocationCoordinates: rideRequest.request.pickupLocationReal,
           id: rideRequest.id,
+          pickupLocationCoordinates: rideRequest.request.pickupLocationReal,
         } as SimulationEndpointParticipantInformationRideRequest);
         return;
       }
@@ -374,15 +376,15 @@ export class Simulation {
               this.osmVertexGraph.vertices.get(vertexNeighborId);
             if (vertexNeighbor) {
               geometry.push({
-                id: -1,
                 geometry: [vertex.coordinates, vertexNeighbor.coordinates],
+                id: -1,
               });
             }
           }
         }
       } else {
         for (const [id, a] of this.osmVertexGraph.edges.vertexEdgeIdMap) {
-          geometry.push({id, geometry: a.geometry});
+          geometry.push({geometry: a.geometry, id});
         }
         ////console.log(this.osmVertexGraph.edges.idMap);
         //for (const [idVertexA, a] of this.osmVertexGraph.edges.idMap) {
@@ -401,11 +403,11 @@ export class Simulation {
         //}
       }
       res.json({
+        geometry,
         vertices: Array.from(this.osmVertexGraph.vertices).map(a => ({
           id: a[0],
           ...a[1].coordinates,
         })),
-        geometry,
       } as SimulationEndpointGraphInformation);
     });
     router.route('/shortest_path').get(async (req, res) => {

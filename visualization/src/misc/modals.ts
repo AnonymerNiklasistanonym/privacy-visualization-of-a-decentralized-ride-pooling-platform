@@ -1,5 +1,5 @@
 // Type imports
-import type {ReactState, ReactSetState} from './react';
+import type {ReactSetState, ReactState} from './react';
 
 export interface ErrorModalContentElement {
   title: string;
@@ -56,9 +56,9 @@ export function showErrorBuilder(
       props.setStateErrorModalContent([
         ...props.stateErrorModalContent,
         {
-          title,
-          error,
           count: 1,
+          error,
+          title,
         },
       ]);
       // Only open modal if new error is found

@@ -1,3 +1,4 @@
+// Package imports
 import fs from 'fs/promises';
 import path from 'path';
 
@@ -13,7 +14,7 @@ const copyDir = async (srcDir: string, destDir: string) => {
 
 async function main() {
   // Remove old dist directory
-  await fs.rm(distDir, {recursive: true, force: true});
+  await fs.rm(distDir, {force: true, recursive: true});
   // Copy build directory files
   await copyDir(buildDir, distDir);
   // Copy other assets into dist directory

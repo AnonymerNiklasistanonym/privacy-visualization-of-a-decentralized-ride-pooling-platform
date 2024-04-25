@@ -8,23 +8,21 @@ import {Circle, Marker, Polygon, Popup, Tooltip} from 'react-leaflet';
 import {participantIconSize} from './LIcons/ParticipantIcons';
 // > Components
 import {iconCustomer, iconRideProvider} from './LIcons/ParticipantIcons';
-import PopupContentParticipant from '@components/Map/MapObjects/PopupContent/PopupContentParticipant';
+import PopupContentParticipant from './PopupContent/PopupContentParticipant';
 // > Globals
-import {simulationEndpoints} from '@globals/defaults/endpoints';
 import {fetchJson} from '@globals/lib/fetch';
 import {getH3Polygon} from '@globals/lib/h3';
-import {baseUrlSimulation} from '@globals/defaults/urls';
+import {simulationEndpoints} from '@globals/defaults/endpoints';
 // Type imports
+import type {ReactSetState, ReactState} from '@misc/react';
 import type {
   SimulationEndpointParticipantInformationCustomer,
   SimulationEndpointParticipantInformationRideProvider,
   SimulationEndpointParticipantInformationRideRequest,
   SimulationEndpointParticipantTypes,
 } from '@globals/types/simulation';
-import type {ReactSetState, ReactState} from '@misc/react';
-import type {SimulationEndpointParticipantCoordinatesParticipant} from '@globals/types/simulation';
-import type {LeafletMouseEvent} from 'leaflet';
 import type {FetchJsonOptions} from '@globals/lib/fetch';
+import type {SimulationEndpointParticipantCoordinatesParticipant} from '@globals/types/simulation';
 
 interface ParticipantMarkerProps {
   /** The participant ID and current coordinates */
@@ -127,22 +125,6 @@ export default function ParticipantMarker({
 
   const eventId = 'participant_marker:event:';
 
-  let timeoutHoverMarker: NodeJS.Timeout | undefined = undefined;
-  const hoverMarkerTimeInMs = 1000;
-
-  function start(e: LeafletMouseEvent) {
-    timeoutHoverMarker = setTimeout(() => showTooltip(e), hoverMarkerTimeInMs);
-  }
-
-  function showTooltip(e: LeafletMouseEvent) {
-    e.target.openPopup();
-    fetchParticipantInformation();
-  }
-
-  function stop() {
-    clearTimeout(timeoutHoverMarker);
-  }
-
   const marker = (
     <Marker
       key={`customer_${participantCoordinatesState.id}`}
@@ -152,13 +134,12 @@ export default function ParticipantMarker({
       ]}
       icon={participantType === 'customer' ? iconCustomer : iconRideProvider}
       eventHandlers={{
-        mouseover: e => {
-          console.log(`${eventId}mouseover`, participantCoordinatesState.id);
-          //start(e);
-          if (stateOpenPopupOnHover) {
-            e.target.openPopup();
-            fetchParticipantInformation();
-          }
+        click: () => {
+          console.log(`${eventId}click`, participantCoordinatesState.id);
+          fetchParticipantInformation();
+        },
+        loading: () => {
+          console.log(`${eventId}loading`, participantCoordinatesState.id);
         },
         mouseout: e => {
           console.log(`${eventId}mouseout`, participantCoordinatesState.id);
@@ -169,18 +150,19 @@ export default function ParticipantMarker({
             }, 1000);
           }
         },
-        popupopen: () => {
-          console.log(`${eventId}popupopen`, participantCoordinatesState.id);
+        mouseover: e => {
+          console.log(`${eventId}mouseover`, participantCoordinatesState.id);
+          //start(e);
+          if (stateOpenPopupOnHover) {
+            e.target.openPopup();
+            fetchParticipantInformation();
+          }
         },
         popupclose: () => {
           console.log(`${eventId}popupclose`, participantCoordinatesState.id);
         },
-        click: () => {
-          console.log(`${eventId}click`, participantCoordinatesState.id);
-          fetchParticipantInformation();
-        },
-        loading: () => {
-          console.log(`${eventId}loading`, participantCoordinatesState.id);
+        popupopen: () => {
+          console.log(`${eventId}popupopen`, participantCoordinatesState.id);
         },
       }}
     >

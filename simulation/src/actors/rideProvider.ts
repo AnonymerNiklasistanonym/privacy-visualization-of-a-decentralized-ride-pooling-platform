@@ -1,25 +1,26 @@
 /* eslint-disable max-classes-per-file */
+// Package imports
 import {cellToLatLng} from 'h3-js';
 // Local imports
 import {getRandomElement, getRandomIntFromInterval} from '../misc/helpers';
-import {getTravelTimeInMsCoordinates} from '../misc/coordinatesInterpolation';
 import {Participant} from './participant';
+import {getTravelTimeInMsCoordinates} from '../misc/coordinatesInterpolation';
 import {speeds} from '../globals/defaults/speed';
 import {wait} from '../misc/wait';
 // Type imports
-import type {Coordinates} from '../globals/types/coordinates';
-import type {Simulation} from '../simulation';
-import type {
-  SimulationTypeRideProvider,
-  SimulationTypeRideProviderCompany,
-  SimulationTypeRideProviderPerson,
-} from './participant';
 import type {
   SimulationEndpointParticipantInformationRideProvider,
   SimulationEndpointParticipantInformationRideProviderCompany,
   SimulationEndpointParticipantInformationRideProviderPerson,
 } from '../globals/types/simulation';
+import type {
+  SimulationTypeRideProvider,
+  SimulationTypeRideProviderCompany,
+  SimulationTypeRideProviderPerson,
+} from './participant';
 import type {AuthenticationService} from './services';
+import type {Coordinates} from '../globals/types/coordinates';
+import type {Simulation} from '../simulation';
 
 export abstract class RideProvider<
   JsonType extends SimulationTypeRideProvider,
@@ -182,8 +183,8 @@ export class RideProviderPerson extends RideProvider<SimulationTypeRideProviderP
 
   logInfo(): unknown {
     return {
-      id: this.id,
       fullName: this.fullName,
+      id: this.id,
       vehicleNumberPlate: this.vehicleNumberPlate,
     };
   }
@@ -210,9 +211,11 @@ export class RideProviderPerson extends RideProvider<SimulationTypeRideProviderP
     return {
       ...this.endpointParticipant,
       type: 'ride_provider',
+
       // Ride Provider details
       vehicleIdentificationNumber: this.vehicleIdentificationNumber,
       vehicleNumberPlate: this.vehicleNumberPlate,
+
       // Contact details
       dateOfBirth: this.dateOfBirth,
       emailAddress: this.emailAddress,
@@ -229,9 +232,11 @@ export class RideProviderPerson extends RideProvider<SimulationTypeRideProviderP
     return {
       ...this.endpointParticipant,
       type: 'ride_provider',
+
       // Ride Provider details
       vehicleIdentificationNumber: this.vehicleIdentificationNumber,
       vehicleNumberPlate: this.vehicleNumberPlate,
+
       // Contact details
       dateOfBirth: this.dateOfBirth,
       emailAddress: this.emailAddress,
@@ -241,6 +246,7 @@ export class RideProviderPerson extends RideProvider<SimulationTypeRideProviderP
       phoneNumber: this.phoneNumber,
       // TODO: Ride requests
       rideRequest: undefined,
+
       // Passenger list
       passengerList: this.passengerList,
     };
@@ -272,6 +278,7 @@ export class RideProviderCompany extends RideProvider<SimulationTypeRideProvider
   logInfo(): unknown {
     return {
       id: this.id,
+
       company: this.company,
       vehicleNumberPlate: this.vehicleNumberPlate,
     };
@@ -308,13 +315,17 @@ export class RideProviderCompany extends RideProvider<SimulationTypeRideProvider
     return {
       ...this.endpointParticipant,
       type: 'ride_provider',
+
       // Ride Provider details
       vehicleIdentificationNumber: this.vehicleIdentificationNumber,
       vehicleNumberPlate: this.vehicleNumberPlate,
+
       // Contact details
       company: this.company,
+
       // TODO: Ride requests
       rideRequest: undefined,
+
       // Passenger list
       passengerList: this.passengerList,
     };

@@ -2,5 +2,23 @@
   "extends": [
     "next/core-web-vitals",
     "./node_modules/gts/"
-  ]
+  ],
+  "rules": {
+    "sort-keys": [
+      "error",
+      "asc",
+      {
+        "allowLineSeparatedGroups": true,
+        "caseSensitive": true,
+        "natural": true,
+        "minKeys": 2
+      }
+    ],
+    "sort-imports": [
+      "error",
+      {
+        "allowSeparatedGroups": true
+      }
+    ]
+  }
 }

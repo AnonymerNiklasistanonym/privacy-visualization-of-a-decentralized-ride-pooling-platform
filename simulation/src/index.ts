@@ -1,13 +1,14 @@
-import express from 'express';
+// Package imports
 import cors from 'cors';
 import {create as createHbs} from 'express-handlebars';
+import express from 'express';
 import path from 'path';
 // Local imports
 import {getCliFlag, getCliOverride} from './misc/cli';
-import {printRouterPaths} from './misc/printExpressRoutes';
 import {Simulation} from './simulation';
-import {updateSimulationConfigWithData} from './config/simulationConfigWithData';
 import {ports} from './globals/defaults/ports';
+import {printRouterPaths} from './misc/printExpressRoutes';
+import {updateSimulationConfigWithData} from './config/simulationConfigWithData';
 // Type imports
 import type {SimulationConfig} from './config/simulationConfig';
 
@@ -28,6 +29,7 @@ const config: Readonly<SimulationConfig> = {
   matchingService: {
     count: 3,
   },
+
   // Participants
   customer: {
     count: 200,
@@ -38,15 +40,18 @@ const config: Readonly<SimulationConfig> = {
     countCompanyFleetMin: 15,
     countPerson: 15,
   },
+
   // Location
   cities: [
     {
-      name: 'Stuttgart',
       countryCode: 'de',
+      name: 'Stuttgart',
     },
   ],
+
   // Port of server
   port,
+
   // Misc
   cacheDir: path.join(ROOT_DIR, 'cache'),
   verbose,
@@ -83,11 +88,12 @@ async function main() {
   app.get('/', (req, res) => {
     res.render('main', {
       layout: 'index',
-      customers: simulation.customersJson,
-      rideProviders: simulation.rideProvidersJson,
+
       authenticationServices: simulation.authenticationServicesJson,
+      customers: simulation.customersJson,
       matchingServices: simulation.matchingServicesJson,
       port: config.port,
+      rideProviders: simulation.rideProvidersJson,
       smartContracts: simulation.rideContractsJson,
       startPos: simulation.startPos,
     });

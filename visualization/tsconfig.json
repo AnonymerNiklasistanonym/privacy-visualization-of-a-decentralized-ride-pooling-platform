@@ -35,6 +35,9 @@
       "@misc/*": [
         "./src/misc/*"
       ],
+      "@services/*": [
+        "./src/services/*"
+      ],
       "@/*": [
         "./src/*"
       ]

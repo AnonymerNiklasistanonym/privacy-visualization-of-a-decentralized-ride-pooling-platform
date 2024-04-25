@@ -5,11 +5,11 @@ export const overpassRequest = async <JsonResponseType>(
   query: string
 ): Promise<JsonResponseType> => {
   const result = await fetch('https://overpass-api.de/api/interpreter', {
-    method: 'POST',
     // The body contains the query
     // to understand the query language see "The Programmatic Query Language" on
     // https://wiki.openstreetmap.org/wiki/Overpass_API#The_Programmatic_Query_Language_(OverpassQL)
     body: 'data=' + encodeURIComponent('[out:json][timeout:90];' + query),
+    method: 'POST',
   }).then(data => data.json() as Promise<JsonResponseType>);
   return result;
 };
@@ -113,21 +113,21 @@ export const overpassRequestCityData = async (
     nodes: requestBbNodes.elements.filter(
       a => a.type === 'node'
     ) as OverpassApiResponseDataCityBoundingBoxNode[],
-    ways: requestBbNodes.elements.filter(
-      a => a.type === 'way'
-    ) as OverpassApiResponseDataCityBoundingBoxWay[],
     places: requestBbNodes.elements.map(
       a =>
         ({
           city: a.tags['addr:city'],
           housenumber: a.tags['addr:housenumber'],
-          postcode: a.tags['addr:postcode'],
-          street: a.tags['addr:street'],
-          name: a.type === 'node' ? a.tags['name'] : undefined,
           lat: a.type === 'node' ? a.lat : a.bounds.maxlat,
           lon: a.type === 'node' ? a.lon : a.bounds.maxlon,
+          name: a.type === 'node' ? a.tags['name'] : undefined,
+          postcode: a.tags['addr:postcode'],
+          street: a.tags['addr:street'],
         }) satisfies OverpassApiResponseDataCityPlace
     ),
+    ways: requestBbNodes.elements.filter(
+      a => a.type === 'way'
+    ) as OverpassApiResponseDataCityBoundingBoxWay[],
   };
 };
 

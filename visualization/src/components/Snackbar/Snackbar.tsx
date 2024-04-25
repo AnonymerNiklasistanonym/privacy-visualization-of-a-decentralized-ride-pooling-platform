@@ -1,9 +1,11 @@
 'use client';
 
-//import type {FC} from 'react';
-import * as React from 'react';
-import Snackbar from '@mui/material/Snackbar';
-import Alert from '@mui/material/Alert';
+// Package imports
+import {useState} from 'react';
+// > Components
+import {Alert, Snackbar} from '@mui/material';
+// Type imports
+import type {SyntheticEvent} from 'react';
 
 interface CustomizedSnackbarProps {
   openState: boolean;
@@ -16,12 +18,9 @@ export default function CustomizedSnackbar({
   setStateOpen,
   textState,
 }: CustomizedSnackbarProps) {
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = useState(false);
 
-  const handleClose = (
-    event?: React.SyntheticEvent | Event,
-    reason?: string
-  ) => {
+  const handleClose = (event?: SyntheticEvent | Event, reason?: string) => {
     if (reason === 'clickaway') {
       return;
     }

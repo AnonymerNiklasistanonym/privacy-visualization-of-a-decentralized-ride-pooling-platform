@@ -2,11 +2,10 @@
 
 // Package imports
 import L from 'leaflet';
+import ReactDOMServer from 'react-dom/server';
+// > Icons
 import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
 import DirectionsWalkIcon from '@mui/icons-material/DirectionsWalk';
-import ReactDOMServer from 'react-dom/server';
-// Local imports
-//import styles from '@styles/Map.module.scss';
 
 export const participantIconSize = 32;
 
@@ -23,30 +22,28 @@ const iconRideProviderHTMLGray = ReactDOMServer.renderToString(
 
 export const iconCustomer = L.divIcon({
   html: iconCustomerHTML,
-  className: 'leaflet-div-icon2',
-  iconSize: new L.Point(participantIconSize * 2, participantIconSize * 2),
   iconAnchor: [participantIconSize / 3, participantIconSize / 3],
+  iconSize: new L.Point(participantIconSize * 2, participantIconSize * 2),
   popupAnchor: [0, -participantIconSize / 2],
   tooltipAnchor: [0, 0],
 });
 export const iconRideProvider = L.divIcon({
   html: iconRideProviderHTML,
-  className: 'leaflet-div-icon2',
-  iconSize: new L.Point(participantIconSize, participantIconSize),
-  iconAnchor: [participantIconSize / 2, participantIconSize / 2],
-  popupAnchor: [0, 0],
+  iconAnchor: [participantIconSize / 3, participantIconSize / 3],
+  iconSize: new L.Point(participantIconSize * 2, participantIconSize * 2),
+  popupAnchor: [0, -participantIconSize / 2],
 });
 
 // Different color icons
 export const iconCustomerGray = L.divIcon({
-  html: iconCustomerHTMLGray,
   className: '',
-  iconSize: new L.Point(participantIconSize, participantIconSize),
+  html: iconCustomerHTMLGray,
   iconAnchor: [participantIconSize / 2, participantIconSize / 2],
+  iconSize: new L.Point(participantIconSize, participantIconSize),
 });
 export const iconRideProviderGray = L.divIcon({
-  html: iconRideProviderHTMLGray,
   className: '',
-  iconSize: new L.Point(participantIconSize, participantIconSize),
+  html: iconRideProviderHTMLGray,
   iconAnchor: [participantIconSize / 2, participantIconSize / 2],
+  iconSize: new L.Point(participantIconSize, participantIconSize),
 });

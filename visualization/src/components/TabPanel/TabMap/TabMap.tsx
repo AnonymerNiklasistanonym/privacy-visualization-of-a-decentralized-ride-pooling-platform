@@ -7,11 +7,11 @@ import {Box, ButtonGroup, Chip, Divider} from '@mui/material';
 // Local imports
 import {showErrorBuilder} from '@misc/modals';
 // > Components
-import Map from '@components/Map';
-import Container from '@components/Container';
 import Button from '@components/Button';
-import Snackbar from '@components/Snackbar';
+import Container from '@components/Container';
+import Map from '@components/Map';
 import SelectSpectator from '@components/Sort/SelectSpectator';
+import Snackbar from '@components/Snackbar';
 // > Globals
 import {fetchJson, fetchText} from '@globals/lib/fetch';
 import {
@@ -23,11 +23,11 @@ import type {
   SimulationEndpointGraphInformation,
   SimulationEndpointParticipantCoordinates,
 } from '@globals/types/simulation';
-import type {SettingsMapPropsStates} from '@misc/settings';
-import type {SelectSpectatorOptionStateType} from '@components/Sort/SelectSpectator';
-import type {PathfinderEndpointGraphInformation} from '@globals/types/pathfinder';
-import type {FetchJsonOptions} from '@globals/lib/fetch';
 import type {ErrorModalPropsErrorBuilder} from '@misc/modals';
+import type {FetchJsonOptions} from '@globals/lib/fetch';
+import type {PathfinderEndpointGraphInformation} from '@globals/types/pathfinder';
+import type {SelectSpectatorOptionStateType} from '@components/Sort/SelectSpectator';
+import type {SettingsMapPropsStates} from '@misc/settings';
 
 export interface TabMapProps
   extends SettingsMapPropsStates,
@@ -55,8 +55,8 @@ export default function TabMap({
   ): Promise<T> =>
     fetchJson<T>(`${stateSettingsMapBaseUrlPathfinder}/${endpoint}`, options);
   const showError = showErrorBuilder({
-    setStateErrorModalOpen,
     setStateErrorModalContent,
+    setStateErrorModalOpen,
     stateErrorModalContent,
   });
   // React states
@@ -65,23 +65,23 @@ export default function TabMap({
   const defaultOptions: SelectSpectatorOptionStateType = [
     {
       label: 'everything',
-      type: 'everything',
       translationId: 'getacar.spectator.everything',
+      type: 'everything',
     },
     {
       label: 'public',
-      type: 'public',
       translationId: 'getacar.spectator.public',
+      type: 'public',
     },
     {
       label: 'auth',
-      type: 'auth',
       translationId: 'getacar.spectator.service.authentication',
+      type: 'auth',
     },
     {
       label: 'match',
-      type: 'match',
       translationId: 'getacar.spectator.service.matching',
+      type: 'match',
     },
   ];
   const [selectOptionsState, setSelectOptionsState] = useState(defaultOptions);
@@ -133,17 +133,6 @@ export default function TabMap({
     console.log('Spectator changed:', spectatorState);
     setSnackbarOpenState(true);
   }, [spectatorState]);
-  //useEffect(() => {
-  //  fetchJsonSimulation<SimulationEndpointGraphInformation>(
-  //    simulationEndpoints.graphInformation
-  //  ).then(data => setGraphState(data));
-  //}, []);
-  //useEffect(() => {
-  //  fetchJsonPathfinder<PathfinderEndpointGraphInformation>(
-  //    pathfinderEndpoints.graphInformation,
-  //    {showFetch: true, showResponse: true}
-  //  ).then(data => setPathfinderGraphState(data));
-  //}, []);
   useEffect(() => {
     const interval = setInterval(() => {
       fetchJsonSimulation<SimulationEndpointParticipantCoordinates>(
@@ -155,13 +144,13 @@ export default function TabMap({
             ...defaultOptions,
             ...(participantsState.customers.map(a => ({
               label: `${a.id}`,
-              type: 'customer',
               translationId: 'getacar.spectator.participant.customerid',
+              type: 'customer',
             })) as SelectSpectatorOptionStateType),
             ...(participantsState.rideProviders.map(a => ({
               label: `${a.id}`,
-              type: 'rideProvider',
               translationId: 'getacar.spectator.participant.rideProviderid',
+              type: 'rideProvider',
             })) as SelectSpectatorOptionStateType),
           ]);
         })
@@ -200,13 +189,11 @@ export default function TabMap({
 
         <Box
           sx={{
-            marginTop: '1vh',
+            '& > *': {m: 1},
+            alignItems: 'center',
             display: 'flex',
             flexDirection: 'column',
-            alignItems: 'center',
-            '& > *': {
-              m: 1,
-            },
+            marginTop: '1vh',
           }}
         >
           <Divider>

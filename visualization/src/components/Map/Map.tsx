@@ -24,8 +24,8 @@ import type {
   SimulationEndpointGraphInformation,
   SimulationEndpointParticipantCoordinates,
 } from '@globals/types/simulation';
-import type {SettingsMapPropsStates} from '@misc/settings';
 import type {PathfinderEndpointGraphInformation} from '@globals/types/pathfinder';
+import type {SettingsMapPropsStates} from '@misc/settings';
 
 export interface StatPos {
   lat: number;

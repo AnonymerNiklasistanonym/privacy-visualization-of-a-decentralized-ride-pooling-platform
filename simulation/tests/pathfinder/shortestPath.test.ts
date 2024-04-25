@@ -37,7 +37,6 @@ describe('Pathfinder', () => {
     test('edge function', () => {
       const shortestPath = getShortestPath(
         {
-          vertices,
           edges(vertexA, vertexB) {
             const id = -1;
             let weight = 2;
@@ -54,6 +53,7 @@ describe('Pathfinder', () => {
             }
             return {id, weight};
           },
+          vertices,
         },
         1,
         4
@@ -85,8 +85,8 @@ describe('Pathfinder', () => {
       vertexEdgeIdMap.set(5, {id: 5, weight: 10});
       const shortestPath = getShortestPath(
         {
-          vertices,
           edges: {idMap, vertexEdgeIdMap},
+          vertices,
         },
         1,
         4

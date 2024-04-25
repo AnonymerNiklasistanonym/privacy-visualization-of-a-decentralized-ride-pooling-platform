@@ -1,2 +1,6 @@
-+ find . -regex '.*\.\(ico\|png\|svg\)' -exec cp '{}' ../vis_ride_pool_concept/public ';'
-+ cp main.svg ../vis_ride_pool_concept/src/app/favicon.svg
++ INPUT_DIR_ICONS=icons
++ OUTPUT_DIR_PUBLIC=../visualization/public/en
++ OUTPUT_DIR_ICONS=../visualization/public/en/icons
++ mkdir -p ../visualization/public/en/icons
++ find . -regex '.*icons\/.*\.\(ico\|png\|svg\)' -exec cp '{}' ../visualization/public/en/icons ';'
++ cp icons/dist/main.ico ../visualization/public/en/favicon.ico

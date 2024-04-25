@@ -1,18 +1,18 @@
 // Local imports
 import {Actor} from './actor';
-import {wait} from '../misc/wait';
-import {interpolateCurrentCoordinatesFromPath} from '../misc/coordinatesInterpolation';
 import {getShortestPathOsmCoordinates} from '../pathfinder/osm';
+import {interpolateCurrentCoordinatesFromPath} from '../misc/coordinatesInterpolation';
 import {osmnxServerRequest} from '../misc/osmnx';
+import {wait} from '../misc/wait';
 // Type imports
-import type {AuthenticationService} from './services';
-import type {Coordinates} from '../globals/types/coordinates';
 import type {
   SimulationEndpointParticipantCoordinatesParticipant,
   SimulationEndpointParticipantInformation,
 } from '../globals/types/simulation';
+import type {AuthenticationService} from './services';
+import type {Coordinates} from '../globals/types/coordinates';
+import type {GetACarParticipantTypes} from '../globals/types/participant';
 import type {Simulation} from '../simulation';
-import {GetACarParticipantTypes} from '../globals/types/participant';
 
 export interface SimulationTypeParticipant {
   id: string;
@@ -144,11 +144,11 @@ export abstract class Participant<JsonType> extends Actor<
     );
     this.printLog('Search shortest path', {
       currentLocation: this.currentLocation,
+      interpolatedCoordinatesInfo,
       newLocation,
       shortestPathCustom,
-      shortestPathOsmnx,
       shortestPathFinal,
-      interpolatedCoordinatesInfo,
+      shortestPathOsmnx,
     });
     let currentTravelTimeInMs = 0;
     while (
@@ -174,8 +174,10 @@ export abstract class Participant<JsonType> extends Actor<
   get endpointParticipant(): SimulationEndpointParticipantInformation {
     return {
       id: this.id,
+
       // Location
       currentLocation: this.currentLocation,
+
       // TODO: Routes
       currentRoute: this.currentRoute,
       currentRouteOsmxn: this.currentRoutes?.osmnxTime,

@@ -1,6 +1,6 @@
 /* eslint-disable max-classes-per-file */
-import {getRandomId} from '../misc/helpers';
 import {Actor} from './actor';
+import {getRandomId} from '../misc/helpers';
 // Type imports
 import type {Simulation} from '../simulation';
 
@@ -39,8 +39,8 @@ export class Blockchain extends Actor<SimulationTypeBlockchain> {
       id: rideContractId,
 
       customerPseudonym,
-      rideProviderPseudonym,
       deposit: maximumRideCost,
+      rideProviderPseudonym,
     });
     return rideContractId;
   }

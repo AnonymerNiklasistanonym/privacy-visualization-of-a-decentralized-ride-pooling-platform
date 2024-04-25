@@ -4,10 +4,10 @@
 import type {Coordinates, CoordinatesAddress} from './coordinates';
 import type {
   GetACarCustomer,
-  GetACarRideProviderPerson,
-  GetACarRideProviderCompany,
   GetACarParticipant,
   GetACarParticipantTypes,
+  GetACarRideProviderCompany,
+  GetACarRideProviderPerson,
 } from './participant';
 import type {GetACarRideRequest} from './services';
 

@@ -2,15 +2,13 @@
 
 // Package imports
 // > Components
-import FormGroup from '@mui/material/FormGroup';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Checkbox from '@mui/material/Checkbox';
 import {
+  Checkbox,
   Divider,
+  FormControlLabel,
+  FormGroup,
   List,
   ListItem,
-  ListItemText,
-  ListSubheader,
   TextField,
 } from '@mui/material';
 // Type imports
@@ -33,11 +31,11 @@ export default function TabSettings({
     <FormGroup>
       <List
         sx={{
-          width: '100%',
-          bgcolor: 'background.paper',
-          position: 'relative',
-          overflow: 'auto',
           '& ul': {padding: 0},
+          bgcolor: 'background.paper',
+          overflow: 'auto',
+          position: 'relative',
+          width: '100%',
         }}
         subheader={<li />}
       >
@@ -93,10 +91,6 @@ export default function TabSettings({
           />
         </ListItem>
       </List>
-      {
-        //<FormControlLabel required control={<Checkbox />} label="Required" />
-        //<FormControlLabel disabled control={<Checkbox />} label="Disabled" />
-      }
     </FormGroup>
   );
 }

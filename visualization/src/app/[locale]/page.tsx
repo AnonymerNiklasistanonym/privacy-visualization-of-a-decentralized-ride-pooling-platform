@@ -1,8 +1,8 @@
 // Local imports
 import {getIntl} from '../../services/intl';
 // > Components
-import SpeedDialTooltipOpen from '@components/Sort/SpeedDial';
 import SearchAppBar from '@components/SearchAppBar';
+import SpeedDialTooltipOpen from '@components/Sort/SpeedDial';
 import TabPanel from '@components/TabPanel';
 // > Styles
 import styles from '@styles/page.module.css';
@@ -41,12 +41,19 @@ export async function generateMetadata({
   const intl = await getIntl(locale);
   // return an object
   return {
+    description: intl.formatMessage({id: 'page.home.description'}),
+    icons: [
+      {
+        sizes: 'any',
+        type: 'image/svg+xml',
+        url: '/icons/main.svg',
+      },
+      {
+        sizes: 'any',
+        type: 'image/x-icon',
+        url: '/icons/main.ico',
+      },
+    ],
     title: intl.formatMessage({id: 'page.home.title'}),
-    description:
-      locale === 'en'
-        ? 'EN Description'
-        : locale === 'de'
-          ? 'DE Description'
-          : 'Other Description',
   };
 }

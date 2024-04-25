@@ -1,14 +1,15 @@
 'use client';
 
+// Package imports
 import * as React from 'react';
-import Paper from '@mui/material/Paper';
-import SpeedDial from '@mui/material/SpeedDial';
-import SpeedDialIcon from '@mui/material/SpeedDialIcon';
-import SpeedDialAction from '@mui/material/SpeedDialAction';
+// > Components
+import {Paper, SpeedDial, SpeedDialAction} from '@mui/material';
+// > Icons
 import FileCopyIcon from '@mui/icons-material/FileCopyOutlined';
-import SaveIcon from '@mui/icons-material/Save';
 import PrintIcon from '@mui/icons-material/Print';
+import SaveIcon from '@mui/icons-material/Save';
 import ShareIcon from '@mui/icons-material/Share';
+import SpeedDialIcon from '@mui/material/SpeedDialIcon';
 
 const actions = [
   {icon: <FileCopyIcon />, name: 'Copy'},
@@ -23,10 +24,22 @@ export default function SpeedDialTooltipOpen() {
   const handleClose = () => setOpen(false);
 
   return (
-    <Paper sx={{position: 'fixed', bottom: 0, left: 0, right: 0}} elevation={4}>
+    <Paper
+      sx={{
+        bottom: 0,
+        left: 0,
+        position: 'fixed',
+        right: 0,
+      }}
+      elevation={4}
+    >
       <SpeedDial
         ariaLabel="SpeedDial tooltip example"
-        sx={{position: 'absolute', bottom: 16, right: 16}}
+        sx={{
+          bottom: 16,
+          position: 'absolute',
+          right: 16,
+        }}
         icon={<SpeedDialIcon />}
         onClose={handleClose}
         onOpen={handleOpen}

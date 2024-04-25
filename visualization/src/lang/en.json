@@ -7,7 +7,8 @@
   "getacar.spectator.service.authentication": "Authentication Service",
   "getacar.spectator.service.matching": "Matching Service",
   "getacar.spectator.title": "Spectator",
-  "page.home.description": "You are currently viewing the homepage in English 🚀",
+  "page.about.title": "About",
+  "page.home.description": "Visualization of the GETACAR Platform description [TODO]",
   "page.home.head.meta.description": "Next.js i18n example - English",
   "page.home.head.title": "Visualization GETACAR Platform",
   "page.home.tab.blockchain.title": "Blockchain",
@@ -15,5 +16,8 @@
   "page.home.tab.overview.title": "Overview",
   "page.home.tab.settings.title": "Settings",
   "page.home.title": "Visualization of the GETACAR Platform",
-  "page.nested.title": "Nested route example"
+  "page.nested.title": "Nested route example",
+  "project.name": "Visualization of a privacy focused ride pooling platform concept",
+  "project.name.short": "GETACAR Visualization [TODO]",
+  "project.description": "Visualization of a privacy focused ride pooling platform concept description [TODO]"
 }

@@ -3,23 +3,23 @@
 // Package imports
 import {useState} from 'react';
 // > Components
-import {Typography, Box, ButtonGroup, Chip, Divider} from '@mui/material';
-import ErrorModal from '@components/Modal/ErrorModal';
+import {Box, ButtonGroup, Chip, Divider, Typography} from '@mui/material';
 // > Globals
 import {baseUrlPathfinder, baseUrlSimulation} from '@globals/defaults/urls';
 // Local imports
 // > Components
 import Button from '@components/Button';
-import TabMap from './TabMap';
-import TabSettings from './TabSettings';
-import TabOverview from './TabOverview';
+import ErrorModal from '@components/Modal/ErrorModal';
 import TabBlockchain from './TabBlockchain';
+import TabMap from './TabMap';
+import TabOverview from './TabOverview';
 import TabPanelContainer from './TabPanelContainer';
 import TabPanelHeader from './TabPanelHeader';
+import TabSettings from './TabSettings';
 // Type imports
-import type {ReactPropsI18n} from '@misc/react';
-import type {PropsWithChildren} from 'react';
 import type {ErrorModalContentElement} from '@misc/modals';
+import type {PropsWithChildren} from 'react';
+import type {ReactPropsI18n} from '@misc/react';
 
 interface CustomTabPanelProps {
   index: number;
@@ -128,13 +128,11 @@ export default function TabPanel({
       </Box>
       <Box
         sx={{
-          marginTop: '1vh',
+          '& > *': {m: 1},
+          alignItems: 'center',
           display: 'flex',
           flexDirection: 'column',
-          alignItems: 'center',
-          '& > *': {
-            m: 1,
-          },
+          marginTop: '1vh',
         }}
       >
         <Divider>

@@ -22,20 +22,19 @@ export const updateSimulationConfigWithData = async (
   return {
     ...config,
     citiesData: citiesData.map(cityData => ({
-      name: cityData.node.tags.name,
-      lat: cityData.node.lat,
-      lon: cityData.node.lon,
-      osmAreaId: cityData.area.id,
-      osmNodeId: cityData.node.id,
       bounds: {
         maxLat: cityData.boundingBoxRelation.bounds.maxlat,
         maxLon: cityData.boundingBoxRelation.bounds.maxlon,
         minLat: cityData.boundingBoxRelation.bounds.minlat,
         minLon: cityData.boundingBoxRelation.bounds.minlon,
       },
+      lat: cityData.node.lat,
+      lon: cityData.node.lon,
+      name: cityData.node.tags.name,
+      osmAreaId: cityData.area.id,
+      osmNodeId: cityData.node.id,
       places: cityData.places.map(a => ({...a, houseNumber: a.housenumber})),
     })),
-    osmVertexGraph: createOsmVertexGraph(citiesData),
     companyNames: [
       'Car2Go',
       'ShareACar',
@@ -44,6 +43,7 @@ export const updateSimulationConfigWithData = async (
       'CarSharing',
       'PoolCars',
     ],
+    osmVertexGraph: createOsmVertexGraph(citiesData),
     peopleData: (
       await nameFakeRequestOrCache(
         config.customer.count + config.rideProvider.countPerson,
@@ -54,12 +54,12 @@ export const updateSimulationConfigWithData = async (
         config.verbose
       )
     ).map(a => ({
-      fullName: a.name,
+      company: a.company,
       dateOfBirth: a.birth_data,
       emailAddress: a.email_d,
-      phoneNumber: a.phone_w,
+      fullName: a.name,
       gender: a.pict.substring(1),
-      company: a.company,
+      phoneNumber: a.phone_w,
     })),
   };
 };

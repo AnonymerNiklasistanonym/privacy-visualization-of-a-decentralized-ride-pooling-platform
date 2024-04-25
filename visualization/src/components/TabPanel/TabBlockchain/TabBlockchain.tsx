@@ -12,7 +12,12 @@ export interface TabBlockchainProps extends SettingsBlockchainPropsStates {}
 // eslint-disable-next-line no-empty-pattern
 export default function TabBlockchain({}: TabBlockchainProps) {
   return (
-    <Box sx={{width: '100%', maxWidth: 500}}>
+    <Box
+      sx={{
+        maxWidth: 500,
+        width: '100%',
+      }}
+    >
       <Typography variant="body1" gutterBottom>
         TODO
       </Typography>

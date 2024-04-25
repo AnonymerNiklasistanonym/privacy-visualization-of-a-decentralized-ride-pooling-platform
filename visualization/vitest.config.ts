@@ -6,31 +6,19 @@ import {resolve} from 'node:path';
 
 export default defineConfig({
   plugins: [react()],
-  test: {
-    environment: 'jsdom',
-  },
   resolve: {
     alias: [
-      {
-        find: '@styles',
-        replacement: resolve(__dirname, 'src', 'styles'),
-      },
-      {
-        find: '@components',
-        replacement: resolve(__dirname, 'src', 'components'),
-      },
-      {
-        find: '@globals',
-        replacement: resolve(__dirname, 'src', 'globals'),
-      },
-      {
-        find: '@misc',
-        replacement: resolve(__dirname, 'src', 'misc'),
-      },
+      ...['styles', 'components', 'globals', 'misc', 'services'].map(a => ({
+        find: `@${a}`,
+        replacement: resolve(__dirname, 'src', a),
+      })),
       {
         find: '@',
         replacement: resolve(__dirname, 'src', '@/'),
       },
     ],
+  },
+  test: {
+    environment: 'jsdom',
   },
 });

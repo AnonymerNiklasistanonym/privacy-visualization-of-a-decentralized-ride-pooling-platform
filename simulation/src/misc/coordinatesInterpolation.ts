@@ -83,7 +83,6 @@ export const interpolateCurrentCoordinatesFromPath = (
     0
   );
   return {
-    travelTimeInMs,
     getCurrentPosition: (currentTravelTimeInMs: number) => {
       // Determine between which coordinates the actor is at the moment:
       let travelTimeInMsToStart = 0;
@@ -116,5 +115,6 @@ export const interpolateCurrentCoordinatesFromPath = (
           (endCoordinates.long - startCoordinates.long) * interpolVal,
       };
     },
+    travelTimeInMs,
   };
 };

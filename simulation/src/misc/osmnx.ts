@@ -12,13 +12,11 @@ export const osmnxServerRequest = async (
   const result = await fetch(
     `http://localhost:${ports.pathfinder}/shortest_path_coordinates`,
     {
-      method: 'POST',
-      // Abort request with an error if no response is found
-      //signal: AbortSignal.timeout(1000),
+      body: JSON.stringify({source, target}),
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({source, target}),
+      method: 'POST',
     }
   );
   return result.json() as Promise<OsmnxServerResponse>;

@@ -1,6 +1,6 @@
 // Package imports
 // eslint-disable-next-line node/no-unpublished-import
-import {describe, test, expect} from '@jest/globals';
+import {describe, expect, test} from '@jest/globals';
 // Local imports
 import {
   getTravelTimeInMs,
@@ -12,21 +12,21 @@ describe('Coordinates Interpolation', () => {
     const testData = [
       {
         distanceInM: 1000,
-        speedInKmH: 1,
         expectedTimeInMs:
           1 /* hour */ *
           60 /* 1h=60min */ *
           60 /* 1min=60s */ *
           1000 /* 1s=1000ms */,
+        speedInKmH: 1,
       },
       {
         distanceInM: 10000,
-        speedInKmH: 10,
         expectedTimeInMs:
           1 /* hour */ *
           60 /* 1h=60min */ *
           60 /* 1min=60s */ *
           1000 /* 1s=1000ms */,
+        speedInKmH: 10,
       },
     ];
     for (const testDataElement of testData) {
@@ -41,6 +41,7 @@ describe('Coordinates Interpolation', () => {
   test('interpolateCurrentCoordinatesFromPath', () => {
     const testDataList = [
       {
+        expectedTravelTimeInMs: {max: 30 * 1000, min: 29 * 1000},
         path: [
           {
             lat: 48.7302435,
@@ -56,7 +57,6 @@ describe('Coordinates Interpolation', () => {
           },
         ],
         speedInKmH: 30,
-        expectedTravelTimeInMs: {min: 29 * 1000, max: 30 * 1000},
       },
     ];
     for (const testData of testDataList) {

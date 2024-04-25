@@ -1,13 +1,13 @@
 // Middleware to fix locale routing
 
-import {NextResponse} from 'next/server';
-import type {NextRequest} from 'next/server';
-
-import {match} from '@formatjs/intl-localematcher';
+// Package imports
 import Negotiator from 'negotiator';
-
+import {NextResponse} from 'next/server';
 import {i18n} from '../i18n-config';
+import {match} from '@formatjs/intl-localematcher';
+// Type imports
 import type {I18nConfig} from '../i18n-config';
+import type {NextRequest} from 'next/server';
 
 function getLocale(request: NextRequest, i18nConfig: I18nConfig): string {
   const {locales, defaultLocale} = i18nConfig;
@@ -46,8 +46,8 @@ export function middleware(request: NextRequest) {
   );
 
   console.debug('request2', {
-    url: request.url,
     locale: pathLocale,
+    url: request.url,
   });
 
   let nextLocale = defaultLocale;

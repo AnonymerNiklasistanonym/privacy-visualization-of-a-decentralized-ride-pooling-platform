@@ -1,6 +1,6 @@
 // Package imports
 // eslint-disable-next-line node/no-unpublished-import
-import {describe, test, expect} from '@jest/globals';
+import {describe, expect, test} from '@jest/globals';
 // Local imports
 import {getRandomId} from '../../src/misc/helpers';
 
