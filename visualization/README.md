@@ -1,5 +1,17 @@
 # Webapp
 
+- [Run](#run)
+  - [Node.js](#nodejs)
+  - [Docker](#docker)
+- [Structure](#structure)
+  - [Webpages](#webpages)
+  - [Static files](#static-files)
+  - [Translations](#translations)
+
+## Run
+
+### Node.js
+
 ```sh
 # Dev
 npm install
@@ -12,6 +24,76 @@ npm prune --omit=dev
 # > Run
 npm run start
 ```
+
+### Docker
+
+1. [Install Docker](https://docs.docker.com/get-docker/) and start the docker daemon
+   - Linux with `systemd`: `systemctl start docker`
+     1. If it's not yet working create the docker group (if it does not exist): `sudo groupadd docker`
+     2. Add your user to this group: `sudo usermod -aG docker $USER`
+     3. Log in to the new docker group since the current shells may not yet "know" about being added to the docker group (alternatively run `newgrp docker`)
+2. Build container declared in a `Dockerfile` in the current directory: `docker build --tag nextjs-docker .`
+   - `docker build [OPTIONS] PATH`
+   - `--tag list`: Name and optionally a tag in the "name:tag" format
+3. Run container: `docker run --publish 3000:3000 nextjs-docker`
+   - `docker run [OPTIONS] IMAGE [COMMAND] [ARG...]`
+   - `--publish list`: Publish a container's port(s) to the host
+
+You can view:
+
+- the created images created with `docker images`
+- the currently running containers and their IDs/ports/states with `docker ps`
+- stop a running container with `docker stop $ID` (stop all of them via `docker ps -aq | xargs docker stop`)
+- to inspect an image use the command `docker run --rm -it --entrypoint=/bin/bash $TAG`
+  (in case the image has no `bash` you may have to add it in the `Dockerfile` e.g. `RUN apk add --no-cache bash`)
+- to inspect a running container use the command `docker exec -t -i $ID /bin/bash`
+
+If you are finished you can:
+
+- stop the docker service: `systemctl stop docker`
+- prune all docker caches: `docker system prune -a`
+
+> Make sure that all files that should not be copied to the docker container are listed in the [`.dockerignore`](.dockerignore) file!
+
+> The `Dockerfile` was copied from the [vercel `next.js` repository `Dockerfile`](https://github.com/vercel/next.js/blob/canary/examples/with-docker/Dockerfile) into the root of the project and the `next.config.js` was update to contain the following change:
+>
+> ```js
+> // next.config.js
+> module.exports = {
+>   // ... rest of the configuration.
+>   output: "standalone",
+> };
+> ```
+
+## Structure
+
+This app uses a middleware for localization in order to support multiple languages.
+This means that web requests can have a local prefix (e.g. `http://localhost:3000/[optional language prefix + /]` => `http://localhost:3000/de/about`) in order to request a page not in the default locale (`en`) but another locale (language).
+
+### Webpages
+
+The `nextjs` router renders every file named `page.tsx` in the directory [`src/app/[locale]`](src/app/[locale]) and the subdirectories as webpage:
+
+- `/[optional language prefix]`: rendered by [`src/app/[locale]/page.tsx`](src/app/[locale]/page.tsx)
+- `/[optional language prefix + /]about`: rendered by [`src/app/[locale]/about/page.tsx`](src/app/[locale]/about/page.tsx)
+
+### Static files
+
+All the files in [`public/en`](public/en) will be provided as static files with the prefix `/` but it is still possible to put files into for example `public/de` which will fetch the files located in that directory instead (if found):
+
+- `/favicon.ico`: rendered by [`public/en/favicon.ico`](public/en/favicon.ico)
+- `/de/graph_with_text.png`: rendered by `public/de/graph_with_text.png` if it would exist, otherwise falls back to `public/en/graph_with_text.png`
+
+### Translations
+
+Translations can be updated by modifying the JSON files in [`src/lang`](src/lang).
+
+Furthermore:
+
+- To change the text direction of the locale edit [`src/services/intl.ts`](src/services/intl.ts)
+- To change what locales should be supported edit [`i18n-config.ts`](i18n-config.ts)
+
+## OLD
 
 TODO Automatically create a toc
 

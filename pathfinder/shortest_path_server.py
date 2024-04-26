@@ -4,19 +4,23 @@ import networkx as nx
 import osmnx as ox
 from dataclasses import dataclass
 
-# run with:
-# python -m venv venv_flask
-# source venv_flask/bin/activate
-# python -m pip install networkx osmnx flask scikit-learn flask-cors
+# python -m pip install flask flask-cors networkx osmnx scikit-learn
 # python -m shortest_path_server
+# python -m flask --app shortest_path_server run --host="0.0.0.0" --port 3010
 
 ox.settings.use_cache = True
 ox.settings.log_console = True
 
+# create the flask app
 app = Flask(__name__)
 cors = CORS(app, resources={r"/*": {"origins": "*"}})
 
-G: nx.MultiDiGraph
+# create the graph
+location = ("stuttgart", "Stuttgart, Baden-Württemberg, Germany")
+G = ox.graph_from_place(location[1], network_type="drive")
+# calculate additional weights
+G = ox.add_edge_speeds(G)
+G = ox.add_edge_travel_times(G)
 
 
 @dataclass
@@ -41,8 +45,7 @@ def shortest_path():
 @app.route("/shortest_path_coordinates", methods=["POST"])
 def shortest_path_coordinates():
     content = request.get_json(silent=True)
-    source = content["source"]
-    target = content["target"]
+    source, target = content["source"], content["target"]
     source_coordinates = {"lat": source["lat"], "long": source["long"]}
     target_coordinates = {"lat": target["lat"], "long": target["long"]}
     source_id = ox.nearest_nodes(
@@ -153,15 +156,9 @@ def convert_node_ids_to_coordinates(node_ids: list[int]):
 
 
 if __name__ == "__main__":
-    # create the graph
-    location = ("stuttgart", "Stuttgart, Baden-Württemberg, Germany")
-    G = ox.graph_from_place(location[1], network_type="drive")
-    # calculate additional weights
-    G = ox.add_edge_speeds(G)
-    G = ox.add_edge_travel_times(G)
-
+    # Only used when running via 'python -m shortest_path_server'
     app.run(
-        # host="0.0.0.0",
         # debug=True,
-        port=3010
+        host="0.0.0.0",
+        port=3010,
     )

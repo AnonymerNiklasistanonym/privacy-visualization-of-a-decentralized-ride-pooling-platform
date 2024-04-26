@@ -1,0 +1,13 @@
+services:
+  pathfinder:
+    build: pathfinder
+    ports:
+      - "3010:3010"
+  simulation:
+    build: simulation
+    ports:
+      - "3020:3020"
+  visualization:
+    build: visualization
+    ports:
+      - "3000:3000"

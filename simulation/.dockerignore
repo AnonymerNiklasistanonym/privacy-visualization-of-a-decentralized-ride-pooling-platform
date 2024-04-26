@@ -1,0 +1,15 @@
+.dockerignore
+.editorconfig
+.git
+.gitignore
+build
+cache
+dev.log
+dist
+Dockerfile
+docs
+jest.config.js
+node_modules
+README.md
+tests
+typedoc.js

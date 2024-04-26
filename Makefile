@@ -1,8 +1,9 @@
 .PHONY: build clean format
-.PHONY: installNecessaryPackagesPacman installNecessaryPackagesUbuntu
+.PHONY: installNecessaryPackagesPacman installNecessaryPackagesPacmanAur installNecessaryPackagesUbuntu
 .PHONY: copyGlobals createCopyImages lintFix
 
-NECESSARY_PACKAGES_PACMAN = make texlive-latex texlive-binextra texlive-xetex texlive-latexextra texlive-luatex texlive-fontsrecommended texlive-langgerman texlive-langenglish texlive-mathscience texlive-bibtexextra texlive-plaingeneric texlive-publishers perl-yaml-tiny perl-file-homedir aspell aspell-en biber
+NECESSARY_PACKAGES_PACMAN = make texlive-latex texlive-binextra texlive-xetex texlive-latexextra texlive-luatex texlive-fontsrecommended texlive-langgerman texlive-langenglish texlive-mathscience texlive-bibtexextra texlive-plaingeneric texlive-publishers perl-yaml-tiny perl-file-homedir aspell aspell-en biber nodejs docker docker-compose python yay
+NECESSARY_PACKAGES_PACMAN_AUR = powershell-bin
 NECESSARY_PACKAGES_UBUNTU_WSL = make texlive-full latexmk python3-pygments biber aspell
 
 LATEXINDENT?=latexindent
@@ -28,6 +29,13 @@ installNecessaryPackagesPacman:
 	# Package list with versions for README.md
 	@$(foreach NECESSARY_PACKAGE_PACMAN, $(sort $(NECESSARY_PACKAGES_PACMAN)), \
 		echo "  - \`$(NECESSARY_PACKAGE_PACMAN)\` ($(shell pacman -Q $(NECESSARY_PACKAGE_PACMAN) | cut -d' ' -f2))"; \
+	)
+
+installNecessaryPackagesPacmanAur:
+	yay --needed -S $(NECESSARY_PACKAGES_PACMAN_AUR)
+	# Package list with versions for README.md
+	@$(foreach NECESSARY_PACKAGE_PACMAN_AUR, $(sort $(NECESSARY_PACKAGES_PACMAN_AUR)), \
+		echo "  - \`$(NECESSARY_PACKAGE_PACMAN_AUR)\` ($(shell yay -Q $(NECESSARY_PACKAGE_PACMAN_AUR) | cut -d' ' -f2))"; \
 	)
 
 installNecessaryPackagesUbuntu:

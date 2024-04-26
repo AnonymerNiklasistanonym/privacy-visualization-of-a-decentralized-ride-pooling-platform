@@ -92,7 +92,7 @@ npm run dist
 # Run compiled files (default port 4321 => http://localhost:4321)
 npm run start
 # Optionally you can change the port of the web server from the CL
-npm run start -- --port 3000
+npm run start -- --port 3020
 ```
 
 **Endpoints:**
@@ -132,3 +132,35 @@ npx http-server -o docs -p 8000
 # Auto update server on change
 npm run dev -- --port 2222
 ```
+
+### Docker
+
+1. [Install Docker](https://docs.docker.com/get-docker/) and start the docker daemon
+   - Linux with `systemd`: `systemctl start docker`
+     1. If it's not yet working create the docker group (if it does not exist): `sudo groupadd docker`
+     2. Add your user to this group: `sudo usermod -aG docker $USER`
+     3. Log in to the new docker group since the current shells may not yet "know" about being added to the docker group (alternatively run `newgrp docker`)
+2. Build container declared in a `Dockerfile` in the current directory: `docker build --tag express-docker .`
+   - `docker build [OPTIONS] PATH`
+   - `--tag list`: Name and optionally a tag in the "name:tag" format
+3. Run container: `docker run --publish 3020:3020 express-docker`
+   - `docker run [OPTIONS] IMAGE [COMMAND] [ARG...]`
+   - `--publish list`: Publish a container's port(s) to the host
+
+You can view:
+
+- the created images created with `docker images`
+- the currently running containers and their IDs/ports/states with `docker ps`
+- stop a running container with `docker stop $ID` (stop all of them via `docker ps -aq | xargs docker stop`)
+- to inspect an image use the command `docker run --rm -it --entrypoint=/bin/bash $TAG`
+  (in case the image has no `bash` you may have to add it in the `Dockerfile` e.g. `RUN apk add --no-cache bash`)
+- to inspect a running container use the command `docker exec -t -i $ID /bin/bash`
+
+If you are finished you can:
+
+- stop the docker service: `systemctl stop docker`
+- prune all docker caches: `docker system prune -a`
+
+> Make sure that all files that should not be copied to the docker container are listed in the [`.dockerignore`](.dockerignore) file!
+
+> The `Dockerfile` was inspired by a [geeksforgeeks.org article 'How to Dockerize an ExpressJS App?'](https://www.geeksforgeeks.org/how-to-dockerize-an-expressjs-app/).

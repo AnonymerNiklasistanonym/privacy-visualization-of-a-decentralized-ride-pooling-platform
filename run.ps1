@@ -1,9 +1,14 @@
 #!/usr/bin/env pwsh
 
 Param (
+	[PSCustomObject]$JobPathfinder = [PSCustomObject]@{
+		Name = "Pathfinder"
+		Port = 3010
+		Dir = Join-Path -Path $PSScriptRoot -ChildPath "pathfinder"
+	},
 	[PSCustomObject]$JobSimulation = [PSCustomObject]@{
 		Name = "Simulation"
-		Port = 2222
+		Port = 3020
 		Dir = Join-Path -Path $PSScriptRoot -ChildPath "simulation"
 	},
 	[PSCustomObject]$JobVisualization = [PSCustomObject]@{
@@ -11,9 +16,11 @@ Param (
 		Port = 3000
 		Dir = Join-Path -Path $PSScriptRoot -ChildPath "visualization"
 	},
+	[string]$JobNamePathfinder = "Pathfinder",
 	[string]$JobNameSimulation = "Simulation",
 	[string]$JobNameVisualization = "Visualization",
-	[int]$PortSimulation = 2222,
+	[int]$PortPathfinder = 3010,
+	[int]$PortSimulation = 3020,
 	[int]$PortWebapp = 3000,
 	[bool]$Verbose = $false,
 	[bool]$StartJobs = $true,
@@ -24,13 +31,11 @@ Param (
 $ErrorActionPreference = "Stop"
 
 # Variables
-$DirSimulation = Join-Path -Path $PSScriptRoot -ChildPath "simulation"
-$DirWebApp = Join-Path -Path $PSScriptRoot -ChildPath "visualization"
 $Ports = @($JobSimulation.Port, $JobVisualization.Port)
 
 # Stop previous jobs
 Write-Output "Stop jobs..."
-foreach ($job in Get-Job -Name $JobNameSimulation, $JobNameVisualization -ErrorAction SilentlyContinue)
+foreach ($job in Get-Job -Name $JobNamePathfinder, $JobNameSimulation, $JobNameVisualization -ErrorAction SilentlyContinue)
 {
 	Stop-Job $job
 	Remove-Job $job
@@ -76,6 +81,9 @@ function RunWriteJobProgress
 
 # Start prepare jobs
 Write-Output "Start prepare jobs..."
+$PathfinderJobPrepare = Start-Job -Name $JobPathfinder.Name -WorkingDirectory $JobPathfinder.Dir -ScriptBlock {
+	Write-Progress -Activity "finished" -PercentComplete 100;
+}
 $SimulationJobPrepare = Start-Job -Name $JobSimulation.Name -WorkingDirectory $JobSimulation.Dir -ScriptBlock {
 	Write-Progress -Activity "install" -PercentComplete 0;
 	npm install
@@ -91,15 +99,15 @@ $VisualizationJobPrepare = Start-Job -Name $JobVisualization.Name -WorkingDirect
 	Write-Progress -Activity "finished" -PercentComplete 100;
 }
 if ($Verbose) {
-	$SimulationJobPrepare, $VisualizationJobPrepare | Format-Table
+	$PathfinderJobPrepare, $SimulationJobPrepare, $VisualizationJobPrepare | Format-Table
 }
-RunWriteJobProgress($SimulationJobPrepare, $VisualizationJobPrepare)
+RunWriteJobProgress($PathfinderJobPrepare, $SimulationJobPrepare, $VisualizationJobPrepare)
 
 Write-Output "Wait for prepare jobs..."
-Wait-Job -Job $SimulationJobPrepare, $VisualizationJobPrepare -Timeout 60 | Out-Null
+Wait-Job -Job $PathfinderJobPrepare, $SimulationJobPrepare, $VisualizationJobPrepare -Timeout 60 | Out-Null
 
 if ($Verbose) {
-	foreach ($job in $SimulationJobPrepare, $VisualizationJobPrepare)
+	foreach ($job in $PathfinderJobPrepare, $SimulationJobPrepare, $VisualizationJobPrepare)
 	{
 		Write-Output "Job $job.Name Output:"
 		Write-Output (Receive-Job -Job $job)
@@ -108,14 +116,17 @@ if ($Verbose) {
 
 # Start jobs
 Write-Output "Start jobs..."
-$SimulationJob = Start-Job -Name $JobNameSimulation -WorkingDirectory $DirSimulation -ScriptBlock {
+$PathfinderJob = Start-Job -Name $JobPathfinder.Name -WorkingDirectory $JobPathfinder.Dir -ScriptBlock {
+	python3 -m flask --app "shortest_path_server" run --host="0.0.0.0" --port $using:PortPathfinder | Tee-Object -FilePath dev.log
+}
+$SimulationJob = Start-Job -Name $JobSimulation.Name -WorkingDirectory $JobSimulation.Dir -ScriptBlock {
 	npm run start -- --port $using:PortSimulation | Tee-Object -FilePath dev.log
 }
-$VisualizationJob = Start-Job -Name $JobNameVisualization -WorkingDirectory $DirWebApp -ScriptBlock {
+$VisualizationJob = Start-Job -Name $JobVisualization.Name -WorkingDirectory $JobVisualization.Dir -ScriptBlock {
 	npm run dev | Tee-Object -FilePath dev.log
 }
 if ($Verbose) {
-	$SimulationJob, $VisualizationJob | Format-Table
+	$PathfinderJob, $SimulationJob, $VisualizationJob | Format-Table
 }
 
 # Open relevant web pages
@@ -127,4 +138,4 @@ foreach ($port in $Ports)
 }
 
 Write-Output "Wait for jobs..."
-Wait-Job -Job $SimulationJob, $VisualizationJob | Out-Null
+Wait-Job -Job $PathfinderJob, $SimulationJob, $VisualizationJob | Out-Null

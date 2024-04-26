@@ -1,0 +1,15 @@
+__pycache__
+.dockerignore
+.git
+.gitignore
+.idea
+.ipynb_checkpoints
+.next
+cache
+dev.log
+Dockerfile
+README.md
+shortest_path_example_client.py
+shortest_path_visualization.ipynb
+venv*
+requirements_jupyter.txt
