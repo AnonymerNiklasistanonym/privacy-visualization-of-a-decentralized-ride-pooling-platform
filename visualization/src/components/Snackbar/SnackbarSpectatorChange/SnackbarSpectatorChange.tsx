@@ -7,17 +7,17 @@ import {Alert, Snackbar} from '@mui/material';
 // Type imports
 import type {SyntheticEvent} from 'react';
 
-interface CustomizedSnackbarProps {
+interface SnackbarSpectatorChangeProps {
   openState: boolean;
   setStateOpen: (a: boolean) => void;
   textState: string;
 }
 
-export default function CustomizedSnackbar({
+export default function SnackbarSpectatorChange({
   openState,
   setStateOpen,
   textState,
-}: CustomizedSnackbarProps) {
+}: SnackbarSpectatorChangeProps) {
   const [open, setOpen] = useState(false);
 
   const handleClose = (event?: SyntheticEvent | Event, reason?: string) => {

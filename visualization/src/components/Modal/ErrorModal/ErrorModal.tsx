@@ -81,13 +81,13 @@ export default function ErrorModal({
                   }
                 >
                   <ListItemIcon>
-                    {a.count > 1 ? (
-                      <Badge color="secondary" badgeContent={a.count} max={999}>
-                        <ErrorIcon />
-                      </Badge>
-                    ) : (
+                    <Badge
+                      color="secondary"
+                      badgeContent={a.count <= 1 ? 0 : a.count}
+                      max={999}
+                    >
                       <ErrorIcon />
-                    )}
+                    </Badge>
                   </ListItemIcon>
                   <ListItemText
                     primary={`${a.title} (${a.error.name})`}

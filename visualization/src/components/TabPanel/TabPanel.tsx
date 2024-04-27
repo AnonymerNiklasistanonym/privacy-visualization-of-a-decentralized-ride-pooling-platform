@@ -10,12 +10,12 @@ import {baseUrlPathfinder, baseUrlSimulation} from '@globals/defaults/urls';
 // > Components
 import Button from '@components/Button';
 import ErrorModal from '@components/Modal/ErrorModal';
-import TabBlockchain from './TabBlockchain';
-import TabMap from './TabMap';
-import TabOverview from './TabOverview';
+import TabBlockchain from '@components/Tab/TabBlockchain';
+import TabMap from '@components/Tab/TabMap';
+import TabOverview from '@components/Tab/TabOverview';
 import TabPanelContainer from './TabPanelContainer';
 import TabPanelHeader from './TabPanelHeader';
-import TabSettings from './TabSettings';
+import TabSettings from '@components/Tab/TabSettings';
 // Type imports
 import type {ErrorModalContentElement} from '@misc/modals';
 import type {PropsWithChildren} from 'react';

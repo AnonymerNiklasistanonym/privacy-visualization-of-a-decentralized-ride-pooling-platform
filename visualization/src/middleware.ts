@@ -19,7 +19,7 @@ function getLocale(request: NextRequest, i18nConfig: I18nConfig): string {
     locales
   );
 
-  console.debug('request1', request.url, i18nConfig);
+  //console.debug('request1', request.url, i18nConfig);
 
   return match(languages, locales, defaultLocale);
 }
@@ -45,10 +45,10 @@ export function middleware(request: NextRequest) {
     locale => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`
   );
 
-  console.debug('request2', {
-    locale: pathLocale,
-    url: request.url,
-  });
+  //console.debug('request2', {
+  //  locale: pathLocale,
+  //  url: request.url,
+  //});
 
   let nextLocale = defaultLocale;
   if (pathLocale) {
@@ -66,10 +66,10 @@ export function middleware(request: NextRequest) {
       );
       response = NextResponse.redirect(urlWithoutDefaultLocale);
 
-      console.debug('request redirect to path without default locale', {
-        requestUrl: request.nextUrl.href,
-        responseUrl: urlWithoutDefaultLocale.href,
-      });
+      //console.debug('request redirect to path without default locale', {
+      //  requestUrl: request.nextUrl.href,
+      //  responseUrl: urlWithoutDefaultLocale.href,
+      //});
     }
 
     nextLocale = pathLocale;
@@ -85,25 +85,25 @@ export function middleware(request: NextRequest) {
 
     if (locale === defaultLocale) {
       response = NextResponse.rewrite(new URL(url, request.url).toString());
-      console.debug(
-        'request rewrite url',
-        request.url,
-        new URL(url, request.url)
-      );
+      //console.debug(
+      //  'request rewrite url',
+      //  request.url,
+      //  new URL(url, request.url)
+      //);
     } else {
       response = NextResponse.redirect(new URL(url, request.url).toString());
-      console.debug(
-        'request redirect url',
-        request.url,
-        new URL(url, request.url)
-      );
+      //console.debug(
+      //  'request redirect url',
+      //  request.url,
+      //  new URL(url, request.url)
+      //);
     }
     nextLocale = locale;
-    console.debug('request deduce nextLocale', nextLocale);
+    //console.debug('request deduce nextLocale', nextLocale);
   }
 
   if (!response) {
-    console.debug('request had no response, go next');
+    //console.debug('request had no response, go next');
     response = NextResponse.next();
   }
 

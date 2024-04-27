@@ -8,6 +8,7 @@ import {getCliFlag, getCliOverride} from './misc/cli';
 import {Simulation} from './simulation';
 import {ports} from './globals/defaults/ports';
 import {printRouterPaths} from './misc/printExpressRoutes';
+import {simulationEndpointRoutes} from './globals/defaults/endpoints';
 import {updateSimulationConfigWithData} from './config/simulationConfigWithData';
 // Type imports
 import type {SimulationConfig} from './config/simulationConfig';
@@ -69,6 +70,7 @@ const hbs = createHbs({
 app.use(cors());
 
 // Express setup additional static directories
+app.use('/scripts', express.static(path.join(SRC_DIR, 'public', 'scripts')));
 app.use('/styles', express.static(path.join(SRC_DIR, 'public', 'styles')));
 app.use('/icons', express.static(path.join(SRC_DIR, 'public', 'icons')));
 
@@ -83,11 +85,16 @@ async function main() {
   const simulation = new Simulation(
     await updateSimulationConfigWithData(config)
   );
-  app.use('/simulation', simulation.generateRoutes());
+  app.use(
+    simulationEndpointRoutes.simulation.route,
+    simulation.generateRoutes()
+  );
 
   app.get('/', (req, res) => {
     res.render('main', {
       layout: 'index',
+
+      scripts: ['/scripts/main.js'],
 
       authenticationServices: simulation.authenticationServicesJson,
       customers: simulation.customersJson,
@@ -99,7 +106,10 @@ async function main() {
     });
   });
 
-  app.use('/json', simulation.generateFrontendRoutes());
+  app.use(
+    simulationEndpointRoutes.json.route,
+    simulation.generateFrontendRoutes()
+  );
 
   app.listen(config.port, () => {
     console.info(`Express is listening at http://localhost:${config.port}`);

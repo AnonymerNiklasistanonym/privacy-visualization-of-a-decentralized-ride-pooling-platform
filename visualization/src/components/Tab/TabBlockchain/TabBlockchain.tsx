@@ -3,8 +3,12 @@
 // Package imports
 // > Components
 import {Box, Divider, Typography} from '@mui/material';
+// Local imports
+// > Components
+import TableBlockchain from '@components/Table/TableBlockchain';
 // Type imports
 import type {SettingsBlockchainPropsStates} from '@misc/settings';
+
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface TabBlockchainProps extends SettingsBlockchainPropsStates {}
@@ -22,6 +26,7 @@ export default function TabBlockchain({}: TabBlockchainProps) {
         TODO
       </Typography>
       <Divider />
+      <TableBlockchain />
     </Box>
   );
 }

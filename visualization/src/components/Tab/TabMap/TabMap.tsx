@@ -10,8 +10,9 @@ import {showErrorBuilder} from '@misc/modals';
 import Button from '@components/Button';
 import Container from '@components/Container';
 import Map from '@components/Map';
-import SelectSpectator from '@components/Sort/SelectSpectator';
-import Snackbar from '@components/Snackbar';
+import SnackbarSpectatorChange from '@components/Snackbar/SnackbarSpectatorChange';
+import TableDebugData from '@components/Table/TableDebugData';
+import TextInputSpectator from '@components/TextInput/TextInputSpectator';
 // > Globals
 import {fetchJson, fetchText} from '@globals/lib/fetch';
 import {
@@ -22,12 +23,17 @@ import {
 import type {
   SimulationEndpointGraphInformation,
   SimulationEndpointParticipantCoordinates,
+  SimulationEndpointParticipantInformationCustomer,
+  SimulationEndpointParticipantInformationRideProvider,
+  SimulationEndpointRideRequestInformation,
+  SimulationEndpointRideRequests,
 } from '@globals/types/simulation';
+import type {DebugData} from '@components/Table/DebugData';
 import type {ErrorModalPropsErrorBuilder} from '@misc/modals';
 import type {FetchJsonOptions} from '@globals/lib/fetch';
 import type {PathfinderEndpointGraphInformation} from '@globals/types/pathfinder';
-import type {SelectSpectatorOptionStateType} from '@components/Sort/SelectSpectator';
 import type {SettingsMapPropsStates} from '@misc/settings';
+import type {TextInputSpectatorOptionStateType} from '@components/TextInput/TextInputSpectator/TextInputSpectator';
 
 export interface TabMapProps
   extends SettingsMapPropsStates,
@@ -46,9 +52,9 @@ export default function TabMap({
     endpoint: string,
     options?: FetchJsonOptions
   ): Promise<T> =>
-    fetchJson<T>(`${stateSettingsMapBaseUrlSimulation}/${endpoint}`, options);
+    fetchJson<T>(`${stateSettingsMapBaseUrlSimulation}${endpoint}`, options);
   const fetchTextSimulation = async (endpoint: string): Promise<string> =>
-    fetchText(`${stateSettingsMapBaseUrlSimulation}/${endpoint}`);
+    fetchText(`${stateSettingsMapBaseUrlSimulation}${endpoint}`);
   const fetchJsonPathfinder = async <T,>(
     endpoint: string,
     options?: FetchJsonOptions
@@ -62,7 +68,7 @@ export default function TabMap({
   // React states
   const [snackbarOpenState, setSnackbarOpenState] = useState(false);
   const [spectatorState, setSpectatorState] = useState('everything');
-  const defaultOptions: SelectSpectatorOptionStateType = [
+  const defaultOptions: TextInputSpectatorOptionStateType = [
     {
       label: 'everything',
       translationId: 'getacar.spectator.everything',
@@ -85,6 +91,12 @@ export default function TabMap({
     },
   ];
   const [selectOptionsState, setSelectOptionsState] = useState(defaultOptions);
+  const [stateDebugData, setStateDebugData] = useState<DebugData>({
+    customers: [],
+    rideProviders: [],
+    rideRequests: [],
+    smartContracts: [],
+  });
   const [participantsState, setParticipantsState] =
     useState<SimulationEndpointParticipantCoordinates>({
       customers: [],
@@ -114,7 +126,7 @@ export default function TabMap({
       return;
     }
     fetchJsonSimulation<SimulationEndpointGraphInformation>(
-      simulationEndpoints.graphInformation,
+      simulationEndpoints.json.graphInformation,
       {showFetch: true, showResponse: true}
     )
       .then(data => setGraphState(data))
@@ -127,6 +139,63 @@ export default function TabMap({
       .catch(err => showError('Fetch pathfinder graph', err));
   };
 
+  const fetchDebugData = (clear = false) => {
+    if (clear === true) {
+      setStateDebugData({
+        customers: [],
+        rideProviders: [],
+        rideRequests: [],
+        smartContracts: [],
+      });
+      return;
+    }
+
+    Promise.all([
+      fetchJsonSimulation<SimulationEndpointParticipantCoordinates>(
+        simulationEndpoints.json.participantCoordinates
+      ),
+      fetchJsonSimulation<SimulationEndpointRideRequests>(
+        simulationEndpoints.json.rideRequests
+      ),
+    ])
+      .then(([participantCoordinatesData, rideRequestsData]) =>
+        Promise.all([
+          Promise.all(
+            participantCoordinatesData.customers.map(a =>
+              fetchJsonSimulation<SimulationEndpointParticipantInformationCustomer>(
+                simulationEndpoints.json.participantInformationCustomer(a.id)
+              )
+            )
+          ),
+          Promise.all(
+            participantCoordinatesData.rideProviders.map(a =>
+              fetchJsonSimulation<SimulationEndpointParticipantInformationRideProvider>(
+                simulationEndpoints.json.participantInformationRideProvider(
+                  a.id
+                )
+              )
+            )
+          ),
+          Promise.all(
+            rideRequestsData.rideRequests.map(a =>
+              fetchJsonSimulation<SimulationEndpointRideRequestInformation>(
+                simulationEndpoints.json.rideRequestInformation(a)
+              )
+            )
+          ),
+        ])
+      )
+      .then(([customers, rideProviders, rideRequests]) =>
+        setStateDebugData({
+          customers,
+          rideProviders,
+          rideRequests,
+          smartContracts: [],
+        })
+      )
+      .catch(err => showError('Fetch debug data', err));
+  };
+
   // React effects
   useEffect(() => {
     // Run this when any listed state dependency changes
@@ -136,7 +205,7 @@ export default function TabMap({
   useEffect(() => {
     const interval = setInterval(() => {
       fetchJsonSimulation<SimulationEndpointParticipantCoordinates>(
-        simulationEndpoints.participantCoordinates
+        simulationEndpoints.json.participantCoordinates
       )
         .then(data => {
           setParticipantsState(data);
@@ -146,12 +215,12 @@ export default function TabMap({
               label: `${a.id}`,
               translationId: 'getacar.spectator.participant.customerid',
               type: 'customer',
-            })) as SelectSpectatorOptionStateType),
+            })) as TextInputSpectatorOptionStateType),
             ...(participantsState.rideProviders.map(a => ({
               label: `${a.id}`,
               translationId: 'getacar.spectator.participant.rideProviderid',
               type: 'rideProvider',
-            })) as SelectSpectatorOptionStateType),
+            })) as TextInputSpectatorOptionStateType),
           ]);
         })
         .catch(err =>
@@ -168,7 +237,7 @@ export default function TabMap({
   return (
     <>
       <Container>
-        <SelectSpectator
+        <TextInputSpectator
           optionsState={selectOptionsState}
           spectatorState={spectatorState}
           setSpectatorState={setSpectatorState}
@@ -202,7 +271,7 @@ export default function TabMap({
           <ButtonGroup variant="contained" aria-label="Basic button group">
             <Button
               onClick={() => {
-                fetchTextSimulation('state')
+                fetchTextSimulation(simulationEndpoints.simulation.state)
                   .then(a => alert(`Simulation state: ${a}`))
                   .catch(err => showError('Fetch simulation state', err));
               }}
@@ -211,8 +280,8 @@ export default function TabMap({
             </Button>
             <Button
               onClick={() => {
-                fetchTextSimulation('pause').catch(err =>
-                  showError('Fetch simulation state pause', err)
+                fetchTextSimulation(simulationEndpoints.simulation.pause).catch(
+                  err => showError('Fetch simulation state pause', err)
                 );
               }}
             >
@@ -220,8 +289,8 @@ export default function TabMap({
             </Button>
             <Button
               onClick={() => {
-                fetchTextSimulation('run').catch(err =>
-                  showError('Fetch simulation state run', err)
+                fetchTextSimulation(simulationEndpoints.simulation.run).catch(
+                  err => showError('Fetch simulation state run', err)
                 );
               }}
             >
@@ -249,9 +318,46 @@ export default function TabMap({
             <Button onClick={() => fetchGraphs()}>Fetch Graphs</Button>
             <Button onClick={() => fetchGraphs(true)}>Clear Graphs</Button>
           </ButtonGroup>
+          <Divider>
+            <Chip label="Debug Data" size="small" />
+          </Divider>
+          <ButtonGroup variant="contained" aria-label="Basic button group">
+            <Button onClick={() => fetchDebugData()}>Fetch Debug Data</Button>
+            <Button onClick={() => fetchDebugData(true)}>
+              Clear Debug Data
+            </Button>
+          </ButtonGroup>
+          <Divider>
+            <Chip label="Customers" size="small" variant="outlined" />
+          </Divider>
+          <TableDebugData
+            stateDebugData={stateDebugData}
+            debugDataType="customer"
+          />
+          <Divider>
+            <Chip label="Ride Providers" size="small" variant="outlined" />
+          </Divider>
+          <TableDebugData
+            stateDebugData={stateDebugData}
+            debugDataType="ride_provider"
+          />
+          <Divider>
+            <Chip label="Ride Providers" size="small" variant="outlined" />
+          </Divider>
+          <TableDebugData
+            stateDebugData={stateDebugData}
+            debugDataType="ride_request"
+          />
+          <Divider>
+            <Chip label="Smart Contracts" size="small" variant="outlined" />
+          </Divider>
+          <TableDebugData
+            stateDebugData={stateDebugData}
+            debugDataType="smart_contract"
+          />
         </Box>
       </Container>
-      <Snackbar
+      <SnackbarSpectatorChange
         openState={snackbarOpenState}
         textState={spectatorState}
         setStateOpen={setSnackbarOpenState}

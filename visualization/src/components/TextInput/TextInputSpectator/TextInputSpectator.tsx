@@ -16,7 +16,7 @@ import VerifiedIcon from '@mui/icons-material/Verified';
 import type {ReactSetState, ReactState} from '@misc/react';
 import {useIntl} from 'react-intl';
 
-export type SelectSpectatorOptionTypes =
+export type TextInputSpectatorOptionTypes =
   | 'error'
   | 'everything'
   | 'public'
@@ -25,25 +25,25 @@ export type SelectSpectatorOptionTypes =
   | 'customer'
   | 'rideProvider';
 
-export type SelectSpectatorOptionStateType = ReactState<
+export type TextInputSpectatorOptionStateType = ReactState<
   Array<{
     label: string;
-    type: SelectSpectatorOptionTypes;
+    type: TextInputSpectatorOptionTypes;
     translationId?: string;
   }>
 >;
 
-export interface SelectSpectatorProps {
-  optionsState: SelectSpectatorOptionStateType;
+export interface TextInputSpectatorProps {
+  optionsState: TextInputSpectatorOptionStateType;
   spectatorState: ReactState<string>;
   setSpectatorState: ReactSetState<string>;
 }
 
-export default function SelectSpectator({
+export default function TextInputSpectator({
   optionsState,
   spectatorState,
   setSpectatorState,
-}: SelectSpectatorProps) {
+}: TextInputSpectatorProps) {
   const getCurrentValue = () =>
     optionsState.find(a => a.label === spectatorState) ?? {
       label: 'error',

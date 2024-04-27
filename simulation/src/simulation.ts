@@ -12,13 +12,15 @@ import {
 import {Blockchain} from './actors/blockchain';
 import {Customer} from './actors/customer';
 import {osmnxServerRequest} from './misc/osmnx';
+import {simulationEndpointRoutes} from './globals/defaults/endpoints';
 import {updateRouteCoordinatesWithTime} from './misc/coordinatesInterpolation';
 // Type imports
 import type {OsmVertex, OsmVertexGraph} from './pathfinder/osm';
 import type {
   SimulationEndpointGraphInformation,
   SimulationEndpointParticipantCoordinates,
-  SimulationEndpointParticipantInformationRideRequest,
+  SimulationEndpointRideRequestInformation,
+  SimulationEndpointRideRequests,
 } from './globals/types/simulation';
 import type {Coordinates} from './globals/types/coordinates';
 import type {SimulationConfigWithData} from './config/simulationConfigWithData';
@@ -289,15 +291,15 @@ export class Simulation {
     router.use('/matching_services', routerMatchingServers);
     router.use('/blockchain', routerBlockchain);
 
-    router.route('/pause').get((req, res) => {
+    router.route(simulationEndpointRoutes.simulation.pause).get((req, res) => {
       this.pause();
       res.send(this.state);
     });
-    router.route('/run').get((req, res) => {
+    router.route(simulationEndpointRoutes.simulation.run).get((req, res) => {
       this.run();
       res.send(this.state);
     });
-    router.route('/state').get((req, res) => {
+    router.route(simulationEndpointRoutes.simulation.state).get((req, res) => {
       res.send(this.state);
     });
 
@@ -308,30 +310,70 @@ export class Simulation {
 
   generateFrontendRoutes(): express.Router {
     const router = express.Router();
-    router.route('/participants').get((req, res) => {
+    // Global registered routes
+    router
+      .route(simulationEndpointRoutes.json.participantCoordinates)
+      .get((req, res) => {
+        res.json({
+          customers: this.customers.map(a => a.endpointCoordinates),
+          rideProviders: this.rideProviders.map(a => a.endpointCoordinates),
+        } satisfies SimulationEndpointParticipantCoordinates);
+      });
+    router
+      .route(
+        simulationEndpointRoutes.json.participantInformationCustomer(':id')
+      )
+      .get((req, res) => {
+        const customer = this.customers.find(a => a.id === req.params.id);
+        if (customer) {
+          res.json(customer.endpointCustomer);
+          return;
+        }
+        res.status(404);
+      });
+    router
+      .route(
+        simulationEndpointRoutes.json.participantInformationRideProvider(':id')
+      )
+      .get((req, res) => {
+        const rideProvider = this.rideProviders.find(
+          a => a.id === req.params.id
+        );
+        if (rideProvider) {
+          res.json(rideProvider.endpointRideProvider);
+          return;
+        }
+        res.status(404);
+      });
+    router.route(simulationEndpointRoutes.json.rideRequests).get((req, res) => {
       res.json({
-        customers: this.customers.map(a => a.endpointCoordinates),
-        rideProviders: this.rideProviders.map(a => a.endpointCoordinates),
-      } satisfies SimulationEndpointParticipantCoordinates);
+        rideRequests: this.matchingServices
+          .flatMap(a => a.getAuctions())
+          .map(a => a.id),
+      } satisfies SimulationEndpointRideRequests);
     });
-    router.route('/customer/:id').get((req, res) => {
-      const customer = this.customers.find(a => a.id === req.params.id);
-      if (customer) {
-        res.json(customer.endpointCustomer);
-        return;
-      }
-      res.status(404);
-    });
+    router
+      .route(simulationEndpointRoutes.json.rideRequestInformation(':id'))
+      .get((req, res) => {
+        const rideRequests = this.matchingServices.flatMap(a =>
+          a.getAuctions()
+        );
+        const rideRequest = rideRequests.find(a => a.id === req.params.id);
+        if (rideRequest) {
+          res.json({
+            ...rideRequest.request,
+            dropoffLocationCoordinates: rideRequest.request.dropoffLocationReal,
+            id: rideRequest.id,
+            pickupLocationCoordinates: rideRequest.request.pickupLocationReal,
+            type: 'ride_request',
+          } as SimulationEndpointRideRequestInformation);
+          return;
+        }
+        res.status(404);
+      });
+    // TODO Migrate old routes
     router.route('/customers').get((req, res) => {
       res.json({customers: this.customersJson});
-    });
-    router.route('/ride_provider/:id').get((req, res) => {
-      const rideProvider = this.rideProviders.find(a => a.id === req.params.id);
-      if (rideProvider) {
-        res.json(rideProvider.endpointRideProvider);
-        return;
-      }
-      res.status(404);
     });
     router.route('/ride_providers').get((req, res) => {
       res.json({rideProviders: this.rideProvidersJson});
@@ -343,93 +385,85 @@ export class Simulation {
       res.json({matchingServices: this.matchingServicesJson});
     });
     // REMOVE
-    router.route('/ride_requests').get((req, res) => {
+    router.route('/ride_requests_old').get((req, res) => {
       res.json({
         delete: 'delete this',
         rideRequests: this.matchingServices.flatMap(a => a.getAuctions()),
       });
     });
-    router.route('/ride_request/:id').get((req, res) => {
-      const rideRequests = this.matchingServices.flatMap(a => a.getAuctions());
-      const rideRequest = rideRequests.find(a => a.id === req.params.id);
-      if (rideRequest) {
-        res.json({
-          ...rideRequest.request,
-          dropoffLocationCoordinates: rideRequest.request.dropoffLocationReal,
-          id: rideRequest.id,
-          pickupLocationCoordinates: rideRequest.request.pickupLocationReal,
-        } as SimulationEndpointParticipantInformationRideRequest);
-        return;
-      }
-      res.status(404);
-    });
     router.route('/smart_contracts').get((req, res) => {
       res.json({smartContracts: this.rideContractsJson});
     });
     // DEBUG: Created route graph
-    router.route('/graph').get((req, res) => {
-      const geometry: Array<{id: number; geometry: Coordinates[]}> = [];
-      if (this.osmVertexGraph.edges instanceof Function) {
-        for (const [, vertex] of this.osmVertexGraph.vertices) {
-          for (const vertexNeighborId of vertex.neighbors) {
-            const vertexNeighbor =
-              this.osmVertexGraph.vertices.get(vertexNeighborId);
-            if (vertexNeighbor) {
-              geometry.push({
-                geometry: [vertex.coordinates, vertexNeighbor.coordinates],
-                id: -1,
-              });
+    router
+      .route(simulationEndpointRoutes.json.graphInformation)
+      .get((req, res) => {
+        const geometry: Array<{id: number; geometry: Coordinates[]}> = [];
+        if (this.osmVertexGraph.edges instanceof Function) {
+          for (const [, vertex] of this.osmVertexGraph.vertices) {
+            for (const vertexNeighborId of vertex.neighbors) {
+              const vertexNeighbor =
+                this.osmVertexGraph.vertices.get(vertexNeighborId);
+              if (vertexNeighbor) {
+                geometry.push({
+                  geometry: [vertex.coordinates, vertexNeighbor.coordinates],
+                  id: -1,
+                });
+              }
             }
           }
+        } else {
+          for (const [id, a] of this.osmVertexGraph.edges.vertexEdgeIdMap) {
+            geometry.push({geometry: a.geometry, id});
+          }
+          ////console.log(this.osmVertexGraph.edges.idMap);
+          //for (const [idVertexA, a] of this.osmVertexGraph.edges.idMap) {
+          //  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          //  for (const [idVertexB, edgeId] of a) {
+          //    const vertexA = this.osmVertexGraph.vertices.get(idVertexA);
+          //    const vertexB = this.osmVertexGraph.vertices.get(idVertexB);
+          //    if (vertexA === undefined || vertexB === undefined) {
+          //      //console.warn(
+          //      //  `Could not find vertex A ${idVertexA} to vertex B ${idVertexB}`
+          //      //);
+          //      continue;
+          //    }
+          //    edges.push([vertexA.coordinates, vertexB.coordinates]);
+          //  }
+          //}
         }
-      } else {
-        for (const [id, a] of this.osmVertexGraph.edges.vertexEdgeIdMap) {
-          geometry.push({geometry: a.geometry, id});
-        }
-        ////console.log(this.osmVertexGraph.edges.idMap);
-        //for (const [idVertexA, a] of this.osmVertexGraph.edges.idMap) {
-        //  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        //  for (const [idVertexB, edgeId] of a) {
-        //    const vertexA = this.osmVertexGraph.vertices.get(idVertexA);
-        //    const vertexB = this.osmVertexGraph.vertices.get(idVertexB);
-        //    if (vertexA === undefined || vertexB === undefined) {
-        //      //console.warn(
-        //      //  `Could not find vertex A ${idVertexA} to vertex B ${idVertexB}`
-        //      //);
-        //      continue;
-        //    }
-        //    edges.push([vertexA.coordinates, vertexB.coordinates]);
-        //  }
-        //}
-      }
-      res.json({
-        geometry,
-        vertices: Array.from(this.osmVertexGraph.vertices).map(a => ({
-          id: a[0],
-          ...a[1].coordinates,
-        })),
-      } as SimulationEndpointGraphInformation);
-    });
-    router.route('/shortest_path').get(async (req, res) => {
-      const vertices = Array.from(this.osmVertexGraph.vertices);
-      console.log(vertices);
-      const coordinatesPath = [
-        vertices[0][1],
-        vertices[vertices.length - 1][1],
-      ];
-      const shortestPath = await osmnxServerRequest(
-        coordinatesPath[0].coordinates,
-        coordinatesPath[1].coordinates
-      );
-      res.json({
-        coordinatesPath,
-        shortestPath,
-        shortestPathTime:
-          shortestPath.error === null
-            ? updateRouteCoordinatesWithTime(shortestPath.shortest_route_length)
-            : null,
+        res.json({
+          geometry,
+          vertices: Array.from(this.osmVertexGraph.vertices).map(a => ({
+            id: a[0],
+            ...a[1].coordinates,
+          })),
+        } as SimulationEndpointGraphInformation);
       });
-    });
+    router
+      .route(simulationEndpointRoutes.json.shortestPath)
+      .get(async (req, res) => {
+        const vertices = Array.from(this.osmVertexGraph.vertices);
+        console.log(vertices);
+        const coordinatesPath = [
+          vertices[0][1],
+          vertices[vertices.length - 1][1],
+        ];
+        const shortestPath = await osmnxServerRequest(
+          coordinatesPath[0].coordinates,
+          coordinatesPath[1].coordinates
+        );
+        res.json({
+          coordinatesPath,
+          shortestPath,
+          shortestPathTime:
+            shortestPath.error === null
+              ? updateRouteCoordinatesWithTime(
+                  shortestPath.shortest_route_length
+                )
+              : null,
+        });
+      });
     return router;
   }
 }

@@ -135,6 +135,7 @@ export function SearchAppBarToolbar({toggleDrawer}: SearchAppBarElementProps) {
           display: {sm: 'block', xs: 'none'},
           flexGrow: 1,
         }}
+        suppressHydrationWarning
       >
         {intl.formatMessage({id: 'page.home.title'})}
       </Typography>

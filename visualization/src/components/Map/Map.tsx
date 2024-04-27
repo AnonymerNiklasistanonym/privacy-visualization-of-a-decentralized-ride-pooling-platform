@@ -16,7 +16,7 @@ import 'leaflet/dist/leaflet.css';
 // Local imports
 import styles from '@styles/Map.module.scss';
 // > Components
-import ParticipantMarker from './MapObjects/ParticipantMarker';
+import ParticipantMarker from '@components/Map/MapObject/ParticipantMarker';
 // > Styles
 import '@styles/Map.module.scss';
 // Type imports

@@ -3,15 +3,16 @@ import type {Coordinates, CoordinatesAddress} from './coordinates';
 import type {
   GetACarCustomer,
   GetACarParticipant,
+  GetACarParticipantId,
   GetACarParticipantTypes,
   GetACarRideProviderCompany,
   GetACarRideProviderPerson,
 } from './participant';
-import type {GetACarRideRequest} from './services';
+import type {GetACarRideRequest, GetACarRideRequestId} from './services';
 
-export type SimulationEndpointParticipantId = string;
+export type SimulationEndpointParticipantId = GetACarParticipantId;
 
-export type SimulationEndpointRideRequestId = string;
+export type SimulationEndpointRideRequestId = GetACarRideRequestId;
 
 export type SimulationEndpointParticipantTypes = GetACarParticipantTypes;
 
@@ -59,11 +60,12 @@ export interface SimulationEndpointParticipantInformationRideProviderCompany
   extends SimulationEndpointParticipantInformationRideProviderGeneric,
     GetACarRideProviderCompany {}
 
-export interface SimulationEndpointParticipantInformationRideRequest
+export interface SimulationEndpointRideRequestInformation
   extends GetACarRideRequest {
   id: SimulationEndpointRideRequestId;
   pickupLocationCoordinates: CoordinatesAddress;
   dropoffLocationCoordinates: CoordinatesAddress;
+  type: 'ride_request';
 }
 
 export interface SimulationEndpointParticipantCoordinates {
@@ -74,4 +76,8 @@ export interface SimulationEndpointParticipantCoordinates {
 export interface SimulationEndpointGraphInformation {
   vertices: Array<{id: number} & Coordinates>;
   geometry: Array<{id: number; geometry: Array<Coordinates>}>;
+}
+
+export interface SimulationEndpointRideRequests {
+  rideRequests: Array<SimulationEndpointRideRequestId>;
 }

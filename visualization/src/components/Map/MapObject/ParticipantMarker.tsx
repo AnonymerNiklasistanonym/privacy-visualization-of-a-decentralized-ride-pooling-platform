@@ -18,8 +18,8 @@ import type {ReactSetState, ReactState} from '@misc/react';
 import type {
   SimulationEndpointParticipantInformationCustomer,
   SimulationEndpointParticipantInformationRideProvider,
-  SimulationEndpointParticipantInformationRideRequest,
   SimulationEndpointParticipantTypes,
+  SimulationEndpointRideRequestInformation,
 } from '@globals/types/simulation';
 import type {FetchJsonOptions} from '@globals/lib/fetch';
 import type {SimulationEndpointParticipantCoordinatesParticipant} from '@globals/types/simulation';
@@ -54,7 +54,7 @@ export default function ParticipantMarker({
     endpoint: string,
     options?: FetchJsonOptions
   ): Promise<T> =>
-    fetchJson<T>(`${stateBaseUrlSimulation}/${endpoint}`, options);
+    fetchJson<T>(`${stateBaseUrlSimulation}${endpoint}`, options);
   // React states
   // > Fetch additional participant information
   const [customerInformationState, setCustomerInformationState] =
@@ -62,13 +62,14 @@ export default function ParticipantMarker({
   const [rideProviderInformationState, setRideProviderInformationState] =
     useState<null | SimulationEndpointParticipantInformationRideProvider>(null);
   const [rideRequestState, setRideRequestState] =
-    useState<null | SimulationEndpointParticipantInformationRideRequest>(null);
+    useState<null | SimulationEndpointRideRequestInformation>(null);
+  const [statePopupOpen, setStatePopupOpen] = useState<boolean>(false);
 
   const fetchParticipantInformation = () => {
     console.log('fetch', participantType, participantCoordinatesState.id);
     if (participantType === 'customer') {
       fetchJsonSimulation<SimulationEndpointParticipantInformationCustomer>(
-        simulationEndpoints.participantInformationCustomer(
+        simulationEndpoints.json.participantInformationCustomer(
           participantCoordinatesState.id
         )
       )
@@ -76,8 +77,8 @@ export default function ParticipantMarker({
           setCustomerInformationState(newCustomerInformation);
           console.log('Fetched customer', newCustomerInformation);
           if (newCustomerInformation.rideRequest !== undefined) {
-            fetchJsonSimulation<SimulationEndpointParticipantInformationRideRequest>(
-              simulationEndpoints.participantInformationRideRequest(
+            fetchJsonSimulation<SimulationEndpointRideRequestInformation>(
+              simulationEndpoints.json.rideRequestInformation(
                 newCustomerInformation.rideRequest
               )
             )
@@ -96,7 +97,7 @@ export default function ParticipantMarker({
     }
     if (participantType === 'ride_provider') {
       fetchJsonSimulation<SimulationEndpointParticipantInformationRideProvider>(
-        simulationEndpoints.participantInformationRideProvider(
+        simulationEndpoints.json.participantInformationRideProvider(
           participantCoordinatesState.id
         )
       )
@@ -104,8 +105,8 @@ export default function ParticipantMarker({
           setRideProviderInformationState(newRideProviderInformation);
           console.log('Fetched ride provider', newRideProviderInformation);
           if (newRideProviderInformation.rideRequest !== undefined) {
-            fetchJsonSimulation<SimulationEndpointParticipantInformationRideRequest>(
-              simulationEndpoints.participantInformationRideRequest(
+            fetchJsonSimulation<SimulationEndpointRideRequestInformation>(
+              simulationEndpoints.json.rideRequestInformation(
                 newRideProviderInformation.rideRequest
               )
             )
@@ -159,16 +160,19 @@ export default function ParticipantMarker({
           }
         },
         popupclose: () => {
+          setStatePopupOpen(false);
           console.log(`${eventId}popupclose`, participantCoordinatesState.id);
         },
         popupopen: () => {
+          setStatePopupOpen(true);
           console.log(`${eventId}popupopen`, participantCoordinatesState.id);
         },
       }}
     >
       {stateShowTooltip ? (
         <Tooltip direction="bottom" offset={[0, 0]} opacity={1} permanent>
-          {participantType} {participantCoordinatesState.id}
+          {participantType} {participantCoordinatesState.id}{' '}
+          {statePopupOpen ? 'open' : 'closed'}
         </Tooltip>
       ) : (
         <></>
@@ -190,7 +194,7 @@ export default function ParticipantMarker({
           participantType={participantType}
           customerInformationState={customerInformationState}
           rideProviderInformationState={rideProviderInformationState}
-          spectatorState={spectatorState}
+          stateSpectator={spectatorState}
           setStateSpectator={setStateSpectator}
         />
       </Popup>
@@ -202,7 +206,7 @@ export default function ParticipantMarker({
       title: string,
       id: string,
       locationType: 'pickup' | 'dropoff',
-      rideRequest: Readonly<SimulationEndpointParticipantInformationRideRequest>
+      rideRequest: Readonly<SimulationEndpointRideRequestInformation>
     ) => (
       <Popup>
         {title} ({id})
@@ -278,7 +282,7 @@ export default function ParticipantMarker({
       title: string,
       id: string,
       locationType: 'pickup' | 'dropoff',
-      rideRequest: Readonly<SimulationEndpointParticipantInformationRideRequest>
+      rideRequest: Readonly<SimulationEndpointRideRequestInformation>
     ) => (
       <Popup>
         {title} ({id})

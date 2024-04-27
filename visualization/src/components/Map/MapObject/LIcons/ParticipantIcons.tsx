@@ -21,6 +21,7 @@ const iconRideProviderHTMLGray = ReactDOMServer.renderToString(
 );
 
 export const iconCustomer = L.divIcon({
+  className: 'leaflet-div-icon-clean-bg',
   html: iconCustomerHTML,
   iconAnchor: [participantIconSize / 3, participantIconSize / 3],
   iconSize: new L.Point(participantIconSize * 2, participantIconSize * 2),
@@ -28,6 +29,7 @@ export const iconCustomer = L.divIcon({
   tooltipAnchor: [0, 0],
 });
 export const iconRideProvider = L.divIcon({
+  className: 'leaflet-div-icon-clean-bg',
   html: iconRideProviderHTML,
   iconAnchor: [participantIconSize / 3, participantIconSize / 3],
   iconSize: new L.Point(participantIconSize * 2, participantIconSize * 2),

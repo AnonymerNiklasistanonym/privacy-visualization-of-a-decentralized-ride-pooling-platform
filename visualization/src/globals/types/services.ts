@@ -1,7 +1,9 @@
 // This file was copied from the global types directory, do not change!
 
+export type GetACarRideRequestId = string;
+
 export interface GetACarRideRequest {
-  id: string;
+  id: GetACarRideRequestId;
   /** Customer pseudonym. */
   userId: string;
   /** Cloaked h3 hexagon of the real pickup location. */
