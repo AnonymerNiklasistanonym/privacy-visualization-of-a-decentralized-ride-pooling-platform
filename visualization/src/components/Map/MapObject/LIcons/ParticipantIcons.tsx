@@ -4,8 +4,10 @@
 import L from 'leaflet';
 import ReactDOMServer from 'react-dom/server';
 // > Icons
-import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
-import DirectionsWalkIcon from '@mui/icons-material/DirectionsWalk';
+import {
+  DirectionsCar as DirectionsCarIcon,
+  DirectionsWalk as DirectionsWalkIcon,
+} from '@mui/icons-material';
 
 export const participantIconSize = 32;
 

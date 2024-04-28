@@ -2,19 +2,21 @@
 
 // Package imports
 import {useEffect, useState} from 'react';
+import {useIntl} from 'react-intl';
 // > Components
 import {Autocomplete, Box, TextField} from '@mui/material';
 // > Icons
-import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
-import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
-import DirectionsWalkIcon from '@mui/icons-material/DirectionsWalk';
-import GroupIcon from '@mui/icons-material/Group';
-import PublicIcon from '@mui/icons-material/Public';
-import QuestionMarkIcon from '@mui/icons-material/QuestionMark';
-import VerifiedIcon from '@mui/icons-material/Verified';
+import {
+  AdminPanelSettings as AdminPanelSettingsIcon,
+  DirectionsCar as DirectionsCarIcon,
+  DirectionsWalk as DirectionsWalkIcon,
+  Group as GroupIcon,
+  Public as PublicIcon,
+  QuestionMark as QuestionMarkIcon,
+  Verified as VerifiedIcon,
+} from '@mui/icons-material';
 // Type imports
 import type {ReactSetState, ReactState} from '@misc/react';
-import {useIntl} from 'react-intl';
 
 export type TextInputSpectatorOptionTypes =
   | 'error'

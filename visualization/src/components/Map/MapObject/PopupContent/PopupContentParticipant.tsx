@@ -2,8 +2,10 @@
 // > Components
 import {Box, Chip, CircularProgress, Stack, Typography} from '@mui/material';
 // > Icons
-import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
-import DirectionsWalkIcon from '@mui/icons-material/DirectionsWalk';
+import {
+  DirectionsCar as DirectionsCarIcon,
+  DirectionsWalk as DirectionsWalkIcon,
+} from '@mui/icons-material';
 // Local imports
 import ChangeViewButton from './ChangeViewButton';
 import PopupContentCustomer from './PopupContentCustomer';

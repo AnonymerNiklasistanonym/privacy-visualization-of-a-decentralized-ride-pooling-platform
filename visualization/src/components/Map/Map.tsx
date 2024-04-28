@@ -11,8 +11,10 @@ import {
   TileLayer,
 } from 'react-leaflet';
 import {Box} from '@mui/material';
+import {FullscreenControl} from 'react-leaflet-fullscreen';
 // > Styles
 import 'leaflet/dist/leaflet.css';
+import 'react-leaflet-fullscreen/styles.css';
 // Local imports
 import styles from '@styles/Map.module.scss';
 // > Components
@@ -66,6 +68,7 @@ export default function Map({
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
+        <FullscreenControl />
         <LayersControl position="topright">
           <LayersControl.Overlay checked={true} name="Customers">
             <LayerGroup>

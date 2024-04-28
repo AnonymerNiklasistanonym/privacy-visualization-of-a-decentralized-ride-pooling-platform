@@ -2,11 +2,15 @@
 // > Components
 import {Chip, Divider, List, Typography} from '@mui/material';
 // > Icons
-import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
-import PersonIcon from '@mui/icons-material/Person';
-import TravelExploreIcon from '@mui/icons-material/TravelExplore';
+import {
+  DirectionsCar as DirectionsCarIcon,
+  Person as PersonIcon,
+  TravelExplore as TravelExploreIcon,
+} from '@mui/icons-material';
+// Local imports
+import {renderDataElement} from './PopupContentGeneric';
 // Type imports
-import {type DataElement, renderDataElement} from './PopupContentGeneric';
+import type {DataElement} from './PopupContentGeneric';
 import type {SimulationEndpointParticipantInformationCustomer} from '@globals/types/simulation';
 
 export interface PopupContentCustomerProps {

@@ -3,10 +3,12 @@ import {useIntl} from 'react-intl';
 // > Components
 import {Tab, Tabs} from '@mui/material';
 // > Icons
-import ArticleIcon from '@mui/icons-material/Article';
-import MapIcon from '@mui/icons-material/Map';
-import SettingsIcon from '@mui/icons-material/Settings';
-import TableRowsIcon from '@mui/icons-material/TableRows';
+import {
+  Article as ArticleIcon,
+  Map as MapIcon,
+  Settings as SettingsIcon,
+  TableRows as TableRowsIcon,
+} from '@mui/icons-material';
 // Type imports
 import type {ReactElement} from 'react';
 

@@ -3,18 +3,20 @@
 import {DataGrid, GridToolbar} from '@mui/x-data-grid';
 import {Box} from '@mui/material';
 // > Icons
-import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
-import DirectionsWalkIcon from '@mui/icons-material/DirectionsWalk';
-import ErrorIcon from '@mui/icons-material/Error';
-import TravelExploreIcon from '@mui/icons-material/TravelExplore';
-import WebStoriesIcon from '@mui/icons-material/WebStories';
+import {
+  DirectionsCar as DirectionsCarIcon,
+  DirectionsWalk as DirectionsWalkIcon,
+  Error as ErrorIcon,
+  TravelExplore as TravelExploreIcon,
+  WebStories as WebStoriesIcon,
+} from '@mui/icons-material';
 // Type imports
 import type {
   GridColDef,
   GridEventListener,
   GridRowModel,
 } from '@mui/x-data-grid';
-import {
+import type {
   SimulationEndpointParticipantInformationCustomer,
   SimulationEndpointParticipantInformationRideProviderCompany,
   SimulationEndpointParticipantInformationRideProviderPerson,

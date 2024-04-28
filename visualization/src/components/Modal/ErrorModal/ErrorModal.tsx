@@ -11,8 +11,8 @@ import {
   ListSubheader,
   Modal,
 } from '@mui/material';
-import DeleteIcon from '@mui/icons-material/Delete';
-import ErrorIcon from '@mui/icons-material/Error';
+// > Icons
+import {Delete as DeleteIcon, Error as ErrorIcon} from '@mui/icons-material';
 // Type imports
 import {type ErrorModalProps, compareErrorModalContent} from '@misc/modals';
 

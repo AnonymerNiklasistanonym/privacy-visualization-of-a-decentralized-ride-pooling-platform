@@ -20,16 +20,10 @@ export default function TabOverview({}: TabOverviewProps) {
           width: '100%',
         }}
       >
-        <Typography variant="h1" gutterBottom>
+        <Typography variant="h3" gutterBottom>
           GETACAR Platform
         </Typography>
         <Divider />
-        <Typography variant="h2" gutterBottom>
-          h2. Heading
-        </Typography>
-        <Typography variant="h3" gutterBottom>
-          h3. Heading
-        </Typography>
         <Typography variant="h4" gutterBottom>
           h4. Heading
         </Typography>

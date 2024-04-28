@@ -1,18 +1,12 @@
 // Package imports
 // > Components
-import {
-  Box,
-  Chip,
-  Divider,
-  List,
-  ListItem,
-  Tooltip,
-  Typography,
-} from '@mui/material';
+import {Chip, Divider, List, Typography} from '@mui/material';
 // > Icons
-import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
-import PersonIcon from '@mui/icons-material/Person';
-import TravelExploreIcon from '@mui/icons-material/TravelExplore';
+import {
+  DirectionsCar as DirectionsCarIcon,
+  Person as PersonIcon,
+  TravelExplore as TravelExploreIcon,
+} from '@mui/icons-material';
 // Type imports
 import {type DataElement, renderDataElement} from './PopupContentGeneric';
 import type {SimulationEndpointParticipantInformationRideProvider} from '@globals/types/simulation';

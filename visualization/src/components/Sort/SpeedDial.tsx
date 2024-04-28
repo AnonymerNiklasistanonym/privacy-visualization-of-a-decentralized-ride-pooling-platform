@@ -3,13 +3,14 @@
 // Package imports
 import * as React from 'react';
 // > Components
-import {Paper, SpeedDial, SpeedDialAction} from '@mui/material';
+import {Paper, SpeedDial, SpeedDialAction, SpeedDialIcon} from '@mui/material';
 // > Icons
-import FileCopyIcon from '@mui/icons-material/FileCopyOutlined';
-import PrintIcon from '@mui/icons-material/Print';
-import SaveIcon from '@mui/icons-material/Save';
-import ShareIcon from '@mui/icons-material/Share';
-import SpeedDialIcon from '@mui/material/SpeedDialIcon';
+import {
+  FileCopy as FileCopyIcon,
+  Print as PrintIcon,
+  Save as SaveIcon,
+  Share as ShareIcon,
+} from '@mui/icons-material';
 
 const actions = [
   {icon: <FileCopyIcon />, name: 'Copy'},

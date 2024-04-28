@@ -10,21 +10,23 @@ import {
   Box,
   Divider,
   Drawer,
+  IconButton,
+  InputBase,
   List,
   ListItem,
   ListItemButton,
   ListItemIcon,
   ListItemText,
   Toolbar,
+  Typography,
 } from '@mui/material';
 // > Icons
-import IconButton from '@mui/material/IconButton';
-import InboxIcon from '@mui/icons-material/MoveToInbox';
-import InputBase from '@mui/material/InputBase';
-import MailIcon from '@mui/icons-material/Mail';
-import MenuIcon from '@mui/icons-material/Menu';
-import SearchIcon from '@mui/icons-material/Search';
-import Typography from '@mui/material/Typography';
+import {
+  Inbox as InboxIcon,
+  Mail as MailIcon,
+  Menu as MenuIcon,
+  Search as SearchIcon,
+} from '@mui/icons-material';
 // Local imports
 // > Components
 import SearchAppBarContainer from './SearchAppBarContainer';
