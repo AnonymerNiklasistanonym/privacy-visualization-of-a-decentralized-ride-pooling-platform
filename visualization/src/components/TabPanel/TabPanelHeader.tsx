@@ -11,13 +11,7 @@ import {
 } from '@mui/icons-material';
 // Type imports
 import type {ReactElement} from 'react';
-
-function a11yProps(index: number) {
-  return {
-    'aria-controls': `simple-tabpanel-${index}`,
-    id: `simple-tab-${index}`,
-  };
-}
+import type {ReactState} from '@misc/react';
 
 interface TabPanelInformation {
   labelIdI18n: string;
@@ -49,32 +43,24 @@ const tabPanelInformation: ReadonlyArray<TabPanelInformation> = [
 ];
 
 export interface TabPanelHeaderProps {
-  stateValue: number;
-  handleChange: (event: React.SyntheticEvent, newValue: number) => void;
+  stateTabIndex: ReactState<number>;
+  handleChangeTabIndex: (event: React.SyntheticEvent, newValue: number) => void;
 }
 
 export default function TabPanelHeader({
-  stateValue,
-  handleChange,
+  stateTabIndex,
+  handleChangeTabIndex,
 }: TabPanelHeaderProps) {
   const intl = useIntl();
   return (
-    <>
-      <Tabs
-        value={stateValue}
-        onChange={handleChange}
-        aria-label="basic tabs example"
-        centered
-      >
-        {tabPanelInformation.map(a => (
-          <Tab
-            key={a.index}
-            label={intl.formatMessage({id: a.labelIdI18n})}
-            icon={a.icon}
-            {...a11yProps(a.index)}
-          />
-        ))}
-      </Tabs>
-    </>
+    <Tabs value={stateTabIndex} onChange={handleChangeTabIndex} centered>
+      {tabPanelInformation.map(a => (
+        <Tab
+          key={a.index}
+          label={intl.formatMessage({id: a.labelIdI18n})}
+          icon={a.icon}
+        />
+      ))}
+    </Tabs>
   );
 }

@@ -10,7 +10,6 @@ import {showErrorBuilder} from '@misc/modals';
 import Button from '@components/Button';
 import Container from '@components/Container';
 import Map from '@components/Map';
-import SnackbarSpectatorChange from '@components/Snackbar/SnackbarSpectatorChange';
 import TableDebugData from '@components/Table/TableDebugData';
 import TextInputSpectator from '@components/TextInput/TextInputSpectator';
 // > Globals
@@ -20,6 +19,7 @@ import {
   simulationEndpoints,
 } from '@globals/defaults/endpoints';
 // Type imports
+import type {ReactSetState, ReactState} from '@misc/react';
 import type {
   SimulationEndpointGraphInformation,
   SimulationEndpointParticipantCoordinates,
@@ -37,16 +37,25 @@ import type {TextInputSpectatorOptionStateType} from '@components/TextInput/Text
 
 export interface TabMapProps
   extends SettingsMapPropsStates,
-    ErrorModalPropsErrorBuilder {}
+    ErrorModalPropsErrorBuilder {
+  stateSpectator: ReactState<string>;
+  setStateSpectator: ReactSetState<string>;
+  stateSelectedParticipant: ReactState<string | undefined>;
+  setStateSelectedParticipant: ReactSetState<string | undefined>;
+}
 
 export default function TabMap({
-  stateSettingsMapShowTooltips,
-  stateSettingsMapOpenPopupOnHover,
-  stateSettingsMapBaseUrlPathfinder,
-  stateSettingsMapBaseUrlSimulation,
-  stateErrorModalContent,
+  setStateSpectator,
   setStateErrorModalContent,
   setStateErrorModalOpen,
+  stateSpectator,
+  stateErrorModalContent,
+  stateSettingsMapBaseUrlPathfinder,
+  stateSettingsMapBaseUrlSimulation,
+  stateSettingsMapOpenPopupOnHover,
+  stateSettingsMapShowTooltips,
+  stateSelectedParticipant,
+  setStateSelectedParticipant,
 }: TabMapProps) {
   const fetchJsonSimulation = async <T,>(
     endpoint: string,
@@ -66,8 +75,6 @@ export default function TabMap({
     stateErrorModalContent,
   });
   // React states
-  const [snackbarOpenState, setSnackbarOpenState] = useState(false);
-  const [spectatorState, setSpectatorState] = useState('everything');
   const defaultOptions: TextInputSpectatorOptionStateType = [
     {
       label: 'everything',
@@ -90,24 +97,24 @@ export default function TabMap({
       type: 'match',
     },
   ];
-  const [selectOptionsState, setSelectOptionsState] = useState(defaultOptions);
+  const [stateSelectOptions, setSelectOptionsState] = useState(defaultOptions);
   const [stateDebugData, setStateDebugData] = useState<DebugData>({
     customers: [],
     rideProviders: [],
     rideRequests: [],
     smartContracts: [],
   });
-  const [participantsState, setParticipantsState] =
+  const [stateParticipants, setParticipantsState] =
     useState<SimulationEndpointParticipantCoordinates>({
       customers: [],
       rideProviders: [],
     });
-  const [graphState, setGraphState] =
+  const [stateGraph, setGraphState] =
     useState<SimulationEndpointGraphInformation>({
       geometry: [],
       vertices: [],
     });
-  const [graphPathfinderState, setPathfinderGraphState] =
+  const [stateGraphPathfinder, setPathfinderGraphState] =
     useState<PathfinderEndpointGraphInformation>({
       edges: [],
       vertices: [],
@@ -198,11 +205,6 @@ export default function TabMap({
 
   // React effects
   useEffect(() => {
-    // Run this when any listed state dependency changes
-    console.log('Spectator changed:', spectatorState);
-    setSnackbarOpenState(true);
-  }, [spectatorState]);
-  useEffect(() => {
     const interval = setInterval(() => {
       fetchJsonSimulation<SimulationEndpointParticipantCoordinates>(
         simulationEndpoints.json.participantCoordinates
@@ -211,12 +213,12 @@ export default function TabMap({
           setParticipantsState(data);
           setSelectOptionsState([
             ...defaultOptions,
-            ...(participantsState.customers.map(a => ({
+            ...(stateParticipants.customers.map(a => ({
               label: `${a.id}`,
               translationId: 'getacar.spectator.participant.customerid',
               type: 'customer',
             })) as TextInputSpectatorOptionStateType),
-            ...(participantsState.rideProviders.map(a => ({
+            ...(stateParticipants.rideProviders.map(a => ({
               label: `${a.id}`,
               translationId: 'getacar.spectator.participant.rideProviderid',
               type: 'rideProvider',
@@ -232,24 +234,26 @@ export default function TabMap({
     };
   });
   const switchSpectator = (newSpectator: string) => {
-    setSpectatorState(newSpectator);
+    setStateSpectator(newSpectator);
   };
   return (
     <>
       <Container>
         <TextInputSpectator
-          optionsState={selectOptionsState}
-          spectatorState={spectatorState}
-          setSpectatorState={setSpectatorState}
+          stateOptions={stateSelectOptions}
+          stateSpectator={stateSpectator}
+          setStateSpectator={setStateSpectator}
         />
 
         <Map
-          participantsState={participantsState}
+          stateParticipants={stateParticipants}
           startPos={{lat: 48.7784485, long: 9.1800132, zoom: 11}}
-          spectatorState={spectatorState}
-          setSpectatorState={setSpectatorState}
-          graphState={graphState}
-          graphPathfinderState={graphPathfinderState}
+          stateSpectator={stateSpectator}
+          setStateSpectator={setStateSpectator}
+          stateSelectedParticipant={stateSelectedParticipant}
+          setStateSelectedParticipant={setStateSelectedParticipant}
+          stateGraph={stateGraph}
+          stateGraphPathfinder={stateGraphPathfinder}
           stateSettingsMapShowTooltips={stateSettingsMapShowTooltips}
           stateSettingsMapOpenPopupOnHover={stateSettingsMapOpenPopupOnHover}
           stateSettingsMapBaseUrlPathfinder={stateSettingsMapBaseUrlPathfinder}
@@ -357,11 +361,6 @@ export default function TabMap({
           />
         </Box>
       </Container>
-      <SnackbarSpectatorChange
-        openState={snackbarOpenState}
-        textState={spectatorState}
-        setStateOpen={setSnackbarOpenState}
-      />
     </>
   );
 }

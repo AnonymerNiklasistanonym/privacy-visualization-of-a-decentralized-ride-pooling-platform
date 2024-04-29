@@ -1,7 +1,7 @@
 'use client';
 
 // Package imports
-import {useState} from 'react';
+import {useEffect, useState} from 'react';
 // > Components
 import {Box, ButtonGroup, Chip, Divider, Typography} from '@mui/material';
 // > Globals
@@ -10,6 +10,7 @@ import {baseUrlPathfinder, baseUrlSimulation} from '@globals/defaults/urls';
 // > Components
 import Button from '@components/Button';
 import ErrorModal from '@components/Modal/ErrorModal';
+import SnackbarContentChange from '@components/Snackbar/SnackbarContentChange';
 import TabBlockchain from '@components/Tab/TabBlockchain';
 import TabMap from '@components/Tab/TabMap';
 import TabOverview from '@components/Tab/TabOverview';
@@ -53,14 +54,14 @@ export default function TabPanel({
   locale,
   messages,
 }: PropsWithChildren<TabPanelProps>) {
-  // React states
+  // React: States
   // > Error Modal
   const [stateErrorModalOpen, setStateErrorModalOpen] = useState(false);
   const [stateErrorModalContent, setStateErrorModalContent] = useState<
     ErrorModalContentElement[]
   >([]);
   // > Tabpanel
-  const [value, setValue] = useState(1);
+  const [stateTabIndex, setStateTabIndex] = useState(1);
   // > Settings
   const [stateSettingsMapShowTooltips, setStateSettingsMapShowTooltips] =
     useState(false);
@@ -73,21 +74,46 @@ export default function TabPanel({
     setStateSettingsMapBaseUrlSimulation,
   ] = useState(baseUrlSimulation);
   const [stateOpenPopupOnHover, setStateOpenPopupOnHover] = useState(false);
-  // React change handlers
-  const handleChange = (event: React.SyntheticEvent, newValue: number) => {
-    setValue(newValue);
-  };
+  // > Snackbar
+  const [stateSnackbarSpectatorOpen, setStateSnackbarSpectatorOpen] =
+    useState(false);
+  const [
+    stateSnackbarSelectedParticipantOpen,
+    setStateSnackbarSelectedParticipantOpen,
+  ] = useState(false);
+  // > Global States
+  const [stateSpectator, setStateSpectator] = useState('everything');
+  const [stateSelectedParticipant, setStateSelectedParticipant] = useState<
+    string | undefined
+  >(undefined);
+
+  // React: State change listeners
+  useEffect(() => {
+    // Run this when any listed state dependency changes
+    console.log('Spectator changed:', stateSpectator);
+    setStateSnackbarSpectatorOpen(true);
+  }, [stateSpectator, setStateSnackbarSpectatorOpen]);
+  useEffect(() => {
+    // Run this when any listed state dependency changes
+    console.log('Selected participant changed:', stateSelectedParticipant);
+    setStateSnackbarSelectedParticipantOpen(true);
+  }, [stateSelectedParticipant, setStateSnackbarSelectedParticipantOpen]);
 
   return (
     <TabPanelContainer locale={locale} messages={messages}>
       <Box sx={{width: '100%'}}>
         <Box sx={{borderBottom: 1, borderColor: 'divider'}}>
-          <TabPanelHeader stateValue={value} handleChange={handleChange} />
+          <TabPanelHeader
+            stateTabIndex={stateTabIndex}
+            handleChangeTabIndex={(event, newTabIndex) =>
+              setStateTabIndex(newTabIndex)
+            }
+          />
         </Box>
-        <CustomTabPanel value={value} index={0}>
+        <CustomTabPanel value={stateTabIndex} index={0}>
           <TabOverview />
         </CustomTabPanel>
-        <CustomTabPanel value={value} index={1}>
+        <CustomTabPanel value={stateTabIndex} index={1}>
           <TabMap
             stateSettingsMapShowTooltips={stateSettingsMapShowTooltips}
             stateSettingsMapOpenPopupOnHover={stateOpenPopupOnHover}
@@ -100,12 +126,16 @@ export default function TabPanel({
             stateErrorModalContent={stateErrorModalContent}
             setStateErrorModalOpen={setStateErrorModalOpen}
             setStateErrorModalContent={setStateErrorModalContent}
+            stateSpectator={stateSpectator}
+            setStateSpectator={setStateSpectator}
+            stateSelectedParticipant={stateSelectedParticipant}
+            setStateSelectedParticipant={setStateSelectedParticipant}
           />
         </CustomTabPanel>
-        <CustomTabPanel value={value} index={2}>
+        <CustomTabPanel value={stateTabIndex} index={2}>
           <TabBlockchain />
         </CustomTabPanel>
-        <CustomTabPanel value={value} index={3}>
+        <CustomTabPanel value={stateTabIndex} index={3}>
           <TabSettings
             stateSettingsMapShowTooltips={stateSettingsMapShowTooltips}
             setStateSettingsMapShowTooltips={setStateSettingsMapShowTooltips}
@@ -149,6 +179,23 @@ export default function TabPanel({
         setStateErrorModalContent={setStateErrorModalContent}
         stateErrorModalContent={stateErrorModalContent}
         stateErrorModalOpen={stateErrorModalOpen}
+      />
+      <SnackbarContentChange
+        stateOpen={stateSnackbarSpectatorOpen}
+        stateContent={stateSpectator}
+        setStateOpen={setStateSnackbarSpectatorOpen}
+        handleChangeStateContent={a => `Changed spectator to ${a}`}
+      />
+      <SnackbarContentChange
+        stateOpen={stateSnackbarSelectedParticipantOpen}
+        stateContent={stateSelectedParticipant}
+        setStateOpen={setStateSnackbarSelectedParticipantOpen}
+        handleChangeStateContent={a =>
+          a === undefined
+            ? 'No participant selected any more'
+            : `Changed selected participant to ${a}`
+        }
+        bottomOffset={50}
       />
     </TabPanelContainer>
   );

@@ -36,15 +36,15 @@ export type TextInputSpectatorOptionStateType = ReactState<
 >;
 
 export interface TextInputSpectatorProps {
-  optionsState: TextInputSpectatorOptionStateType;
-  spectatorState: ReactState<string>;
-  setSpectatorState: ReactSetState<string>;
+  stateOptions: TextInputSpectatorOptionStateType;
+  stateSpectator: ReactState<string>;
+  setStateSpectator: ReactSetState<string>;
 }
 
 export default function TextInputSpectator({
-  optionsState,
-  spectatorState,
-  setSpectatorState,
+  stateOptions: optionsState,
+  stateSpectator: spectatorState,
+  setStateSpectator: setSpectatorState,
 }: TextInputSpectatorProps) {
   const getCurrentValue = () =>
     optionsState.find(a => a.label === spectatorState) ?? {

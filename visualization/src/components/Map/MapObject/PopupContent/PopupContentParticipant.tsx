@@ -20,18 +20,18 @@ import type {
 } from '@globals/types/simulation';
 
 export interface PopupContentParticipantProps {
-  participantCoordinatesState: ReactState<SimulationEndpointParticipantCoordinatesParticipant>;
-  customerInformationState: ReactState<null | SimulationEndpointParticipantInformationCustomer>;
-  rideProviderInformationState: ReactState<null | SimulationEndpointParticipantInformationRideProvider>;
+  stateParticipantCoordinates: ReactState<SimulationEndpointParticipantCoordinatesParticipant>;
+  stateCustomerInformation: ReactState<null | SimulationEndpointParticipantInformationCustomer>;
+  stateRideProviderInformation: ReactState<null | SimulationEndpointParticipantInformationRideProvider>;
   stateSpectator: ReactState<string>;
   setStateSpectator: ReactSetState<string>;
   participantType: SimulationEndpointParticipantTypes;
 }
 
 export default function PopupContentParticipant({
-  participantCoordinatesState,
-  customerInformationState,
-  rideProviderInformationState,
+  stateParticipantCoordinates: participantCoordinatesState,
+  stateCustomerInformation: customerInformationState,
+  stateRideProviderInformation: rideProviderInformationState,
   stateSpectator,
   setStateSpectator,
   participantType,

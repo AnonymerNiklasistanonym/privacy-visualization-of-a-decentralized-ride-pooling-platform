@@ -26,14 +26,16 @@ import type {SimulationEndpointParticipantCoordinatesParticipant} from '@globals
 
 interface ParticipantMarkerProps {
   /** The participant ID and current coordinates */
-  participantCoordinatesState: ReactState<SimulationEndpointParticipantCoordinatesParticipant>;
+  stateParticipantCoordinates: ReactState<SimulationEndpointParticipantCoordinatesParticipant>;
   /** The participant ID and current coordinates */
   participantType: SimulationEndpointParticipantTypes;
   setStateSpectator: ReactSetState<string>;
-  spectatorState: ReactState<string>;
+  stateSpectator: ReactState<string>;
   stateOpenPopupOnHover: ReactState<boolean>;
   stateShowTooltip: ReactState<boolean>;
   stateBaseUrlSimulation: ReactState<string>;
+  stateSelectedParticipant: ReactState<string | undefined>;
+  setStateSelectedParticipant: ReactSetState<string | undefined>;
 }
 
 /**
@@ -42,39 +44,42 @@ interface ParticipantMarkerProps {
  * The displayed content changes depending on who the current spectator is.
  */
 export default function ParticipantMarker({
-  participantCoordinatesState,
-  spectatorState,
+  stateParticipantCoordinates,
+  stateSpectator,
   setStateSpectator,
   participantType,
   stateShowTooltip,
   stateOpenPopupOnHover,
   stateBaseUrlSimulation,
+  stateSelectedParticipant,
+  setStateSelectedParticipant,
 }: ParticipantMarkerProps) {
   const fetchJsonSimulation = async <T,>(
     endpoint: string,
     options?: FetchJsonOptions
   ): Promise<T> =>
     fetchJson<T>(`${stateBaseUrlSimulation}${endpoint}`, options);
-  // React states
+  // React: States
   // > Fetch additional participant information
-  const [customerInformationState, setCustomerInformationState] =
+  const [stateCustomerInformation, setStateCustomerInformation] =
     useState<null | SimulationEndpointParticipantInformationCustomer>(null);
-  const [rideProviderInformationState, setRideProviderInformationState] =
+  const [stateRideProviderInformation, setStateRideProviderInformation] =
     useState<null | SimulationEndpointParticipantInformationRideProvider>(null);
-  const [rideRequestState, setRideRequestState] =
+  const [stateRideRequest, setStateRideRequest] =
     useState<null | SimulationEndpointRideRequestInformation>(null);
+  // > Keep track if popup is open
   const [statePopupOpen, setStatePopupOpen] = useState<boolean>(false);
 
   const fetchParticipantInformation = () => {
-    console.log('fetch', participantType, participantCoordinatesState.id);
+    console.log('fetch', participantType, stateParticipantCoordinates.id);
     if (participantType === 'customer') {
       fetchJsonSimulation<SimulationEndpointParticipantInformationCustomer>(
         simulationEndpoints.json.participantInformationCustomer(
-          participantCoordinatesState.id
+          stateParticipantCoordinates.id
         )
       )
         .then(newCustomerInformation => {
-          setCustomerInformationState(newCustomerInformation);
+          setStateCustomerInformation(newCustomerInformation);
           console.log('Fetched customer', newCustomerInformation);
           if (newCustomerInformation.rideRequest !== undefined) {
             fetchJsonSimulation<SimulationEndpointRideRequestInformation>(
@@ -83,7 +88,7 @@ export default function ParticipantMarker({
               )
             )
               .then(newRideRequestInformation => {
-                setRideRequestState(newRideRequestInformation);
+                setStateRideRequest(newRideRequestInformation);
                 console.log('Fetched rideRequest', newRideRequestInformation);
               })
               .catch(err => {
@@ -98,11 +103,11 @@ export default function ParticipantMarker({
     if (participantType === 'ride_provider') {
       fetchJsonSimulation<SimulationEndpointParticipantInformationRideProvider>(
         simulationEndpoints.json.participantInformationRideProvider(
-          participantCoordinatesState.id
+          stateParticipantCoordinates.id
         )
       )
         .then(newRideProviderInformation => {
-          setRideProviderInformationState(newRideProviderInformation);
+          setStateRideProviderInformation(newRideProviderInformation);
           console.log('Fetched ride provider', newRideProviderInformation);
           if (newRideProviderInformation.rideRequest !== undefined) {
             fetchJsonSimulation<SimulationEndpointRideRequestInformation>(
@@ -111,7 +116,7 @@ export default function ParticipantMarker({
               )
             )
               .then(newRideRequestInformation => {
-                setRideRequestState(newRideRequestInformation);
+                setStateRideRequest(newRideRequestInformation);
               })
               .catch(err => {
                 console.error(err);
@@ -128,22 +133,23 @@ export default function ParticipantMarker({
 
   const marker = (
     <Marker
-      key={`customer_${participantCoordinatesState.id}`}
+      key={`customer_${stateParticipantCoordinates.id}`}
       position={[
-        participantCoordinatesState.lat,
-        participantCoordinatesState.long,
+        stateParticipantCoordinates.lat,
+        stateParticipantCoordinates.long,
       ]}
       icon={participantType === 'customer' ? iconCustomer : iconRideProvider}
       eventHandlers={{
         click: () => {
-          console.log(`${eventId}click`, participantCoordinatesState.id);
+          console.log(`${eventId}click`, stateParticipantCoordinates.id);
+          setStateSelectedParticipant(stateParticipantCoordinates.id);
           fetchParticipantInformation();
         },
         loading: () => {
-          console.log(`${eventId}loading`, participantCoordinatesState.id);
+          console.log(`${eventId}loading`, stateParticipantCoordinates.id);
         },
         mouseout: e => {
-          console.log(`${eventId}mouseout`, participantCoordinatesState.id);
+          console.log(`${eventId}mouseout`, stateParticipantCoordinates.id);
           //stop();
           if (stateOpenPopupOnHover) {
             setTimeout(() => {
@@ -152,26 +158,20 @@ export default function ParticipantMarker({
           }
         },
         mouseover: e => {
-          console.log(`${eventId}mouseover`, participantCoordinatesState.id);
+          console.log(`${eventId}mouseover`, stateParticipantCoordinates.id);
           //start(e);
           if (stateOpenPopupOnHover) {
             e.target.openPopup();
             fetchParticipantInformation();
           }
         },
-        popupclose: () => {
-          setStatePopupOpen(false);
-          console.log(`${eventId}popupclose`, participantCoordinatesState.id);
-        },
-        popupopen: () => {
-          setStatePopupOpen(true);
-          console.log(`${eventId}popupopen`, participantCoordinatesState.id);
-        },
+        popupclose: () => setStatePopupOpen(false),
+        popupopen: () => setStatePopupOpen(true),
       }}
     >
       {stateShowTooltip ? (
         <Tooltip direction="bottom" offset={[0, 0]} opacity={1} permanent>
-          {participantType} {participantCoordinatesState.id}{' '}
+          {participantType} {stateParticipantCoordinates.id}{' '}
           {statePopupOpen ? 'open' : 'closed'}
         </Tooltip>
       ) : (
@@ -182,7 +182,7 @@ export default function ParticipantMarker({
           click: e => {
             console.log(
               `participant marker popup clicked ${participantType}`,
-              participantCoordinatesState,
+              stateParticipantCoordinates,
               e
             );
           },
@@ -190,18 +190,20 @@ export default function ParticipantMarker({
         interactive
       >
         <PopupContentParticipant
-          participantCoordinatesState={participantCoordinatesState}
+          stateParticipantCoordinates={stateParticipantCoordinates}
           participantType={participantType}
-          customerInformationState={customerInformationState}
-          rideProviderInformationState={rideProviderInformationState}
-          stateSpectator={spectatorState}
+          stateCustomerInformation={stateCustomerInformation}
+          stateRideProviderInformation={stateRideProviderInformation}
+          stateSpectator={stateSpectator}
           setStateSpectator={setStateSpectator}
         />
       </Popup>
     </Marker>
   );
-  if (rideRequestState !== null) {
-    const rideRequestHighlight = spectatorState === rideRequestState.userId;
+  const isRelevantParticipant =
+    stateSelectedParticipant === stateParticipantCoordinates.id;
+  if (stateRideRequest !== null && isRelevantParticipant) {
+    const rideRequestHighlight = stateSpectator === stateRideRequest.userId;
     const getPopupReal = (
       title: string,
       id: string,
@@ -215,7 +217,7 @@ export default function ParticipantMarker({
             Pickup location: {rideRequest.pickupLocationCoordinates.address}
           </li>
           <li
-            key={`ride_request_${rideRequestState.id}_${locationType}_popup_dropoff`}
+            key={`ride_request_${stateRideRequest.id}_${locationType}_popup_dropoff`}
           >
             Dropoff location: {rideRequest.dropoffLocationCoordinates.address}
           </li>
@@ -226,18 +228,18 @@ export default function ParticipantMarker({
       <>
         <Circle
           center={{
-            lat: rideRequestState.pickupLocationCoordinates.lat,
-            lng: rideRequestState.pickupLocationCoordinates.long,
+            lat: stateRideRequest.pickupLocationCoordinates.lat,
+            lng: stateRideRequest.pickupLocationCoordinates.long,
           }}
           color={rideRequestHighlight ? 'red' : 'blue'}
           fillColor={rideRequestHighlight ? 'red' : 'blue'}
           radius={rideRequestHighlight ? 400 : 50}
-          key={`ride_request_${rideRequestState.id}_pickup`}
+          key={`ride_request_${stateRideRequest.id}_pickup`}
           eventHandlers={{
             click: e => {
               console.log(
                 'click ride request pickup circle',
-                rideRequestState,
+                stateRideRequest,
                 e
               );
             },
@@ -245,25 +247,25 @@ export default function ParticipantMarker({
         >
           {getPopupReal(
             'Ride request pickup location',
-            rideRequestState.id,
+            stateRideRequest.id,
             'pickup',
-            rideRequestState
+            stateRideRequest
           )}
         </Circle>
         <Circle
           center={{
-            lat: rideRequestState.dropoffLocationCoordinates.lat,
-            lng: rideRequestState.dropoffLocationCoordinates.long,
+            lat: stateRideRequest.dropoffLocationCoordinates.lat,
+            lng: stateRideRequest.dropoffLocationCoordinates.long,
           }}
           color={rideRequestHighlight ? 'green' : 'blue'}
           fillColor={rideRequestHighlight ? 'green' : 'blue'}
           radius={rideRequestHighlight ? 400 : 50}
-          key={`ride_request_${rideRequestState.id}_dropoff`}
+          key={`ride_request_${stateRideRequest.id}_dropoff`}
           eventHandlers={{
             click: e => {
               console.log(
                 'click ride request dropoff circle',
-                rideRequestState,
+                stateRideRequest,
                 e
               );
             },
@@ -271,9 +273,9 @@ export default function ParticipantMarker({
         >
           {getPopupReal(
             'Ride request dropoff location',
-            rideRequestState.id,
+            stateRideRequest.id,
             'dropoff',
-            rideRequestState
+            stateRideRequest
           )}
         </Circle>
       </>
@@ -291,7 +293,7 @@ export default function ParticipantMarker({
             Pickup location: {rideRequest.pickupLocationCoordinates.address}
           </li>
           <li
-            key={`ride_request_${rideRequestState.id}_${locationType}_cloaked_popup_dropoff`}
+            key={`ride_request_${stateRideRequest.id}_${locationType}_cloaked_popup_dropoff`}
           >
             Dropoff location: {rideRequest.dropoffLocationCoordinates.address}
           </li>
@@ -301,25 +303,25 @@ export default function ParticipantMarker({
     const polygons = (
       <>
         <Polygon
-          positions={getH3Polygon(rideRequestState.pickupLocation)}
-          key={`ride_request_${rideRequestState.id}_pickup_polygon`}
+          positions={getH3Polygon(stateRideRequest.pickupLocation)}
+          key={`ride_request_${stateRideRequest.id}_pickup_polygon`}
         >
           {getPopupCloaked(
             'Ride request pickup location (cloaked)',
-            rideRequestState.id,
+            stateRideRequest.id,
             'pickup',
-            rideRequestState
+            stateRideRequest
           )}
         </Polygon>
         <Polygon
-          positions={getH3Polygon(rideRequestState.dropoffLocation)}
-          key={`ride_request_${rideRequestState.id}_dropoff_polygon`}
+          positions={getH3Polygon(stateRideRequest.dropoffLocation)}
+          key={`ride_request_${stateRideRequest.id}_dropoff_polygon`}
         >
           {getPopupCloaked(
             'Ride request dropoff location (cloaked)',
-            rideRequestState.id,
+            stateRideRequest.id,
             'dropoff',
-            rideRequestState
+            stateRideRequest
           )}
         </Polygon>
       </>
@@ -328,18 +330,18 @@ export default function ParticipantMarker({
       <>
         <Circle
           center={{
-            lat: participantCoordinatesState.lat,
-            lng: participantCoordinatesState.long,
+            lat: stateParticipantCoordinates.lat,
+            lng: stateParticipantCoordinates.long,
           }}
           color={'green'}
           fillColor={'green'}
           radius={participantIconSize / 2}
-          key={`participant_position_${participantCoordinatesState.id}`}
+          key={`participant_position_${stateParticipantCoordinates.id}`}
         />
         <Marker
           position={[
-            participantCoordinatesState.lat,
-            participantCoordinatesState.long,
+            stateParticipantCoordinates.lat,
+            stateParticipantCoordinates.long,
           ]}
         >
           <Popup>
