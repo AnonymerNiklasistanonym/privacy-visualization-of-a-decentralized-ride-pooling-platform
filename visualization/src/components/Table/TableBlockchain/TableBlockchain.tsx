@@ -33,6 +33,8 @@ export default function TableBlockchain({
   setStateSpectator,
   stateSelectedParticipant,
   stateSpectator,
+  setStateSelectedRideRequest,
+  stateSelectedRideRequest,
 }: TableBlockchainProps) {
   const showError = showErrorBuilder({
     setStateErrorModalContent,
@@ -90,6 +92,8 @@ export default function TableBlockchain({
             setStateSpectator={setStateSpectator}
             stateSelectedParticipant={stateSelectedParticipant}
             stateSpectator={stateSpectator}
+            setStateSelectedRideRequest={setStateSelectedRideRequest}
+            stateSelectedRideRequest={stateSelectedRideRequest}
           />
         ))}
       </List>

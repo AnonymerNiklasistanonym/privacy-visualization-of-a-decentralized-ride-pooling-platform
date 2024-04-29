@@ -44,8 +44,9 @@ interface ParticipantMarkerProps
   stateBaseUrlSimulation: ReactState<string>;
 }
 
-const colorActiveCustomer = 'green';
-const colorActiveRideProvider = 'blue';
+// TODO
+//const colorActiveCustomer = 'green';
+//const colorActiveRideProvider = 'blue';
 const rideRequestColor = 'blue';
 
 /**

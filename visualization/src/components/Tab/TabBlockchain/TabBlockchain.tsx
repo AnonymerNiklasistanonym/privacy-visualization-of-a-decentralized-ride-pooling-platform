@@ -27,6 +27,8 @@ export default function TabBlockchain({
   setStateSpectator,
   stateSelectedParticipant,
   stateSpectator,
+  setStateSelectedRideRequest,
+  stateSelectedRideRequest,
 }: TabBlockchainProps) {
   return (
     <Box display="flex" justifyContent="center">
@@ -54,6 +56,8 @@ export default function TabBlockchain({
           setStateSpectator={setStateSpectator}
           stateSelectedParticipant={stateSelectedParticipant}
           stateSpectator={stateSpectator}
+          setStateSelectedRideRequest={setStateSelectedRideRequest}
+          stateSelectedRideRequest={stateSelectedRideRequest}
         />
       </Box>
     </Box>
