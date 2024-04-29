@@ -7,18 +7,33 @@ import {Box, Divider, Typography} from '@mui/material';
 // > Components
 import TableBlockchain from '@components/Table/TableBlockchain';
 // Type imports
+import type {ErrorModalPropsErrorBuilder} from '@misc/modals';
+import type {GlobalStates} from '@misc/globalStates';
 import type {SettingsBlockchainPropsStates} from '@misc/settings';
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface TabBlockchainProps extends SettingsBlockchainPropsStates {}
+export interface TabBlockchainProps
+  extends SettingsBlockchainPropsStates,
+    ErrorModalPropsErrorBuilder,
+    GlobalStates {}
 
 // eslint-disable-next-line no-empty-pattern
-export default function TabBlockchain({}: TabBlockchainProps) {
+export default function TabBlockchain({
+  stateSettingsMapBaseUrlSimulation,
+  stateErrorModalContent,
+  setStateErrorModalOpen,
+  setStateErrorModalContent,
+  stateSettingsMapUpdateRateInMs,
+  setStateSelectedParticipant,
+  setStateSpectator,
+  stateSelectedParticipant,
+  stateSpectator,
+}: TabBlockchainProps) {
   return (
     <Box display="flex" justifyContent="center">
       <Box
         sx={{
-          maxWidth: 500,
+          maxWidth: 800,
+          minHeight: '50%',
           width: '100%',
         }}
       >
@@ -26,7 +41,20 @@ export default function TabBlockchain({}: TabBlockchainProps) {
           Public Smart Contracts
         </Typography>
         <Divider />
-        <TableBlockchain />
+        <Typography variant="body1" gutterBottom>
+          TODO: Add pagination and don`t fetch all of them at once
+        </Typography>
+        <TableBlockchain
+          stateSettingsMapBaseUrlSimulation={stateSettingsMapBaseUrlSimulation}
+          stateErrorModalContent={stateErrorModalContent}
+          setStateErrorModalOpen={setStateErrorModalOpen}
+          setStateErrorModalContent={setStateErrorModalContent}
+          stateSettingsMapUpdateRateInMs={stateSettingsMapUpdateRateInMs}
+          setStateSelectedParticipant={setStateSelectedParticipant}
+          setStateSpectator={setStateSpectator}
+          stateSelectedParticipant={stateSelectedParticipant}
+          stateSpectator={stateSpectator}
+        />
       </Box>
     </Box>
   );

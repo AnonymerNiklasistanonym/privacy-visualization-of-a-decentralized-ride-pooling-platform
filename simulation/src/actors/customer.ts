@@ -159,6 +159,12 @@ export class Customer extends Participant<SimulationTypeCustomer> {
       };
       // 5. Be part of the ride and wait until the ride is over
       // TODO Fix this to correspond to the driver arriving at location, for now just wait the sky distance multiplied by a car speed
+      while (
+        randMatchService.getRideRequest(this.rideRequest)
+          .helperRideProviderArrived !== true
+      ) {
+        await wait(1 * 1000);
+      }
       this.passenger = rideRequestInfo.auctionWinner;
       await this.moveToLocation(simulation, {
         lat: randLocation.lat,

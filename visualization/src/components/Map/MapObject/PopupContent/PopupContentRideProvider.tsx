@@ -1,35 +1,59 @@
 // Package imports
 // > Components
-import {Chip, Divider, List, Typography} from '@mui/material';
+import {Button, Chip, Divider, List, Typography} from '@mui/material';
 // > Icons
 import {
   DirectionsCar as DirectionsCarIcon,
+  DirectionsWalk as DirectionsWalkIcon,
   Person as PersonIcon,
   TravelExplore as TravelExploreIcon,
 } from '@mui/icons-material';
+// Local imports
+import {renderDataElement} from './PopupContentGeneric';
+// > Components
+import ChangeViewButton from './ChangeViewButton';
 // Type imports
-import {type DataElement, renderDataElement} from './PopupContentGeneric';
+import type {DataElement} from './PopupContentGeneric';
+import type {ErrorModalPropsErrorBuilder} from '@misc/modals';
+import type {GlobalStates} from '@misc/globalStates';
+import type {ReactState} from '@misc/react';
 import type {SimulationEndpointParticipantInformationRideProvider} from '@globals/types/simulation';
 
-export interface PopupContentRideProviderProps {
+export interface PopupContentRideProviderProps
+  extends GlobalStates,
+    ErrorModalPropsErrorBuilder {
   rideProvider: SimulationEndpointParticipantInformationRideProvider;
-  stateSpectator: string;
+  stateBaseUrlSimulation: ReactState<string>;
 }
 
 export default function PopupContentRideProvider({
   rideProvider,
   stateSpectator,
+  setStateSpectator,
+  setStateErrorModalContent,
+  setStateErrorModalOpen,
+  stateBaseUrlSimulation,
+  stateErrorModalContent,
+  stateSelectedParticipant,
+  stateSelectedRideRequest,
+  setStateSelectedRideRequest,
 }: PopupContentRideProviderProps) {
+  const showContentSpectatorContactDetails = [
+    {
+      description: 'registered authentication service',
+      spectator: 'auth',
+    },
+  ];
   const carData: DataElement[] = [
     {
       content: rideProvider.vehicleIdentificationNumber,
       label: 'VIN (Vehicle Identification Number)',
-      showContentSpectator: [],
+      showContentSpectator: [...showContentSpectatorContactDetails],
     },
     {
       content: rideProvider.vehicleNumberPlate,
       label: 'Vehicle Number Plate',
-      showContentSpectator: [],
+      showContentSpectator: [...showContentSpectatorContactDetails],
     },
   ];
   const personalData: DataElement[] = [];
@@ -37,7 +61,7 @@ export default function PopupContentRideProvider({
     personalData.push({
       content: rideProvider.company,
       label: 'Company',
-      showContentSpectator: [],
+      showContentSpectator: [...showContentSpectatorContactDetails],
     });
   } else {
     personalData.push(
@@ -45,32 +69,32 @@ export default function PopupContentRideProvider({
         {
           content: rideProvider.dateOfBirth,
           label: 'Date of birth',
-          showContentSpectator: [],
+          showContentSpectator: [...showContentSpectatorContactDetails],
         },
         {
           content: rideProvider.emailAddress,
           label: 'Email Address',
-          showContentSpectator: [],
+          showContentSpectator: [...showContentSpectatorContactDetails],
         },
         {
           content: rideProvider.fullName,
           label: 'Full Name',
-          showContentSpectator: [],
+          showContentSpectator: [...showContentSpectatorContactDetails],
         },
         {
           content: rideProvider.gender,
           label: 'Gender',
-          showContentSpectator: [],
+          showContentSpectator: [...showContentSpectatorContactDetails],
         },
         {
           content: rideProvider.homeAddress,
           label: 'Home Address',
-          showContentSpectator: [],
+          showContentSpectator: [...showContentSpectatorContactDetails],
         },
         {
           content: rideProvider.phoneNumber,
           label: 'Phone Number',
-          showContentSpectator: [],
+          showContentSpectator: [...showContentSpectatorContactDetails],
         },
       ]
     );
@@ -100,22 +124,44 @@ export default function PopupContentRideProvider({
           size="small"
         />
       </Divider>
-      <Typography variant="body2" gutterBottom>
-        TODO
-      </Typography>
-      <Typography variant="body2" gutterBottom>
-        {rideProvider.passengerList !== undefined
-          ? rideProvider.passengerList.join(', ')
-          : ''}
-      </Typography>
+      {rideProvider.passengerList !== undefined ? (
+        rideProvider.passengerList.map((passengerId, index) => (
+          <ChangeViewButton
+            key={`passenger_${passengerId}_${index}`}
+            actorId={passengerId}
+            icon={<DirectionsWalkIcon />}
+            label={`passenger #${index}`}
+            setStateSpectator={setStateSpectator}
+            isPseudonym={true}
+            setStateErrorModalContent={setStateErrorModalContent}
+            setStateErrorModalOpen={setStateErrorModalOpen}
+            stateBaseUrlSimulation={stateBaseUrlSimulation}
+            stateErrorModalContent={stateErrorModalContent}
+            stateSelectedParticipant={stateSelectedParticipant}
+            stateSpectator={stateSpectator}
+            stateSelectedRideRequest={stateSelectedRideRequest}
+          />
+        ))
+      ) : (
+        <></>
+      )}
       <Divider>
         <Chip icon={<TravelExploreIcon />} label="Ride Request" size="small" />
       </Divider>
       <Typography variant="body2" gutterBottom>
-        TODO
-      </Typography>
-      <Typography variant="body2" gutterBottom>
-        {rideProvider.rideRequest}
+        {rideProvider.rideRequest !== undefined ? (
+          <Button
+            variant="contained"
+            startIcon={<TravelExploreIcon />}
+            onClick={() =>
+              setStateSelectedRideRequest(rideProvider.rideRequest)
+            }
+          >
+            Show ride request ({rideProvider.rideRequest})
+          </Button>
+        ) : (
+          <></>
+        )}
       </Typography>
     </>
   );

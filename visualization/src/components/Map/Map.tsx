@@ -22,12 +22,14 @@ import ParticipantMarker from '@components/Map/MapObject/ParticipantMarker';
 // > Styles
 import '@styles/Map.module.scss';
 // Type imports
-import type {ReactSetState, ReactState} from '@misc/react';
 import type {
   SimulationEndpointGraphInformation,
   SimulationEndpointParticipantCoordinates,
 } from '@globals/types/simulation';
+import type {ErrorModalPropsErrorBuilder} from '@misc/modals';
+import type {GlobalStates} from '@misc/globalStates';
 import type {PathfinderEndpointGraphInformation} from '@globals/types/pathfinder';
+import type {ReactState} from '@misc/react';
 import type {SettingsMapPropsStates} from '@misc/settings';
 
 export interface StatPos {
@@ -36,15 +38,14 @@ export interface StatPos {
   zoom: number;
 }
 
-export interface MapProps extends SettingsMapPropsStates {
+export interface MapProps
+  extends SettingsMapPropsStates,
+    GlobalStates,
+    ErrorModalPropsErrorBuilder {
   stateGraph: ReactState<SimulationEndpointGraphInformation>;
   stateGraphPathfinder: ReactState<PathfinderEndpointGraphInformation>;
   stateParticipants: ReactState<SimulationEndpointParticipantCoordinates>;
   startPos: StatPos;
-  stateSpectator: ReactState<string>;
-  setStateSpectator: ReactSetState<string>;
-  stateSelectedParticipant: ReactState<string | undefined>;
-  setStateSelectedParticipant: ReactSetState<string | undefined>;
 }
 
 export default function Map({
@@ -59,6 +60,11 @@ export default function Map({
   stateSettingsMapBaseUrlSimulation,
   stateSelectedParticipant,
   setStateSelectedParticipant,
+  setStateSelectedRideRequest,
+  stateSelectedRideRequest,
+  stateErrorModalContent,
+  setStateErrorModalOpen,
+  setStateErrorModalContent,
 }: MapProps) {
   return (
     <Box sx={{width: 1}}>
@@ -89,6 +95,11 @@ export default function Map({
                   stateBaseUrlSimulation={stateSettingsMapBaseUrlSimulation}
                   stateSelectedParticipant={stateSelectedParticipant}
                   setStateSelectedParticipant={setStateSelectedParticipant}
+                  setStateSelectedRideRequest={setStateSelectedRideRequest}
+                  stateSelectedRideRequest={stateSelectedRideRequest}
+                  stateErrorModalContent={stateErrorModalContent}
+                  setStateErrorModalOpen={setStateErrorModalOpen}
+                  setStateErrorModalContent={setStateErrorModalContent}
                 />
               ))}
             </LayerGroup>
@@ -107,6 +118,11 @@ export default function Map({
                   stateBaseUrlSimulation={stateSettingsMapBaseUrlSimulation}
                   stateSelectedParticipant={stateSelectedParticipant}
                   setStateSelectedParticipant={setStateSelectedParticipant}
+                  setStateSelectedRideRequest={setStateSelectedRideRequest}
+                  stateSelectedRideRequest={stateSelectedRideRequest}
+                  stateErrorModalContent={stateErrorModalContent}
+                  setStateErrorModalOpen={setStateErrorModalOpen}
+                  setStateErrorModalContent={setStateErrorModalContent}
                 />
               ))}
             </LayerGroup>

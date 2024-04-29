@@ -11,30 +11,41 @@ import ChangeViewButton from './ChangeViewButton';
 import PopupContentCustomer from './PopupContentCustomer';
 import PopupContentRideProvider from './PopupContentRideProvider';
 // Type imports
-import type {ReactSetState, ReactState} from '@misc/react';
 import type {
   SimulationEndpointParticipantCoordinatesParticipant,
   SimulationEndpointParticipantInformationCustomer,
   SimulationEndpointParticipantInformationRideProvider,
   SimulationEndpointParticipantTypes,
 } from '@globals/types/simulation';
+import type {ErrorModalPropsErrorBuilder} from '@misc/modals';
+import type {GlobalStates} from '@misc/globalStates';
+import type {ReactState} from '@misc/react';
 
-export interface PopupContentParticipantProps {
+export interface PopupContentParticipantProps
+  extends GlobalStates,
+    ErrorModalPropsErrorBuilder {
   stateParticipantCoordinates: ReactState<SimulationEndpointParticipantCoordinatesParticipant>;
   stateCustomerInformation: ReactState<null | SimulationEndpointParticipantInformationCustomer>;
   stateRideProviderInformation: ReactState<null | SimulationEndpointParticipantInformationRideProvider>;
-  stateSpectator: ReactState<string>;
-  setStateSpectator: ReactSetState<string>;
   participantType: SimulationEndpointParticipantTypes;
+  stateBaseUrlSimulation: ReactState<string>;
 }
 
 export default function PopupContentParticipant({
-  stateParticipantCoordinates: participantCoordinatesState,
+  stateParticipantCoordinates,
   stateCustomerInformation: customerInformationState,
   stateRideProviderInformation: rideProviderInformationState,
   stateSpectator,
   setStateSpectator,
+  setStateSelectedParticipant,
+  stateSelectedParticipant,
   participantType,
+  setStateErrorModalContent,
+  setStateErrorModalOpen,
+  stateBaseUrlSimulation,
+  stateErrorModalContent,
+  stateSelectedRideRequest,
+  setStateSelectedRideRequest,
 }: PopupContentParticipantProps) {
   return (
     <Box display="flex" justifyContent="left">
@@ -56,7 +67,7 @@ export default function PopupContentParticipant({
           </Typography>
         </Stack>
         <Chip
-          label={participantCoordinatesState.id}
+          label={stateParticipantCoordinates.id}
           size="small"
           variant="outlined"
           style={{marginBottom: 10}}
@@ -69,6 +80,15 @@ export default function PopupContentParticipant({
           <PopupContentCustomer
             customer={customerInformationState}
             stateSpectator={stateSpectator}
+            setStateSpectator={setStateSpectator}
+            setStateSelectedParticipant={setStateSelectedParticipant}
+            stateSelectedParticipant={stateSelectedParticipant}
+            setStateErrorModalContent={setStateErrorModalContent}
+            setStateErrorModalOpen={setStateErrorModalOpen}
+            stateBaseUrlSimulation={stateBaseUrlSimulation}
+            stateErrorModalContent={stateErrorModalContent}
+            stateSelectedRideRequest={stateSelectedRideRequest}
+            setStateSelectedRideRequest={setStateSelectedRideRequest}
           />
         ) : null}
         {rideProviderInformationState === null &&
@@ -80,11 +100,40 @@ export default function PopupContentParticipant({
           <PopupContentRideProvider
             rideProvider={rideProviderInformationState}
             stateSpectator={stateSpectator}
+            setStateSpectator={setStateSpectator}
+            setStateSelectedParticipant={setStateSelectedParticipant}
+            stateSelectedParticipant={stateSelectedParticipant}
+            setStateErrorModalContent={setStateErrorModalContent}
+            setStateErrorModalOpen={setStateErrorModalOpen}
+            stateBaseUrlSimulation={stateBaseUrlSimulation}
+            stateErrorModalContent={stateErrorModalContent}
+            stateSelectedRideRequest={stateSelectedRideRequest}
+            setStateSelectedRideRequest={setStateSelectedRideRequest}
           />
         ) : null}
         <ChangeViewButton
-          actorState={participantCoordinatesState}
+          actorId={stateParticipantCoordinates.id}
+          isPseudonym={false}
+          icon={
+            participantType === 'customer' ? (
+              <DirectionsWalkIcon />
+            ) : (
+              <DirectionsCarIcon />
+            )
+          }
+          label={
+            participantType === 'customer'
+              ? 'this customer'
+              : 'this ride provider'
+          }
+          stateSpectator={stateSpectator}
           setStateSpectator={setStateSpectator}
+          stateSelectedParticipant={stateSelectedParticipant}
+          setStateErrorModalContent={setStateErrorModalContent}
+          setStateErrorModalOpen={setStateErrorModalOpen}
+          stateBaseUrlSimulation={stateBaseUrlSimulation}
+          stateErrorModalContent={stateErrorModalContent}
+          stateSelectedRideRequest={stateSelectedRideRequest}
         />
       </Box>
     </Box>

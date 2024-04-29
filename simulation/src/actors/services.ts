@@ -22,7 +22,9 @@ export interface SimulationTypeService {
   type: 'authentication' | 'matching';
 }
 
-export interface AuthenticationServiceParticipantDbEntry<ContactDetails> {
+export interface AuthenticationServiceParticipantDbEntry<
+  ContactDetails extends {id: string} = {id: string},
+> {
   contactDetails: ContactDetails;
   pseudonyms: string[];
 }
@@ -67,6 +69,7 @@ export interface MatchingServiceAuction {
     | 'waiting-for-signature'
     | 'closed';
   auctionWinner: null | string;
+  helperRideProviderArrived?: boolean;
 }
 
 export interface MatchingServiceRequest {
@@ -239,10 +242,22 @@ export class AuthenticationService extends Service<SimulationTypeAuthenticationS
     );
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars, class-methods-use-this
-  getRating(participantId: string): number {
-    // TODO
+  getRating(pseudonym: string): number {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const participant = this.getParticipantFromPseudonym(pseudonym);
+    // TODO: Calculate Rating and round it
     return getRandomIntFromInterval(3, 5);
+  }
+
+  private getParticipantFromPseudonym(
+    pseudonym: string
+  ): undefined | AuthenticationServiceParticipantDbEntry {
+    return this.participantDb.find(a => a.pseudonyms.includes(pseudonym));
+  }
+
+  simulationGetParticipantId(pseudonym: string): undefined | string {
+    const participant = this.getParticipantFromPseudonym(pseudonym);
+    return participant?.contactDetails.id;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars, class-methods-use-this
@@ -438,6 +453,17 @@ export class MatchingService extends Service<SimulationTypeMatchingService> {
 
   getRideRequests() {
     return this.auctions.filter(a => a.auctionStatus === 'open');
+  }
+
+  helperSetRideProviderArrived(rideRequestId: string) {
+    const rideRequestAuction = this.auctions.find(a => a.id === rideRequestId);
+    if (rideRequestAuction === undefined) {
+      throw new Error('Ride request does not exist.');
+    }
+    rideRequestAuction.helperRideProviderArrived = true;
+    this.printLog('Ride provider arrived at customer location', {
+      rideRequestAuction,
+    });
   }
 
   // TODO: Update

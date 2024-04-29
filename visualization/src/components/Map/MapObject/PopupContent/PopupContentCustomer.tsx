@@ -1,6 +1,6 @@
 // Package imports
 // > Components
-import {Chip, Divider, List, Typography} from '@mui/material';
+import {Button, Chip, Divider, List, Typography} from '@mui/material';
 // > Icons
 import {
   DirectionsCar as DirectionsCarIcon,
@@ -9,49 +9,70 @@ import {
 } from '@mui/icons-material';
 // Local imports
 import {renderDataElement} from './PopupContentGeneric';
+// > Components
+import ChangeViewButton from './ChangeViewButton';
 // Type imports
 import type {DataElement} from './PopupContentGeneric';
+import type {ErrorModalPropsErrorBuilder} from '@misc/modals';
+import type {GlobalStates} from '@misc/globalStates';
+import type {ReactState} from '@misc/react';
 import type {SimulationEndpointParticipantInformationCustomer} from '@globals/types/simulation';
 
-export interface PopupContentCustomerProps {
+export interface PopupContentCustomerProps
+  extends GlobalStates,
+    ErrorModalPropsErrorBuilder {
   customer: SimulationEndpointParticipantInformationCustomer;
-  stateSpectator: string;
+  stateBaseUrlSimulation: ReactState<string>;
 }
 
 export default function PopupContentCustomer({
   customer,
+  setStateErrorModalContent,
+  setStateErrorModalOpen,
+  setStateSpectator,
+  stateBaseUrlSimulation,
+  stateErrorModalContent,
+  stateSelectedParticipant,
   stateSpectator,
+  setStateSelectedRideRequest,
+  stateSelectedRideRequest,
 }: PopupContentCustomerProps) {
+  const showContentSpectatorContactDetails = [
+    {
+      description: 'registered authentication service',
+      spectator: 'auth',
+    },
+  ];
   const personalData: DataElement[] = [
     {
       content: customer.dateOfBirth,
       label: 'Date of birth',
-      showContentSpectator: [],
+      showContentSpectator: [...showContentSpectatorContactDetails],
     },
     {
       content: customer.emailAddress,
       label: 'Email Address',
-      showContentSpectator: [],
+      showContentSpectator: [...showContentSpectatorContactDetails],
     },
     {
       content: customer.fullName,
       label: 'Full Name',
-      showContentSpectator: [],
+      showContentSpectator: [...showContentSpectatorContactDetails],
     },
     {
       content: customer.gender,
       label: 'Gender',
-      showContentSpectator: [],
+      showContentSpectator: [...showContentSpectatorContactDetails],
     },
     {
       content: customer.homeAddress,
       label: 'Home Address',
-      showContentSpectator: [],
+      showContentSpectator: [...showContentSpectatorContactDetails],
     },
     {
       content: customer.phoneNumber,
       label: 'Phone Number',
-      showContentSpectator: [],
+      showContentSpectator: [...showContentSpectatorContactDetails],
     },
   ];
   return (
@@ -67,20 +88,39 @@ export default function PopupContentCustomer({
       <Divider>
         <Chip icon={<DirectionsCarIcon />} label="Passenger" size="small" />
       </Divider>
-      <Typography variant="body2" gutterBottom>
-        TODO
-      </Typography>
-      <Typography variant="body2" gutterBottom>
-        {customer.passenger}
-      </Typography>
+      {customer.passenger !== undefined ? (
+        <ChangeViewButton
+          actorId={customer.passenger}
+          icon={<DirectionsCarIcon />}
+          label={'the current ride provider'}
+          setStateSpectator={setStateSpectator}
+          isPseudonym={true}
+          setStateErrorModalContent={setStateErrorModalContent}
+          setStateErrorModalOpen={setStateErrorModalOpen}
+          stateBaseUrlSimulation={stateBaseUrlSimulation}
+          stateErrorModalContent={stateErrorModalContent}
+          stateSelectedParticipant={stateSelectedParticipant}
+          stateSpectator={stateSpectator}
+          stateSelectedRideRequest={stateSelectedRideRequest}
+        />
+      ) : (
+        <></>
+      )}
       <Divider>
         <Chip icon={<TravelExploreIcon />} label="Ride Request" size="small" />
       </Divider>
       <Typography variant="body2" gutterBottom>
-        TODO
-      </Typography>
-      <Typography variant="body2" gutterBottom>
-        {customer.rideRequest}
+        {customer.rideRequest !== undefined ? (
+          <Button
+            variant="contained"
+            startIcon={<TravelExploreIcon />}
+            onClick={() => setStateSelectedRideRequest(customer.rideRequest)}
+          >
+            Show ride request ({customer.rideRequest})
+          </Button>
+        ) : (
+          <></>
+        )}
       </Typography>
     </>
   );

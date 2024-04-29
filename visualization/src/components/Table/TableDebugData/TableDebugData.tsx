@@ -1,7 +1,7 @@
 // Package imports
 // > Components
+import {Box, Rating} from '@mui/material';
 import {DataGrid, GridToolbar} from '@mui/x-data-grid';
-import {Box} from '@mui/material';
 // > Icons
 import {
   DirectionsCar as DirectionsCarIcon,
@@ -21,6 +21,7 @@ import type {
   SimulationEndpointParticipantInformationRideProviderCompany,
   SimulationEndpointParticipantInformationRideProviderPerson,
   SimulationEndpointRideRequestInformation,
+  SimulationEndpointSmartContractInformation,
 } from '@globals/types/simulation';
 import type {DebugData} from '../DebugData';
 import type {ReactState} from '@misc/react';
@@ -110,6 +111,12 @@ export default function TableDebugData({
             phoneNumber: 'phoneNumber' in a ? a.phoneNumber : undefined,
 
             company: 'company' in a ? a.company : undefined,
+            vehicleIdentificationNumber:
+              'vehicleIdentificationNumber' in a
+                ? a.vehicleIdentificationNumber
+                : undefined,
+            vehicleNumberPlate:
+              'vehicleNumberPlate' in a ? a.vehicleNumberPlate : undefined,
 
             passengerList: a.passengerList,
             rideRequest: a.rideRequest,
@@ -120,13 +127,15 @@ export default function TableDebugData({
     );
     columns.push(
       {field: 'currentLocation', renderCell: a => JSON.stringify(a.value)},
+      {field: 'vehicleIdentificationNumber'},
+      {field: 'vehicleNumberPlate'},
+      {field: 'company'},
       {field: 'dateOfBirth'},
       {field: 'emailAddress'},
       {field: 'fullName'},
       {field: 'gender'},
       {field: 'homeAddress'},
       {field: 'phoneNumber'},
-      {field: 'company'},
       {
         field: 'passengerList',
         renderCell: a => (a.value !== undefined ? a.value.join(', ') : ''),
@@ -178,7 +187,53 @@ export default function TableDebugData({
     );
   }
   if (debugDataType === 'smart_contract') {
-    // TODO
+    rows.push(
+      ...stateDebugData.smartContracts.map(
+        a =>
+          ({
+            id: a.walletId,
+            type: a.type,
+
+            customerId: a.customerId,
+            customerRating: a.customerRating,
+            rideProviderId: a.rideProviderId,
+            rideProviderRating: a.rideProviderRating,
+          }) satisfies GridRowModel &
+            Partial<SimulationEndpointSmartContractInformation>
+      )
+    );
+    columns.push(
+      {field: 'customerId', width: 120},
+      {field: 'rideProviderId', width: 120},
+      {
+        field: 'customerRating',
+        renderCell: a => (
+          <Box sx={{alignItems: 'center', display: 'flex', pr: 2}}>
+            <Rating
+              name="rating"
+              precision={0.5}
+              disabled={a.value === undefined}
+              value={a.value ?? 0}
+            />
+          </Box>
+        ),
+        width: 150,
+      },
+      {
+        field: 'rideProviderRating',
+        renderCell: a => (
+          <Box sx={{alignItems: 'center', display: 'flex', pr: 2}}>
+            <Rating
+              name="rating"
+              precision={0.5}
+              disabled={a.value === undefined}
+              value={a.value ?? 0}
+            />
+          </Box>
+        ),
+        width: 150,
+      }
+    );
   }
 
   const handleEventRowClick: GridEventListener<'rowClick'> = params => {
@@ -201,14 +256,13 @@ export default function TableDebugData({
         columns={columns}
         initialState={{
           density: 'compact',
+          pagination: {
+            rowCount: 25,
+          },
           sorting: {
             sortModel: [
               {
                 field: 'id',
-                sort: 'asc',
-              },
-              {
-                field: 'type',
                 sort: 'asc',
               },
             ],

@@ -2,6 +2,8 @@
 
 /** The default speed of actors. */
 export const speeds = Object.freeze({
-  /** The default speed of a car. */
-  carInKmH: 40,
+  /** The average speed of a car. */
+  carInKmH: 45,
+  /** The average speed of a person. */
+  personInKmH: 5,
 });

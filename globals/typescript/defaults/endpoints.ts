@@ -1,10 +1,12 @@
 export const simulationEndpointRoutes = Object.freeze({
-  json: Object.freeze({
+  apiV1: Object.freeze({
     route: '/json',
 
     // Routes
     graphInformation: '/graph',
     participantCoordinates: '/participant_coordinates',
+    participantIdFromPseudonym: (pseudonym: string) =>
+      `/participant_id_from_pseudonym/${pseudonym}`,
     participantInformationCustomer: (id: string) =>
       `/participant_customer/${id}`,
     participantInformationRideProvider: (id: string) =>
@@ -12,6 +14,8 @@ export const simulationEndpointRoutes = Object.freeze({
     rideRequestInformation: (id: string) => `/ride_request/${id}`,
     rideRequests: '/ride_requests',
     shortestPath: '/shortest_path',
+    smartContract: (id: string) => `/smart_contract/${id}`,
+    smartContracts: '/smart_contracts',
   }),
   simulation: Object.freeze({
     route: '/simulation',
@@ -24,23 +28,34 @@ export const simulationEndpointRoutes = Object.freeze({
 });
 
 export const simulationEndpoints = Object.freeze({
-  json: Object.freeze({
-    graphInformation: `${simulationEndpointRoutes.json.route}${simulationEndpointRoutes.json.graphInformation}`,
-    participantCoordinates: `${simulationEndpointRoutes.json.route}${simulationEndpointRoutes.json.participantCoordinates}`,
+  apiV1: Object.freeze({
+    graphInformation: `${simulationEndpointRoutes.apiV1.route}${simulationEndpointRoutes.apiV1.graphInformation}`,
+    participantCoordinates: `${simulationEndpointRoutes.apiV1.route}${simulationEndpointRoutes.apiV1.participantCoordinates}`,
+    participantIdFromPseudonym: (pseudonym: string) =>
+      `${
+        simulationEndpointRoutes.apiV1.route
+      }${simulationEndpointRoutes.apiV1.participantIdFromPseudonym(pseudonym)}`,
     participantInformationCustomer: (id: string) =>
       `${
-        simulationEndpointRoutes.json.route
-      }${simulationEndpointRoutes.json.participantInformationCustomer(id)}`,
+        simulationEndpointRoutes.apiV1.route
+      }${simulationEndpointRoutes.apiV1.participantInformationCustomer(id)}`,
     participantInformationRideProvider: (id: string) =>
       `${
-        simulationEndpointRoutes.json.route
-      }${simulationEndpointRoutes.json.participantInformationRideProvider(id)}`,
+        simulationEndpointRoutes.apiV1.route
+      }${simulationEndpointRoutes.apiV1.participantInformationRideProvider(
+        id
+      )}`,
     rideRequestInformation: (id: string) =>
       `${
-        simulationEndpointRoutes.json.route
-      }${simulationEndpointRoutes.json.rideRequestInformation(id)}`,
-    rideRequests: `${simulationEndpointRoutes.json.route}${simulationEndpointRoutes.json.rideRequests}`,
-    shortestPath: `${simulationEndpointRoutes.json.route}${simulationEndpointRoutes.json.shortestPath}`,
+        simulationEndpointRoutes.apiV1.route
+      }${simulationEndpointRoutes.apiV1.rideRequestInformation(id)}`,
+    rideRequests: `${simulationEndpointRoutes.apiV1.route}${simulationEndpointRoutes.apiV1.rideRequests}`,
+    shortestPath: `${simulationEndpointRoutes.apiV1.route}${simulationEndpointRoutes.apiV1.shortestPath}`,
+    smartContract: (id: string) =>
+      `${
+        simulationEndpointRoutes.apiV1.route
+      }${simulationEndpointRoutes.apiV1.smartContract(id)}`,
+    smartContracts: `${simulationEndpointRoutes.apiV1.route}${simulationEndpointRoutes.apiV1.smartContracts}`,
   }),
   simulation: Object.freeze({
     pause: `${simulationEndpointRoutes.simulation.route}${simulationEndpointRoutes.simulation.pause}`,

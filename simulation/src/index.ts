@@ -107,7 +107,7 @@ async function main() {
   });
 
   app.use(
-    simulationEndpointRoutes.json.route,
+    simulationEndpointRoutes.apiV1.route,
     simulation.generateFrontendRoutes()
   );
 

@@ -23,9 +23,20 @@ export const renderDataElement = (
 ) => {
   let content = a.content;
   let tooltip = '';
-  if (spectator !== id && spectator !== 'everything') {
+  if (
+    spectator !== id &&
+    spectator !== 'everything' &&
+    !a.showContentSpectator.some(a => a.spectator === spectator)
+  ) {
     content = '******';
-    tooltip = 'The data is only available to the owner and in the admin view';
+    tooltip = `This information is only available to this actor${
+      a.showContentSpectator.length > 0
+        ? ' and ' +
+          a.showContentSpectator
+            .map(a => `${a.spectator} (${a.description})`)
+            .join(', ')
+        : ''
+    }`;
   }
   return (
     <ListItem
@@ -35,12 +46,19 @@ export const renderDataElement = (
       }}
       disablePadding
     >
-      <Typography variant="body2" gutterBottom>
+      <Typography
+        variant="body2"
+        gutterBottom
+        style={{
+          margin: 0,
+          overflowWrap: 'break-word',
+        }}
+      >
         <Box fontWeight="medium" display="inline">
           {a.label}:{' '}
         </Box>
         <Tooltip title={tooltip} arrow>
-          <Typography variant="body2" display="inline" gutterBottom>
+          <Typography variant="body2" display="inline" noWrap gutterBottom>
             {content}
           </Typography>
         </Tooltip>

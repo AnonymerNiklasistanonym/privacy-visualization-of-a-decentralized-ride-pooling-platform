@@ -32,6 +32,8 @@ export abstract class RideProvider<
 
   protected readonly passengerList: string[] = [];
 
+  protected rideRequest: string | undefined = undefined;
+
   constructor(
     id: string,
     currentLocation: Coordinates,
@@ -55,6 +57,7 @@ export abstract class RideProvider<
       this.runRegisterToRandomAuthService(simulation);
     // Loop:
     while (simulation.state === 'RUNNING') {
+      this.rideRequest = undefined;
       // 1. Authenticate to the platform via AS
       if (this.registeredAuthService === null) {
         throw Error('No registered auth server!');
@@ -116,6 +119,7 @@ export abstract class RideProvider<
       this.printLog('Bid for open ride request was successful', {
         closedRideRequest,
       });
+      this.rideRequest = openRideRequest.id;
       this.passengerList.push(closedRideRequest.request.userId);
       // 4. Drive to customer and drive them to the dropoff location
       // TODO Fix this to correspond to the driver arriving at location, for now just wait the sky distance multiplied by a car speed
@@ -126,11 +130,13 @@ export abstract class RideProvider<
         lat: coordinatesPickupLocation[0],
         long: coordinatesPickupLocation[1],
       });
+      randMatchService.helperSetRideProviderArrived(openRideRequest.id);
       await this.moveToLocation(simulation, {
         lat: coordinatesDropoffLocation[0],
         long: coordinatesDropoffLocation[1],
       });
       this.passengerList.pop();
+      this.rideRequest = undefined;
       // 5. Stay idle for a random duration
       await wait(getRandomIntFromInterval(1, 20) * 1000);
     }
@@ -244,8 +250,9 @@ export class RideProviderPerson extends RideProvider<SimulationTypeRideProviderP
       gender: this.gender,
       homeAddress: this.homeAddress,
       phoneNumber: this.phoneNumber,
-      // TODO: Ride requests
-      rideRequest: undefined,
+
+      //Ride request
+      rideRequest: this.rideRequest,
 
       // Passenger list
       passengerList: this.passengerList,
@@ -323,8 +330,8 @@ export class RideProviderCompany extends RideProvider<SimulationTypeRideProvider
       // Contact details
       company: this.company,
 
-      // TODO: Ride requests
-      rideRequest: undefined,
+      // Ride request
+      rideRequest: this.rideRequest,
 
       // Passenger list
       passengerList: this.passengerList,

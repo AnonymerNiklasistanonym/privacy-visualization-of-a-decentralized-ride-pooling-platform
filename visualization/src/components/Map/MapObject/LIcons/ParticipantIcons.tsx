@@ -8,6 +8,9 @@ import {
   DirectionsCar as DirectionsCarIcon,
   DirectionsWalk as DirectionsWalkIcon,
 } from '@mui/icons-material';
+// Local imports
+// > Styles
+import styles from '@styles/Map.module.scss';
 
 export const participantIconSize = 32;
 
@@ -23,7 +26,7 @@ const iconRideProviderHTMLGray = ReactDOMServer.renderToString(
 );
 
 export const iconCustomer = L.divIcon({
-  className: 'leaflet-div-icon-clean-bg',
+  className: styles['leaflet-div-icon-clean-bg'],
   html: iconCustomerHTML,
   iconAnchor: [participantIconSize / 3, participantIconSize / 3],
   iconSize: new L.Point(participantIconSize * 2, participantIconSize * 2),
@@ -31,7 +34,7 @@ export const iconCustomer = L.divIcon({
   tooltipAnchor: [0, 0],
 });
 export const iconRideProvider = L.divIcon({
-  className: 'leaflet-div-icon-clean-bg',
+  className: styles['leaflet-div-icon-clean-bg'],
   html: iconRideProviderHTML,
   iconAnchor: [participantIconSize / 3, participantIconSize / 3],
   iconSize: new L.Point(participantIconSize * 2, participantIconSize * 2),
@@ -40,13 +43,13 @@ export const iconRideProvider = L.divIcon({
 
 // Different color icons
 export const iconCustomerGray = L.divIcon({
-  className: '',
+  className: styles['leaflet-div-icon-clean-bg-gray'],
   html: iconCustomerHTMLGray,
   iconAnchor: [participantIconSize / 2, participantIconSize / 2],
   iconSize: new L.Point(participantIconSize, participantIconSize),
 });
 export const iconRideProviderGray = L.divIcon({
-  className: '',
+  className: styles['leaflet-div-icon-clean-bg-gray'],
   html: iconRideProviderHTMLGray,
   iconAnchor: [participantIconSize / 2, participantIconSize / 2],
   iconSize: new L.Point(participantIconSize, participantIconSize),

@@ -13,6 +13,7 @@ import type {AuthenticationService} from './services';
 import type {Coordinates} from '../globals/types/coordinates';
 import type {GetACarParticipantTypes} from '../globals/types/participant';
 import type {Simulation} from '../simulation';
+import {speeds} from '../globals/defaults/speed';
 
 export interface SimulationTypeParticipant {
   id: string;
@@ -123,32 +124,27 @@ export abstract class Participant<JsonType> extends Actor<
     this.printLog('Received path Osmnx', {
       shortestPathOsmnx,
     });
-    const shortestPathCustom = getShortestPathOsmCoordinates(
+    this.currentRoute = getShortestPathOsmCoordinates(
       simulation.osmVertexGraph,
       this.currentLocation,
       newLocation
-    );
-    this.currentRoute = shortestPathCustom;
+    ) ?? [{...this.currentLocation}, {...newLocation}];
     this.currentRoutes = {
-      custom: shortestPathCustom,
+      custom: this.currentRoute,
       osmnxLength: shortestPathOsmnx.shortest_route_length ?? null,
       osmnxTime: shortestPathOsmnx.shortest_route_travel_time ?? null,
     };
-    const shortestPathFinal =
-      shortestPathOsmnx.shortest_route_length === undefined
-        ? [{...this.currentLocation}, {...newLocation}]
-        : shortestPathOsmnx.shortest_route_length;
     const interpolatedCoordinatesInfo = interpolateCurrentCoordinatesFromPath(
-      shortestPathFinal,
-      35
+      shortestPathOsmnx.shortest_route_length ??
+        shortestPathOsmnx.shortest_route_travel_time ??
+        this.currentRoute ?? [{...this.currentLocation}, {...newLocation}],
+      this.type === 'ride_provider' ? speeds.carInKmH : speeds.personInKmH
     );
     this.printLog('Search shortest path', {
       currentLocation: this.currentLocation,
+      currentRoutes: this.currentRoutes,
       interpolatedCoordinatesInfo,
       newLocation,
-      shortestPathCustom,
-      shortestPathFinal,
-      shortestPathOsmnx,
     });
     let currentTravelTimeInMs = 0;
     while (
@@ -164,7 +160,7 @@ export abstract class Participant<JsonType> extends Actor<
         currentTravelTimeInMs
       );
       const startPerformanceTime = performance.now();
-      await wait(1000 / 4);
+      await wait(1000 / 20);
       currentTravelTimeInMs += performance.now() - startPerformanceTime;
     }
     this.currentRoute = undefined;
@@ -180,7 +176,8 @@ export abstract class Participant<JsonType> extends Actor<
 
       // TODO: Routes
       currentRoute: this.currentRoute,
-      currentRouteOsmxn: this.currentRoutes?.osmnxTime,
+      currentRouteOsmxn:
+        this.currentRoutes?.osmnxTime ?? this.currentRoutes?.osmnxLength,
     };
   }
 }

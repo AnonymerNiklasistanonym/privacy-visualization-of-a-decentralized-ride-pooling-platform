@@ -8,4 +8,15 @@
 .leaflet-div-icon-clean-bg {
   background: none;
   border: none;
+  color: black !important;
+}
+.leaflet-div-icon-clean-bg-gray {
+  background: none;
+  border: none;
+  color: rgb(92, 92, 92) !important;
+}
+
+.tab-map {
+  max-width: 1200px;
+  width: '100%';
 }

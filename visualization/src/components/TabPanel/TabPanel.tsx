@@ -3,7 +3,8 @@
 // Package imports
 import {useEffect, useState} from 'react';
 // > Components
-import {Box, ButtonGroup, Chip, Divider, Typography} from '@mui/material';
+import {Box, ButtonGroup, Chip, Divider} from '@mui/material';
+import Link from 'next/link';
 // > Globals
 import {baseUrlPathfinder, baseUrlSimulation} from '@globals/defaults/urls';
 // Local imports
@@ -38,11 +39,7 @@ function CustomTabPanel(props: PropsWithChildren<CustomTabPanelProps>) {
       aria-labelledby={`simple-tab-${index}`}
       {...other}
     >
-      {value === index && (
-        <Box sx={{p: 3}}>
-          <Typography>{children}</Typography>
-        </Box>
-      )}
+      {value === index && <Box sx={{p: 3}}>{children}</Box>}
     </div>
   );
 }
@@ -74,6 +71,9 @@ export default function TabPanel({
     setStateSettingsMapBaseUrlSimulation,
   ] = useState(baseUrlSimulation);
   const [stateOpenPopupOnHover, setStateOpenPopupOnHover] = useState(false);
+  const [stateSettingsMapUpdateRateInMs, setStateSettingsMapUpdateRateInMs] =
+    useState(1000 / 4);
+
   // > Snackbar
   const [stateSnackbarSpectatorOpen, setStateSnackbarSpectatorOpen] =
     useState(false);
@@ -81,23 +81,33 @@ export default function TabPanel({
     stateSnackbarSelectedParticipantOpen,
     setStateSnackbarSelectedParticipantOpen,
   ] = useState(false);
+  const [
+    stateSnackbarSelectedRideRequestOpen,
+    setStateSnackbarSelectedRideRequestOpen,
+  ] = useState(false);
   // > Global States
   const [stateSpectator, setStateSpectator] = useState('everything');
   const [stateSelectedParticipant, setStateSelectedParticipant] = useState<
     string | undefined
   >(undefined);
+  const [stateSelectedRideRequest, setStateSelectedRideRequest] = useState<
+    string | undefined
+  >(undefined);
 
   // React: State change listeners
+  // > Snackbar change listeners (only being run when a dependency changes)
   useEffect(() => {
-    // Run this when any listed state dependency changes
     console.log('Spectator changed:', stateSpectator);
     setStateSnackbarSpectatorOpen(true);
   }, [stateSpectator, setStateSnackbarSpectatorOpen]);
   useEffect(() => {
-    // Run this when any listed state dependency changes
     console.log('Selected participant changed:', stateSelectedParticipant);
     setStateSnackbarSelectedParticipantOpen(true);
   }, [stateSelectedParticipant, setStateSnackbarSelectedParticipantOpen]);
+  useEffect(() => {
+    console.log('Selected ride request changed:', stateSelectedRideRequest);
+    setStateSnackbarSelectedRideRequestOpen(true);
+  }, [stateSelectedRideRequest, setStateSnackbarSelectedRideRequestOpen]);
 
   return (
     <TabPanelContainer locale={locale} messages={messages}>
@@ -130,10 +140,27 @@ export default function TabPanel({
             setStateSpectator={setStateSpectator}
             stateSelectedParticipant={stateSelectedParticipant}
             setStateSelectedParticipant={setStateSelectedParticipant}
+            stateSettingsMapUpdateRateInMs={stateSettingsMapUpdateRateInMs}
+            stateSelectedRideRequest={stateSelectedRideRequest}
+            setStateSelectedRideRequest={setStateSelectedRideRequest}
           />
         </CustomTabPanel>
         <CustomTabPanel value={stateTabIndex} index={2}>
-          <TabBlockchain />
+          <TabBlockchain
+            stateSettingsMapBaseUrlSimulation={
+              stateSettingsMapBaseUrlSimulation
+            }
+            stateErrorModalContent={stateErrorModalContent}
+            setStateErrorModalOpen={setStateErrorModalOpen}
+            setStateErrorModalContent={setStateErrorModalContent}
+            stateSettingsMapUpdateRateInMs={stateSettingsMapUpdateRateInMs}
+            stateSpectator={stateSpectator}
+            setStateSpectator={setStateSpectator}
+            stateSelectedParticipant={stateSelectedParticipant}
+            setStateSelectedParticipant={setStateSelectedParticipant}
+            stateSelectedRideRequest={stateSelectedRideRequest}
+            setStateSelectedRideRequest={setStateSelectedRideRequest}
+          />
         </CustomTabPanel>
         <CustomTabPanel value={stateTabIndex} index={3}>
           <TabSettings
@@ -152,6 +179,10 @@ export default function TabPanel({
             }
             setStateSettingsMapBaseUrlSimulation={
               setStateSettingsMapBaseUrlSimulation
+            }
+            stateSettingsMapUpdateRateInMs={stateSettingsMapUpdateRateInMs}
+            setStateSettingsMapUpdateRateInMs={
+              setStateSettingsMapUpdateRateInMs
             }
           />
         </CustomTabPanel>
@@ -172,6 +203,12 @@ export default function TabPanel({
           <Button onClick={() => setStateErrorModalOpen(true)}>
             Open Error Modal
           </Button>
+          <Link target="_blank" href={stateSettingsMapBaseUrlSimulation}>
+            <Button onClick={() => {}}>Open Simulation Website</Button>
+          </Link>
+          <Link target="_blank" href={stateSettingsMapBaseUrlPathfinder}>
+            <Button onClick={() => {}}>Open Pathfinder Website</Button>
+          </Link>
         </ButtonGroup>
       </Box>
       <ErrorModal
@@ -195,7 +232,18 @@ export default function TabPanel({
             ? 'No participant selected any more'
             : `Changed selected participant to ${a}`
         }
-        bottomOffset={50}
+        bottomOffset={60}
+      />
+      <SnackbarContentChange
+        stateOpen={stateSnackbarSelectedRideRequestOpen}
+        stateContent={stateSelectedRideRequest}
+        setStateOpen={setStateSnackbarSelectedRideRequestOpen}
+        handleChangeStateContent={a =>
+          a === undefined
+            ? 'No ride request selected any more'
+            : `Changed selected ride request to ${a}`
+        }
+        bottomOffset={120}
       />
     </TabPanelContainer>
   );

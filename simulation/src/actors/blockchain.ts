@@ -11,10 +11,12 @@ export interface SimulationTypeBlockchain {
 }
 
 export interface SimulationTypeRideContract {
-  id: string;
+  walletId: string;
   customerPseudonym: string;
   rideProviderPseudonym: string;
   deposit: number;
+  customerRating?: number;
+  rideProviderRating?: number;
 }
 
 export class Blockchain extends Actor<SimulationTypeBlockchain> {
@@ -36,7 +38,7 @@ export class Blockchain extends Actor<SimulationTypeBlockchain> {
     );
     const rideContractId = getRandomId();
     this.rideContracts.push({
-      id: rideContractId,
+      walletId: rideContractId,
 
       customerPseudonym,
       deposit: maximumRideCost,

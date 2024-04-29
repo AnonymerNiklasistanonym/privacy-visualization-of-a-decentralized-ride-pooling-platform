@@ -6,27 +6,64 @@ import {
   Box,
   Checkbox,
   Divider,
+  FormControl,
   FormControlLabel,
   FormGroup,
+  FormLabel,
+  Input,
   List,
   ListItem,
   TextField,
 } from '@mui/material';
+import {NumericFormat, NumericFormatProps} from 'react-number-format';
+import {forwardRef} from 'react';
 // Type imports
 import type {SettingsProps} from '@misc/settings';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface TabSettingsProps extends SettingsProps {}
 
+interface CustomProps {
+  onChange: (event: {target: {name: string; value: string}}) => void;
+  name: string;
+}
+
+const NumericFormatCustom = forwardRef<NumericFormatProps, CustomProps>(
+  (props, ref) => {
+    const {onChange, ...other} = props;
+
+    return (
+      <NumericFormat
+        {...other}
+        getInputRef={ref}
+        onValueChange={values => {
+          onChange({
+            target: {
+              name: props.name,
+              value: values.value,
+            },
+          });
+        }}
+        thousandSeparator
+        valueIsNumericString
+        suffix="ms"
+      />
+    );
+  }
+);
+NumericFormatCustom.displayName = 'NumericFormatAdapterMs';
+
 export default function TabSettings({
   stateSettingsMapShowTooltips,
   stateSettingsMapOpenPopupOnHover,
   stateSettingsMapBaseUrlPathfinder,
   stateSettingsMapBaseUrlSimulation,
+  stateSettingsMapUpdateRateInMs,
   setStateSettingsMapShowTooltips,
   setStateSettingsMapOpenPopupOnHover,
   setStateSettingsMapBaseUrlPathfinder,
   setStateSettingsMapBaseUrlSimulation,
+  setStateSettingsMapUpdateRateInMs,
 }: TabSettingsProps) {
   return (
     <Box display="flex" justifyContent="center">
@@ -90,6 +127,20 @@ export default function TabSettings({
               onChange={event =>
                 setStateSettingsMapBaseUrlSimulation(event.target.value)
               }
+            />
+          </ListItem>
+          <ListItem>
+            <TextField
+              label="Map update rate"
+              value={stateSettingsMapUpdateRateInMs}
+              onChange={event =>
+                setStateSettingsMapUpdateRateInMs(Number(event.target.value))
+              }
+              InputProps={{
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                inputComponent: NumericFormatCustom as any,
+              }}
+              variant="standard"
             />
           </ListItem>
         </List>

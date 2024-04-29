@@ -8,11 +8,18 @@ import type {
   GetACarRideProviderCompany,
   GetACarRideProviderPerson,
 } from './participant';
-import type {GetACarRideRequest, GetACarRideRequestId} from './services';
+import type {
+  GetACarRideRequest,
+  GetACarRideRequestId,
+  GetACarSmartContract,
+  GetACarSmartContractWalletId,
+} from './services';
 
 export type SimulationEndpointParticipantId = GetACarParticipantId;
 
 export type SimulationEndpointRideRequestId = GetACarRideRequestId;
+
+export type SimulationEndpointSmartContractId = GetACarSmartContractWalletId;
 
 export type SimulationEndpointParticipantTypes = GetACarParticipantTypes;
 
@@ -80,4 +87,18 @@ export interface SimulationEndpointGraphInformation {
 
 export interface SimulationEndpointRideRequests {
   rideRequests: Array<SimulationEndpointRideRequestId>;
+}
+
+export interface SimulationEndpointSmartContracts {
+  smartContracts: Array<SimulationEndpointSmartContractId>;
+}
+
+export interface SimulationEndpointSmartContractInformation
+  extends GetACarSmartContract {
+  type: 'smart_contract';
+}
+
+export interface SimulationEndpointParticipantIdFromPseudonym {
+  id: string;
+  authServiceId: string;
 }

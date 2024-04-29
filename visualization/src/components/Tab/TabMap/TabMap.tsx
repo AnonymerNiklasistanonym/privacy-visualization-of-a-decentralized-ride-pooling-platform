@@ -5,21 +5,22 @@ import {useEffect, useState} from 'react';
 // > Components
 import {Box, ButtonGroup, Chip, Divider} from '@mui/material';
 // Local imports
+import {fetchJsonEndpoint, fetchTextEndpoint} from '@misc/fetch';
 import {showErrorBuilder} from '@misc/modals';
 // > Components
 import Button from '@components/Button';
-import Container from '@components/Container';
 import Map from '@components/Map';
 import TableDebugData from '@components/Table/TableDebugData';
 import TextInputSpectator from '@components/TextInput/TextInputSpectator';
 // > Globals
-import {fetchJson, fetchText} from '@globals/lib/fetch';
 import {
   pathfinderEndpoints,
   simulationEndpoints,
 } from '@globals/defaults/endpoints';
+// > Styles
+import '@styles/Map.module.scss';
+import styles from '@styles/Map.module.scss';
 // Type imports
-import type {ReactSetState, ReactState} from '@misc/react';
 import type {
   SimulationEndpointGraphInformation,
   SimulationEndpointParticipantCoordinates,
@@ -27,22 +28,20 @@ import type {
   SimulationEndpointParticipantInformationRideProvider,
   SimulationEndpointRideRequestInformation,
   SimulationEndpointRideRequests,
+  SimulationEndpointSmartContractInformation,
+  SimulationEndpointSmartContracts,
 } from '@globals/types/simulation';
 import type {DebugData} from '@components/Table/DebugData';
 import type {ErrorModalPropsErrorBuilder} from '@misc/modals';
-import type {FetchJsonOptions} from '@globals/lib/fetch';
+import type {GlobalStates} from '@misc/globalStates';
 import type {PathfinderEndpointGraphInformation} from '@globals/types/pathfinder';
 import type {SettingsMapPropsStates} from '@misc/settings';
 import type {TextInputSpectatorOptionStateType} from '@components/TextInput/TextInputSpectator/TextInputSpectator';
 
 export interface TabMapProps
   extends SettingsMapPropsStates,
-    ErrorModalPropsErrorBuilder {
-  stateSpectator: ReactState<string>;
-  setStateSpectator: ReactSetState<string>;
-  stateSelectedParticipant: ReactState<string | undefined>;
-  setStateSelectedParticipant: ReactSetState<string | undefined>;
-}
+    ErrorModalPropsErrorBuilder,
+    GlobalStates {}
 
 export default function TabMap({
   setStateSpectator,
@@ -56,19 +55,10 @@ export default function TabMap({
   stateSettingsMapShowTooltips,
   stateSelectedParticipant,
   setStateSelectedParticipant,
+  stateSettingsMapUpdateRateInMs,
+  stateSelectedRideRequest,
+  setStateSelectedRideRequest,
 }: TabMapProps) {
-  const fetchJsonSimulation = async <T,>(
-    endpoint: string,
-    options?: FetchJsonOptions
-  ): Promise<T> =>
-    fetchJson<T>(`${stateSettingsMapBaseUrlSimulation}${endpoint}`, options);
-  const fetchTextSimulation = async (endpoint: string): Promise<string> =>
-    fetchText(`${stateSettingsMapBaseUrlSimulation}${endpoint}`);
-  const fetchJsonPathfinder = async <T,>(
-    endpoint: string,
-    options?: FetchJsonOptions
-  ): Promise<T> =>
-    fetchJson<T>(`${stateSettingsMapBaseUrlPathfinder}/${endpoint}`, options);
   const showError = showErrorBuilder({
     setStateErrorModalContent,
     setStateErrorModalOpen,
@@ -132,13 +122,15 @@ export default function TabMap({
       });
       return;
     }
-    fetchJsonSimulation<SimulationEndpointGraphInformation>(
-      simulationEndpoints.json.graphInformation,
+    fetchJsonEndpoint<SimulationEndpointGraphInformation>(
+      stateSettingsMapBaseUrlSimulation,
+      simulationEndpoints.apiV1.graphInformation,
       {showFetch: true, showResponse: true}
     )
       .then(data => setGraphState(data))
       .catch(err => showError('Fetch simulation graph', err));
-    fetchJsonPathfinder<PathfinderEndpointGraphInformation>(
+    fetchJsonEndpoint<PathfinderEndpointGraphInformation>(
+      stateSettingsMapBaseUrlPathfinder,
       pathfinderEndpoints.graphInformation,
       {showFetch: true, showResponse: true}
     )
@@ -158,56 +150,75 @@ export default function TabMap({
     }
 
     Promise.all([
-      fetchJsonSimulation<SimulationEndpointParticipantCoordinates>(
-        simulationEndpoints.json.participantCoordinates
+      fetchJsonEndpoint<SimulationEndpointParticipantCoordinates>(
+        stateSettingsMapBaseUrlSimulation,
+        simulationEndpoints.apiV1.participantCoordinates
       ),
-      fetchJsonSimulation<SimulationEndpointRideRequests>(
-        simulationEndpoints.json.rideRequests
+      fetchJsonEndpoint<SimulationEndpointRideRequests>(
+        stateSettingsMapBaseUrlSimulation,
+        simulationEndpoints.apiV1.rideRequests
+      ),
+      fetchJsonEndpoint<SimulationEndpointSmartContracts>(
+        stateSettingsMapBaseUrlSimulation,
+        simulationEndpoints.apiV1.smartContracts
       ),
     ])
-      .then(([participantCoordinatesData, rideRequestsData]) =>
-        Promise.all([
-          Promise.all(
-            participantCoordinatesData.customers.map(a =>
-              fetchJsonSimulation<SimulationEndpointParticipantInformationCustomer>(
-                simulationEndpoints.json.participantInformationCustomer(a.id)
-              )
-            )
-          ),
-          Promise.all(
-            participantCoordinatesData.rideProviders.map(a =>
-              fetchJsonSimulation<SimulationEndpointParticipantInformationRideProvider>(
-                simulationEndpoints.json.participantInformationRideProvider(
-                  a.id
+      .then(
+        ([participantCoordinatesData, rideRequestsData, smartContractsData]) =>
+          Promise.all([
+            Promise.all(
+              participantCoordinatesData.customers.map(a =>
+                fetchJsonEndpoint<SimulationEndpointParticipantInformationCustomer>(
+                  stateSettingsMapBaseUrlSimulation,
+                  simulationEndpoints.apiV1.participantInformationCustomer(a.id)
                 )
               )
-            )
-          ),
-          Promise.all(
-            rideRequestsData.rideRequests.map(a =>
-              fetchJsonSimulation<SimulationEndpointRideRequestInformation>(
-                simulationEndpoints.json.rideRequestInformation(a)
+            ),
+            Promise.all(
+              participantCoordinatesData.rideProviders.map(a =>
+                fetchJsonEndpoint<SimulationEndpointParticipantInformationRideProvider>(
+                  stateSettingsMapBaseUrlSimulation,
+                  simulationEndpoints.apiV1.participantInformationRideProvider(
+                    a.id
+                  )
+                )
               )
-            )
-          ),
-        ])
+            ),
+            Promise.all(
+              rideRequestsData.rideRequests.map(a =>
+                fetchJsonEndpoint<SimulationEndpointRideRequestInformation>(
+                  stateSettingsMapBaseUrlSimulation,
+                  simulationEndpoints.apiV1.rideRequestInformation(a)
+                )
+              )
+            ),
+            Promise.all(
+              smartContractsData.smartContracts.map(a =>
+                fetchJsonEndpoint<SimulationEndpointSmartContractInformation>(
+                  stateSettingsMapBaseUrlSimulation,
+                  simulationEndpoints.apiV1.smartContract(a)
+                )
+              )
+            ),
+          ])
       )
-      .then(([customers, rideProviders, rideRequests]) =>
+      .then(([customers, rideProviders, rideRequests, smartContracts]) =>
         setStateDebugData({
           customers,
           rideProviders,
           rideRequests,
-          smartContracts: [],
+          smartContracts,
         })
       )
       .catch(err => showError('Fetch debug data', err));
   };
 
-  // React effects
+  // React: Effects
   useEffect(() => {
     const interval = setInterval(() => {
-      fetchJsonSimulation<SimulationEndpointParticipantCoordinates>(
-        simulationEndpoints.json.participantCoordinates
+      fetchJsonEndpoint<SimulationEndpointParticipantCoordinates>(
+        stateSettingsMapBaseUrlSimulation,
+        simulationEndpoints.apiV1.participantCoordinates
       )
         .then(data => {
           setParticipantsState(data);
@@ -228,7 +239,7 @@ export default function TabMap({
         .catch(err =>
           showError('Fetch simulation participant coordinates', err)
         );
-    }, 100);
+    }, stateSettingsMapUpdateRateInMs);
     return () => {
       clearInterval(interval);
     };
@@ -237,8 +248,8 @@ export default function TabMap({
     setStateSpectator(newSpectator);
   };
   return (
-    <>
-      <Container>
+    <Box display="flex" justifyContent="center">
+      <Box component="section" className={styles['tab-map']}>
         <TextInputSpectator
           stateOptions={stateSelectOptions}
           stateSpectator={stateSpectator}
@@ -258,6 +269,12 @@ export default function TabMap({
           stateSettingsMapOpenPopupOnHover={stateSettingsMapOpenPopupOnHover}
           stateSettingsMapBaseUrlPathfinder={stateSettingsMapBaseUrlPathfinder}
           stateSettingsMapBaseUrlSimulation={stateSettingsMapBaseUrlSimulation}
+          stateSettingsMapUpdateRateInMs={stateSettingsMapUpdateRateInMs}
+          stateSelectedRideRequest={stateSelectedRideRequest}
+          setStateSelectedRideRequest={setStateSelectedRideRequest}
+          stateErrorModalContent={stateErrorModalContent}
+          setStateErrorModalOpen={setStateErrorModalOpen}
+          setStateErrorModalContent={setStateErrorModalContent}
         />
 
         <Box
@@ -274,29 +291,34 @@ export default function TabMap({
           </Divider>
           <ButtonGroup variant="contained" aria-label="Basic button group">
             <Button
-              onClick={() => {
-                fetchTextSimulation(simulationEndpoints.simulation.state)
+              onClick={() =>
+                fetchTextEndpoint(
+                  stateSettingsMapBaseUrlSimulation,
+                  simulationEndpoints.simulation.state
+                )
                   .then(a => alert(`Simulation state: ${a}`))
-                  .catch(err => showError('Fetch simulation state', err));
-              }}
+                  .catch(err => showError('Fetch simulation state', err))
+              }
             >
               State
             </Button>
             <Button
-              onClick={() => {
-                fetchTextSimulation(simulationEndpoints.simulation.pause).catch(
-                  err => showError('Fetch simulation state pause', err)
-                );
-              }}
+              onClick={() =>
+                fetchTextEndpoint(
+                  stateSettingsMapBaseUrlSimulation,
+                  simulationEndpoints.simulation.pause
+                ).catch(err => showError('Fetch simulation state pause', err))
+              }
             >
               Pause
             </Button>
             <Button
-              onClick={() => {
-                fetchTextSimulation(simulationEndpoints.simulation.run).catch(
-                  err => showError('Fetch simulation state run', err)
-                );
-              }}
+              onClick={() =>
+                fetchTextEndpoint(
+                  stateSettingsMapBaseUrlSimulation,
+                  simulationEndpoints.simulation.run
+                ).catch(err => showError('Fetch simulation state run', err))
+              }
             >
               Run
             </Button>
@@ -346,7 +368,7 @@ export default function TabMap({
             debugDataType="ride_provider"
           />
           <Divider>
-            <Chip label="Ride Providers" size="small" variant="outlined" />
+            <Chip label="Ride Requests" size="small" variant="outlined" />
           </Divider>
           <TableDebugData
             stateDebugData={stateDebugData}
@@ -360,7 +382,7 @@ export default function TabMap({
             debugDataType="smart_contract"
           />
         </Box>
-      </Container>
-    </>
+      </Box>
+    </Box>
   );
 }

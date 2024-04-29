@@ -17,3 +17,17 @@ export interface GetACarRideRequest {
   minPassengerRating: number;
   maxPassengers: number;
 }
+
+// TODO: Update
+
+export type GetACarSmartContractWalletId = string;
+
+export interface GetACarSmartContract {
+  walletId: GetACarSmartContractWalletId;
+  /** Customer pseudonym. */
+  customerId: string;
+  /** Ride Provider pseudonym. */
+  rideProviderId: string;
+  customerRating: number;
+  rideProviderRating: number;
+}

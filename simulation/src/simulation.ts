@@ -11,6 +11,7 @@ import {
 } from './misc/helpers';
 import {Blockchain} from './actors/blockchain';
 import {Customer} from './actors/customer';
+import {getRandomPlateNumber} from './config/numberPlate';
 import {osmnxServerRequest} from './misc/osmnx';
 import {simulationEndpointRoutes} from './globals/defaults/endpoints';
 import {updateRouteCoordinatesWithTime} from './misc/coordinatesInterpolation';
@@ -19,8 +20,11 @@ import type {OsmVertex, OsmVertexGraph} from './pathfinder/osm';
 import type {
   SimulationEndpointGraphInformation,
   SimulationEndpointParticipantCoordinates,
+  SimulationEndpointParticipantIdFromPseudonym,
   SimulationEndpointRideRequestInformation,
   SimulationEndpointRideRequests,
+  SimulationEndpointSmartContractInformation,
+  SimulationEndpointSmartContracts,
 } from './globals/types/simulation';
 import type {Coordinates} from './globals/types/coordinates';
 import type {SimulationConfigWithData} from './config/simulationConfigWithData';
@@ -62,8 +66,8 @@ export const createMockedRideProviderPerson = (
   return new RideProviderPerson(
     id,
     {lat: randLocation.lat, long: randLocation.lon},
-    `${id}_vehicleNumberPlate`,
-    `${id}_vehicleIdentificationNumber`,
+    getRandomPlateNumber(['S']),
+    getRandomId(),
     fakePerson.fullName,
     /[0-9]*(?<gender>\S*)/.exec(fakePerson.gender)?.groups?.gender ||
       fakePerson.gender,
@@ -85,8 +89,8 @@ export const createMockedRideProviderCompany = (
   return new RideProviderCompany(
     id,
     {lat: randLocation.lat, long: randLocation.lon},
-    `${id}_vehicleNumberPlate`,
-    `${id}_vehicleIdentificationNumber`,
+    getRandomPlateNumber(['S']),
+    getRandomId(),
     company,
     config.verbose
   );
@@ -312,7 +316,7 @@ export class Simulation {
     const router = express.Router();
     // Global registered routes
     router
-      .route(simulationEndpointRoutes.json.participantCoordinates)
+      .route(simulationEndpointRoutes.apiV1.participantCoordinates)
       .get((req, res) => {
         res.json({
           customers: this.customers.map(a => a.endpointCoordinates),
@@ -321,7 +325,7 @@ export class Simulation {
       });
     router
       .route(
-        simulationEndpointRoutes.json.participantInformationCustomer(':id')
+        simulationEndpointRoutes.apiV1.participantInformationCustomer(':id')
       )
       .get((req, res) => {
         const customer = this.customers.find(a => a.id === req.params.id);
@@ -333,7 +337,7 @@ export class Simulation {
       });
     router
       .route(
-        simulationEndpointRoutes.json.participantInformationRideProvider(':id')
+        simulationEndpointRoutes.apiV1.participantInformationRideProvider(':id')
       )
       .get((req, res) => {
         const rideProvider = this.rideProviders.find(
@@ -345,15 +349,17 @@ export class Simulation {
         }
         res.status(404);
       });
-    router.route(simulationEndpointRoutes.json.rideRequests).get((req, res) => {
-      res.json({
-        rideRequests: this.matchingServices
-          .flatMap(a => a.getAuctions())
-          .map(a => a.id),
-      } satisfies SimulationEndpointRideRequests);
-    });
     router
-      .route(simulationEndpointRoutes.json.rideRequestInformation(':id'))
+      .route(simulationEndpointRoutes.apiV1.rideRequests)
+      .get((req, res) => {
+        res.json({
+          rideRequests: this.matchingServices
+            .flatMap(a => a.getAuctions())
+            .map(a => a.id),
+        } satisfies SimulationEndpointRideRequests);
+      });
+    router
+      .route(simulationEndpointRoutes.apiV1.rideRequestInformation(':id'))
       .get((req, res) => {
         const rideRequests = this.matchingServices.flatMap(a =>
           a.getAuctions()
@@ -368,6 +374,52 @@ export class Simulation {
             type: 'ride_request',
           } as SimulationEndpointRideRequestInformation);
           return;
+        }
+        res.status(404);
+      });
+    router
+      .route(simulationEndpointRoutes.apiV1.smartContracts)
+      .get((req, res) => {
+        res.json({
+          smartContracts: this.blockchain.rideContracts.map(a => a.walletId),
+        } satisfies SimulationEndpointSmartContracts);
+      });
+    router
+      .route(simulationEndpointRoutes.apiV1.smartContract(':id'))
+      .get((req, res) => {
+        const smartContracts = this.blockchain.rideContracts;
+        const smartContract = smartContracts.find(
+          a => a.walletId === req.params.id
+        );
+        if (smartContract) {
+          res.json({
+            ...smartContract,
+            customerId: smartContract.customerPseudonym,
+            rideProviderId: smartContract.rideProviderPseudonym,
+            type: 'smart_contract',
+          } as SimulationEndpointSmartContractInformation);
+          return;
+        }
+        res.status(404);
+      });
+    router
+      .route(
+        simulationEndpointRoutes.apiV1.participantIdFromPseudonym(':pseudonym')
+      )
+      .get((req, res) => {
+        const asParticipant = this.authenticationServices.find(
+          a => a.simulationGetParticipantId(req.params.pseudonym) !== undefined
+        );
+        if (asParticipant) {
+          const participantId = asParticipant.simulationGetParticipantId(
+            req.params.pseudonym
+          );
+          if (participantId) {
+            res.json({
+              id: participantId,
+            } as SimulationEndpointParticipantIdFromPseudonym);
+            return;
+          }
         }
         res.status(404);
       });
@@ -396,7 +448,7 @@ export class Simulation {
     });
     // DEBUG: Created route graph
     router
-      .route(simulationEndpointRoutes.json.graphInformation)
+      .route(simulationEndpointRoutes.apiV1.graphInformation)
       .get((req, res) => {
         const geometry: Array<{id: number; geometry: Coordinates[]}> = [];
         if (this.osmVertexGraph.edges instanceof Function) {
@@ -441,7 +493,7 @@ export class Simulation {
         } as SimulationEndpointGraphInformation);
       });
     router
-      .route(simulationEndpointRoutes.json.shortestPath)
+      .route(simulationEndpointRoutes.apiV1.shortestPath)
       .get(async (req, res) => {
         const vertices = Array.from(this.osmVertexGraph.vertices);
         console.log(vertices);
