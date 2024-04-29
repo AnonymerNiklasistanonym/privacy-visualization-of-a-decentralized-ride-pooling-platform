@@ -1,6 +1,7 @@
 .dockerignore
 .editorconfig
 .git
+.gitattributes
 .gitignore
 build
 cache
