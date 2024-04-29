@@ -36,10 +36,16 @@ deactivate
 ### Docker
 
 1. [Install Docker](https://docs.docker.com/get-docker/) and start the docker daemon
-   - Linux with `systemd`: `systemctl start docker`
-     1. If it's not yet working create the docker group (if it does not exist): `sudo groupadd docker`
-     2. Add your user to this group: `sudo usermod -aG docker $USER`
-     3. Log in to the new docker group since the current shells may not yet "know" about being added to the docker group (alternatively run `newgrp docker`)
+   - Linux:
+     1. Install (e.g. via `sudo pacman -S docker docker-compose`)
+     2. Use `systemd` to start the service: `systemctl start docker`
+     3. If it's not yet working create the docker group (if it does not exist): `sudo groupadd docker`
+     4. Add your user to this group: `sudo usermod -aG docker $USER`
+     5. Log in to the new docker group since the current shells may not yet "know" about being added to the docker group (alternatively run `newgrp docker`)
+   - Windows:
+     1. Install (e.g. via `winget install -e --id Docker.DockerDesktop`)
+     2. Add the binaries to the PATH: `C:\Program Files\Docker\Docker\resources\bin`
+     3. Start `Docker Desktop` to start the docker engine
 2. Build container declared in a `Dockerfile` in the current directory: `docker build --tag flask-docker .`
    - `docker build [OPTIONS] PATH`
    - `--tag list`: Name and optionally a tag in the "name:tag" format
