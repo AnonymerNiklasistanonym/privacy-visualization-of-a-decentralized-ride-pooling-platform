@@ -1,6 +1,6 @@
 export const simulationEndpointRoutes = Object.freeze({
   apiV1: Object.freeze({
-    route: '/json',
+    route: '/apiv1',
 
     // Routes
     graphInformation: '/graph',
@@ -17,6 +17,20 @@ export const simulationEndpointRoutes = Object.freeze({
     smartContract: (id: string) => `/smart_contract/${id}`,
     smartContracts: '/smart_contracts',
   }),
+
+  // Routes only used internally
+  internal: Object.freeze({
+    route: '/internal',
+
+    // Routes
+    authenticationServices: '/authentication_services',
+    customers: '/customers',
+    matchingServices: '/matching_services',
+    rideProviders: '/ride_providers',
+    rideRequests: '/ride_requests',
+    smartContracts: '/smart_contracts',
+  }),
+
   simulation: Object.freeze({
     route: '/simulation',
 
@@ -57,6 +71,14 @@ export const simulationEndpoints = Object.freeze({
       }${simulationEndpointRoutes.apiV1.smartContract(id)}`,
     smartContracts: `${simulationEndpointRoutes.apiV1.route}${simulationEndpointRoutes.apiV1.smartContracts}`,
   }),
+  internal: Object.freeze({
+    authenticationServices: `${simulationEndpointRoutes.internal.route}${simulationEndpointRoutes.internal.authenticationServices}`,
+    customers: `${simulationEndpointRoutes.internal.route}${simulationEndpointRoutes.internal.customers}`,
+    matchingServices: `${simulationEndpointRoutes.internal.route}${simulationEndpointRoutes.internal.matchingServices}`,
+    rideProviders: `${simulationEndpointRoutes.internal.route}${simulationEndpointRoutes.internal.rideProviders}`,
+    rideRequests: `${simulationEndpointRoutes.internal.route}${simulationEndpointRoutes.internal.rideRequests}`,
+    smartContracts: `${simulationEndpointRoutes.internal.route}${simulationEndpointRoutes.internal.smartContracts}`,
+  }),
   simulation: Object.freeze({
     pause: `${simulationEndpointRoutes.simulation.route}${simulationEndpointRoutes.simulation.pause}`,
     run: `${simulationEndpointRoutes.simulation.route}${simulationEndpointRoutes.simulation.run}`,
@@ -65,7 +87,7 @@ export const simulationEndpoints = Object.freeze({
 });
 
 export const pathfinderEndpoints = Object.freeze({
-  graphInformation: 'graph',
-  shortestPath: 'shortest_path',
-  shortestPathCoordinates: 'shortest_path_coordinates',
+  graphInformation: '/graph',
+  shortestPath: '/shortest_path',
+  shortestPathCoordinates: '/shortest_path_coordinates',
 });

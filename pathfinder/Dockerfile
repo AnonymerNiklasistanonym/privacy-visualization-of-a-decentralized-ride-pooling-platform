@@ -1,5 +1,8 @@
 FROM python:3.12-slim-bullseye
 
+# Used for health check in 'docker compose'
+RUN apt-get update && apt-get install -y curl
+
 # Setting up the work directory in the top level of the file system
 WORKDIR /python-docker
 # Copy all non .dockerignored files into that directory
@@ -9,6 +12,11 @@ COPY . .
 RUN pip3 install -r requirements.txt
 # Remove build files
 RUN rm -f requirements.txt
+
+# Run once to cache data
+ENV ONLY_CACHE=1
+RUN python3 -m "shortest_path_server"
+ENV ONLY_CACHE=
 
 # Expose ports to the outside
 EXPOSE 3010

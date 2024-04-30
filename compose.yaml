@@ -3,11 +3,50 @@ services:
     build: pathfinder
     ports:
       - "3010:3010"
+    healthcheck:
+      test: "curl --silent --fail http://localhost:3010/running > /dev/null || exit 1"
+      # the grace period during which Compose will not consider the health check failures
+      # (if the health check succeeds, then the container is marked healthy, and the grace period ends early)
+      start_period: 20s
+      # the period between health checks
+      interval: 15s
+      # the amount of time given to the command to complete
+      timeout: 1m
+      # the number of consecutive fails before considered unhealthy
+      retries: 2
   simulation:
     build: simulation
     ports:
       - "3020:3020"
+    healthcheck:
+      test: "curl --silent --fail http://localhost:3020/running > /dev/null || exit 1"
+      # the grace period during which Compose will not consider the health check failures
+      # (if the health check succeeds, then the container is marked healthy, and the grace period ends early)
+      start_period: 20s
+      # the period between health checks
+      interval: 15s
+      # the amount of time given to the command to complete
+      timeout: 1m
+      # the number of consecutive fails before considered unhealthy
+      retries: 2
+    depends_on:
+      pathfinder:
+        condition: service_healthy
   visualization:
     build: visualization
     ports:
       - "3000:3000"
+    depends_on:
+      simulation:
+        condition: service_healthy
+    healthcheck:
+      test: "curl --silent --fail http://localhost:3000/running > /dev/null || exit 1"
+      # the grace period during which Compose will not consider the health check failures
+      # (if the health check succeeds, then the container is marked healthy, and the grace period ends early)
+      start_period: 20s
+      # the period between health checks
+      interval: 15s
+      # the amount of time given to the command to complete
+      timeout: 1m
+      # the number of consecutive fails before considered unhealthy
+      retries: 5

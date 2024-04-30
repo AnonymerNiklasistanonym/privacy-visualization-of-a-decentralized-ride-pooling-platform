@@ -310,8 +310,6 @@ export class Simulation {
     return router;
   }
 
-  // Frontend routes
-
   generateFrontendRoutes(): express.Router {
     const router = express.Router();
     // Global registered routes
@@ -423,29 +421,6 @@ export class Simulation {
         }
         res.status(404);
       });
-    // TODO Migrate old routes
-    router.route('/customers').get((req, res) => {
-      res.json({customers: this.customersJson});
-    });
-    router.route('/ride_providers').get((req, res) => {
-      res.json({rideProviders: this.rideProvidersJson});
-    });
-    router.route('/authentication_services').get((req, res) => {
-      res.json({authenticationServices: this.authenticationServicesJson});
-    });
-    router.route('/matching_services').get((req, res) => {
-      res.json({matchingServices: this.matchingServicesJson});
-    });
-    // REMOVE
-    router.route('/ride_requests_old').get((req, res) => {
-      res.json({
-        delete: 'delete this',
-        rideRequests: this.matchingServices.flatMap(a => a.getAuctions()),
-      });
-    });
-    router.route('/smart_contracts').get((req, res) => {
-      res.json({smartContracts: this.rideContractsJson});
-    });
     // DEBUG: Created route graph
     router
       .route(simulationEndpointRoutes.apiV1.graphInformation)
@@ -515,6 +490,45 @@ export class Simulation {
                 )
               : null,
         });
+      });
+    return router;
+  }
+
+  generateInternalRoutes(): express.Router {
+    const router = express.Router();
+    router
+      .route(simulationEndpointRoutes.internal.customers)
+      .get((req, res) => {
+        res.json({customers: this.customersJson});
+      });
+    router
+      .route(simulationEndpointRoutes.internal.rideProviders)
+      .get((req, res) => {
+        res.json({rideProviders: this.rideProvidersJson});
+      });
+    router
+      .route(simulationEndpointRoutes.internal.authenticationServices)
+      .get((req, res) => {
+        res.json({authenticationServices: this.authenticationServicesJson});
+      });
+    router
+      .route(simulationEndpointRoutes.internal.matchingServices)
+      .get((req, res) => {
+        res.json({matchingServices: this.matchingServicesJson});
+      });
+    // REMOVE
+    router
+      .route(simulationEndpointRoutes.internal.rideRequests)
+      .get((req, res) => {
+        res.json({
+          delete: 'delete this',
+          rideRequests: this.matchingServices.flatMap(a => a.getAuctions()),
+        });
+      });
+    router
+      .route(simulationEndpointRoutes.internal.smartContracts)
+      .get((req, res) => {
+        res.json({smartContracts: this.rideContractsJson});
       });
     return router;
   }

@@ -31,6 +31,26 @@ export interface OsmVertexEdge extends VertexEdge {
 
 export type OsmVertexGraph = VertexGraph<OsmVertex, OsmVertexEdge>;
 
+export const genericNodeCreator = <
+  T,
+  Y,
+  VERTEX extends Vertex,
+  EDGE extends VertexEdge,
+>(
+  nodes: ReadonlyArray<T>,
+  edges: ReadonlyArray<Y>
+): VertexGraph<VERTEX, EDGE> => {
+  console.log('node#', nodes.length);
+  console.log('edges#', edges.length);
+  return {
+    edges: {
+      idMap: new Map(),
+      vertexEdgeIdMap: new Map(),
+    },
+    vertices: new Map(),
+  };
+};
+
 export const createOsmVertexGraph = (
   input: ReadonlyArray<OverpassRequestCityDataType>
 ): OsmVertexGraph => {
@@ -50,26 +70,64 @@ export const createOsmVertexGraph = (
       } satisfies OsmVertex,
     ])
   );
+  console.log('vertices#', vertices.size);
+  for (let index = 0; index < 10; index++) {
+    console.log(ways[index]);
+  }
   // Add neighbors
   const idMap = new Map<VertexId, Map<VertexId, VertexEdgeId>>();
   const vertexEdgeIdMap = new Map<VertexEdgeId, OsmVertexEdge>();
+  let counterUndefined = 0;
   for (const way of ways) {
     let wayWasAdded = false;
-    for (const nodeId of way.nodes) {
-      const vertex = vertices.get(nodeId);
-      if (vertex !== undefined) {
-        for (const otherNodeId of way.nodes.filter(a => a !== nodeId)) {
-          wayWasAdded = true;
-          vertex.neighbors.push(otherNodeId);
-          const currentIdMap = idMap.get(nodeId);
-          if (currentIdMap !== undefined) {
-            currentIdMap.set(otherNodeId, way.id);
-          } else {
-            idMap.set(nodeId, new Map([[otherNodeId, way.id]]));
-          }
+    for (let index = 0; index < way.nodes.length; index++) {
+      const vertex = vertices.get(way.nodes[index]);
+      const currentIdMap = idMap.get(way.nodes[index]);
+      if (vertex === undefined) {
+        counterUndefined += 1;
+      }
+      if (vertex !== undefined && index < way.nodes.length - 1) {
+        wayWasAdded = true;
+        vertex.neighbors.push(way.nodes[index + 1]);
+        if (currentIdMap !== undefined) {
+          currentIdMap.set(way.nodes[index + 1], way.id);
+        } else {
+          idMap.set(
+            way.nodes[index],
+            new Map([[way.nodes[index + 1], way.id]])
+          );
+        }
+      }
+      if (vertex !== undefined && index > 1) {
+        wayWasAdded = true;
+        vertex.neighbors.push(way.nodes[index - 1]);
+        if (currentIdMap !== undefined) {
+          currentIdMap.set(way.nodes[index - 1], way.id);
+        } else {
+          idMap.set(
+            way.nodes[index],
+            new Map([[way.nodes[index - 1], way.id]])
+          );
         }
       }
     }
+    /*
+    for (const nodeId of way.nodes) {
+      const vertex = vertices.get(nodeId);
+      if (vertex !== undefined) {
+        //vertex.neighbors.push(otherNodeId);
+        //for (const otherNodeId of way.nodes.filter(a => a !== nodeId)) {
+        //  wayWasAdded = true;
+        //  vertex.neighbors.push(otherNodeId);
+        //  const currentIdMap = idMap.get(nodeId);
+        //  if (currentIdMap !== undefined) {
+        //    currentIdMap.set(otherNodeId, way.id);
+        //  } else {
+        //    idMap.set(nodeId, new Map([[otherNodeId, way.id]]));
+        //  }
+        //}
+      }
+    }*/
     if (wayWasAdded) {
       vertexEdgeIdMap.set(way.id, {
         geometry: way.geometry.map(a => ({lat: a.lat, long: a.lon})),
@@ -120,6 +178,7 @@ export const createOsmVertexGraph = (
   console.log(
     `Found ${edges.vertexEdgeIdMap.size} edges of original ${ways.length} ways`
   );
+  console.log(`Undefined vertex counter: ${counterUndefined}`);
   //return {vertices, edges: edgeFunc};
   return {edges, vertices};
 };

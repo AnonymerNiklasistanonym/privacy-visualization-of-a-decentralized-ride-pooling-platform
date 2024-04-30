@@ -1,22 +1,21 @@
 /* global window:readonly, fetch:readonly, document:readonly */
 /* global L:readonly */
-/* global globalPort:readonly, globalStartPos:readonly */
+/* global globalStartPos:readonly, globalBaseUrlSimulation:readonly, globalSimulationEndpoints:readonly */
 
 let showAs = false;
 let showMs = false;
 
 window.addEventListener('load', async () => {
-  const baseUrl = `http://localhost:${globalPort}`;
   const fetchElement = async endpoint => {
-    const result = await fetch(`${baseUrl}/json/${endpoint}`).then(data =>
-      data.json()
+    const result = await fetch(`${globalBaseUrlSimulation}${endpoint}`).then(
+      data => data.json()
     );
     //console.debug(`requested endpoint '${endpoint}':`, result);
     return result;
   };
   const buttonSimulation = async endpoint => {
-    const result = await fetch(`${baseUrl}/simulation/${endpoint}`).then(data =>
-      data.text()
+    const result = await fetch(`${globalBaseUrlSimulation}${endpoint}`).then(
+      data => data.text()
     );
     console.debug(`requested simulation endpoint '${endpoint}':`, result);
   };
@@ -24,17 +23,23 @@ window.addEventListener('load', async () => {
   document
     .getElementById('buttonState')
     .addEventListener('click', () =>
-      buttonSimulation('state').catch(err => console.error(err))
+      buttonSimulation(globalSimulationEndpoints.simulation.state).catch(err =>
+        console.error(err)
+      )
     );
   document
     .getElementById('buttonPause')
     .addEventListener('click', () =>
-      buttonSimulation('pause').catch(err => console.error(err))
+      buttonSimulation(globalSimulationEndpoints.simulation.pause).catch(err =>
+        console.error(err)
+      )
     );
   document
     .getElementById('buttonRun')
     .addEventListener('click', () =>
-      buttonSimulation('run').catch(err => console.error(err))
+      buttonSimulation(globalSimulationEndpoints.simulation.run).catch(err =>
+        console.error(err)
+      )
     );
   document.getElementById('buttonToggleAS').addEventListener('click', () => {
     showAs = !showAs;
@@ -126,7 +131,9 @@ window.addEventListener('load', async () => {
     // Fetch current actors and draw them on the map
     if (showAs) {
       for (const authenticationService of (
-        await fetchElement('authentication_services')
+        await fetchElement(
+          globalSimulationEndpoints.internal.authenticationServices
+        )
       ).authenticationServices) {
         const element = currentElements.find(
           a => a._custom_id === authenticationService.id
@@ -163,8 +170,11 @@ window.addEventListener('load', async () => {
     if (showMs) {
       let matchingServices = [];
       try {
-        matchingServices = (await fetchElement('matching_services'))
-          .matchingServices;
+        matchingServices = (
+          await fetchElement(
+            globalSimulationEndpoints.internal.matchingServices
+          )
+        ).matchingServices;
       } catch (err) {
         console.error(err);
         errorWasThrown = true;
@@ -201,7 +211,9 @@ window.addEventListener('load', async () => {
     }
     let customers = [];
     try {
-      customers = (await fetchElement('customers')).customers;
+      customers = (
+        await fetchElement(globalSimulationEndpoints.internal.customers)
+      ).customers;
     } catch (err) {
       console.error(err);
       errorWasThrown = true;
@@ -231,8 +243,9 @@ window.addEventListener('load', async () => {
       marker._custom_date = currentDate;
       currentElements.push(marker);
     }
-    for (const rideProvider of (await fetchElement('ride_providers'))
-      .rideProviders) {
+    for (const rideProvider of (
+      await fetchElement(globalSimulationEndpoints.internal.rideProviders)
+    ).rideProviders) {
       const element = currentElements.find(
         a => a._custom_id === rideProvider.id
       );

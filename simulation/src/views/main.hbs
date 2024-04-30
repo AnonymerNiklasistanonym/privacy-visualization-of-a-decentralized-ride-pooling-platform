@@ -9,12 +9,9 @@
 <button id="buttonToggleMS">Toggle MS</button>
 
 <scr{{!}}ipt>
-  var globalPort = {{port}};
-  var globalStartPos = {
-    lat: {{startPos.lat}},
-    long: {{startPos.long}},
-    zoom: {{startPos.zoom}}
-  };
+  var globalStartPos = {{globalStartPos}};
+  var globalBaseUrlSimulation = {{globalBaseUrlSimulation}};
+  var globalSimulationEndpoints = {{globalSimulationEndpoints}};
 </scr{{!}}ipt>
 
 <h2>Customers ({{customers.length}}) <a href="/json/customers">[json]</a></h2>

@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify, Response
 from flask_cors import CORS
 import networkx as nx
 import osmnx as ox
+import os
 from dataclasses import dataclass
 
 # python -m pip install flask flask-cors networkx osmnx scikit-learn
@@ -18,6 +19,9 @@ cors = CORS(app, resources={r"/*": {"origins": "*"}})
 # create the graph
 location = ("stuttgart", "Stuttgart, Baden-Württemberg, Germany")
 G = ox.graph_from_place(location[1], network_type="drive")
+# Early exit to only cache the web request
+if "ONLY_CACHE" in os.environ and os.environ["ONLY_CACHE"] == "1":
+    exit(0)
 # calculate additional weights
 G = ox.add_edge_speeds(G)
 G = ox.add_edge_travel_times(G)
@@ -153,6 +157,11 @@ def convert_node_ids_to_coordinates(node_ids: list[int]):
             map(lambda node_id: G.nodes[node_id], node_ids),
         )
     )
+
+
+@app.route("/running", methods=["GET", "POST"])
+def running():
+    return "Success", 200
 
 
 if __name__ == "__main__":

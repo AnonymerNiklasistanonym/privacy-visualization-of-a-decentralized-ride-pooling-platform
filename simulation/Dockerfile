@@ -1,5 +1,8 @@
 FROM node:21-alpine
 
+# Used for health check in 'docker compose'
+RUN apk add --no-cache curl
+
 # Uncomment next line to inspect the image/container using bash
 #RUN apk add --no-cache bash
 
@@ -21,6 +24,11 @@ RUN rm .eslintrc.json
 RUN rm tsconfig.json
 RUN rm -rf build
 RUN rm -rf src
+
+# Run once to cache data
+ENV ONLY_CACHE=1
+RUN npm run start
+ENV ONLY_CACHE=
 
 # Expose ports to the outside
 EXPOSE 3020

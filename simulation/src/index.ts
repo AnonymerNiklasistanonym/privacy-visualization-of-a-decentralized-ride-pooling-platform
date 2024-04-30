@@ -5,10 +5,13 @@ import express from 'express';
 import path from 'path';
 // Local imports
 import {getCliFlag, getCliOverride} from './misc/cli';
+import {
+  simulationEndpointRoutes,
+  simulationEndpoints,
+} from './globals/defaults/endpoints';
 import {Simulation} from './simulation';
 import {ports} from './globals/defaults/ports';
 import {printRouterPaths} from './misc/printExpressRoutes';
-import {simulationEndpointRoutes} from './globals/defaults/endpoints';
 import {updateSimulationConfigWithData} from './config/simulationConfigWithData';
 // Type imports
 import type {SimulationConfig} from './config/simulationConfig';
@@ -81,14 +84,20 @@ app.set('views', path.join(SRC_DIR, 'views'));
 app.enable('view cache');
 
 async function main() {
+  const simulationConfig = await updateSimulationConfigWithData(config);
+  if ('ONLY_CACHE' in process.env && process.env['ONLY_CACHE'] === '1') {
+    return;
+  }
   /** The simulation. */
-  const simulation = new Simulation(
-    await updateSimulationConfigWithData(config)
-  );
+  const simulation = new Simulation(simulationConfig);
   app.use(
     simulationEndpointRoutes.simulation.route,
     simulation.generateRoutes()
   );
+
+  app.get('/running', (req, res) => {
+    res.send('Success').status(200);
+  });
 
   app.get('/', (req, res) => {
     res.render('main', {
@@ -102,13 +111,21 @@ async function main() {
       port: config.port,
       rideProviders: simulation.rideProvidersJson,
       smartContracts: simulation.rideContractsJson,
-      startPos: simulation.startPos,
+
+      globalBaseUrlSimulation: `http://localhost:${config.port}`,
+      globalSimulationEndpoints: simulationEndpoints,
+      globalStartPos: simulation.startPos,
     });
   });
 
   app.use(
     simulationEndpointRoutes.apiV1.route,
     simulation.generateFrontendRoutes()
+  );
+
+  app.use(
+    simulationEndpointRoutes.internal.route,
+    simulation.generateInternalRoutes()
   );
 
   app.listen(config.port, () => {

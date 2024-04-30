@@ -1,4 +1,5 @@
 // Local imports
+import {pathfinderEndpoints} from '../globals/defaults/endpoints';
 import {ports} from '../globals/defaults/ports';
 // Type imports
 import type {Coordinates} from '../globals/types/coordinates';
@@ -10,7 +11,7 @@ export const osmnxServerRequest = async (
   target: Readonly<Coordinates>
 ): Promise<OsmnxServerResponse> => {
   const result = await fetch(
-    `http://localhost:${ports.pathfinder}/shortest_path_coordinates`,
+    `http://localhost:${ports.pathfinder}${pathfinderEndpoints.shortestPathCoordinates}`,
     {
       body: JSON.stringify({source, target}),
       headers: {
