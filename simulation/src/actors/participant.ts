@@ -128,7 +128,10 @@ export abstract class Participant<JsonType> extends Actor<
       simulation.osmVertexGraph,
       this.currentLocation,
       newLocation
-    ) ?? [{...this.currentLocation}, {...newLocation}];
+    );
+    if (this.currentRoute) {
+      console.log(this.currentRoute);
+    }
     this.currentRoutes = {
       custom: this.currentRoute,
       osmnxLength: shortestPathOsmnx.shortest_route_length ?? null,

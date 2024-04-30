@@ -99,12 +99,22 @@ export const overpassRequestCityData = async (
       )[]
     >
   >(
-    `nwr["addr:street"](${boundingBoxRelation.bounds.minlat},${boundingBoxRelation.bounds.minlon},${boundingBoxRelation.bounds.maxlat},${boundingBoxRelation.bounds.maxlon});
-    out geom;`,
+    //`nwr["addr:street"](${boundingBoxRelation.bounds.minlat},${boundingBoxRelation.bounds.minlon},${boundingBoxRelation.bounds.maxlat},${boundingBoxRelation.bounds.maxlon});
+    // out geom;`,
+    referenceQuery(
+      [
+        boundingBoxRelation.bounds.minlat,
+        boundingBoxRelation.bounds.minlon,
+        boundingBoxRelation.bounds.maxlat,
+        boundingBoxRelation.bounds.maxlon,
+      ].join(',')
+    ),
     cacheDir,
     `cache_${city}_bb_nodes.json`,
     verbose
   );
+
+  console.log(requestBbNodes);
 
   return {
     area,
@@ -113,18 +123,22 @@ export const overpassRequestCityData = async (
     nodes: requestBbNodes.elements.filter(
       a => a.type === 'node'
     ) as OverpassApiResponseDataCityBoundingBoxNode[],
-    places: requestBbNodes.elements.map(
-      a =>
-        ({
-          city: a.tags['addr:city'],
-          housenumber: a.tags['addr:housenumber'],
-          lat: a.type === 'node' ? a.lat : a.bounds.maxlat,
-          lon: a.type === 'node' ? a.lon : a.bounds.maxlon,
-          name: a.type === 'node' ? a.tags['name'] : undefined,
-          postcode: a.tags['addr:postcode'],
-          street: a.tags['addr:street'],
-        }) satisfies OverpassApiResponseDataCityPlace
-    ),
+    places: requestBbNodes.elements
+      .filter(
+        a => a.tags !== undefined && 'addr:city' in a.tags && a.type === 'node'
+      )
+      .map(
+        a =>
+          ({
+            city: a.tags['addr:city'],
+            housenumber: a.tags['addr:housenumber'],
+            lat: a.type === 'node' ? a.lat : a.bounds.maxlat,
+            lon: a.type === 'node' ? a.lon : a.bounds.maxlon,
+            name: a.type === 'node' ? a.tags['name'] : undefined,
+            postcode: a.tags['addr:postcode'],
+            street: a.tags['addr:street'],
+          }) satisfies OverpassApiResponseDataCityPlace
+      ),
     ways: requestBbNodes.elements.filter(
       a => a.type === 'way'
     ) as OverpassApiResponseDataCityBoundingBoxWay[],
@@ -319,3 +333,6 @@ export interface OverpassApiResponseDataCityPlace {
   street: string;
   name?: string;
 }
+
+export const referenceQuery = (boundingBox: string) =>
+  `(way["highway"]["area"!~"yes"]["access"!~"private"]["highway"!~"abandoned|bridleway|bus_guideway|construction|corridor|cycleway|elevator|escalator|footway|no|path|pedestrian|planned|platform|proposed|raceway|razed|service|steps|track"]["motor_vehicle"!~"no"]["motorcar"!~"no"]["service"!~"alley|driveway|emergency_access|parking|parking_aisle|private"](${boundingBox});>;);out;`;

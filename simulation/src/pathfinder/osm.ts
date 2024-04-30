@@ -129,25 +129,29 @@ export const createOsmVertexGraph = (
       }
     }*/
     if (wayWasAdded) {
-      vertexEdgeIdMap.set(way.id, {
-        geometry: way.geometry.map(a => ({lat: a.lat, long: a.lon})),
-        id: way.id,
-        weight: way.geometry
-          .map((a, index) =>
-            haversine(
-              {lat: a.lat, lon: a.lon},
-              {
-                lat: way.geometry[
-                  index + 1 < way.geometry.length ? index + 1 : index
-                ].lat,
-                lon: way.geometry[
-                  index + 1 < way.geometry.length ? index + 1 : index
-                ].lon,
-              }
+      if (way.geometry === undefined) {
+        console.log(way);
+      } else {
+        vertexEdgeIdMap.set(way.id, {
+          geometry: way.geometry.map(a => ({lat: a.lat, long: a.lon})),
+          id: way.id,
+          weight: way.geometry
+            .map((a, index) =>
+              haversine(
+                {lat: a.lat, lon: a.lon},
+                {
+                  lat: way.geometry[
+                    index + 1 < way.geometry.length ? index + 1 : index
+                  ].lat,
+                  lon: way.geometry[
+                    index + 1 < way.geometry.length ? index + 1 : index
+                  ].lon,
+                }
+              )
             )
-          )
-          .reduce((sum, a) => sum + a, 0),
-      });
+            .reduce((sum, a) => sum + a, 0),
+        });
+      }
     }
   }
   for (const [vertexId, vertex] of vertices.entries()) {

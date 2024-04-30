@@ -34,4 +34,4 @@ ENV ONLY_CACHE=
 EXPOSE 3020
 
 # Specify command to be run when starting container
-CMD npm run start -- --port 3020
+CMD npm run start -- --port 3020 --verbose

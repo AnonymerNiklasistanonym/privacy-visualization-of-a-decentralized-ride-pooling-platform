@@ -208,6 +208,7 @@ export class Simulation {
 
   /** Run simulation */
   async run(): Promise<void> {
+    console.log('Run simulation...');
     this.state = 'RUNNING';
     await Promise.allSettled(
       [...this.customers, ...this.rideProviders, ...this.matchingServices].map(
@@ -215,9 +216,11 @@ export class Simulation {
       )
     );
     this.state = 'INACTIVE';
+    console.log('Simulation inactive');
   }
 
   pause(): void {
+    console.log('Pause simulation...');
     this.state = 'PAUSING';
   }
 

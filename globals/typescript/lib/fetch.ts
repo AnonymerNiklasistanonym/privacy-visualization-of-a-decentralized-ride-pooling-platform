@@ -1,4 +1,5 @@
 export interface FetchJsonOptions {
+  timeoutInMs?: number;
   showFetch?: boolean;
   showResponse?: boolean;
 }
@@ -10,7 +11,17 @@ export const fetchJson = async <T>(
   if (options?.showFetch) {
     console.info(`fetch ${url} ...`);
   }
-  const response = await fetch(url);
+  let response: Response;
+  if (options?.timeoutInMs !== undefined) {
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), options?.timeoutInMs);
+    response = await fetch(url, {
+      signal: controller.signal,
+    });
+    clearTimeout(id);
+  } else {
+    response = await fetch(url);
+  }
   const result = response.json() as T;
   if (options?.showResponse) {
     console.info(`fetched ${url}`, result);
