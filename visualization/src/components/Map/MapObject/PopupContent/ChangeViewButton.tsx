@@ -6,18 +6,19 @@ import {Button} from '@mui/material';
 import {Lock as LockIcon} from '@mui/icons-material';
 // Local imports
 import {fetchJsonEndpoint} from '@misc/fetch';
-import {showErrorBuilder} from '@misc/modals';
 import {simulationEndpoints} from '@globals/defaults/endpoints';
 // Type imports
+import type {
+  GlobalStatesShowError,
+  GlobalStatesStates,
+} from '@misc/globalStates';
 import type {ReactSetState, ReactState} from '@misc/react';
-import type {ErrorModalPropsErrorBuilder} from '@misc/modals';
-import type {GlobalStatesStates} from '@misc/globalStates';
 import type {ReactNode} from 'react';
 import type {SimulationEndpointParticipantIdFromPseudonym} from '@globals/types/simulation';
 
 export interface ChangeViewButtonProps
   extends GlobalStatesStates,
-    ErrorModalPropsErrorBuilder {
+    GlobalStatesShowError {
   actorId: string;
   isPseudonym: boolean;
   icon?: ReactNode;
@@ -34,15 +35,8 @@ export default function ChangeViewButton({
   stateSpectator,
   setStateSpectator,
   stateBaseUrlSimulation,
-  setStateErrorModalContent,
-  setStateErrorModalOpen,
-  stateErrorModalContent,
+  stateShowError,
 }: ChangeViewButtonProps) {
-  const showError = showErrorBuilder({
-    setStateErrorModalContent,
-    setStateErrorModalOpen,
-    stateErrorModalContent,
-  });
   const [stateActorId, setStateActorId] = useState<
     SimulationEndpointParticipantIdFromPseudonym | undefined
   >(undefined);
@@ -54,7 +48,7 @@ export default function ChangeViewButton({
       )
         .then(data => setStateActorId(data))
         .catch(err =>
-          showError('Simulation fetch participant id from pseudonym', err)
+          stateShowError('Simulation fetch participant id from pseudonym', err)
         );
     }
   });

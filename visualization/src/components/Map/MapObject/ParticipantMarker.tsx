@@ -20,21 +20,18 @@ import {getH3Polygon} from '@globals/lib/h3';
 import {showErrorBuilder} from '@misc/modals';
 import {simulationEndpoints} from '@globals/defaults/endpoints';
 // Type imports
+import type {GlobalStates, GlobalStatesShowError} from '@misc/globalStates';
 import type {
   SimulationEndpointParticipantInformationCustomer,
   SimulationEndpointParticipantInformationRideProvider,
   SimulationEndpointParticipantTypes,
   SimulationEndpointRideRequestInformation,
 } from '@globals/types/simulation';
-import type {ErrorModalPropsErrorBuilder} from '@misc/modals';
 import type {FetchJsonOptions} from '@globals/lib/fetch';
-import type {GlobalStates} from '@misc/globalStates';
 import type {ReactState} from '@misc/react';
 import type {SimulationEndpointParticipantCoordinatesParticipant} from '@globals/types/simulation';
 
-interface ParticipantMarkerProps
-  extends GlobalStates,
-    ErrorModalPropsErrorBuilder {
+interface ParticipantMarkerProps extends GlobalStates, GlobalStatesShowError {
   /** The participant ID and current coordinates */
   stateParticipantCoordinates: ReactState<SimulationEndpointParticipantCoordinatesParticipant>;
   /** The participant ID and current coordinates */
@@ -64,18 +61,11 @@ export default function ParticipantMarker({
   stateBaseUrlSimulation,
   stateSelectedParticipant,
   setStateSelectedParticipant,
-  setStateErrorModalContent,
-  setStateErrorModalOpen,
-  stateErrorModalContent,
+  stateShowError,
   setStateSelectedRideRequest,
   stateSelectedRideRequest,
 }: ParticipantMarkerProps) {
   // Functions: With global state context
-  const showError = showErrorBuilder({
-    setStateErrorModalContent,
-    setStateErrorModalOpen,
-    stateErrorModalContent,
-  });
   const fetchJsonSimulation = async <T,>(
     endpoint: string,
     options?: FetchJsonOptions
@@ -131,7 +121,7 @@ export default function ParticipantMarker({
     const interval = setInterval(async () => {
       if (statePopupOpen) {
         fetchParticipantInformation().catch(err =>
-          showError('Simulation fetch participant information', err)
+          stateShowError('Simulation fetch participant information', err)
         );
       }
     }, 5 * 1000);
@@ -189,7 +179,7 @@ export default function ParticipantMarker({
           setStatePopupOpen(true);
           // Fetch participant information when popup is opened
           fetchParticipantInformation().catch(err =>
-            showError('Simulation fetch participant information', err)
+            stateShowError('Simulation fetch participant information', err)
           );
         },
       }}
@@ -212,10 +202,8 @@ export default function ParticipantMarker({
           setStateSpectator={setStateSpectator}
           setStateSelectedParticipant={setStateSelectedParticipant}
           stateSelectedParticipant={stateSelectedParticipant}
-          setStateErrorModalContent={setStateErrorModalContent}
-          setStateErrorModalOpen={setStateErrorModalOpen}
+          stateShowError={stateShowError}
           stateBaseUrlSimulation={stateBaseUrlSimulation}
-          stateErrorModalContent={stateErrorModalContent}
           setStateSelectedRideRequest={setStateSelectedRideRequest}
           stateSelectedRideRequest={stateSelectedRideRequest}
         />

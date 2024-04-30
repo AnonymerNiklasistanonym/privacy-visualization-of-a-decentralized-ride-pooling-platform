@@ -10,25 +10,22 @@ import TableBlockchainElement from './TableBlockchainElement';
 // > Globals
 import {simulationEndpoints} from '@globals/defaults/endpoints';
 // Type imports
+import type {GlobalStates, GlobalStatesShowError} from '@misc/globalStates';
 import type {
   SimulationEndpointSmartContractInformation,
   SimulationEndpointSmartContracts,
 } from '@globals/types/simulation';
-import type {ErrorModalPropsErrorBuilder} from '@misc/modals';
-import type {GlobalStates} from '@misc/globalStates';
 import type {SettingsBlockchainPropsStates} from '@misc/settings';
 
 export interface TableBlockchainProps
   extends SettingsBlockchainPropsStates,
-    ErrorModalPropsErrorBuilder,
+    GlobalStatesShowError,
     GlobalStates {}
 
 export default function TableBlockchain({
   stateSettingsMapBaseUrlSimulation,
   stateSettingsMapUpdateRateInMs,
-  setStateErrorModalContent,
-  setStateErrorModalOpen,
-  stateErrorModalContent,
+  stateShowError,
   setStateSelectedParticipant,
   setStateSpectator,
   stateSelectedParticipant,
@@ -36,12 +33,6 @@ export default function TableBlockchain({
   setStateSelectedRideRequest,
   stateSelectedRideRequest,
 }: TableBlockchainProps) {
-  const showError = showErrorBuilder({
-    setStateErrorModalContent,
-    setStateErrorModalOpen,
-    stateErrorModalContent,
-  });
-
   // React: States
   const [stateSmartContracts, setStateSmartContracts] = useState<
     Array<SimulationEndpointSmartContractInformation>
@@ -66,7 +57,7 @@ export default function TableBlockchain({
         .then(data => {
           setStateSmartContracts(data);
         })
-        .catch(err => showError('Fetch simulation smart contracts', err));
+        .catch(err => stateShowError('Fetch simulation smart contracts', err));
     }, stateSettingsMapUpdateRateInMs);
     return () => {
       clearInterval(interval);

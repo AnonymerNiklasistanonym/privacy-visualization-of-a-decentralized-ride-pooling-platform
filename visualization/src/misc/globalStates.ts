@@ -12,3 +12,7 @@ export interface GlobalStates extends GlobalStatesStates {
   setStateSelectedParticipant: ReactSetState<string | undefined>;
   setStateSelectedRideRequest: ReactSetState<string | undefined>;
 }
+
+export interface GlobalStatesShowError {
+  stateShowError: (message: string, error: Error) => void;
+}

@@ -11,19 +11,18 @@ import ChangeViewButton from './ChangeViewButton';
 import PopupContentCustomer from './PopupContentCustomer';
 import PopupContentRideProvider from './PopupContentRideProvider';
 // Type imports
+import type {GlobalStates, GlobalStatesShowError} from '@misc/globalStates';
 import type {
   SimulationEndpointParticipantCoordinatesParticipant,
   SimulationEndpointParticipantInformationCustomer,
   SimulationEndpointParticipantInformationRideProvider,
   SimulationEndpointParticipantTypes,
 } from '@globals/types/simulation';
-import type {ErrorModalPropsErrorBuilder} from '@misc/modals';
-import type {GlobalStates} from '@misc/globalStates';
 import type {ReactState} from '@misc/react';
 
 export interface PopupContentParticipantProps
   extends GlobalStates,
-    ErrorModalPropsErrorBuilder {
+    GlobalStatesShowError {
   stateParticipantCoordinates: ReactState<SimulationEndpointParticipantCoordinatesParticipant>;
   stateCustomerInformation: ReactState<null | SimulationEndpointParticipantInformationCustomer>;
   stateRideProviderInformation: ReactState<null | SimulationEndpointParticipantInformationRideProvider>;
@@ -40,10 +39,8 @@ export default function PopupContentParticipant({
   setStateSelectedParticipant,
   stateSelectedParticipant,
   participantType,
-  setStateErrorModalContent,
-  setStateErrorModalOpen,
+  stateShowError,
   stateBaseUrlSimulation,
-  stateErrorModalContent,
   stateSelectedRideRequest,
   setStateSelectedRideRequest,
 }: PopupContentParticipantProps) {
@@ -83,10 +80,8 @@ export default function PopupContentParticipant({
             setStateSpectator={setStateSpectator}
             setStateSelectedParticipant={setStateSelectedParticipant}
             stateSelectedParticipant={stateSelectedParticipant}
-            setStateErrorModalContent={setStateErrorModalContent}
-            setStateErrorModalOpen={setStateErrorModalOpen}
+            stateShowError={stateShowError}
             stateBaseUrlSimulation={stateBaseUrlSimulation}
-            stateErrorModalContent={stateErrorModalContent}
             stateSelectedRideRequest={stateSelectedRideRequest}
             setStateSelectedRideRequest={setStateSelectedRideRequest}
           />
@@ -103,10 +98,8 @@ export default function PopupContentParticipant({
             setStateSpectator={setStateSpectator}
             setStateSelectedParticipant={setStateSelectedParticipant}
             stateSelectedParticipant={stateSelectedParticipant}
-            setStateErrorModalContent={setStateErrorModalContent}
-            setStateErrorModalOpen={setStateErrorModalOpen}
+            stateShowError={stateShowError}
             stateBaseUrlSimulation={stateBaseUrlSimulation}
-            stateErrorModalContent={stateErrorModalContent}
             stateSelectedRideRequest={stateSelectedRideRequest}
             setStateSelectedRideRequest={setStateSelectedRideRequest}
           />
@@ -129,10 +122,8 @@ export default function PopupContentParticipant({
           stateSpectator={stateSpectator}
           setStateSpectator={setStateSpectator}
           stateSelectedParticipant={stateSelectedParticipant}
-          setStateErrorModalContent={setStateErrorModalContent}
-          setStateErrorModalOpen={setStateErrorModalOpen}
+          stateShowError={stateShowError}
           stateBaseUrlSimulation={stateBaseUrlSimulation}
-          stateErrorModalContent={stateErrorModalContent}
           stateSelectedRideRequest={stateSelectedRideRequest}
         />
       </Box>

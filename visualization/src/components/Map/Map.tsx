@@ -22,12 +22,11 @@ import ParticipantMarker from '@components/Map/MapObject/ParticipantMarker';
 // > Styles
 import '@styles/Map.module.scss';
 // Type imports
+import type {GlobalStates, GlobalStatesShowError} from '@misc/globalStates';
 import type {
   SimulationEndpointGraphInformation,
   SimulationEndpointParticipantCoordinates,
 } from '@globals/types/simulation';
-import type {ErrorModalPropsErrorBuilder} from '@misc/modals';
-import type {GlobalStates} from '@misc/globalStates';
 import type {PathfinderEndpointGraphInformation} from '@globals/types/pathfinder';
 import type {ReactState} from '@misc/react';
 import type {SettingsMapPropsStates} from '@misc/settings';
@@ -41,7 +40,7 @@ export interface StatPos {
 export interface MapProps
   extends SettingsMapPropsStates,
     GlobalStates,
-    ErrorModalPropsErrorBuilder {
+    GlobalStatesShowError {
   stateGraph: ReactState<SimulationEndpointGraphInformation>;
   stateGraphPathfinder: ReactState<PathfinderEndpointGraphInformation>;
   stateParticipants: ReactState<SimulationEndpointParticipantCoordinates>;
@@ -62,9 +61,7 @@ export default function Map({
   setStateSelectedParticipant,
   setStateSelectedRideRequest,
   stateSelectedRideRequest,
-  stateErrorModalContent,
-  setStateErrorModalOpen,
-  setStateErrorModalContent,
+  stateShowError,
 }: MapProps) {
   return (
     <Box sx={{width: 1}}>
@@ -97,9 +94,7 @@ export default function Map({
                   setStateSelectedParticipant={setStateSelectedParticipant}
                   setStateSelectedRideRequest={setStateSelectedRideRequest}
                   stateSelectedRideRequest={stateSelectedRideRequest}
-                  stateErrorModalContent={stateErrorModalContent}
-                  setStateErrorModalOpen={setStateErrorModalOpen}
-                  setStateErrorModalContent={setStateErrorModalContent}
+                  stateShowError={stateShowError}
                 />
               ))}
             </LayerGroup>
@@ -120,9 +115,7 @@ export default function Map({
                   setStateSelectedParticipant={setStateSelectedParticipant}
                   setStateSelectedRideRequest={setStateSelectedRideRequest}
                   stateSelectedRideRequest={stateSelectedRideRequest}
-                  stateErrorModalContent={stateErrorModalContent}
-                  setStateErrorModalOpen={setStateErrorModalOpen}
-                  setStateErrorModalContent={setStateErrorModalContent}
+                  stateShowError={stateShowError}
                 />
               ))}
             </LayerGroup>

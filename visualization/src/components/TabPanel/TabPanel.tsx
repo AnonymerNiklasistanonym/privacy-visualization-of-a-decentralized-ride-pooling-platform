@@ -8,6 +8,7 @@ import Link from 'next/link';
 // > Globals
 import {baseUrlPathfinder, baseUrlSimulation} from '@globals/defaults/urls';
 // Local imports
+import {showErrorBuilder} from '@misc/modals';
 // > Components
 import Button from '@components/Button';
 import ErrorModal from '@components/Modal/ErrorModal';
@@ -109,6 +110,12 @@ export default function TabPanel({
     setStateSnackbarSelectedRideRequestOpen(true);
   }, [stateSelectedRideRequest, setStateSnackbarSelectedRideRequestOpen]);
 
+  const showError = showErrorBuilder({
+    setStateErrorModalContent,
+    setStateErrorModalOpen,
+    stateErrorModalContent,
+  });
+
   return (
     <TabPanelContainer locale={locale} messages={messages}>
       <Box sx={{width: '100%'}}>
@@ -133,9 +140,7 @@ export default function TabPanel({
             stateSettingsMapBaseUrlSimulation={
               stateSettingsMapBaseUrlSimulation
             }
-            stateErrorModalContent={stateErrorModalContent}
-            setStateErrorModalOpen={setStateErrorModalOpen}
-            setStateErrorModalContent={setStateErrorModalContent}
+            stateShowError={showError}
             stateSpectator={stateSpectator}
             setStateSpectator={setStateSpectator}
             stateSelectedParticipant={stateSelectedParticipant}

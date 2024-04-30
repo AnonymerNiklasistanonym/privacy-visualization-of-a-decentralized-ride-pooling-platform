@@ -6,7 +6,6 @@ import {useEffect, useState} from 'react';
 import {Box, ButtonGroup, Chip, Divider} from '@mui/material';
 // Local imports
 import {fetchJsonEndpoint, fetchTextEndpoint} from '@misc/fetch';
-import {showErrorBuilder} from '@misc/modals';
 // > Components
 import Button from '@components/Button';
 import Map from '@components/Map';
@@ -21,6 +20,7 @@ import {
 import '@styles/Map.module.scss';
 import styles from '@styles/Map.module.scss';
 // Type imports
+import type {GlobalStates, GlobalStatesShowError} from '@misc/globalStates';
 import type {
   SimulationEndpointGraphInformation,
   SimulationEndpointParticipantCoordinates,
@@ -32,23 +32,19 @@ import type {
   SimulationEndpointSmartContracts,
 } from '@globals/types/simulation';
 import type {DebugData} from '@components/Table/DebugData';
-import type {ErrorModalPropsErrorBuilder} from '@misc/modals';
-import type {GlobalStates} from '@misc/globalStates';
 import type {PathfinderEndpointGraphInformation} from '@globals/types/pathfinder';
 import type {SettingsMapPropsStates} from '@misc/settings';
 import type {TextInputSpectatorOptionStateType} from '@components/TextInput/TextInputSpectator/TextInputSpectator';
 
 export interface TabMapProps
   extends SettingsMapPropsStates,
-    ErrorModalPropsErrorBuilder,
+    GlobalStatesShowError,
     GlobalStates {}
 
 export default function TabMap({
   setStateSpectator,
-  setStateErrorModalContent,
-  setStateErrorModalOpen,
   stateSpectator,
-  stateErrorModalContent,
+  stateShowError,
   stateSettingsMapBaseUrlPathfinder,
   stateSettingsMapBaseUrlSimulation,
   stateSettingsMapOpenPopupOnHover,
@@ -59,11 +55,6 @@ export default function TabMap({
   stateSelectedRideRequest,
   setStateSelectedRideRequest,
 }: TabMapProps) {
-  const showError = showErrorBuilder({
-    setStateErrorModalContent,
-    setStateErrorModalOpen,
-    stateErrorModalContent,
-  });
   // React states
   const defaultOptions: TextInputSpectatorOptionStateType = [
     {
@@ -128,14 +119,14 @@ export default function TabMap({
       {showFetch: true, showResponse: true}
     )
       .then(data => setGraphState(data))
-      .catch(err => showError('Fetch simulation graph', err));
+      .catch(err => stateShowError('Fetch simulation graph', err));
     fetchJsonEndpoint<PathfinderEndpointGraphInformation>(
       stateSettingsMapBaseUrlPathfinder,
       pathfinderEndpoints.graphInformation,
       {showFetch: true, showResponse: true}
     )
       .then(data => setPathfinderGraphState(data))
-      .catch(err => showError('Fetch pathfinder graph', err));
+      .catch(err => stateShowError('Fetch pathfinder graph', err));
   };
 
   const fetchDebugData = (clear = false) => {
@@ -210,7 +201,7 @@ export default function TabMap({
           smartContracts,
         })
       )
-      .catch(err => showError('Fetch debug data', err));
+      .catch(err => stateShowError('Fetch debug data', err));
   };
 
   // React: Effects
@@ -237,7 +228,7 @@ export default function TabMap({
           ]);
         })
         .catch(err =>
-          showError('Fetch simulation participant coordinates', err)
+          stateShowError('Fetch simulation participant coordinates', err)
         );
     }, stateSettingsMapUpdateRateInMs);
     return () => {
@@ -272,9 +263,7 @@ export default function TabMap({
           stateSettingsMapUpdateRateInMs={stateSettingsMapUpdateRateInMs}
           stateSelectedRideRequest={stateSelectedRideRequest}
           setStateSelectedRideRequest={setStateSelectedRideRequest}
-          stateErrorModalContent={stateErrorModalContent}
-          setStateErrorModalOpen={setStateErrorModalOpen}
-          setStateErrorModalContent={setStateErrorModalContent}
+          stateShowError={stateShowError}
         />
 
         <Box
@@ -297,7 +286,7 @@ export default function TabMap({
                   simulationEndpoints.simulation.state
                 )
                   .then(a => alert(`Simulation state: ${a}`))
-                  .catch(err => showError('Fetch simulation state', err))
+                  .catch(err => stateShowError('Fetch simulation state', err))
               }
             >
               State
@@ -307,7 +296,9 @@ export default function TabMap({
                 fetchTextEndpoint(
                   stateSettingsMapBaseUrlSimulation,
                   simulationEndpoints.simulation.pause
-                ).catch(err => showError('Fetch simulation state pause', err))
+                ).catch(err =>
+                  stateShowError('Fetch simulation state pause', err)
+                )
               }
             >
               Pause
@@ -317,7 +308,9 @@ export default function TabMap({
                 fetchTextEndpoint(
                   stateSettingsMapBaseUrlSimulation,
                   simulationEndpoints.simulation.run
-                ).catch(err => showError('Fetch simulation state run', err))
+                ).catch(err =>
+                  stateShowError('Fetch simulation state run', err)
+                )
               }
             >
               Run

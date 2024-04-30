@@ -7,21 +7,18 @@ import {Box, Divider, Typography} from '@mui/material';
 // > Components
 import TableBlockchain from '@components/Table/TableBlockchain';
 // Type imports
-import type {ErrorModalPropsErrorBuilder} from '@misc/modals';
-import type {GlobalStates} from '@misc/globalStates';
+import type {GlobalStates, GlobalStatesShowError} from '@misc/globalStates';
 import type {SettingsBlockchainPropsStates} from '@misc/settings';
 
 export interface TabBlockchainProps
   extends SettingsBlockchainPropsStates,
-    ErrorModalPropsErrorBuilder,
+    GlobalStatesShowError,
     GlobalStates {}
 
 // eslint-disable-next-line no-empty-pattern
 export default function TabBlockchain({
   stateSettingsMapBaseUrlSimulation,
-  stateErrorModalContent,
-  setStateErrorModalOpen,
-  setStateErrorModalContent,
+  stateShowError,
   stateSettingsMapUpdateRateInMs,
   setStateSelectedParticipant,
   setStateSpectator,
@@ -48,9 +45,7 @@ export default function TabBlockchain({
         </Typography>
         <TableBlockchain
           stateSettingsMapBaseUrlSimulation={stateSettingsMapBaseUrlSimulation}
-          stateErrorModalContent={stateErrorModalContent}
-          setStateErrorModalOpen={setStateErrorModalOpen}
-          setStateErrorModalContent={setStateErrorModalContent}
+          stateShowError={stateShowError}
           stateSettingsMapUpdateRateInMs={stateSettingsMapUpdateRateInMs}
           setStateSelectedParticipant={setStateSelectedParticipant}
           setStateSpectator={setStateSpectator}
