@@ -21,11 +21,12 @@ import {
   WebStories as WebStoriesIcon,
 } from '@mui/icons-material';
 // Type imports
-import type {GlobalStates} from '@misc/globalStates';
+import type {GlobalPropsUserInputSetParticipant} from '@misc/globalProps';
 import type {ReactState} from '@misc/react';
 import type {SimulationEndpointSmartContractInformation} from '@globals/types/simulation';
 
-export interface TableBlockchainElementProps extends GlobalStates {
+export interface TableBlockchainElementProps
+  extends GlobalPropsUserInputSetParticipant {
   stateSmartContract: ReactState<SimulationEndpointSmartContractInformation>;
 }
 

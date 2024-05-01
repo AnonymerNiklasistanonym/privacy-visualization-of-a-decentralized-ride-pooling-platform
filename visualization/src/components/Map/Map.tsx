@@ -22,7 +22,12 @@ import ParticipantMarker from '@components/Map/MapObject/ParticipantMarker';
 // > Styles
 import '@styles/Map.module.scss';
 // Type imports
-import type {GlobalStates, GlobalStatesShowError} from '@misc/globalStates';
+import type {
+  GlobalPropsFetch,
+  GlobalPropsShowError,
+  GlobalPropsUserInput,
+  GlobalPropsUserInputSet,
+} from '@misc/globalProps';
 import type {
   SimulationEndpointGraphInformation,
   SimulationEndpointParticipantCoordinates,
@@ -39,8 +44,10 @@ export interface StatPos {
 
 export interface MapProps
   extends SettingsMapPropsStates,
-    GlobalStates,
-    GlobalStatesShowError {
+    GlobalPropsFetch,
+    GlobalPropsShowError,
+    GlobalPropsUserInput,
+    GlobalPropsUserInputSet {
   stateGraph: ReactState<SimulationEndpointGraphInformation>;
   stateGraphPathfinder: ReactState<PathfinderEndpointGraphInformation>;
   stateParticipants: ReactState<SimulationEndpointParticipantCoordinates>;
@@ -56,12 +63,12 @@ export default function Map({
   setStateSpectator,
   stateSettingsMapShowTooltips,
   stateSettingsMapOpenPopupOnHover,
-  stateSettingsMapBaseUrlSimulation,
   stateSelectedParticipant,
   setStateSelectedParticipant,
   setStateSelectedRideRequest,
   stateSelectedRideRequest,
-  stateShowError,
+  showError,
+  fetchJsonSimulation,
 }: MapProps) {
   return (
     <Box sx={{width: 1}}>
@@ -89,12 +96,12 @@ export default function Map({
                   participantType="customer"
                   stateShowTooltip={stateSettingsMapShowTooltips}
                   stateOpenPopupOnHover={stateSettingsMapOpenPopupOnHover}
-                  stateBaseUrlSimulation={stateSettingsMapBaseUrlSimulation}
                   stateSelectedParticipant={stateSelectedParticipant}
                   setStateSelectedParticipant={setStateSelectedParticipant}
                   setStateSelectedRideRequest={setStateSelectedRideRequest}
                   stateSelectedRideRequest={stateSelectedRideRequest}
-                  stateShowError={stateShowError}
+                  showError={showError}
+                  fetchJsonSimulation={fetchJsonSimulation}
                 />
               ))}
             </LayerGroup>
@@ -110,12 +117,12 @@ export default function Map({
                   participantType="ride_provider"
                   stateShowTooltip={stateSettingsMapShowTooltips}
                   stateOpenPopupOnHover={stateSettingsMapOpenPopupOnHover}
-                  stateBaseUrlSimulation={stateSettingsMapBaseUrlSimulation}
                   stateSelectedParticipant={stateSelectedParticipant}
                   setStateSelectedParticipant={setStateSelectedParticipant}
                   setStateSelectedRideRequest={setStateSelectedRideRequest}
                   stateSelectedRideRequest={stateSelectedRideRequest}
-                  stateShowError={stateShowError}
+                  showError={showError}
+                  fetchJsonSimulation={fetchJsonSimulation}
                 />
               ))}
             </LayerGroup>

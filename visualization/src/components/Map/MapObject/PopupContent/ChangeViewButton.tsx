@@ -5,26 +5,26 @@ import {Button} from '@mui/material';
 // > Icons
 import {Lock as LockIcon} from '@mui/icons-material';
 // Local imports
-import {fetchJsonEndpoint} from '@misc/fetch';
 import {simulationEndpoints} from '@globals/defaults/endpoints';
 // Type imports
 import type {
-  GlobalStatesShowError,
-  GlobalStatesStates,
-} from '@misc/globalStates';
-import type {ReactSetState, ReactState} from '@misc/react';
+  GlobalPropsFetch,
+  GlobalPropsShowError,
+  GlobalPropsUserInput,
+  GlobalPropsUserInputSetSpectator,
+} from '@misc/globalProps';
 import type {ReactNode} from 'react';
 import type {SimulationEndpointParticipantIdFromPseudonym} from '@globals/types/simulation';
 
 export interface ChangeViewButtonProps
-  extends GlobalStatesStates,
-    GlobalStatesShowError {
+  extends GlobalPropsUserInput,
+    GlobalPropsUserInputSetSpectator,
+    GlobalPropsShowError,
+    GlobalPropsFetch {
   actorId: string;
   isPseudonym: boolean;
   icon?: ReactNode;
   label: string;
-  setStateSpectator: ReactSetState<string>;
-  stateBaseUrlSimulation: ReactState<string>;
 }
 
 export default function ChangeViewButton({
@@ -34,21 +34,20 @@ export default function ChangeViewButton({
   label,
   stateSpectator,
   setStateSpectator,
-  stateBaseUrlSimulation,
-  stateShowError,
+  fetchJsonSimulation,
+  showError,
 }: ChangeViewButtonProps) {
   const [stateActorId, setStateActorId] = useState<
     SimulationEndpointParticipantIdFromPseudonym | undefined
   >(undefined);
   useEffect(() => {
     if (isPseudonym) {
-      fetchJsonEndpoint<SimulationEndpointParticipantIdFromPseudonym>(
-        stateBaseUrlSimulation,
+      fetchJsonSimulation<SimulationEndpointParticipantIdFromPseudonym>(
         simulationEndpoints.apiV1.participantIdFromPseudonym(actorId)
       )
         .then(data => setStateActorId(data))
         .catch(err =>
-          stateShowError('Simulation fetch participant id from pseudonym', err)
+          showError('Simulation fetch participant id from pseudonym', err)
         );
     }
   });

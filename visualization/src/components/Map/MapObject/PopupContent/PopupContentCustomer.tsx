@@ -12,23 +12,28 @@ import {renderDataElement} from './PopupContentGeneric';
 // > Components
 import ChangeViewButton from './ChangeViewButton';
 // Type imports
-import type {GlobalStates, GlobalStatesShowError} from '@misc/globalStates';
+import type {
+  GlobalPropsFetch,
+  GlobalPropsShowError,
+  GlobalPropsUserInput,
+  GlobalPropsUserInputSet,
+} from '@misc/globalProps';
 import type {DataElement} from './PopupContentGeneric';
-import type {ReactState} from '@misc/react';
 import type {SimulationEndpointParticipantInformationCustomer} from '@globals/types/simulation';
 
 export interface PopupContentCustomerProps
-  extends GlobalStates,
-    GlobalStatesShowError {
+  extends GlobalPropsUserInput,
+    GlobalPropsUserInputSet,
+    GlobalPropsShowError,
+    GlobalPropsFetch {
   customer: SimulationEndpointParticipantInformationCustomer;
-  stateBaseUrlSimulation: ReactState<string>;
 }
 
 export default function PopupContentCustomer({
   customer,
-  stateShowError,
+  showError: stateShowError,
   setStateSpectator,
-  stateBaseUrlSimulation,
+  fetchJsonSimulation,
   stateSelectedParticipant,
   stateSpectator,
   setStateSelectedRideRequest,
@@ -92,8 +97,8 @@ export default function PopupContentCustomer({
           label={'the current ride provider'}
           setStateSpectator={setStateSpectator}
           isPseudonym={true}
-          stateShowError={stateShowError}
-          stateBaseUrlSimulation={stateBaseUrlSimulation}
+          showError={stateShowError}
+          fetchJsonSimulation={fetchJsonSimulation}
           stateSelectedParticipant={stateSelectedParticipant}
           stateSpectator={stateSpectator}
           stateSelectedRideRequest={stateSelectedRideRequest}

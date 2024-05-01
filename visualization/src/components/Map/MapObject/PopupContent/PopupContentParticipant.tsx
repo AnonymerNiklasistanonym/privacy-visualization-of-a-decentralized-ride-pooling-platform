@@ -11,7 +11,12 @@ import ChangeViewButton from './ChangeViewButton';
 import PopupContentCustomer from './PopupContentCustomer';
 import PopupContentRideProvider from './PopupContentRideProvider';
 // Type imports
-import type {GlobalStates, GlobalStatesShowError} from '@misc/globalStates';
+import type {
+  GlobalPropsFetch,
+  GlobalPropsShowError,
+  GlobalPropsUserInput,
+  GlobalPropsUserInputSet,
+} from '@misc/globalProps';
 import type {
   SimulationEndpointParticipantCoordinatesParticipant,
   SimulationEndpointParticipantInformationCustomer,
@@ -21,13 +26,14 @@ import type {
 import type {ReactState} from '@misc/react';
 
 export interface PopupContentParticipantProps
-  extends GlobalStates,
-    GlobalStatesShowError {
+  extends GlobalPropsUserInput,
+    GlobalPropsUserInputSet,
+    GlobalPropsShowError,
+    GlobalPropsFetch {
   stateParticipantCoordinates: ReactState<SimulationEndpointParticipantCoordinatesParticipant>;
   stateCustomerInformation: ReactState<null | SimulationEndpointParticipantInformationCustomer>;
   stateRideProviderInformation: ReactState<null | SimulationEndpointParticipantInformationRideProvider>;
   participantType: SimulationEndpointParticipantTypes;
-  stateBaseUrlSimulation: ReactState<string>;
 }
 
 export default function PopupContentParticipant({
@@ -39,8 +45,8 @@ export default function PopupContentParticipant({
   setStateSelectedParticipant,
   stateSelectedParticipant,
   participantType,
-  stateShowError,
-  stateBaseUrlSimulation,
+  showError,
+  fetchJsonSimulation,
   stateSelectedRideRequest,
   setStateSelectedRideRequest,
 }: PopupContentParticipantProps) {
@@ -76,14 +82,14 @@ export default function PopupContentParticipant({
         ) : customerInformationState !== null ? (
           <PopupContentCustomer
             customer={customerInformationState}
-            stateSpectator={stateSpectator}
-            setStateSpectator={setStateSpectator}
+            fetchJsonSimulation={fetchJsonSimulation}
             setStateSelectedParticipant={setStateSelectedParticipant}
-            stateSelectedParticipant={stateSelectedParticipant}
-            stateShowError={stateShowError}
-            stateBaseUrlSimulation={stateBaseUrlSimulation}
-            stateSelectedRideRequest={stateSelectedRideRequest}
             setStateSelectedRideRequest={setStateSelectedRideRequest}
+            setStateSpectator={setStateSpectator}
+            showError={showError}
+            stateSelectedParticipant={stateSelectedParticipant}
+            stateSelectedRideRequest={stateSelectedRideRequest}
+            stateSpectator={stateSpectator}
           />
         ) : null}
         {rideProviderInformationState === null &&
@@ -93,20 +99,20 @@ export default function PopupContentParticipant({
           </Box>
         ) : rideProviderInformationState !== null ? (
           <PopupContentRideProvider
+            fetchJsonSimulation={fetchJsonSimulation}
             rideProvider={rideProviderInformationState}
-            stateSpectator={stateSpectator}
-            setStateSpectator={setStateSpectator}
             setStateSelectedParticipant={setStateSelectedParticipant}
-            stateSelectedParticipant={stateSelectedParticipant}
-            stateShowError={stateShowError}
-            stateBaseUrlSimulation={stateBaseUrlSimulation}
-            stateSelectedRideRequest={stateSelectedRideRequest}
             setStateSelectedRideRequest={setStateSelectedRideRequest}
+            setStateSpectator={setStateSpectator}
+            showError={showError}
+            stateSelectedParticipant={stateSelectedParticipant}
+            stateSelectedRideRequest={stateSelectedRideRequest}
+            stateSpectator={stateSpectator}
           />
         ) : null}
         <ChangeViewButton
           actorId={stateParticipantCoordinates.id}
-          isPseudonym={false}
+          fetchJsonSimulation={fetchJsonSimulation}
           icon={
             participantType === 'customer' ? (
               <DirectionsWalkIcon />
@@ -114,17 +120,17 @@ export default function PopupContentParticipant({
               <DirectionsCarIcon />
             )
           }
+          isPseudonym={false}
           label={
             participantType === 'customer'
               ? 'this customer'
               : 'this ride provider'
           }
-          stateSpectator={stateSpectator}
           setStateSpectator={setStateSpectator}
+          showError={showError}
           stateSelectedParticipant={stateSelectedParticipant}
-          stateShowError={stateShowError}
-          stateBaseUrlSimulation={stateBaseUrlSimulation}
           stateSelectedRideRequest={stateSelectedRideRequest}
+          stateSpectator={stateSpectator}
         />
       </Box>
     </Box>

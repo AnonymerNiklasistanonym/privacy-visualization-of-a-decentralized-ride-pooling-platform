@@ -7,18 +7,25 @@ import {Box, Divider, Typography} from '@mui/material';
 // > Components
 import TableBlockchain from '@components/Table/TableBlockchain';
 // Type imports
-import type {GlobalStates, GlobalStatesShowError} from '@misc/globalStates';
+import type {
+  GlobalPropsFetch,
+  GlobalPropsShowError,
+  GlobalPropsUserInput,
+  GlobalPropsUserInputSet,
+} from '@misc/globalProps';
 import type {SettingsBlockchainPropsStates} from '@misc/settings';
 
 export interface TabBlockchainProps
   extends SettingsBlockchainPropsStates,
-    GlobalStatesShowError,
-    GlobalStates {}
+    GlobalPropsUserInput,
+    GlobalPropsUserInputSet,
+    GlobalPropsShowError,
+    GlobalPropsFetch {}
 
 // eslint-disable-next-line no-empty-pattern
 export default function TabBlockchain({
   stateSettingsMapBaseUrlSimulation,
-  stateShowError,
+  showError: stateShowError,
   stateSettingsMapUpdateRateInMs,
   setStateSelectedParticipant,
   setStateSpectator,
@@ -26,6 +33,7 @@ export default function TabBlockchain({
   stateSpectator,
   setStateSelectedRideRequest,
   stateSelectedRideRequest,
+  fetchJsonSimulation,
 }: TabBlockchainProps) {
   return (
     <Box display="flex" justifyContent="center">
@@ -44,15 +52,16 @@ export default function TabBlockchain({
           TODO: Add pagination and don`t fetch all of them at once
         </Typography>
         <TableBlockchain
-          stateSettingsMapBaseUrlSimulation={stateSettingsMapBaseUrlSimulation}
-          stateShowError={stateShowError}
-          stateSettingsMapUpdateRateInMs={stateSettingsMapUpdateRateInMs}
+          fetchJsonSimulation={fetchJsonSimulation}
           setStateSelectedParticipant={setStateSelectedParticipant}
-          setStateSpectator={setStateSpectator}
-          stateSelectedParticipant={stateSelectedParticipant}
-          stateSpectator={stateSpectator}
           setStateSelectedRideRequest={setStateSelectedRideRequest}
+          setStateSpectator={setStateSpectator}
+          showError={stateShowError}
+          stateSelectedParticipant={stateSelectedParticipant}
           stateSelectedRideRequest={stateSelectedRideRequest}
+          stateSettingsMapBaseUrlSimulation={stateSettingsMapBaseUrlSimulation}
+          stateSettingsMapUpdateRateInMs={stateSettingsMapUpdateRateInMs}
+          stateSpectator={stateSpectator}
         />
       </Box>
     </Box>

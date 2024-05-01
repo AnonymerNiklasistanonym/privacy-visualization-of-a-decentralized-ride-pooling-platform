@@ -8,6 +8,7 @@ import Link from 'next/link';
 // > Globals
 import {baseUrlPathfinder, baseUrlSimulation} from '@globals/defaults/urls';
 // Local imports
+import {fetchJson} from '@globals/lib/fetch';
 import {showErrorBuilder} from '@misc/modals';
 // > Components
 import Button from '@components/Button';
@@ -21,6 +22,7 @@ import TabPanelHeader from './TabPanelHeader';
 import TabSettings from '@components/Tab/TabSettings';
 // Type imports
 import type {ErrorModalContentElement} from '@misc/modals';
+import type {FetchJsonOptions} from '@globals/lib/fetch';
 import type {PropsWithChildren} from 'react';
 import type {ReactPropsI18n} from '@misc/react';
 
@@ -74,6 +76,12 @@ export default function TabPanel({
   const [stateOpenPopupOnHover, setStateOpenPopupOnHover] = useState(false);
   const [stateSettingsMapUpdateRateInMs, setStateSettingsMapUpdateRateInMs] =
     useState(1000 / 4);
+  const [
+    stateSettingsBlockchainUpdateRateInMs,
+    setStateSettingsBlockchainUpdateRateInMs,
+  ] = useState(1000 / 4);
+  const [stateSettingsGlobalDebug, setStateSettingsGlobalDebug] =
+    useState(false);
 
   // > Snackbar
   const [stateSnackbarSpectatorOpen, setStateSnackbarSpectatorOpen] =
@@ -110,6 +118,12 @@ export default function TabPanel({
     setStateSnackbarSelectedRideRequestOpen(true);
   }, [stateSelectedRideRequest, setStateSnackbarSelectedRideRequestOpen]);
 
+  // Functions: With global state context
+  const fetchJsonSimulation = async <T,>(
+    endpoint: string,
+    options?: Readonly<FetchJsonOptions>
+  ): Promise<T> =>
+    fetchJson<T>(`${stateSettingsMapBaseUrlSimulation}${endpoint}`, options);
   const showError = showErrorBuilder({
     setStateErrorModalContent,
     setStateErrorModalOpen,
@@ -128,43 +142,44 @@ export default function TabPanel({
           />
         </Box>
         <CustomTabPanel value={stateTabIndex} index={0}>
-          <TabOverview />
+          <TabOverview stateSettingsGlobalDebug={stateSettingsGlobalDebug} />
         </CustomTabPanel>
         <CustomTabPanel value={stateTabIndex} index={1}>
           <TabMap
-            stateSettingsMapShowTooltips={stateSettingsMapShowTooltips}
-            stateSettingsMapOpenPopupOnHover={stateOpenPopupOnHover}
+            fetchJsonSimulation={fetchJsonSimulation}
+            setStateSelectedParticipant={setStateSelectedParticipant}
+            setStateSelectedRideRequest={setStateSelectedRideRequest}
+            setStateSpectator={setStateSpectator}
+            showError={showError}
+            stateSelectedParticipant={stateSelectedParticipant}
+            stateSelectedRideRequest={stateSelectedRideRequest}
+            stateSettingsGlobalDebug={stateSettingsGlobalDebug}
             stateSettingsMapBaseUrlPathfinder={
               stateSettingsMapBaseUrlPathfinder
             }
             stateSettingsMapBaseUrlSimulation={
               stateSettingsMapBaseUrlSimulation
             }
-            stateShowError={showError}
-            stateSpectator={stateSpectator}
-            setStateSpectator={setStateSpectator}
-            stateSelectedParticipant={stateSelectedParticipant}
-            setStateSelectedParticipant={setStateSelectedParticipant}
+            stateSettingsMapOpenPopupOnHover={stateOpenPopupOnHover}
+            stateSettingsMapShowTooltips={stateSettingsMapShowTooltips}
             stateSettingsMapUpdateRateInMs={stateSettingsMapUpdateRateInMs}
-            stateSelectedRideRequest={stateSelectedRideRequest}
-            setStateSelectedRideRequest={setStateSelectedRideRequest}
+            stateSpectator={stateSpectator}
           />
         </CustomTabPanel>
         <CustomTabPanel value={stateTabIndex} index={2}>
           <TabBlockchain
-            stateSettingsMapBaseUrlSimulation={
-              stateSettingsMapBaseUrlSimulation
-            }
-            stateErrorModalContent={stateErrorModalContent}
-            setStateErrorModalOpen={setStateErrorModalOpen}
-            setStateErrorModalContent={setStateErrorModalContent}
-            stateSettingsMapUpdateRateInMs={stateSettingsMapUpdateRateInMs}
-            stateSpectator={stateSpectator}
-            setStateSpectator={setStateSpectator}
-            stateSelectedParticipant={stateSelectedParticipant}
+            fetchJsonSimulation={fetchJsonSimulation}
             setStateSelectedParticipant={setStateSelectedParticipant}
-            stateSelectedRideRequest={stateSelectedRideRequest}
             setStateSelectedRideRequest={setStateSelectedRideRequest}
+            setStateSpectator={setStateSpectator}
+            showError={showError}
+            stateSelectedParticipant={stateSelectedParticipant}
+            stateSelectedRideRequest={stateSelectedRideRequest}
+            stateSettingsBlockchainUpdateRateInMs={
+              stateSettingsBlockchainUpdateRateInMs
+            }
+            stateSettingsGlobalDebug={stateSettingsGlobalDebug}
+            stateSpectator={stateSpectator}
           />
         </CustomTabPanel>
         <CustomTabPanel value={stateTabIndex} index={3}>
@@ -186,9 +201,17 @@ export default function TabPanel({
               setStateSettingsMapBaseUrlSimulation
             }
             stateSettingsMapUpdateRateInMs={stateSettingsMapUpdateRateInMs}
+            stateSettingsBlockchainUpdateRateInMs={
+              stateSettingsBlockchainUpdateRateInMs
+            }
             setStateSettingsMapUpdateRateInMs={
               setStateSettingsMapUpdateRateInMs
             }
+            setStateSettingsBlockchainUpdateRateInMs={
+              setStateSettingsBlockchainUpdateRateInMs
+            }
+            stateSettingsGlobalDebug={stateSettingsGlobalDebug}
+            setStateSettingsGlobalDebug={setStateSettingsGlobalDebug}
           />
         </CustomTabPanel>
       </Box>
@@ -201,20 +224,26 @@ export default function TabPanel({
           marginTop: '1vh',
         }}
       >
-        <Divider>
-          <Chip label="Debugging" size="small" />
-        </Divider>
-        <ButtonGroup variant="contained" aria-label="Basic button group">
-          <Button onClick={() => setStateErrorModalOpen(true)}>
-            Open Error Modal
-          </Button>
-          <Link target="_blank" href={stateSettingsMapBaseUrlSimulation}>
-            <Button onClick={() => {}}>Open Simulation Website</Button>
-          </Link>
-          <Link target="_blank" href={stateSettingsMapBaseUrlPathfinder}>
-            <Button onClick={() => {}}>Open Pathfinder Website</Button>
-          </Link>
-        </ButtonGroup>
+        {stateSettingsGlobalDebug ? (
+          <>
+            <Divider>
+              <Chip label="Debugging" size="small" />
+            </Divider>
+            <ButtonGroup variant="contained" aria-label="Basic button group">
+              <Button onClick={() => setStateErrorModalOpen(true)}>
+                Open Error Modal
+              </Button>
+              <Link target="_blank" href={stateSettingsMapBaseUrlSimulation}>
+                <Button onClick={() => {}}>Open Simulation Website</Button>
+              </Link>
+              <Link target="_blank" href={stateSettingsMapBaseUrlPathfinder}>
+                <Button onClick={() => {}}>Open Pathfinder Website</Button>
+              </Link>
+            </ButtonGroup>
+          </>
+        ) : (
+          <></>
+        )}
       </Box>
       <ErrorModal
         setStateErrorModalOpen={setStateErrorModalOpen}

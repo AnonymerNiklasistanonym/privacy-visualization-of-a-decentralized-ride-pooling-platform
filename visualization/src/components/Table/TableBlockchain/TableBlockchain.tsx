@@ -3,14 +3,17 @@ import {useEffect, useState} from 'react';
 // > Components
 import {Box, List} from '@mui/material';
 // Local imports
-import {fetchJsonEndpoint} from '@misc/fetch';
-import {showErrorBuilder} from '@misc/modals';
 // > Components
 import TableBlockchainElement from './TableBlockchainElement';
 // > Globals
 import {simulationEndpoints} from '@globals/defaults/endpoints';
 // Type imports
-import type {GlobalStates, GlobalStatesShowError} from '@misc/globalStates';
+import type {
+  GlobalPropsFetch,
+  GlobalPropsShowError,
+  GlobalPropsUserInput,
+  GlobalPropsUserInputSet,
+} from '@misc/globalProps';
 import type {
   SimulationEndpointSmartContractInformation,
   SimulationEndpointSmartContracts,
@@ -19,19 +22,16 @@ import type {SettingsBlockchainPropsStates} from '@misc/settings';
 
 export interface TableBlockchainProps
   extends SettingsBlockchainPropsStates,
-    GlobalStatesShowError,
-    GlobalStates {}
+    GlobalPropsFetch,
+    GlobalPropsShowError,
+    GlobalPropsUserInput,
+    GlobalPropsUserInputSet {}
 
 export default function TableBlockchain({
-  stateSettingsMapBaseUrlSimulation,
-  stateSettingsMapUpdateRateInMs,
-  stateShowError,
+  stateSettingsBlockchainUpdateRateInMs,
+  showError: stateShowError,
   setStateSelectedParticipant,
-  setStateSpectator,
-  stateSelectedParticipant,
-  stateSpectator,
-  setStateSelectedRideRequest,
-  stateSelectedRideRequest,
+  fetchJsonSimulation,
 }: TableBlockchainProps) {
   // React: States
   const [stateSmartContracts, setStateSmartContracts] = useState<
@@ -40,15 +40,13 @@ export default function TableBlockchain({
   // React: Effects
   useEffect(() => {
     const interval = setInterval(() => {
-      fetchJsonEndpoint<SimulationEndpointSmartContracts>(
-        stateSettingsMapBaseUrlSimulation,
+      fetchJsonSimulation<SimulationEndpointSmartContracts>(
         simulationEndpoints.apiV1.smartContracts
       )
         .then(data =>
           Promise.all(
             data.smartContracts.map(smartContractId =>
-              fetchJsonEndpoint<SimulationEndpointSmartContractInformation>(
-                stateSettingsMapBaseUrlSimulation,
+              fetchJsonSimulation<SimulationEndpointSmartContractInformation>(
                 simulationEndpoints.apiV1.smartContract(smartContractId)
               )
             )
@@ -58,7 +56,7 @@ export default function TableBlockchain({
           setStateSmartContracts(data);
         })
         .catch(err => stateShowError('Fetch simulation smart contracts', err));
-    }, stateSettingsMapUpdateRateInMs);
+    }, stateSettingsBlockchainUpdateRateInMs);
     return () => {
       clearInterval(interval);
     };
@@ -80,11 +78,6 @@ export default function TableBlockchain({
             key={smartContract.walletId}
             stateSmartContract={smartContract}
             setStateSelectedParticipant={setStateSelectedParticipant}
-            setStateSpectator={setStateSpectator}
-            stateSelectedParticipant={stateSelectedParticipant}
-            stateSpectator={stateSpectator}
-            setStateSelectedRideRequest={setStateSelectedRideRequest}
-            stateSelectedRideRequest={stateSelectedRideRequest}
           />
         ))}
       </List>

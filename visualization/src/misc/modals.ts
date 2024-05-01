@@ -31,10 +31,12 @@ export const compareErrorModalContent = (
   errorElement.error.message === error.message &&
   errorElement.error.stack === error.stack;
 
+export type ShowError = (message: string, error: Error) => void;
+
 export function showErrorBuilder(
   props: ErrorModalPropsErrorBuilder,
   logError = true
-) {
+): ShowError {
   return (title: string, error: Error) => {
     if (logError) {
       console.error(error);

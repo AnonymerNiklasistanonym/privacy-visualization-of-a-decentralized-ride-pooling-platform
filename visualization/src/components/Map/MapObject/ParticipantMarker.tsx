@@ -15,30 +15,35 @@ import {
 } from './LIcons/ParticipantIcons';
 import PopupContentParticipant from './PopupContent/PopupContentParticipant';
 // > Globals
-import {fetchJson} from '@globals/lib/fetch';
 import {getH3Polygon} from '@globals/lib/h3';
-import {showErrorBuilder} from '@misc/modals';
 import {simulationEndpoints} from '@globals/defaults/endpoints';
 // Type imports
-import type {GlobalStates, GlobalStatesShowError} from '@misc/globalStates';
+import type {
+  GlobalPropsFetch,
+  GlobalPropsShowError,
+  GlobalPropsUserInput,
+  GlobalPropsUserInputSet,
+} from '@misc/globalProps';
 import type {
   SimulationEndpointParticipantInformationCustomer,
   SimulationEndpointParticipantInformationRideProvider,
   SimulationEndpointParticipantTypes,
   SimulationEndpointRideRequestInformation,
 } from '@globals/types/simulation';
-import type {FetchJsonOptions} from '@globals/lib/fetch';
 import type {ReactState} from '@misc/react';
 import type {SimulationEndpointParticipantCoordinatesParticipant} from '@globals/types/simulation';
 
-interface ParticipantMarkerProps extends GlobalStates, GlobalStatesShowError {
+interface ParticipantMarkerProps
+  extends GlobalPropsUserInputSet,
+    GlobalPropsUserInput,
+    GlobalPropsFetch,
+    GlobalPropsShowError {
   /** The participant ID and current coordinates */
   stateParticipantCoordinates: ReactState<SimulationEndpointParticipantCoordinatesParticipant>;
   /** The participant ID and current coordinates */
   participantType: SimulationEndpointParticipantTypes;
   stateOpenPopupOnHover: ReactState<boolean>;
   stateShowTooltip: ReactState<boolean>;
-  stateBaseUrlSimulation: ReactState<string>;
 }
 
 // TODO
@@ -58,20 +63,13 @@ export default function ParticipantMarker({
   participantType,
   stateShowTooltip,
   stateOpenPopupOnHover,
-  stateBaseUrlSimulation,
   stateSelectedParticipant,
   setStateSelectedParticipant,
-  stateShowError,
+  showError,
+  fetchJsonSimulation,
   setStateSelectedRideRequest,
   stateSelectedRideRequest,
 }: ParticipantMarkerProps) {
-  // Functions: With global state context
-  const fetchJsonSimulation = async <T,>(
-    endpoint: string,
-    options?: FetchJsonOptions
-  ): Promise<T> =>
-    fetchJson<T>(`${stateBaseUrlSimulation}${endpoint}`, options);
-
   // React: States
   // > Fetch additional participant information
   const [stateCustomerInformation, setStateCustomerInformation] =
@@ -121,7 +119,7 @@ export default function ParticipantMarker({
     const interval = setInterval(async () => {
       if (statePopupOpen) {
         fetchParticipantInformation().catch(err =>
-          stateShowError('Simulation fetch participant information', err)
+          showError('Simulation fetch participant information', err)
         );
       }
     }, 5 * 1000);
@@ -179,7 +177,7 @@ export default function ParticipantMarker({
           setStatePopupOpen(true);
           // Fetch participant information when popup is opened
           fetchParticipantInformation().catch(err =>
-            stateShowError('Simulation fetch participant information', err)
+            showError('Simulation fetch participant information', err)
           );
         },
       }}
@@ -194,18 +192,18 @@ export default function ParticipantMarker({
       )}
       <Popup>
         <PopupContentParticipant
-          stateParticipantCoordinates={stateParticipantCoordinates}
+          fetchJsonSimulation={fetchJsonSimulation}
           participantType={participantType}
-          stateCustomerInformation={stateCustomerInformation}
-          stateRideProviderInformation={stateRideProviderInformation}
-          stateSpectator={stateSpectator}
-          setStateSpectator={setStateSpectator}
           setStateSelectedParticipant={setStateSelectedParticipant}
-          stateSelectedParticipant={stateSelectedParticipant}
-          stateShowError={stateShowError}
-          stateBaseUrlSimulation={stateBaseUrlSimulation}
           setStateSelectedRideRequest={setStateSelectedRideRequest}
+          setStateSpectator={setStateSpectator}
+          showError={showError}
+          stateCustomerInformation={stateCustomerInformation}
+          stateParticipantCoordinates={stateParticipantCoordinates}
+          stateRideProviderInformation={stateRideProviderInformation}
+          stateSelectedParticipant={stateSelectedParticipant}
           stateSelectedRideRequest={stateSelectedRideRequest}
+          stateSpectator={stateSpectator}
         />
       </Popup>
     </Marker>
@@ -295,29 +293,5 @@ export default function ParticipantMarker({
       )
     );
   }
-  return (
-    <>
-      {/*<Circle
-        center={{
-          lat: stateParticipantCoordinates.lat,
-          lng: stateParticipantCoordinates.long,
-        }}
-        color={'green'}
-        fillColor={'green'}
-        radius={participantIconSize / 2}
-        key={`participant_position_${stateParticipantCoordinates.id}`}
-      />
-      <Marker
-        position={[
-          stateParticipantCoordinates.lat,
-          stateParticipantCoordinates.long,
-        ]}
-      >
-        <Popup>
-          A pretty CSS3 popup. <br /> Easily customizable.
-        </Popup>
-      </Marker>*/}
-      {elementsToRender}
-    </>
-  );
+  return <>{elementsToRender}</>;
 }

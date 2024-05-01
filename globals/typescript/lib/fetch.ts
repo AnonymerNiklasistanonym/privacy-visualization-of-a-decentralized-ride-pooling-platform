@@ -6,7 +6,7 @@ export interface FetchJsonOptions {
 
 export const fetchJson = async <T>(
   url: string,
-  options?: FetchJsonOptions
+  options?: Readonly<FetchJsonOptions>
 ): Promise<T> => {
   if (options?.showFetch) {
     console.info(`fetch ${url} ...`);
