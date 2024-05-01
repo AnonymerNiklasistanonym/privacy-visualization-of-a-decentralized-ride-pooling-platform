@@ -59,6 +59,7 @@ export default function Map({
   stateGraphPathfinder,
   stateParticipants,
   startPos,
+  stateSettingsGlobalDebug,
   stateSpectator,
   setStateSpectator,
   stateSettingsMapShowTooltips,
@@ -127,50 +128,61 @@ export default function Map({
               ))}
             </LayerGroup>
           </LayersControl.Overlay>
-          <LayersControl.Overlay checked={false} name="Debug: Dijkstra Graph">
-            <LayerGroup>
-              {stateGraph.geometry.map(a => (
-                <Polyline
-                  key={`graph_geometry_${a.id}`}
-                  positions={a.geometry.map(a => [a.lat, a.long])}
-                  color={'cyan'}
-                  weight={3}
-                  smoothFactor={1}
-                />
-              ))}
-              {stateGraph.vertices.map(a => (
-                <Circle
-                  key={`graph_circle_${a.id}`}
-                  radius={5}
-                  color={'red'}
-                  fillColor={'red'}
-                  center={[a.lat, a.long]}
-                />
-              ))}
-            </LayerGroup>
-          </LayersControl.Overlay>
-          <LayersControl.Overlay checked={false} name="Debug: Pathfinder Graph">
-            <LayerGroup>
-              {stateGraphPathfinder.edges.map((a, index) => (
-                <Polyline
-                  key={`graph_pathfinder_edge_${index}`}
-                  positions={a.map(a => [a.lat, a.long])}
-                  color={'cyan'}
-                  weight={3}
-                  smoothFactor={1}
-                />
-              ))}
-              {stateGraphPathfinder.vertices.map(a => (
-                <Circle
-                  key={`graph_pathfinder_vertice_${a.id}`}
-                  radius={5}
-                  color={'red'}
-                  fillColor={'red'}
-                  center={[a.lat, a.long]}
-                />
-              ))}
-            </LayerGroup>
-          </LayersControl.Overlay>
+          {stateSettingsGlobalDebug ? (
+            <LayersControl.Overlay checked={false} name="Debug: Dijkstra Graph">
+              <LayerGroup>
+                {stateGraph.geometry.map(a => (
+                  <Polyline
+                    key={`graph_geometry_${a.id}`}
+                    positions={a.geometry.map(a => [a.lat, a.long])}
+                    color={'cyan'}
+                    weight={3}
+                    smoothFactor={1}
+                  />
+                ))}
+                {stateGraph.vertices.map(a => (
+                  <Circle
+                    key={`graph_circle_${a.id}`}
+                    radius={5}
+                    color={'red'}
+                    fillColor={'red'}
+                    center={[a.lat, a.long]}
+                  />
+                ))}
+              </LayerGroup>
+            </LayersControl.Overlay>
+          ) : (
+            <></>
+          )}
+          {stateSettingsGlobalDebug ? (
+            <LayersControl.Overlay
+              checked={false}
+              name="Debug: Pathfinder Graph"
+            >
+              <LayerGroup>
+                {stateGraphPathfinder.edges.map((a, index) => (
+                  <Polyline
+                    key={`graph_pathfinder_edge_${index}`}
+                    positions={a.map(a => [a.lat, a.long])}
+                    color={'cyan'}
+                    weight={3}
+                    smoothFactor={1}
+                  />
+                ))}
+                {stateGraphPathfinder.vertices.map(a => (
+                  <Circle
+                    key={`graph_pathfinder_vertice_${a.id}`}
+                    radius={5}
+                    color={'red'}
+                    fillColor={'red'}
+                    center={[a.lat, a.long]}
+                  />
+                ))}
+              </LayerGroup>
+            </LayersControl.Overlay>
+          ) : (
+            <></>
+          )}
         </LayersControl>
       </MapContainer>
     </Box>

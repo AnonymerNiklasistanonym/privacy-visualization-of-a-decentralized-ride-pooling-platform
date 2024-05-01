@@ -122,7 +122,7 @@ export default function ParticipantMarker({
           showError('Simulation fetch participant information', err)
         );
       }
-    }, 5 * 1000);
+    }, 1000);
     return () => {
       clearInterval(interval);
     };
