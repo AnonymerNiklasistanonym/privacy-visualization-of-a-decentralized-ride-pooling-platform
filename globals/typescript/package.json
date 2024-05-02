@@ -10,7 +10,9 @@
     "node": ">=21.0.0"
   },
   "dependencies": {
-    "h3-js": "^4.1.0"
+    "h3-js": "^4.1.0",
+    "winston": "^3.13.0",
+    "winston-daily-rotate-file": "^5.0.0"
   },
   "devDependencies": {
     "@jest/globals": "^29.7.0",

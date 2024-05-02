@@ -148,22 +148,22 @@ export class Simulation {
     // Create OSM vertex graph
     this.osmVertexGraph = config.osmVertexGraph;
 
-    try {
-      fs.writeFile(
-        'test.json',
-        JSON.stringify({
-          vertices: Array.from(this.osmVertexGraph.vertices.entries()).reduce(
-            (o, [key, value]) => {
-              o[key] = value;
-              return o;
-            },
-            {} as Record<number, OsmVertex>
-          ),
-        })
-      );
-    } catch (err) {
-      console.log(err);
-    }
+    //try {
+    //  fs.writeFile(
+    //    'test.json',
+    //    JSON.stringify({
+    //      vertices: Array.from(this.osmVertexGraph.vertices.//entries()).reduce(
+    //        (o, [key, value]) => {
+    //          o[key] = value;
+    //          return o;
+    //        },
+    //        {} as Record<number, OsmVertex>
+    //      ),
+    //    })
+    //  );
+    //} catch (err) {
+    //  console.log(err);
+    //}
     // Create participants
     this.customers = Array.from({length: config.customer.count}, (val, index) =>
       createMockedCustomer(index, config)

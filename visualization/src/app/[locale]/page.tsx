@@ -4,13 +4,19 @@ import {getIntl} from '../../services/intl';
 import SearchAppBar from '@components/SearchAppBar';
 import SpeedDialTooltipOpen from '@components/Sort/SpeedDial';
 import TabPanel from '@components/TabPanel';
+// > Logging
+import {createLoggerSection} from '@services/logging';
 // > Styles
 import styles from '@styles/page.module.css';
 // Type imports
 import type {ReactI18nMessages, ReactPropsI18nHome} from '@misc/react';
 import type {Metadata} from 'next';
 
+const logger = createLoggerSection('Home');
+
 export default async function Home({params: {locale}}: ReactPropsI18nHome) {
+  logger.debug(`GET / locale='${locale}'`);
+
   // Server translations
   const intl = await getIntl(locale);
   // Client translations
@@ -37,6 +43,7 @@ export default async function Home({params: {locale}}: ReactPropsI18nHome) {
 export async function generateMetadata({
   params: {locale},
 }: ReactPropsI18nHome): Promise<Metadata> {
+  logger.debug(`generateMetadata / locale='${locale}'`);
   // Server translations
   const intl = await getIntl(locale);
   // return an object

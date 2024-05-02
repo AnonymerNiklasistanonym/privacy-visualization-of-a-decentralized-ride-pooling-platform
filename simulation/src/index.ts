@@ -10,6 +10,7 @@ import {
   simulationEndpoints,
 } from './globals/defaults/endpoints';
 import {Simulation} from './simulation';
+import {createLoggerSection} from './services/logging';
 import {ports} from './globals/defaults/ports';
 import {printRouterPaths} from './misc/printExpressRoutes';
 import {updateSimulationConfigWithData} from './config/simulationConfigWithData';
@@ -18,6 +19,8 @@ import type {SimulationConfig} from './config/simulationConfig';
 
 const ROOT_DIR = path.join(__dirname, '..');
 const SRC_DIR = path.join(__dirname);
+
+const logger = createLoggerSection('index');
 
 // Check for CLI overrides
 // > Port
@@ -69,8 +72,15 @@ const hbs = createHbs({
   partialsDir: path.join(SRC_DIR, 'views', 'partials'),
 });
 
-// CORS
+// Middlewares
+// > CORS
 app.use(cors());
+// > Logging
+app.use((req, res, next) => {
+  const {method, url, ip} = req;
+  logger.debug(`${method} ${url} ${ip}`);
+  next();
+});
 
 // Express setup additional static directories
 app.use('/scripts', express.static(path.join(SRC_DIR, 'public', 'scripts')));
@@ -129,7 +139,8 @@ async function main() {
   );
 
   app.listen(config.port, () => {
-    console.info(`Express is listening at http://localhost:${config.port}`);
+    logger.info(`Express is listening at http://localhost:${config.port}`);
+    // Print all registered server routes
     console.info('Routes:');
     printRouterPaths(app._router.stack, `http://localhost:${config.port}`);
   });

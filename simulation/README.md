@@ -171,3 +171,8 @@ If you are finished you can:
 > Make sure that all files that should not be copied to the docker container are listed in the [`.dockerignore`](.dockerignore) file!
 
 > The `Dockerfile` was inspired by a [geeksforgeeks.org article 'How to Dockerize an ExpressJS App?'](https://www.geeksforgeeks.org/how-to-dockerize-an-expressjs-app/).
+
+#### Logs
+
+The server logs are stored in `$LOG_DIR=/app/logs/`.
+To copy them out of the container run: `docker cp $ID:$LOG_DIR ./app_logs`

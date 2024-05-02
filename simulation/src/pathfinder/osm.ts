@@ -72,7 +72,7 @@ export const createOsmVertexGraph = (
   );
   console.log('vertices#', vertices.size);
   for (let index = 0; index < 10; index++) {
-    console.log(ways[index]);
+    //console.log(ways[index]);
   }
   // Add neighbors
   const idMap = new Map<VertexId, Map<VertexId, VertexEdgeId>>();
@@ -130,7 +130,7 @@ export const createOsmVertexGraph = (
     }*/
     if (wayWasAdded) {
       if (way.geometry === undefined) {
-        console.log(way);
+        //console.log(way);
       } else {
         vertexEdgeIdMap.set(way.id, {
           geometry: way.geometry.map(a => ({lat: a.lat, long: a.lon})),

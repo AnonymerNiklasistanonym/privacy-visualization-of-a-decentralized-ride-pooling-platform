@@ -10,6 +10,7 @@ dist
 Dockerfile
 docs
 jest.config.js
+logs
 node_modules
 README.md
 tests

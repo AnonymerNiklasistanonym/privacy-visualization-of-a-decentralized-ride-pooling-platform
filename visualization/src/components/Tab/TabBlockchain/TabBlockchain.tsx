@@ -24,16 +24,16 @@ export interface TabBlockchainProps
 
 // eslint-disable-next-line no-empty-pattern
 export default function TabBlockchain({
-  stateSettingsMapBaseUrlSimulation,
-  showError: stateShowError,
-  stateSettingsMapUpdateRateInMs,
-  setStateSelectedParticipant,
-  setStateSpectator,
-  stateSelectedParticipant,
-  stateSpectator,
-  setStateSelectedRideRequest,
-  stateSelectedRideRequest,
   fetchJsonSimulation,
+  setStateSelectedParticipant,
+  setStateSelectedRideRequest,
+  setStateSpectator,
+  showError: stateShowError,
+  stateSelectedParticipant,
+  stateSelectedRideRequest,
+  stateSettingsBlockchainUpdateRateInMs,
+  stateSettingsGlobalDebug,
+  stateSpectator,
 }: TabBlockchainProps) {
   return (
     <Box display="flex" justifyContent="center">
@@ -52,6 +52,7 @@ export default function TabBlockchain({
           TODO: Add pagination and don`t fetch all of them at once
         </Typography>
         <TableBlockchain
+          stateSettingsGlobalDebug={stateSettingsGlobalDebug}
           fetchJsonSimulation={fetchJsonSimulation}
           setStateSelectedParticipant={setStateSelectedParticipant}
           setStateSelectedRideRequest={setStateSelectedRideRequest}
@@ -59,8 +60,9 @@ export default function TabBlockchain({
           showError={stateShowError}
           stateSelectedParticipant={stateSelectedParticipant}
           stateSelectedRideRequest={stateSelectedRideRequest}
-          stateSettingsMapBaseUrlSimulation={stateSettingsMapBaseUrlSimulation}
-          stateSettingsMapUpdateRateInMs={stateSettingsMapUpdateRateInMs}
+          stateSettingsBlockchainUpdateRateInMs={
+            stateSettingsBlockchainUpdateRateInMs
+          }
           stateSpectator={stateSpectator}
         />
       </Box>

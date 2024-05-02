@@ -72,6 +72,11 @@ If you are finished you can:
 > };
 > ```
 
+#### Logs
+
+The server logs are stored in `$LOG_DIR=/app/logs/`.
+To copy them out of the container run: `docker cp $ID:$LOG_DIR ./app_logs`
+
 ## Structure
 
 This app uses a middleware for localization in order to support multiple languages.

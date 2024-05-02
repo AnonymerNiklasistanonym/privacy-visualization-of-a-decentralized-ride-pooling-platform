@@ -13,7 +13,6 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
 
-
 # Rebuild the source code only when needed
 FROM base AS builder
 WORKDIR /app
@@ -49,11 +48,16 @@ RUN chown nextjs:nodejs .next
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
+# Create log dir
+RUN mkdir logs
+RUN chown nextjs:nodejs logs
+
 USER nextjs
 
 EXPOSE 3000
 
 ENV PORT 3000
+ENV LOG_DIR "/app/logs/"
 
 # server.js is created by next build from the standalone output
 # https://nextjs.org/docs/pages/api-reference/next-config-js/output

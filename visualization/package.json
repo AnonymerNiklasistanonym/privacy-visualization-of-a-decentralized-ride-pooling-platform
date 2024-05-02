@@ -36,7 +36,9 @@
     "react-leaflet": "^4.2.1",
     "react-leaflet-fullscreen": "^4.1.1",
     "react-number-format": "^5.3.4",
-    "sass": "^1.75.0"
+    "sass": "^1.75.0",
+    "winston": "^3.13.0",
+    "winston-daily-rotate-file": "^5.0.0"
   },
   "devDependencies": {
     "@testing-library/react": "^15.0.2",

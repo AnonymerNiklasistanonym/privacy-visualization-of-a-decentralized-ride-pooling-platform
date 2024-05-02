@@ -1,6 +1,7 @@
 {
   "name": "simulation",
   "version": "1.0.0",
+  "private": true,
   "description": "",
   "main": "dist/index.js",
   "scripts": {
@@ -25,7 +26,9 @@
     "express": "^4.19.2",
     "express-handlebars": "^7.1.2",
     "h3-js": "^4.1.0",
-    "haversine-distance": "^1.2.1"
+    "haversine-distance": "^1.2.1",
+    "winston": "^3.13.0",
+    "winston-daily-rotate-file": "^5.0.0"
   },
   "engines": {
     "node": ">=21.0.0"

@@ -8,6 +8,7 @@
   "getacar.spectator.service.matching": "Matching Service",
   "getacar.spectator.title": "Spectator",
   "page.about.title": "About",
+  "page.about.description": "About this webapp",
   "page.home.description": "Visualization of the GETACAR Platform description [TODO]",
   "page.home.head.meta.description": "Next.js i18n example - English",
   "page.home.head.title": "Visualization GETACAR Platform",
