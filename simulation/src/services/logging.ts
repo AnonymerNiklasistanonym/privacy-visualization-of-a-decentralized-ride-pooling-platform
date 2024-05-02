@@ -4,13 +4,13 @@ import path from 'path';
 // > Globals
 import {
   LoggerLevel,
-  createLogFunc,
-  createLogger as createLoggerGlobals,
+  createLogger,
+  createLoggerSections,
 } from '../globals/lib/logging';
 
 const logDir = process.env.LOG_DIR ?? path.join(__dirname, '..', '..', 'logs');
 
-export const loggerVisualization = createLoggerGlobals(
+export const loggerVisualization = createLogger(
   'simulation',
   logDir,
   LoggerLevel.INFO,
@@ -18,4 +18,4 @@ export const loggerVisualization = createLoggerGlobals(
 );
 
 export const createLoggerSection = (section: string, subsection?: string) =>
-  createLogFunc(loggerVisualization, section, subsection);
+  createLoggerSections(loggerVisualization, section, subsection);

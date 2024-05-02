@@ -38,10 +38,9 @@ export abstract class RideProvider<
     id: string,
     currentLocation: Coordinates,
     vehicleNumberPlate: string,
-    vehicleIdentificationNumber: string,
-    verbose = false
+    vehicleIdentificationNumber: string
   ) {
-    super(id, 'ride_provider', currentLocation, verbose);
+    super(id, 'ride_provider', currentLocation);
     this.vehicleNumberPlate = vehicleNumberPlate;
     this.vehicleIdentificationNumber = vehicleIdentificationNumber;
   }
@@ -51,7 +50,7 @@ export abstract class RideProvider<
   ): AuthenticationService;
 
   async run(simulation: Simulation): Promise<void> {
-    this.printLog('run');
+    this.logger.debug('run');
     // 1. Register to a random AS
     this.registeredAuthService =
       this.runRegisterToRandomAuthService(simulation);
@@ -67,7 +66,7 @@ export abstract class RideProvider<
       const randMatchService = getRandomElement(simulation.matchingServices);
       const openRideRequests = randMatchService.getRideRequests();
       if (openRideRequests.length === 0) {
-        this.printLog('No open ride requests found');
+        this.logger.debug('No open ride requests found');
         await wait(1 * 1000);
         continue;
       }
@@ -77,7 +76,7 @@ export abstract class RideProvider<
       const coordinatesPickupLocation = cellToLatLng(
         openRideRequest.request.pickupLocation
       );
-      this.printLog('Post bid for open ride request', {openRideRequest});
+      this.logger.debug('Post bid for open ride request', {openRideRequest});
       randMatchService.postBid(
         openRideRequest.id,
         pseudonym,
@@ -111,12 +110,12 @@ export abstract class RideProvider<
         openRideRequest.id
       );
       if (closedRideRequest.auctionWinner !== pseudonym) {
-        this.printLog('Bid for open ride request was not successful', {
+        this.logger.debug('Bid for open ride request was not successful', {
           closedRideRequest,
         });
         continue;
       }
-      this.printLog('Bid for open ride request was successful', {
+      this.logger.debug('Bid for open ride request was successful', {
         closedRideRequest,
       });
       this.rideRequest = openRideRequest.id;
@@ -169,16 +168,9 @@ export class RideProviderPerson extends RideProvider<SimulationTypeRideProviderP
     dateOfBirth: string,
     emailAddress: string,
     phoneNumber: string,
-    homeAddress: string,
-    verbose = false
+    homeAddress: string
   ) {
-    super(
-      id,
-      currentLocation,
-      vehicleNumberPlate,
-      vehicleIdentificationNumber,
-      verbose
-    );
+    super(id, currentLocation, vehicleNumberPlate, vehicleIdentificationNumber);
     this.fullName = fullName;
     this.gender = gender;
     this.dateOfBirth = dateOfBirth;
@@ -269,16 +261,9 @@ export class RideProviderCompany extends RideProvider<SimulationTypeRideProvider
     currentLocation: Coordinates,
     vehicleNumberPlate: string,
     vehicleIdentificationNumber: string,
-    company: string,
-    verbose = false
+    company: string
   ) {
-    super(
-      id,
-      currentLocation,
-      vehicleNumberPlate,
-      vehicleIdentificationNumber,
-      verbose
-    );
+    super(id, currentLocation, vehicleNumberPlate, vehicleIdentificationNumber);
     this.company = company;
   }
 

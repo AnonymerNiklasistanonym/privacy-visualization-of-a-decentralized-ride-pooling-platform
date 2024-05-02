@@ -85,10 +85,9 @@ export abstract class Participant<JsonType> extends Actor<
   constructor(
     id: string,
     type: GetACarParticipantTypes,
-    currentLocation: Coordinates,
-    verbose = false
+    currentLocation: Coordinates
   ) {
-    super(id, type, verbose);
+    super(id, type);
     this.currentLocation = currentLocation;
   }
 
@@ -113,7 +112,7 @@ export abstract class Participant<JsonType> extends Actor<
     simulation: Readonly<Simulation>,
     newLocation: Readonly<Coordinates>
   ): Promise<void> {
-    this.printLog('Move to new location', {
+    this.logger.debug('Move to new location', {
       currentLocation: this.currentLocation,
       newLocation,
     });
@@ -121,7 +120,7 @@ export abstract class Participant<JsonType> extends Actor<
       this.currentLocation,
       newLocation
     );
-    this.printLog('Received path Osmnx', {
+    this.logger.debug('Received path Osmnx', {
       shortestPathOsmnx,
     });
     this.currentRoute = getShortestPathOsmCoordinates(
@@ -143,7 +142,7 @@ export abstract class Participant<JsonType> extends Actor<
         this.currentRoute ?? [{...this.currentLocation}, {...newLocation}],
       this.type === 'ride_provider' ? speeds.carInKmH : speeds.personInKmH
     );
-    this.printLog('Search shortest path', {
+    this.logger.debug('Search shortest path', {
       currentLocation: this.currentLocation,
       currentRoutes: this.currentRoutes,
       interpolatedCoordinatesInfo,

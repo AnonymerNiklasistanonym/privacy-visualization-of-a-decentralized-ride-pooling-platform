@@ -50,8 +50,7 @@ export const createMockedCustomer = (
     fakePerson.emailAddress,
     fakePerson.phoneNumber,
     `${randLocation.postcode} ${randLocation.city} ${randLocation.street} ${randLocation.houseNumber}`,
-    {lat: randLocation.lat, long: randLocation.lon},
-    config.verbose
+    {lat: randLocation.lat, long: randLocation.lon}
   );
 };
 
@@ -74,8 +73,7 @@ export const createMockedRideProviderPerson = (
     fakePerson.dateOfBirth,
     fakePerson.emailAddress,
     fakePerson.phoneNumber,
-    `${randLocation.postcode} ${randLocation.city} ${randLocation.street} ${randLocation.houseNumber}`,
-    config.verbose
+    `${randLocation.postcode} ${randLocation.city} ${randLocation.street} ${randLocation.houseNumber}`
   );
 };
 
@@ -91,8 +89,7 @@ export const createMockedRideProviderCompany = (
     {lat: randLocation.lat, long: randLocation.lon},
     getRandomPlateNumber(['S']),
     getRandomId(),
-    company,
-    config.verbose
+    company
   );
 };
 
@@ -105,8 +102,7 @@ export const createMockedAuthenticationService = (
     id,
     city.lat + getRandomIntFromInterval(-100, 100) * 0.001,
     city.lon + getRandomIntFromInterval(-100, 100) * 0.001,
-    getRandomIntFromInterval(5000, 20000),
-    config.verbose
+    getRandomIntFromInterval(5000, 20000)
   );
 };
 
@@ -119,8 +115,7 @@ export const createMockedMatchingService = (
     id,
     city.lat + getRandomIntFromInterval(-100, 100) * 0.001,
     city.lon + getRandomIntFromInterval(-100, 100) * 0.001,
-    getRandomIntFromInterval(5000, 20000),
-    config.verbose
+    getRandomIntFromInterval(5000, 20000)
   );
 };
 
@@ -148,22 +143,24 @@ export class Simulation {
     // Create OSM vertex graph
     this.osmVertexGraph = config.osmVertexGraph;
 
-    //try {
-    //  fs.writeFile(
-    //    'test.json',
-    //    JSON.stringify({
-    //      vertices: Array.from(this.osmVertexGraph.vertices.//entries()).reduce(
-    //        (o, [key, value]) => {
-    //          o[key] = value;
-    //          return o;
-    //        },
-    //        {} as Record<number, OsmVertex>
-    //      ),
-    //    })
-    //  );
-    //} catch (err) {
-    //  console.log(err);
-    //}
+    try {
+      fs.writeFile(
+        'test.json',
+        JSON.stringify({
+          vertices: Array.from(this.osmVertexGraph.vertices.entries())
+            .slice(0, 100)
+            .reduce(
+              (o, [key, value]) => {
+                o[key] = value;
+                return o;
+              },
+              {} as Record<number, OsmVertex>
+            ),
+        })
+      );
+    } catch (err) {
+      console.log(err);
+    }
     // Create participants
     this.customers = Array.from({length: config.customer.count}, (val, index) =>
       createMockedCustomer(index, config)

@@ -21,8 +21,8 @@ export interface SimulationTypeRideContract {
 
 export class Blockchain extends Actor<SimulationTypeBlockchain> {
   public rideContracts: SimulationTypeRideContract[] = [];
-  constructor(id: string, verbose = false) {
-    super(id, 'blockchain', verbose);
+  constructor(id: string) {
+    super(id, 'blockchain');
   }
 
   createRideContract(
@@ -30,7 +30,7 @@ export class Blockchain extends Actor<SimulationTypeBlockchain> {
     rideProviderPseudonym: string,
     maximumRideCost: number
   ): string {
-    this.printLog(
+    this.logger.debug(
       'Create ride contract between',
       customerPseudonym,
       'and',

@@ -51,10 +51,9 @@ export class Customer extends Participant<SimulationTypeCustomer> {
     emailAddress: string,
     phoneNumber: string,
     homeAddress: string,
-    currentLocation: Coordinates,
-    verbose = false
+    currentLocation: Coordinates
   ) {
-    super(id, 'customer', currentLocation, verbose);
+    super(id, 'customer', currentLocation);
     this.fullName = fullName;
     this.gender = gender;
     this.dateOfBirth = dateOfBirth;
@@ -73,7 +72,7 @@ export class Customer extends Participant<SimulationTypeCustomer> {
   }
 
   async run(simulation: Simulation): Promise<void> {
-    this.printLog('run');
+    this.logger.debug('run');
     // Setup:
     // 1. Register to a random AS
     const randAuthService = getRandomElement(simulation.authenticationServices);

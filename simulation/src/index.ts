@@ -4,13 +4,13 @@ import {create as createHbs} from 'express-handlebars';
 import express from 'express';
 import path from 'path';
 // Local imports
-import {getCliFlag, getCliOverride} from './misc/cli';
 import {
   simulationEndpointRoutes,
   simulationEndpoints,
 } from './globals/defaults/endpoints';
 import {Simulation} from './simulation';
 import {createLoggerSection} from './services/logging';
+import {getCliOverride} from './misc/cli';
 import {ports} from './globals/defaults/ports';
 import {printRouterPaths} from './misc/printExpressRoutes';
 import {updateSimulationConfigWithData} from './config/simulationConfigWithData';
@@ -25,7 +25,6 @@ const logger = createLoggerSection('index');
 // Check for CLI overrides
 // > Port
 const port = getCliOverride('--port', ports.simulation, a => parseInt(a));
-const verbose = getCliFlag('--verbose');
 
 /** The simulation configuration. */
 const config: Readonly<SimulationConfig> = {
@@ -61,7 +60,6 @@ const config: Readonly<SimulationConfig> = {
 
   // Misc
   cacheDir: path.join(ROOT_DIR, 'cache'),
-  verbose,
 };
 
 /** The webserver of the simulation. */

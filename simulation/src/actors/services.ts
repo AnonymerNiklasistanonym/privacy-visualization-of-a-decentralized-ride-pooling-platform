@@ -110,10 +110,9 @@ abstract class Service<JsonType> extends Actor<JsonType> {
     type: string,
     latitude: number,
     longitude: number,
-    radius: number,
-    verbose = false
+    radius: number
   ) {
-    super(id, type, verbose);
+    super(id, type);
     this.latitude = latitude;
     this.longitude = longitude;
     this.radius = radius;
@@ -123,14 +122,8 @@ abstract class Service<JsonType> extends Actor<JsonType> {
 export class AuthenticationService extends Service<SimulationTypeAuthenticationService> {
   private participantDb: AuthenticationServiceParticipantDb;
 
-  constructor(
-    id: string,
-    latitude: number,
-    longitude: number,
-    radius: number,
-    verbose = false
-  ) {
-    super(id, 'auth_service', latitude, longitude, radius, verbose);
+  constructor(id: string, latitude: number, longitude: number, radius: number) {
+    super(id, 'auth_service', latitude, longitude, radius);
     this.participantDb = [];
   }
 
@@ -144,7 +137,7 @@ export class AuthenticationService extends Service<SimulationTypeAuthenticationS
     phoneNumber: string,
     homeAddress: string
   ): void {
-    this.printLog('Register customer', {
+    this.logger.debug('Register customer', {
       fullName,
       id,
     });
@@ -175,7 +168,7 @@ export class AuthenticationService extends Service<SimulationTypeAuthenticationS
     vehicleNumberPlate: string,
     vehicleIdentificationNumber: string
   ): void {
-    this.printLog('Register ride provider', {
+    this.logger.debug('Register ride provider', {
       fullName,
       id,
     });
@@ -207,7 +200,7 @@ export class AuthenticationService extends Service<SimulationTypeAuthenticationS
     vehicleIdentificationNumber: string,
     company: string
   ): void {
-    this.printLog('Register ride provider company', {
+    this.logger.debug('Register ride provider company', {
       id,
       vehicleIdentificationNumber,
       vehicleNumberPlate,
@@ -285,19 +278,13 @@ export class MatchingService extends Service<SimulationTypeMatchingService> {
   private auctions: MatchingServiceAuction[] = [];
 
   // eslint-disable-next-line @typescript-eslint/no-useless-constructor
-  constructor(
-    id: string,
-    latitude: number,
-    longitude: number,
-    radius: number,
-    verbose = false
-  ) {
-    super(id, 'matching_service', latitude, longitude, radius, verbose);
+  constructor(id: string, latitude: number, longitude: number, radius: number) {
+    super(id, 'matching_service', latitude, longitude, radius);
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars, class-methods-use-this
   async run(simulation: Simulation): Promise<void> {
-    this.printLog('run');
+    this.logger.debug('run');
     // Loop:
     while (simulation.state === 'RUNNING') {
       await wait(1 * 1000);
@@ -309,9 +296,12 @@ export class MatchingService extends Service<SimulationTypeMatchingService> {
         }
         if (auction.bids.length === 0) {
           auction.auctionStatus = 'closed';
-          this.printLog('No bids for the request were found, close auction', {
-            auction,
-          });
+          this.logger.debug(
+            'No bids for the request were found, close auction',
+            {
+              auction,
+            }
+          );
           continue;
         }
         // TODO Implement Vickery Auction
@@ -329,7 +319,7 @@ export class MatchingService extends Service<SimulationTypeMatchingService> {
         }
         auction.auctionStatus = 'waiting-for-signature';
         auction.auctionWinner = cheapestBidSecond.rideProviderPseudonym;
-        this.printLog(
+        this.logger.debug(
           'Ride request auction winner determined, wait for signature',
           {auction}
         );
@@ -344,7 +334,7 @@ export class MatchingService extends Service<SimulationTypeMatchingService> {
           auction.auctionStartedTimestamp.getTime() +
             auction.request.maxWaitingTime
         ) {
-          this.printLog(
+          this.logger.debug(
             'Ride request auction reached max waiting time, determine winner',
             {auction}
           );
@@ -392,7 +382,7 @@ export class MatchingService extends Service<SimulationTypeMatchingService> {
         pickupLocationReal,
       },
     });
-    this.printLog('Ride request auction was opened', {
+    this.logger.debug('Ride request auction was opened', {
       maxWaitingTime,
       userId,
     });
@@ -445,7 +435,7 @@ export class MatchingService extends Service<SimulationTypeMatchingService> {
       throw new Error('Ride request does not exist.');
     }
     rideRequestAuction.auctionStatus = 'closed';
-    this.printLog('Ride request auction was closed', {
+    this.logger.debug('Ride request auction was closed', {
       contractAddress,
       rideRequestAuction,
     });
@@ -461,7 +451,7 @@ export class MatchingService extends Service<SimulationTypeMatchingService> {
       throw new Error('Ride request does not exist.');
     }
     rideRequestAuction.helperRideProviderArrived = true;
-    this.printLog('Ride provider arrived at customer location', {
+    this.logger.debug('Ride provider arrived at customer location', {
       rideRequestAuction,
     });
   }

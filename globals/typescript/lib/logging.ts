@@ -102,15 +102,19 @@ export const createConsoleLogger = (
     transports: [new transports.Console({level: logLevelConsole})],
   });
 
+export type LoggerSectionsMethod = (
+  ...messages: Array<string | boolean | number | Record<string, unknown>>
+) => void;
+
 /**
  * The log function object returned when creating a log function with section
  * information.
  */
-export interface LogFunc {
-  debug: (message: string) => void;
+export interface LoggerSections {
+  debug: LoggerSectionsMethod;
   error: (err: Error) => void;
-  info: (message: string) => void;
-  warn: (message: string) => void;
+  info: LoggerSectionsMethod;
+  warn: LoggerSectionsMethod;
 }
 
 /**
@@ -120,18 +124,28 @@ export interface LogFunc {
  * @param subsection Additional section information (subsection).
  * @returns Log function with hardcoded section.
  */
-export const createLogFunc = (
+export const createLoggerSections = (
   logger: Readonly<Logger>,
   section: string,
   subsection?: string
-): LogFunc => {
-  const baseLogFunc = (level: LoggerLevel) => (message: string) => {
-    logger.log({level, message, section, subsection});
-  };
+): LoggerSections => {
+  const baseLogFunc =
+    (level: LoggerLevel): LoggerSectionsMethod =>
+    (...messages) => {
+      const message = messages
+        .map(a => (typeof a === 'object' ? JSON.stringify(a) : a))
+        .join(' ');
+      logger.log({level, message, section, subsection});
+    };
   return {
     debug: baseLogFunc(LoggerLevel.DEBUG),
     error: (err: Error) => {
-      logger.log({level: 'error', message: err.message, section, subsection});
+      logger.log({
+        level: LoggerLevel.ERROR,
+        message: err.message,
+        section,
+        subsection,
+      });
     },
     info: baseLogFunc(LoggerLevel.INFO),
     warn: baseLogFunc(LoggerLevel.WARN),

@@ -1,40 +1,27 @@
+// Local imports
+import {createLoggerSection} from '../services/logging';
 // Type imports
+import type {LoggerSections} from '../globals/lib/logging';
 import type {Simulation} from '../simulation';
 
 /**
  * Abstract Class that represents an actor of the simulation.
  */
-export abstract class Actor<JsonType, T = string> {
+export abstract class Actor<JsonType, T extends string = string> {
   /** Unique simulation ID. */
   public readonly id: string;
 
   /** Actor type ID. */
   protected readonly type: T;
 
-  protected readonly verbose: boolean;
+  protected readonly logger: LoggerSections;
 
   /** Create instance of actor. */
-  constructor(id: string, type: T, verbose = false) {
+  constructor(id: string, type: T) {
     this.id = id;
     this.type = type;
-    this.verbose = verbose;
-    this.printLog('Create actor');
-  }
-
-  printLog(...message: unknown[]) {
-    if (!this.verbose) {
-      return;
-    }
-    console.debug(
-      new Date().toISOString(),
-      this.type,
-      this.logInfo(),
-      ...message
-    );
-  }
-
-  logInfo(): unknown {
-    return {id: this.id};
+    this.logger = createLoggerSection('actor', `${type}#${id}`);
+    this.logger.debug('Create');
   }
 
   /**

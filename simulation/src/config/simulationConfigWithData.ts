@@ -11,12 +11,7 @@ export const updateSimulationConfigWithData = async (
 ): Promise<SimulationConfigWithData> => {
   const citiesData = await Promise.all(
     config.cities.map(city =>
-      overpassRequestCityData(
-        city.name,
-        city.countryCode,
-        config.cacheDir,
-        config.verbose
-      )
+      overpassRequestCityData(city.name, city.countryCode, config.cacheDir)
     )
   );
   return {
@@ -50,8 +45,7 @@ export const updateSimulationConfigWithData = async (
         config.cacheDir,
         `cache_${
           config.customer.count + config.rideProvider.countPerson
-        }_people.json`,
-        config.verbose
+        }_people.json`
       )
     ).map(a => ({
       company: a.company,
