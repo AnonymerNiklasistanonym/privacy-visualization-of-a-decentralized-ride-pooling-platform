@@ -4,7 +4,7 @@ FROM node:21-alpine
 RUN apk add --no-cache curl
 
 # Uncomment next line to inspect the image/container using bash
-RUN apk add --no-cache bash
+#RUN apk add --no-cache bash
 
 # Setting up the work directory in the top level of the file system
 WORKDIR /app
@@ -19,8 +19,7 @@ COPY . .
 # Install dependencies
 RUN npm ci
 # Build server
-RUN npm run compile
-RUN npm run dist
+RUN npm run build
 # Remove build files and dev dependencies
 RUN npm install --omit=dev
 RUN rm dist.ts
@@ -56,4 +55,4 @@ EXPOSE 3020
 ENV LOG_DIR "/app/logs/"
 
 # Specify command to be run when starting container
-CMD npm run start -- --port 3020
+CMD npm run start -- --port 3020 --config config.json

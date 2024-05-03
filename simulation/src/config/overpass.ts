@@ -1,45 +1,45 @@
+// Package imports
 import fs from 'fs/promises';
 import path from 'path';
+// Local imports
+import {createLoggerSection} from '../services/logging';
+import {fileExists} from '../misc/fileOperations';
+
+const logger = createLoggerSection('overpass');
+const baseUrlOverpassApi = 'https://overpass-api.de/api/interpreter';
 
 export const overpassRequest = async <JsonResponseType>(
   query: string
 ): Promise<JsonResponseType> => {
-  const result = await fetch('https://overpass-api.de/api/interpreter', {
+  const method = 'POST';
+  const body = 'data=' + encodeURIComponent('[out:json][timeout:90];' + query);
+  logger.info(`fetch ${method} ${baseUrlOverpassApi} body=${body}...`);
+  const result = await fetch(baseUrlOverpassApi, {
     // The body contains the query
     // to understand the query language see "The Programmatic Query Language" on
     // https://wiki.openstreetmap.org/wiki/Overpass_API#The_Programmatic_Query_Language_(OverpassQL)
-    body: 'data=' + encodeURIComponent('[out:json][timeout:90];' + query),
-    method: 'POST',
+    body,
+    method,
   }).then(data => data.json() as Promise<JsonResponseType>);
   return result;
 };
-
-const checkFileExists = (file: string) =>
-  fs
-    .access(file, fs.constants.F_OK)
-    .then(() => true)
-    .catch(() => false);
 
 export const overpassRequestOrCache = async <JsonResponseType>(
   query: string,
   cacheDir: string,
   cacheFile: string,
-  verbose = false
+  ignoreCache = false
 ): Promise<JsonResponseType> => {
   const requestCache = path.join(cacheDir, cacheFile);
-  if (await checkFileExists(requestCache)) {
-    if (verbose) {
-      console.info(`Use cached web request ${requestCache}`);
-    }
+  if ((await fileExists(requestCache)) && ignoreCache === false) {
+    logger.info(`use cached web request ${requestCache}`);
     const content = await fs.readFile(requestCache, {encoding: 'utf-8'});
     return JSON.parse(content) as JsonResponseType;
   }
   const request = await overpassRequest<JsonResponseType>(query);
   await fs.mkdir(cacheDir, {recursive: true});
   await fs.writeFile(requestCache, JSON.stringify(request));
-  if (verbose) {
-    console.info(`Cache web request ${requestCache}`);
-  }
+  logger.info(`cache web request ${requestCache}`);
   return request;
 };
 
@@ -47,8 +47,9 @@ export const overpassRequestCityData = async (
   city: string,
   countryCode: string,
   cacheDir: string,
-  verbose = false
+  ignoreCache = false
 ): Promise<OverpassRequestCityDataType> => {
+  logger.info(`request city data for ${city} (${countryCode})`);
   const requestNodeArea = await overpassRequestOrCache<
     OverpassApiResponse<
       [OverpassApiResponseDataCityNode, OverpassApiResponseDataCityArea]
@@ -64,7 +65,7 @@ export const overpassRequestCityData = async (
            );`,
     cacheDir,
     `cache_${city}_node_area.json`,
-    verbose
+    ignoreCache
   );
   const requestBbRelation = await overpassRequestOrCache<
     OverpassApiResponse<[OverpassApiResponseDataCityBoundingBoxRelation]>
@@ -73,7 +74,7 @@ export const overpassRequestCityData = async (
             out skel bb qt;`,
     cacheDir,
     `cache_${city}_bb_relation.json`,
-    verbose
+    ignoreCache
   );
 
   const area = requestNodeArea.elements.find(a => a.type === 'area');
@@ -111,10 +112,18 @@ export const overpassRequestCityData = async (
     ),
     cacheDir,
     `cache_${city}_bb_nodes.json`,
-    verbose
+    ignoreCache
   );
 
-  console.log(requestBbNodes);
+  logger.debug('fetched bb_nodes', {
+    nodeCount: requestBbNodes.elements.filter(a => a.type === 'node').length,
+    wayCount: requestBbNodes.elements.filter(a => a.type === 'way').length,
+
+    // Other nodes
+    otherCount: requestBbNodes.elements.filter(
+      a => a.type !== 'way' && a.type !== 'node'
+    ).length,
+  });
 
   return {
     area,

@@ -1,11 +1,11 @@
-export const getCliOverride = <T>(
+export const getCliOverride = async <T>(
   flag: string,
   defaultValue: T,
-  updateValue: (value: string) => T
-): T => {
+  updateValue: (value: string) => T | Promise<T>
+): Promise<T> => {
   const overrideIndex = process.argv.indexOf(flag);
   if (overrideIndex > -1 && overrideIndex + 1 < process.argv.length) {
-    return updateValue(process.argv[overrideIndex + 1]);
+    return await updateValue(process.argv[overrideIndex + 1]);
   }
   return defaultValue;
 };

@@ -36,4 +36,9 @@ export interface SimulationConfig {
   port: number;
   // Misc
   cacheDir: string;
+  ignoreCache?: boolean;
+}
+
+export interface SimulationConfigCustom extends Partial<SimulationConfig> {
+  $schema?: string;
 }

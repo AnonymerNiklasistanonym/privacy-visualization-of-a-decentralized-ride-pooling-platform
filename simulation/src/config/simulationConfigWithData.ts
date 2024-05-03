@@ -1,4 +1,7 @@
 // Local imports
+import {cacheFilePathPeople} from './cacheFiles';
+import {companyNames} from './companyNames';
+import {createLoggerSection} from '../services/logging';
 import {createOsmVertexGraph} from '../pathfinder/osm';
 import {nameFakeRequestOrCache} from './nameFake';
 import {overpassRequestCityData} from './overpass';
@@ -6,46 +9,55 @@ import {overpassRequestCityData} from './overpass';
 import type {OsmVertexGraph} from '../pathfinder/osm';
 import type {SimulationConfig} from './simulationConfig';
 
+const logger = createLoggerSection('simulationConfigWithData');
+
 export const updateSimulationConfigWithData = async (
   config: Readonly<SimulationConfig>
 ): Promise<SimulationConfigWithData> => {
-  const citiesData = await Promise.all(
+  const citiesDataRaw = await Promise.all(
     config.cities.map(city =>
-      overpassRequestCityData(city.name, city.countryCode, config.cacheDir)
+      overpassRequestCityData(
+        city.name,
+        city.countryCode,
+        config.cacheDir,
+        config.ignoreCache
+      )
     )
   );
+  const citiesData = citiesDataRaw.map(cityData => ({
+    bounds: {
+      maxLat: cityData.boundingBoxRelation.bounds.maxlat,
+      maxLon: cityData.boundingBoxRelation.bounds.maxlon,
+      minLat: cityData.boundingBoxRelation.bounds.minlat,
+      minLon: cityData.boundingBoxRelation.bounds.minlon,
+    },
+    lat: cityData.node.lat,
+    lon: cityData.node.lon,
+    name: cityData.node.tags.name,
+    osmAreaId: cityData.area.id,
+    osmNodeId: cityData.node.id,
+    places: cityData.places.map(a => ({...a, houseNumber: a.housenumber})),
+  }));
+  for (const cityData of citiesData) {
+    logger.debug(`city ${cityData.name}:`, {
+      bounds: cityData.bounds,
+      lat: cityData.lat,
+      long: cityData.lon,
+      places: cityData.places.length,
+    });
+  }
+  const peopleCount = config.customer.count + config.rideProvider.countPerson;
   return {
     ...config,
-    citiesData: citiesData.map(cityData => ({
-      bounds: {
-        maxLat: cityData.boundingBoxRelation.bounds.maxlat,
-        maxLon: cityData.boundingBoxRelation.bounds.maxlon,
-        minLat: cityData.boundingBoxRelation.bounds.minlat,
-        minLon: cityData.boundingBoxRelation.bounds.minlon,
-      },
-      lat: cityData.node.lat,
-      lon: cityData.node.lon,
-      name: cityData.node.tags.name,
-      osmAreaId: cityData.area.id,
-      osmNodeId: cityData.node.id,
-      places: cityData.places.map(a => ({...a, houseNumber: a.housenumber})),
-    })),
-    companyNames: [
-      'Car2Go',
-      'ShareACar',
-      'CarsWithFriends',
-      'OnlyCars',
-      'CarSharing',
-      'PoolCars',
-    ],
-    osmVertexGraph: createOsmVertexGraph(citiesData),
+    citiesData,
+    companyNames,
+    osmVertexGraph: createOsmVertexGraph(citiesDataRaw),
     peopleData: (
       await nameFakeRequestOrCache(
-        config.customer.count + config.rideProvider.countPerson,
+        peopleCount,
         config.cacheDir,
-        `cache_${
-          config.customer.count + config.rideProvider.countPerson
-        }_people.json`
+        cacheFilePathPeople(peopleCount),
+        config.ignoreCache
       )
     ).map(a => ({
       company: a.company,

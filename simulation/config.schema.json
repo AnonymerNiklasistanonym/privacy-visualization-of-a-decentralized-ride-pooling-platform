@@ -1,0 +1,106 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$ref": "#/definitions/SimulationConfigCustom",
+    "definitions": {
+        "SimulationConfigCustom": {
+            "type": "object",
+            "properties": {
+                "authenticationService": {
+                    "type": "object",
+                    "properties": {
+                        "count": {
+                            "type": "number"
+                        }
+                    },
+                    "required": [
+                        "count"
+                    ],
+                    "additionalProperties": false
+                },
+                "matchingService": {
+                    "type": "object",
+                    "properties": {
+                        "count": {
+                            "type": "number"
+                        }
+                    },
+                    "required": [
+                        "count"
+                    ],
+                    "additionalProperties": false
+                },
+                "customer": {
+                    "type": "object",
+                    "properties": {
+                        "count": {
+                            "type": "number"
+                        }
+                    },
+                    "required": [
+                        "count"
+                    ],
+                    "additionalProperties": false
+                },
+                "rideProvider": {
+                    "type": "object",
+                    "properties": {
+                        "countPerson": {
+                            "type": "number"
+                        },
+                        "countCompany": {
+                            "type": "number"
+                        },
+                        "countCompanyFleetMin": {
+                            "type": "number"
+                        },
+                        "countCompanyFleetMax": {
+                            "type": "number"
+                        }
+                    },
+                    "required": [
+                        "countPerson",
+                        "countCompany",
+                        "countCompanyFleetMin",
+                        "countCompanyFleetMax"
+                    ],
+                    "additionalProperties": false
+                },
+                "cities": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/SimulationConfigCity"
+                    }
+                },
+                "port": {
+                    "type": "number"
+                },
+                "cacheDir": {
+                    "type": "string"
+                },
+                "ignoreCache": {
+                    "type": "boolean"
+                },
+                "$schema": {
+                    "type": "string"
+                }
+            },
+            "additionalProperties": false
+        },
+        "SimulationConfigCity": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "countryCode": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "name",
+                "countryCode"
+            ],
+            "additionalProperties": false
+        }
+    }
+}

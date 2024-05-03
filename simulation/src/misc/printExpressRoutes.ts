@@ -10,7 +10,7 @@ export interface ExpressLayer {
   route?: {path: string; stack: ExpressLayer[]};
 }
 
-export const printRouterPaths = (
+export const getRouterPaths = (
   rootLayers: ReadonlyArray<ExpressLayer>,
   rootPath = ''
 ) => {
@@ -18,9 +18,7 @@ export const printRouterPaths = (
   for (const rootLayer of rootLayers) {
     paths.push(...getRouterLayerPaths(rootLayer, [rootPath]));
   }
-  for (const sortedPath of paths.sort()) {
-    console.info(sortedPath);
-  }
+  return paths.sort();
 };
 
 /**

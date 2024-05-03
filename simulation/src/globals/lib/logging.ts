@@ -146,6 +146,7 @@ export const createLoggerSections = (
         level: LoggerLevel.ERROR,
         message: err.message,
         section,
+        stack: err.stack,
         subsection,
       });
     },

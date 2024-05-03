@@ -37,42 +37,7 @@ Simulate the following parts of the GETACAR platform:
 
 ## Configuration
 
-Edit parameters in [`src/index.ts`](./src/index.ts).
-
-```ts
-import type { SimulationConfig } from './types/config';
-
-const config: Readonly<SimulationConfig> = {
-  // Services
-  authenticationService: {
-    count: 2,
-  },
-  matchingService: {
-    count: 3,
-  },
-  // Participants
-  customer: {
-    count: 200,
-  },
-  rideProvider: {
-    countCompany: 3,
-    countCompanyFleetMax: 50,
-    countCompanyFleetMin: 15,
-    countPerson: 15,
-  },
-  // Location
-  cities: [
-    {
-      name: 'Stuttgart',
-      countryCode: 'de',
-    },
-  ],
-  // Port of server
-  port: 4321,
-  // Misc
-  cacheDir: path.join(__dirname, '..', 'cache'),
-};
-```
+Edit parameters in [`config.json`](./config.json) (use an editor that is aware of JSON schemas: [`config.schema.json`](./config.schema.json)).
 
 ## Run
 
@@ -85,39 +50,14 @@ const config: Readonly<SimulationConfig> = {
 ```sh
 # Install dependencies
 npm install
-# Compile TypeScript code to JavaScript in build directory
-npm run compile
-# Copy additional resource files and compiled files to dist directory
-npm run dist
+# Compile TypeScript code to JavaScript in build directory and
+# copy additional resource files and compiled files to dist directory
+npm run build
 # Run compiled files (default port 4321 => http://localhost:4321)
 npm run start
 # Optionally you can change the port of the web server from the CL
 npm run start -- --port 3020
 ```
-
-**Endpoints:**
-
-The web server has the following endpoints:
-
-- Frontend
-  - `GET` `http://localhost:2222`
-- Frontend JSON
-  - `GET` `http://localhost:2222/json/customers`
-  - `GET` `http://localhost:2222/json/ride_providers`
-  - `GET` `http://localhost:2222/json/authentication_services`
-  - `GET` `http://localhost:2222/json/matching_services`
-  - `GET` `http://localhost:2222/jshylilyson/smart_contracts`
-- Simulation
-  - `GET` `http://localhost:2222/simulation/authentication_servers/routes`
-  - `GET` `http://localhost:2222/simulation/authentication_servers/as_$ID/rating/:pseudonym`
-  - `GET` `http://localhost:2222/simulation/matching_services/routes`
-  - `GET` `http://localhost:2222/simulation/matching_services/ms_$ID/rideRequest/:rideRequestId`
-  - `GET` `http://localhost:2222/simulation/matching_services/ms_$ID/rideRequests`
-  - `GET` `http://localhost:2222/simulation/blockchain/routes`
-  - `GET` `http://localhost:2222/simulation/blockchain/blockchain_$ID/rideContracts`
-  - `GET` `http://localhost:2222/simulation/pause`
-  - `GET` `http://localhost:2222/simulation/run`
-  - `GET` `http://localhost:2222/simulation/state`
 
 **Development:**
 

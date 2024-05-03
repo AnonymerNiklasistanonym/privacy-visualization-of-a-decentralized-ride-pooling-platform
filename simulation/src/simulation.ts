@@ -11,6 +11,7 @@ import {
 } from './misc/helpers';
 import {Blockchain} from './actors/blockchain';
 import {Customer} from './actors/customer';
+import {createLoggerSection} from './services/logging';
 import {getRandomPlateNumber} from './config/numberPlate';
 import {osmnxServerRequest} from './misc/osmnx';
 import {simulationEndpointRoutes} from './globals/defaults/endpoints';
@@ -28,6 +29,8 @@ import type {
 } from './globals/types/simulation';
 import type {Coordinates} from './globals/types/coordinates';
 import type {SimulationConfigWithData} from './config/simulationConfigWithData';
+
+const logger = createLoggerSection('simulation');
 
 export interface StartPos extends Coordinates {
   zoom: number;
@@ -143,23 +146,25 @@ export class Simulation {
     // Create OSM vertex graph
     this.osmVertexGraph = config.osmVertexGraph;
 
-    try {
-      fs.writeFile(
-        'test.json',
-        JSON.stringify({
-          vertices: Array.from(this.osmVertexGraph.vertices.entries())
-            .slice(0, 100)
-            .reduce(
-              (o, [key, value]) => {
-                o[key] = value;
-                return o;
-              },
-              {} as Record<number, OsmVertex>
-            ),
-        })
-      );
-    } catch (err) {
-      console.log(err);
+    if (process.env.NODE_ENV !== 'production') {
+      try {
+        fs.writeFile(
+          'test.json',
+          JSON.stringify({
+            vertices: Array.from(this.osmVertexGraph.vertices.entries())
+              .slice(0, 100)
+              .reduce(
+                (o, [key, value]) => {
+                  o[key] = value;
+                  return o;
+                },
+                {} as Record<number, OsmVertex>
+              ),
+          })
+        );
+      } catch (err) {
+        logger.error(err as Error);
+      }
     }
     // Create participants
     this.customers = Array.from({length: config.customer.count}, (val, index) =>
@@ -205,7 +210,7 @@ export class Simulation {
 
   /** Run simulation */
   async run(): Promise<void> {
-    console.log('Run simulation...');
+    logger.info('Run simulation...');
     this.state = 'RUNNING';
     await Promise.allSettled(
       [...this.customers, ...this.rideProviders, ...this.matchingServices].map(
@@ -213,11 +218,11 @@ export class Simulation {
       )
     );
     this.state = 'INACTIVE';
-    console.log('Simulation inactive');
+    logger.info('Simulation inactive');
   }
 
   pause(): void {
-    console.log('Pause simulation...');
+    logger.info('Pause simulation...');
     this.state = 'PAUSING';
   }
 
@@ -471,7 +476,6 @@ export class Simulation {
       .route(simulationEndpointRoutes.apiV1.shortestPath)
       .get(async (req, res) => {
         const vertices = Array.from(this.osmVertexGraph.vertices);
-        console.log(vertices);
         const coordinatesPath = [
           vertices[0][1],
           vertices[vertices.length - 1][1],

@@ -1,30 +1,30 @@
+// Package imports
 import fs from 'fs/promises';
 import path from 'path';
+// Local imports
+import {createLoggerSection} from '../services/logging';
+import {fileExists} from '../misc/fileOperations';
+
+const logger = createLoggerSection('nameFake');
+const baseUrlNameFakeApi = 'https://api.namefake.com';
 
 export const nameFakeRequest = async (): Promise<NameFakeResponse> => {
-  const result = await fetch('https://api.namefake.com').then(
+  logger.debug(`fetch ${baseUrlNameFakeApi}`);
+  const result = await fetch(baseUrlNameFakeApi).then(
     data => data.json() as Promise<NameFakeResponse>
   );
   return result;
 };
 
-const checkFileExists = (file: string) =>
-  fs
-    .access(file, fs.constants.F_OK)
-    .then(() => true)
-    .catch(() => false);
-
 export const nameFakeRequestOrCache = async (
   count: number,
   cacheDir: string,
   cacheFile: string,
-  verbose = false
+  ignoreCache = false
 ): Promise<NameFakeResponse[]> => {
   const requestCache = path.join(cacheDir, cacheFile);
-  if (await checkFileExists(requestCache)) {
-    if (verbose) {
-      console.info(`Use cached web request ${requestCache}`);
-    }
+  if ((await fileExists(requestCache)) && ignoreCache === false) {
+    logger.info(`use cached web request ${requestCache}`);
     const content = await fs.readFile(requestCache, {encoding: 'utf-8'});
     return JSON.parse(content) as NameFakeResponse[];
   }
@@ -33,9 +33,7 @@ export const nameFakeRequestOrCache = async (
   );
   await fs.mkdir(cacheDir, {recursive: true});
   await fs.writeFile(requestCache, JSON.stringify(requests));
-  if (verbose) {
-    console.info(`Cache web request ${requestCache}`);
-  }
+  logger.info(`cache web request ${requestCache}`);
   return requests;
 };
 
