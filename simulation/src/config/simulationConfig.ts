@@ -1,3 +1,5 @@
+import type {Coordinates} from '../globals/types/coordinates';
+
 export interface SimulationConfigAS {
   count: number;
 }
@@ -13,13 +15,24 @@ export interface SimulationConfigCustomer {
 export interface SimulationConfigRideProvider {
   countPerson: number;
   countCompany: number;
-  countCompanyFleetMin: number;
-  countCompanyFleetMax: number;
+  countCompanyFleet: number;
 }
 
-export interface SimulationConfigCity {
+export interface SimulationConfigLocation {
+  type: 'city' | 'bbox';
+}
+
+export interface SimulationConfigCity extends SimulationConfigLocation {
+  type: 'city';
   name: string;
   countryCode: string;
+}
+export interface SimulationConfigBBox extends SimulationConfigLocation {
+  type: 'bbox';
+  minLat: number;
+  maxLat: number;
+  minLong: number;
+  maxLong: number;
 }
 
 /** The configuration for the simulation. */
@@ -31,7 +44,8 @@ export interface SimulationConfig {
   customer: Readonly<SimulationConfigCustomer>;
   rideProvider: Readonly<SimulationConfigRideProvider>;
   // Location
-  cities: ReadonlyArray<SimulationConfigCity>;
+  locations: ReadonlyArray<SimulationConfigCity | SimulationConfigBBox>;
+  startPos?: Readonly<Coordinates>;
   // Port of server
   port: number;
   // Misc

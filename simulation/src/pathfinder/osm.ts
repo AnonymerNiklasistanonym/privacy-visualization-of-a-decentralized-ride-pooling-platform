@@ -1,12 +1,9 @@
 // Package imports
 import haversine from 'haversine-distance';
 // Local imports
+import {createLoggerSection} from '../services/logging';
 import {getShortestPath} from './shortestPath';
 // Type imports
-import type {
-  OverpassOsmNode,
-  OverpassRequestCityDataType,
-} from '../config/overpass';
 import type {
   Vertex,
   VertexEdge,
@@ -16,174 +13,104 @@ import type {
   VertexId,
 } from './shortestPath';
 import type {Coordinates} from '../globals/types/coordinates';
+import type {OverpassRequestBbData} from '../config/overpass';
 
-export interface OsmVertex extends Vertex {
-  /** Coordinates on the map */
-  coordinates: Readonly<Coordinates>;
-  /** Original information from OSM */
-  info: Readonly<OverpassOsmNode>;
-}
+const logger = createLoggerSection('pathfinder', 'osm');
+
+export interface OsmVertex extends Vertex, Coordinates {}
 
 export interface OsmVertexEdge extends VertexEdge {
   /** The actual way path */
-  geometry: Coordinates[];
+  geometry: Array<Coordinates>;
 }
 
 export type OsmVertexGraph = VertexGraph<OsmVertex, OsmVertexEdge>;
 
-export const genericNodeCreator = <
-  T,
-  Y,
-  VERTEX extends Vertex,
-  EDGE extends VertexEdge,
->(
-  nodes: ReadonlyArray<T>,
-  edges: ReadonlyArray<Y>
-): VertexGraph<VERTEX, EDGE> => {
-  console.log('node#', nodes.length);
-  console.log('edges#', edges.length);
-  return {
-    edges: {
-      idMap: new Map(),
-      vertexEdgeIdMap: new Map(),
-    },
-    vertices: new Map(),
-  };
-};
-
 export const createOsmVertexGraph = (
-  input: ReadonlyArray<OverpassRequestCityDataType>
+  input: ReadonlyArray<OverpassRequestBbData>
 ): OsmVertexGraph => {
   // Create vertices
-  const nodes = input.map(a => a.nodes).flat();
-  const ways = input.map(a => a.ways).flat();
-  console.log('node#', nodes.length);
-  console.log('way#', ways.length);
-  const vertices = new Map<number, OsmVertex>(
-    nodes.map(a => [
+  const nodes = input.flatMap(a => a.wayNodes);
+  const ways = input.flatMap(a => a.ways);
+  logger.debug('node#', nodes.length);
+  logger.debug('way#', ways.length);
+  /** Object that contains all edge information in Maps */
+  const edges: VertexEdgeMaps<OsmVertexEdge> = {
+    idMap: new Map<VertexId, Map<VertexId, VertexEdgeId>>(),
+    vertexEdgeIdMap: new Map<VertexEdgeId, OsmVertexEdge>(),
+  };
+  /** Map that contains all vertices */
+  const vertices = new Map(
+    nodes.map<[number, OsmVertex]>(a => [
       a.id,
       {
-        coordinates: {lat: a.lat, long: a.lon},
         id: a.id,
-        info: a,
+        lat: a.lat,
+        long: a.long,
         neighbors: [],
-      } satisfies OsmVertex,
+      },
     ])
   );
-  console.log('vertices#', vertices.size);
-  for (let index = 0; index < 10; index++) {
-    //console.log(ways[index]);
-  }
   // Add neighbors
-  const idMap = new Map<VertexId, Map<VertexId, VertexEdgeId>>();
-  const vertexEdgeIdMap = new Map<VertexEdgeId, OsmVertexEdge>();
-  let counterUndefined = 0;
   for (const way of ways) {
     let wayWasAdded = false;
     for (let index = 0; index < way.nodes.length; index++) {
-      const vertex = vertices.get(way.nodes[index]);
-      const currentIdMap = idMap.get(way.nodes[index]);
+      const currentVertexId = way.nodes[index];
+      const vertex = vertices.get(currentVertexId);
       if (vertex === undefined) {
-        counterUndefined += 1;
+        // If a vertex is not found skip it but warn since this should not happen!
+        logger.warn(`Could not find vertex ${currentVertexId}!`);
+        continue;
       }
-      if (vertex !== undefined && index < way.nodes.length - 1) {
-        wayWasAdded = true;
-        vertex.neighbors.push(way.nodes[index + 1]);
-        if (currentIdMap !== undefined) {
-          currentIdMap.set(way.nodes[index + 1], way.id);
-        } else {
-          idMap.set(
-            way.nodes[index],
-            new Map([[way.nodes[index + 1], way.id]])
-          );
-        }
+      // If there is a next or previous vertex in the list add it
+      const validNeighborVertexIds = [];
+      if (index < way.nodes.length - 1) {
+        validNeighborVertexIds.push(way.nodes[index + 1]);
       }
-      if (vertex !== undefined && index > 1) {
+      if (index > 0) {
+        validNeighborVertexIds.push(way.nodes[index - 1]);
+      }
+      for (const validNeighborVertexId of validNeighborVertexIds) {
         wayWasAdded = true;
-        vertex.neighbors.push(way.nodes[index - 1]);
+        vertex.neighbors.push(validNeighborVertexId);
+        const currentIdMap = edges.idMap.get(currentVertexId);
         if (currentIdMap !== undefined) {
-          currentIdMap.set(way.nodes[index - 1], way.id);
+          currentIdMap.set(validNeighborVertexId, way.id);
         } else {
-          idMap.set(
-            way.nodes[index],
-            new Map([[way.nodes[index - 1], way.id]])
+          edges.idMap.set(
+            currentVertexId,
+            new Map([[validNeighborVertexId, way.id]])
           );
         }
       }
     }
-    /*
-    for (const nodeId of way.nodes) {
-      const vertex = vertices.get(nodeId);
-      if (vertex !== undefined) {
-        //vertex.neighbors.push(otherNodeId);
-        //for (const otherNodeId of way.nodes.filter(a => a !== nodeId)) {
-        //  wayWasAdded = true;
-        //  vertex.neighbors.push(otherNodeId);
-        //  const currentIdMap = idMap.get(nodeId);
-        //  if (currentIdMap !== undefined) {
-        //    currentIdMap.set(otherNodeId, way.id);
-        //  } else {
-        //    idMap.set(nodeId, new Map([[otherNodeId, way.id]]));
-        //  }
-        //}
-      }
-    }*/
     if (wayWasAdded) {
-      if (way.geometry === undefined) {
-        //console.log(way);
-      } else {
-        vertexEdgeIdMap.set(way.id, {
-          geometry: way.geometry.map(a => ({lat: a.lat, long: a.lon})),
-          id: way.id,
-          weight: way.geometry
-            .map((a, index) =>
-              haversine(
-                {lat: a.lat, lon: a.lon},
-                {
-                  lat: way.geometry[
-                    index + 1 < way.geometry.length ? index + 1 : index
-                  ].lat,
-                  lon: way.geometry[
-                    index + 1 < way.geometry.length ? index + 1 : index
-                  ].lon,
-                }
-              )
-            )
-            .reduce((sum, a) => sum + a, 0),
-        });
-      }
+      edges.vertexEdgeIdMap.set(way.id, {
+        geometry: way.nodes
+          .map<undefined | Coordinates>(a => vertices.get(a))
+          .filter((a): a is Coordinates => a !== undefined),
+        // TODO: Makes no sense right now since the edge is a polyline connecting multiple nodes so the weight is different for every node => function
+        id: way.id,
+        weight: 0,
+      });
     }
   }
+  const verticesSizeOriginal = vertices.size;
   for (const [vertexId, vertex] of vertices.entries()) {
     // Purge vertices without neighbors
     if (vertex.neighbors.length === 0) {
       vertices.delete(vertexId);
+      continue;
     }
   }
-  /*
-  const edgeFunc = (
-    vertexA: OsmVertex,
-    vertexB: OsmVertex
-  ): VertexEdge | null => ({
-    id: -1,
-    weight: haversine(
-      {lat: vertexA.coordinates.lat, lon: vertexA.coordinates.long},
-      {lat: vertexB.coordinates.lat, lon: vertexB.coordinates.long}
-    ),
-  });
-  */
-  const edges: VertexEdgeMaps<OsmVertexEdge> = {
-    idMap,
-    vertexEdgeIdMap,
-  };
-  console.log(
-    `Found ${vertices.size} vertices of original ${nodes.length} nodes`
+  logger.debug(
+    `Found ${vertices.size} vertices of original ${
+      nodes.length
+    } nodes (purged ${verticesSizeOriginal - vertices.size} vertices)`
   );
-  console.log(
+  logger.debug(
     `Found ${edges.vertexEdgeIdMap.size} edges of original ${ways.length} ways`
   );
-  console.log(`Undefined vertex counter: ${counterUndefined}`);
-  //return {vertices, edges: edgeFunc};
   return {edges, vertices};
 };
 
@@ -192,19 +119,24 @@ export const getClosestVertex = (
   coordinates: Readonly<Coordinates>
 ): OsmVertex | null => {
   let closestVertex = null;
+  let closestVertexId = null;
   let closestDistance = Infinity;
-  for (const [, vertex] of graph.vertices) {
+  for (const [vertexId, vertex] of graph.vertices) {
     const distanceToCoordinates = haversine(
       {lat: coordinates.lat, lon: coordinates.long},
-      {lat: vertex.coordinates.lat, lon: vertex.coordinates.long}
+      {lat: vertex.lat, lon: vertex.long}
     );
     if (distanceToCoordinates < closestDistance) {
       closestVertex = vertex;
+      closestVertexId = vertexId;
       closestDistance = distanceToCoordinates;
       continue;
     }
   }
-  return closestVertex;
+  if (closestVertex === null || closestVertexId === null) {
+    return null;
+  }
+  return {...closestVertex, id: closestVertexId};
 };
 
 export const getShortestPathOsmCoordinates = (
@@ -215,22 +147,27 @@ export const getShortestPathOsmCoordinates = (
   const sourceVertex = getClosestVertex(graph, sourceCoordinates);
   const targetVertex = getClosestVertex(graph, targetCoordinates);
   if (sourceVertex === null || targetVertex === null) {
-    console.warn('Could not find a close vertex?');
+    logger.error(Error('Could not find a close vertex?'));
     return null;
   }
   const shortestPath = getShortestPath(
     graph,
     sourceVertex.id,
     targetVertex.id,
+    // Use the air-line distance as heuristic
     vertex =>
       haversine(
-        {lat: vertex.coordinates.lat, lon: vertex.coordinates.long},
+        {lat: vertex.lat, lon: vertex.long},
         {lat: targetCoordinates.lat, lon: targetCoordinates.long}
       )
   );
   if (shortestPath === null) {
-    console.warn('Could not find a path?');
+    logger.error(
+      Error(
+        `Could not find a path between ${sourceVertex.id} and ${targetVertex.id}?`
+      )
+    );
     return null;
   }
-  return shortestPath.map(a => a.coordinates);
+  return shortestPath.map(a => a);
 };

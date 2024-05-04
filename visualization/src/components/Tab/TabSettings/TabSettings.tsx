@@ -3,10 +3,10 @@
 // Package imports
 // > Components
 import {
-  Box,
   Divider,
   FormControlLabel,
   FormGroup,
+  Grid,
   List,
   ListItem,
   Switch,
@@ -14,6 +14,10 @@ import {
 } from '@mui/material';
 import {NumericFormat, NumericFormatProps} from 'react-number-format';
 import {forwardRef} from 'react';
+// Local imports
+// > Components
+import TabContainer from '@components/Tab/TabContainer';
+import TabElementContainer from '@components/Tab/TabElementContainer';
 // Type imports
 import type {ReactSetState, ReactState} from '@misc/react';
 import type {ReactNode} from 'react';
@@ -131,27 +135,30 @@ export const renderSettings = (
   elements: Array<SettingsElement>
 ): ReactNode => {
   return (
-    <List
-      sx={{
-        '& ul': {padding: 0},
-        bgcolor: 'background.paper',
-        overflow: 'auto',
-        position: 'relative',
-        width: '100%',
-      }}
-      subheader={<li />}
-    >
-      <ListItem>
-        <Divider textAlign="left">{title}</Divider>
-      </ListItem>
-      {elements
-        .sort((a, b) => stringComparator(a.label, b.label))
-        .map(a => (
-          <ListItem key={`${title}-${a.label}`}>
-            {renderSettingsElement(a)}
+    <Grid item xs={12} md={6}>
+      <TabElementContainer>
+        <List
+          sx={{
+            '& ul': {padding: 0},
+            bgcolor: 'background.paper',
+            overflow: 'auto',
+            width: '100%',
+          }}
+          subheader={<li />}
+        >
+          <ListItem>
+            <Divider textAlign="left">{title}</Divider>
           </ListItem>
-        ))}
-    </List>
+          {elements
+            .sort((a, b) => stringComparator(a.label, b.label))
+            .map(a => (
+              <ListItem key={`${title}-${a.label}`}>
+                {renderSettingsElement(a)}
+              </ListItem>
+            ))}
+        </List>
+      </TabElementContainer>
+    </Grid>
   );
 };
 
@@ -220,12 +227,19 @@ export default function TabSettings({
     },
   ]);
   return (
-    <Box display="flex" justifyContent="center">
+    <TabContainer>
       <FormGroup>
-        {settingsDebug}
-        {settingsBlockchain}
-        {settingsMap}
+        <Grid
+          container
+          spacing={2}
+          justifyContent="space-around"
+          alignItems="stretch"
+        >
+          {settingsDebug}
+          {settingsBlockchain}
+          {settingsMap}
+        </Grid>
       </FormGroup>
-    </Box>
+    </TabContainer>
   );
 }

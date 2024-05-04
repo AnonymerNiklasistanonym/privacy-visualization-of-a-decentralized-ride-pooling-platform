@@ -3,345 +3,411 @@ import fs from 'fs/promises';
 import path from 'path';
 // Local imports
 import {createLoggerSection} from '../services/logging';
-import {fileExists} from '../misc/fileOperations';
+// > Globals
+import {fetchJson} from '../globals/lib/fetch';
+import {getJsonCacheWrapper} from '../globals/lib/cacheWrapper';
+// Type imports
+import type {
+  OverpassApiResponse,
+  OverpassApiResponseElementNode,
+  OverpassApiResponseElementRelation,
+  OverpassApiResponseElementWay,
+  OverpassApiResponseElements,
+  TagsNodesRelevant,
+  TagsWaysRelevant,
+} from '../lib/overpass';
+import type {PartialRecord, WithRequired} from '../globals/types/logic';
+import type {Coordinates} from '../globals/types/coordinates';
 
 const logger = createLoggerSection('overpass');
 const baseUrlOverpassApi = 'https://overpass-api.de/api/interpreter';
+
+/** Overpass API prefix to get a JSON response and timeout after 90ms */
+const overpassApiPrefixJsonTimeout = '[out:json][timeout:90];';
 
 export const overpassRequest = async <JsonResponseType>(
   query: string
 ): Promise<JsonResponseType> => {
   const method = 'POST';
-  const body = 'data=' + encodeURIComponent('[out:json][timeout:90];' + query);
+  const body = `data=${encodeURIComponent(
+    `${overpassApiPrefixJsonTimeout}${query}`
+  )}`;
   logger.info(`fetch ${method} ${baseUrlOverpassApi} body=${body}...`);
-  const result = await fetch(baseUrlOverpassApi, {
-    // The body contains the query
-    // to understand the query language see "The Programmatic Query Language" on
-    // https://wiki.openstreetmap.org/wiki/Overpass_API#The_Programmatic_Query_Language_(OverpassQL)
-    body,
-    method,
-  }).then(data => data.json() as Promise<JsonResponseType>);
-  return result;
+  return fetchJson<JsonResponseType>(baseUrlOverpassApi, {
+    fetchOptions: {
+      // The body contains the query
+      // to understand the query language see "The Programmatic Query Language" on
+      // https://wiki.openstreetmap.org/wiki/Overpass_API#The_Programmatic_Query_Language_(OverpassQL)
+      body,
+      method,
+    },
+  });
 };
 
-export const overpassRequestOrCache = async <JsonResponseType>(
+export const overpassCachedRequest = async <JsonResponseType extends {}>(
   query: string,
-  cacheDir: string,
-  cacheFile: string,
+  cacheFilePath: string,
   ignoreCache = false
-): Promise<JsonResponseType> => {
-  const requestCache = path.join(cacheDir, cacheFile);
-  if ((await fileExists(requestCache)) && ignoreCache === false) {
-    logger.info(`use cached web request ${requestCache}`);
-    const content = await fs.readFile(requestCache, {encoding: 'utf-8'});
-    return JSON.parse(content) as JsonResponseType;
-  }
-  const request = await overpassRequest<JsonResponseType>(query);
-  await fs.mkdir(cacheDir, {recursive: true});
-  await fs.writeFile(requestCache, JSON.stringify(request));
-  logger.info(`cache web request ${requestCache}`);
-  return request;
-};
+): Promise<OverpassApiResponse<JsonResponseType>> =>
+  getJsonCacheWrapper(
+    () => {
+      logger.info(`cache web request ${cacheFilePath} (${query})`);
+      return overpassRequest<OverpassApiResponse<JsonResponseType>>(query);
+    },
+    cacheFilePath,
+    {
+      callbackUseCache: () => {
+        logger.debug(`use cached web request ${cacheFilePath} (${query})`);
+      },
+      ignoreCache,
+    }
+  );
 
-export const overpassRequestCityData = async (
+export const bboxToOverpassString = (
+  minLat: number,
+  minLong: number,
+  maxLat: number,
+  maxLong: number
+) => [minLat, minLong, maxLat, maxLong].join(',');
+
+export const overpassRequestBbDataCity = async (
   city: string,
   countryCode: string,
   cacheDir: string,
   ignoreCache = false
-): Promise<OverpassRequestCityDataType> => {
-  logger.info(`request city data for ${city} (${countryCode})`);
-  const requestNodeArea = await overpassRequestOrCache<
-    OverpassApiResponse<
-      [OverpassApiResponseDataCityNode, OverpassApiResponseDataCityArea]
-    >
-  >(
-    `area["name:${countryCode}"="${city}"];
-           node(area)[place~"^(town|city)$"];
-           foreach(
-               out;
-               is_in;
-               area._[admin_level~"6|8"];
-               out;
-           );`,
+): Promise<OverpassRequestBbData> => {
+  logger.debug(`get city data for ${city} (${countryCode})`);
+  const requestBbRelationCachePath = path.join(
     cacheDir,
-    `cache_${city}_node_area.json`,
+    `cache_${city}_bb_relation.json`
+  );
+  const requestBbRelation = await overpassCachedRequest<OverpassCityBoundsData>(
+    getCityBoundsQuery(countryCode, city),
+    requestBbRelationCachePath,
     ignoreCache
   );
-  const requestBbRelation = await overpassRequestOrCache<
-    OverpassApiResponse<[OverpassApiResponseDataCityBoundingBoxRelation]>
-  >(
-    `relation["name:${countryCode}"="${city}"][boundary=administrative];
-            out skel bb qt;`,
-    cacheDir,
-    `cache_${city}_bb_relation.json`,
-    ignoreCache
+  const boundingBoxRelations = requestBbRelation.elements.filter(
+    (a): a is WithRequired<OverpassApiResponseElementRelation, 'bounds'> =>
+      a.type === 'relation' && a.bounds !== undefined
   );
-
-  const area = requestNodeArea.elements.find(a => a.type === 'area');
-  const node = requestNodeArea.elements.find(a => a.type === 'node');
-  const boundingBoxRelation = requestBbRelation.elements.find(
-    a => a.type === 'relation'
-  );
-  if (
-    area?.type !== 'area' ||
-    node?.type !== 'node' ||
-    boundingBoxRelation?.type !== 'relation'
-  ) {
-    throw Error(
-      `City data could not be fetched for "${city}" (${countryCode})`
-    );
+  if (boundingBoxRelations.length === 0) {
+    fs.rm(requestBbRelationCachePath);
+    throw Error(`Fetched city data is bad "${city}" (${countryCode})`);
   }
-
-  const requestBbNodes = await overpassRequestOrCache<
-    OverpassApiResponse<
-      (
-        | OverpassApiResponseDataCityBoundingBoxWay
-        | OverpassApiResponseDataCityBoundingBoxNode
-      )[]
-    >
-  >(
-    //`nwr["addr:street"](${boundingBoxRelation.bounds.minlat},${boundingBoxRelation.bounds.minlon},${boundingBoxRelation.bounds.maxlat},${boundingBoxRelation.bounds.maxlon});
-    // out geom;`,
-    referenceQuery(
-      [
-        boundingBoxRelation.bounds.minlat,
-        boundingBoxRelation.bounds.minlon,
-        boundingBoxRelation.bounds.maxlat,
-        boundingBoxRelation.bounds.maxlon,
-      ].join(',')
-    ),
+  return overpassRequestBbData(
+    {
+      maxLat: boundingBoxRelations[0].bounds.maxlat,
+      maxLong: boundingBoxRelations[0].bounds.maxlon,
+      minLat: boundingBoxRelations[0].bounds.minlat,
+      minLong: boundingBoxRelations[0].bounds.minlon,
+    },
     cacheDir,
-    `cache_${city}_bb_nodes.json`,
+    ignoreCache
+  );
+};
+
+export interface OverpassRequestBbDataElement {
+  /** The unique element ID */
+  id: number;
+}
+
+export interface OverpassRequestBbDataNode
+  extends Coordinates,
+    OverpassRequestBbDataElement {}
+
+export interface OverpassRequestBbDataWay extends OverpassRequestBbDataElement {
+  /** List of node IDs that define this way */
+  nodes: Array<number>;
+}
+
+export interface OverpassRequestBbDataBuilding
+  extends Coordinates,
+    OverpassRequestBbDataElement {
+  tags: PartialRecord<string, TagsWaysRelevant, 'building'>;
+}
+
+export interface OverpassRequestBbData {
+  /** The way nodes (for the pathfinder algorithm) in the bounding box */
+  wayNodes: Array<OverpassRequestBbDataNode>;
+  /** The ways (for the pathfinder algorithm) in the bounding box */
+  ways: Array<OverpassRequestBbDataWay>;
+  /** The computed building locations of actual places in the bounding box */
+  buildings: Array<OverpassRequestBbDataBuilding>;
+  /** The middle of the bounding box */
+  startPos: Coordinates;
+}
+
+export interface LocationBoundingBox {
+  minLat: number;
+  maxLat: number;
+  minLong: number;
+  maxLong: number;
+}
+
+export const overpassGetBuildingName = (
+  a: Readonly<OverpassRequestBbDataBuilding>
+) => {
+  const addressList = [
+    a.tags['addr:country'],
+    a.tags['addr:state'],
+    a.tags['addr:postcode'],
+    a.tags['addr:city'],
+    a.tags['addr:town'],
+    a.tags['addr:street'],
+    a.tags['addr:housenumber'],
+    a.tags['addr:housename'],
+    a.tags.name !== undefined ? `(${a.tags.name})` : undefined,
+    a.tags.building !== 'yes' ? `[${a.tags.building}]` : undefined,
+  ].filter(a => a !== undefined);
+  if (addressList.length > 0) {
+    return addressList.join(' ');
+  }
+  return 'TODO';
+};
+
+export const overpassRequestBbData = async (
+  locationBoundingBox: Readonly<LocationBoundingBox>,
+  cacheDir: string,
+  ignoreCache = false
+): Promise<OverpassRequestBbData> => {
+  const boundingBox = bboxToOverpassString(
+    locationBoundingBox.minLat,
+    locationBoundingBox.minLong,
+    locationBoundingBox.maxLat,
+    locationBoundingBox.maxLong
+  );
+  logger.debug(`request bounding box data for ${boundingBox}`);
+
+  const requestBbWays = await overpassCachedRequest<OverpassGetWaysQueryData>(
+    getWaysQueryBB(boundingBox),
+    path.join(cacheDir, `cache_${boundingBox}_bb_ways.json`),
     ignoreCache
   );
 
-  logger.debug('fetched bb_nodes', {
-    nodeCount: requestBbNodes.elements.filter(a => a.type === 'node').length,
-    wayCount: requestBbNodes.elements.filter(a => a.type === 'way').length,
+  const requestBbPlaces =
+    await overpassCachedRequest<OverpassGetPlacesQueryData>(
+      getPlacesQueryBB(boundingBox),
+      path.join(cacheDir, `cache_${boundingBox}_bb_places.json`),
+      ignoreCache
+    );
 
-    // Other nodes
-    otherCount: requestBbNodes.elements.filter(
-      a => a.type !== 'way' && a.type !== 'node'
-    ).length,
-  });
+  analyzeApiResponse(`bb_${boundingBox}_ways`, requestBbWays);
+
+  analyzeApiResponse(`bb_${boundingBox}_places`, requestBbPlaces);
+
+  const nodeMapPlaces = new Map<number, Coordinates>(
+    requestBbPlaces.elements
+      .filter((a): a is OverpassApiResponseElementNode => a.type === 'node')
+      .map<[number, Coordinates]>(a => [
+        a.id,
+        {
+          lat: a.lat,
+          long: a.lon,
+        },
+      ])
+  );
+
+  type hasBuilding = WithRequired<
+    OverpassApiResponseElementWay<TagsWaysRelevant, 'building'>,
+    'tags'
+  >;
 
   return {
-    area,
-    boundingBoxRelation,
-    node,
-    nodes: requestBbNodes.elements.filter(
-      a => a.type === 'node'
-    ) as OverpassApiResponseDataCityBoundingBoxNode[],
-    places: requestBbNodes.elements
+    buildings: requestBbPlaces.elements
       .filter(
-        a => a.tags !== undefined && 'addr:city' in a.tags && a.type === 'node'
+        (a): a is OverpassApiResponseElementWay<TagsWaysRelevant> =>
+          a.type === 'way'
       )
-      .map(
-        a =>
-          ({
-            city: a.tags['addr:city'],
-            housenumber: a.tags['addr:housenumber'],
-            lat: a.type === 'node' ? a.lat : a.bounds.maxlat,
-            lon: a.type === 'node' ? a.lon : a.bounds.maxlon,
-            name: a.type === 'node' ? a.tags['name'] : undefined,
-            postcode: a.tags['addr:postcode'],
-            street: a.tags['addr:street'],
-          }) satisfies OverpassApiResponseDataCityPlace
-      ),
-    ways: requestBbNodes.elements.filter(
-      a => a.type === 'way'
-    ) as OverpassApiResponseDataCityBoundingBoxWay[],
+      .filter(
+        (a): a is hasBuilding =>
+          a.tags !== undefined && a.tags?.building !== undefined
+      )
+      .map<[hasBuilding, Array<undefined | Coordinates>]>(a => [
+        a,
+        a.nodes.map((b: number) => nodeMapPlaces.get(b)),
+      ])
+      .filter(
+        (a): a is [hasBuilding, Array<Coordinates>] =>
+          a[1].filter(b => b !== undefined).length > 0
+      )
+      .map<OverpassRequestBbDataBuilding>(([a, coordinates]) => ({
+        ...coordinates[0],
+        id: a.id,
+        tags: a.tags,
+      })),
+    startPos: {
+      lat:
+        (locationBoundingBox.maxLat - locationBoundingBox.minLat) / 2 +
+        locationBoundingBox.minLat,
+      long:
+        (locationBoundingBox.maxLong - locationBoundingBox.minLong) / 2 +
+        locationBoundingBox.minLong,
+    },
+    wayNodes: requestBbWays.elements
+      .filter(
+        (a): a is OverpassApiResponseElementNode<TagsNodesRelevant> =>
+          a.type === 'node'
+      )
+      .map<OverpassRequestBbDataNode>(a => ({
+        id: a.id,
+        lat: a.lat,
+        long: a.lon,
+      })),
+    ways: requestBbWays.elements
+      .filter(
+        (a): a is OverpassApiResponseElementWay<TagsWaysRelevant> =>
+          a.type === 'way'
+      )
+      .map<OverpassRequestBbDataWay>(a => ({
+        id: a.id,
+        nodes: a.nodes,
+      })),
   };
 };
 
-export interface OverpassOsmElement {
-  type: 'node' | 'way' | 'relation';
-  /** integer (64-bit): Used for identifying the element */
-  id: number;
-}
+export const analyzeApiResponse = <TAGS extends string = string>(
+  name: string,
+  responseData: OverpassApiResponse<
+    ReadonlyArray<OverpassApiResponseElements<TAGS>>
+  >
+): void => {
+  const countNodes = responseData.elements.filter(
+    a => a.type === 'node'
+  ).length;
+  const countWays = responseData.elements.filter(a => a.type === 'way').length;
+  const a: Record<string, string> = {};
+  a.test = 'true';
+  const buildings = responseData.elements.filter(
+    a =>
+      a.tags !== undefined &&
+      'building' in a.tags &&
+      a.tags.building !== undefined
+  );
+  const buildingTypes = new Set<string>(
+    buildings
+      .filter(
+        a =>
+          a.tags !== undefined &&
+          'building' in a.tags &&
+          typeof a.tags.building === 'string'
+      )
+      .map(
+        a =>
+          (a.tags as unknown as Record<string, string>)
+            .building as unknown as string
+      )
+  );
+  const tagCountNodes = responseData.elements.filter(
+    a => a.type === 'node' && a.tags !== undefined
+  ).length;
+  const tagCountWays = responseData.elements.filter(
+    a => a.type === 'way' && a.tags !== undefined
+  ).length;
+  const tagTypesNodes = new Set(
+    responseData.elements
+      .filter(a => a.type === 'node')
+      .flatMap(a => (a.tags !== undefined ? Object.keys(a.tags) : []))
+  );
+  const tagTypesWays = new Set(
+    responseData.elements
+      .filter(a => a.type === 'way')
+      .flatMap(a => (a.tags !== undefined ? Object.keys(a.tags) : []))
+  );
+  const countBuildings = buildings.length;
+
+  const countLocationNodes = responseData.elements.filter(
+    a => a.type === 'node' && a.lat !== undefined && a.lon !== undefined
+  ).length;
+
+  if (process.env.NODE_ENV !== 'production') {
+    try {
+      fs.writeFile(
+        path.join(process.cwd(), `delete_${name}_analyze.json`),
+        JSON.stringify(
+          {
+            ...responseData,
+            elements: {
+              nodes: responseData.elements
+                .filter(a => a.type === 'node')
+                .slice(0, 20),
+              ways: responseData.elements
+                .filter(a => a.type === 'way')
+                .slice(0, 20),
+            },
+          },
+          undefined,
+          4
+        )
+      );
+    } catch (err) {
+      logger.error(err as Error);
+    }
+  }
+
+  const getTypescriptStringType = (list: Array<string>) =>
+    list
+      .sort()
+      .map(a => `'${a}'`)
+      .join(' | ');
+
+  logger.debug(name, {
+    countNodes,
+    countWays,
+
+    countBuildings,
+    countLocationNodes,
+
+    tagCountNodes,
+    tagCountWays,
+
+    buildingTypes: getTypescriptStringType(Array.from(buildingTypes)),
+    tagTypesNodes: getTypescriptStringType(Array.from(tagTypesNodes)),
+    tagTypesWays: getTypescriptStringType(Array.from(tagTypesWays)),
+  });
+};
 
 /**
- * A node represents a specific point on the earth's surface defined by its latitude and longitude, referred to the World Geodetic System 1984[1]. Each node comprises at least an id number and a pair of coordinates.
- *
- * Nodes can be used to define standalone point features. For example, a node could represent a park bench or a water well.
- *
- * Nodes are also used to define the shape of a way. When used as points along ways, nodes usually have no tags, though some of them could. For example, highway=traffic_signals marks traffic signals on a road, and power=tower represents a pylon along an electric power line.
- *
- * A node can be included as a member of a relation. The relation also may indicate the member's role: that is, the node's function in this particular set of related data elements.
- *
- * https://wiki.openstreetmap.org/wiki/Elements#Node
+ * https://overpass-turbo.eu/?Q=%5Bout%3Ajson%5D%5Btimeout%3A90%5D%3B%0A%28area%5B%22ISO3166-1%3Aalpha2%22%3D%22US%22%5D%3B%29+-%3E.a%3B%0Arel%5Bname%3D%22Stuttgart%22%5D%28area.a%29%3B%0A%28._%3B%3E%3B%29%3B%0Aout+bb%3B&C=34.496795%3B-91.477146%3B12
  */
-export interface OverpassOsmNode extends OverpassOsmElement {
-  type: 'node';
-  lat: number;
-  lon: number;
-  tags: OverpassOsmTags;
-}
+export type OverpassCityBoundsData = Array<
+  | OverpassApiResponseElementNode
+  | OverpassApiResponseElementWay
+  | WithRequired<OverpassApiResponseElementRelation, 'bounds'>
+>;
 
 /**
- * A way is an ordered list of between 1 (!) and 2,000 nodes that define a  polyline. Ways are used to represent linear features such as rivers and roads.
- *
- * Ways can also represent the boundaries of areas (solid  polygons) such as buildings or forests. In this case, the way's first and last node will be the same. This is called a "closed way".
- *
- * Note that closed ways occasionally represent loops, such as roundabouts on highways, rather than solid areas. This is usually inferred from tags on the way, for example landuse=* can never pertain to a linear feature. However, some real-life objects (such as man_made=pier) can have both a linear closed way or an areal representation area, and the tag area=yes or area=no can be used to avoid ambiguity or misinterpretation. See also: Way#Differences between linear and area representation of features.
- *
- * Areas with holes, or with boundaries of more than 2,000 nodes, cannot be represented by a single way. Instead, the feature will require a more complex multipolygon relation data structure.
- *
- * https://wiki.openstreetmap.org/wiki/Elements#Way
+ * Get the relation of a city that contains the city bounds.
+ * @example getCityBoundsQuery('de', 'Stuttgart');
  */
-export interface OverpassOsmWay extends OverpassOsmElement {
-  type: 'way';
-  bounds: {minlat: number; minlon: number; maxlat: number; maxlon: number};
-  geometry: {lat: number; lon: number}[];
-  nodes: number[];
-  tags: OverpassOsmTags;
-}
+export const getCityBoundsQuery = (countryCode: string, city: string) =>
+  `(area["ISO3166-1:alpha2"="${countryCode}"];) ->.a;` +
+  `rel[name="${city}"](area.a);` +
+  '(._;>;);' +
+  'out bb;';
 
-export interface OverpassOsmTags {
-  'addr:city'?: string;
-  'addr:country'?: string;
-  'addr:housenumber'?: string;
-  'addr:postcode'?: string;
-  'addr:street'?: string;
-  amenity?: string;
-  'contact:email'?: string;
-  'contact:phone'?: string;
-  'contact:website'?: string;
-  name?: string;
-  operator?: string;
-  tourism?: string;
-  website?: string;
-  wheelchair?: string;
-  'wheelchair:description'?: string;
-  wikidata?: string;
-  'building:levels'?: string;
-  'roof:levels'?: string;
-  'roof:shape'?: string;
-  source?: string;
-}
+/**
+ * https://overpass-turbo.eu/?q=W291dDpqc29uXVt0aW1lxIHEgzkwXTsKKHdheVsiaGlnaMSXeSLEiSJhcmVhIiF-Inllc8SixJphY2PErsSvxKoicHJpdmF0ZcSwxJvEncSfxJjEqcSrYWJhbmTEh2VkfGLEumRsZcSgxY91c19ndWlkxZTEmHxjxIdzdHJ1Y8SLxIfFoG9yxZHFq8WgeWPFk8WVZcWTxLx0xa7ErmNhbMS9xa5mb290xZVub3xwxL1oxobFjcSuxaRpxYnGhsW8bm7FjcaQxL3Fv3JtxoZyb3Bvc8aUcsSyxZ55fMahesaUxp9ydmnEtHzFo2Vwc3zFpMSya8WAbcaBxatfdmXEnMWxxL_Et8aExrfGuXLFunLFhSLHgsSjxqnGq8S0x4jFu8WTxqRkxLrGvMWzxI1yZ2VuY3lfxLLEtHPGssaHcmtpbmfGhsSlx6XHp8eeaXPFk8aaxLvEvcS_XSh7e2Jib3h9fSk7PjvHv8SPOw&c=AnO0zBRs5S
+ */
+export type OverpassGetWaysQueryData = Array<
+  OverpassApiResponseElements<TagsNodesRelevant, TagsWaysRelevant>
+>;
 
-export interface OverpassRequestCityDataType {
-  node: OverpassApiResponseDataCityNode;
-  area: OverpassApiResponseDataCityArea;
-  boundingBoxRelation: OverpassApiResponseDataCityBoundingBoxRelation;
-  places: OverpassApiResponseDataCityPlace[];
-  // TODO
-  nodes: OverpassOsmNode[];
-  ways: OverpassOsmWay[];
-}
+/**
+ * Get all streets in a given bounding box (contains all streets as ways and all the nodes that are referenced by the ways).
+ */
+export const getWaysQueryBB = (boundingBox: string) =>
+  `(way["highway"]["area"!~"yes"]["access"!~"private"]["highway"!~"abandoned|bridleway|bus_guideway|construction|corridor|cycleway|elevator|escalator|footway|no|path|pedestrian|planned|platform|proposed|raceway|razed|service|steps|track"]["motor_vehicle"!~"no"]["motorcar"!~"no"]["service"!~"alley|driveway|emergency_access|parking|parking_aisle|private"](${boundingBox});>;);` +
+  'out;';
 
-export interface OverpassApiResponse<DATA> {
-  version: number;
-  generator: string;
-  osm3s: {
-    timestamp_osm_base: string;
-    timestamp_areas_base: string;
-    copyright: string;
-  };
-  elements: DATA;
-}
-export interface OverpassApiResponseDataCityNode {
-  type: 'node';
-  id: number; // 1674026139,
-  lat: number; // 48.7784485,
-  lon: number; // 9.1800132,
-  tags: {
-    name: string; // "Stuttgart",
-    place: string; // "city",
-    population: string; // "613392",
-    'ref:LOCODE': string; // "DESTR",
-    website: string; // "https://www.stuttgart.de/",
-    wikidata: string; // "Q1022",
-    wikipedia: string; // "de:Stuttgart"
-  };
-}
-export interface OverpassApiResponseDataCityArea {
-  type: 'area';
-  id: number; // 3602793104,
-  tags: {
-    admin_level: string; // "6",
-    boundary: string; // "administrative",
-    license_plate_code: string; // "S",
-    name: string; // "Stuttgart",
-    note: string; // "kreisfrei, Stadtkreis Stuttgart",
-    place: string; // "city",
-    'ref:nuts:3': string; // "DE111",
-    source: string; // "LGL, www.lgl-bw.de",
-    type: string; // "boundary",
-    wikidata: string; // "Q1022",
-    wikipedia: string; // "de:Stuttgart"
-  };
-}
-export interface OverpassApiResponseDataCityBoundingBoxRelation {
-  type: 'relation';
-  id: number; // 3602793104,
-  bounds: {
-    minlat: number; // 48.6920188,
-    minlon: number; // 9.0386007,
-    maxlat: number; // 48.8663994,
-    maxlon: number; // 9.3160228
-  };
-  members: (
-    | {
-        type: 'node';
-        ref: number;
-        role: 'admin_centre';
-      }
-    | {
-        type: 'way';
-        ref: number;
-        role: 'outer';
-      }
-  )[];
-}
+/**
+ * https://overpass-turbo.eu/?Q=%5Bout%3Ajson%5D%5Btimeout%3A90%5D%3B%0A%28way%5B%22building%22%5D%5B%22addr%3Ahousenumber%22%21%7E%22true%22%5D%28%7B%7Bbbox%7D%7D%29%3B%3E%3B%29%3Bout%3B&C=41.548733%3B-84.143024%3B18
+ */
+export type OverpassGetPlacesQueryData = Array<
+  OverpassApiResponseElements<TagsNodesRelevant, TagsWaysRelevant>
+>;
 
-export interface OverpassApiResponseDataCityBoundingBoxObject {
-  type: string;
-  id: number;
-}
-
-export interface OverpassApiResponseDataCityBoundingBoxWay
-  extends OverpassApiResponseDataCityBoundingBoxObject {
-  type: 'way';
-  bounds: {
-    minlat: number; // 48.6920188,
-    minlon: number; // 9.0386007,
-    maxlat: number; // 48.8663994,
-    maxlon: number; // 9.3160228
-  };
-  nodes: number[];
-  geometry: {lat: number; lon: number}[];
-  tags: {
-    'addr:city': string; // "London",
-    'addr:housenumber': string; // "21",
-    'addr:postcode': string; // "E14 9WE",
-    'addr:street': string; // "Severnake Close",
-    building: string; // "house",
-  };
-}
-
-export interface OverpassApiResponseDataCityBoundingBoxNode
-  extends OverpassApiResponseDataCityBoundingBoxObject {
-  type: 'node';
-  lat: number;
-  lon: number;
-  tags: {
-    'addr:city': string; // "London",
-    'addr:housenumber': string; // "21",
-    'addr:postcode': string; // "E14 9WE",
-    'addr:street': string; // "Severnake Close",
-    name: string; // "Ladywell Center",
-  };
-}
-export interface OverpassApiResponseDataCityPlace {
-  lat: number;
-  lon: number;
-  city: string;
-  housenumber: string;
-  postcode: string;
-  street: string;
-  name?: string;
-}
-
-export const referenceQuery = (boundingBox: string) =>
-  `(way["highway"]["area"!~"yes"]["access"!~"private"]["highway"!~"abandoned|bridleway|bus_guideway|construction|corridor|cycleway|elevator|escalator|footway|no|path|pedestrian|planned|platform|proposed|raceway|razed|service|steps|track"]["motor_vehicle"!~"no"]["motorcar"!~"no"]["service"!~"alley|driveway|emergency_access|parking|parking_aisle|private"](${boundingBox});>;);out;`;
+/**
+ * Get all buildings in a given bounding box (contains all buildings as ways and all the nodes that are referenced by the ways).
+ */
+export const getPlacesQueryBB = (boundingBox: string) =>
+  `(way["building"]["addr:housenumber"!~"true"](${boundingBox});>;);` + 'out;';

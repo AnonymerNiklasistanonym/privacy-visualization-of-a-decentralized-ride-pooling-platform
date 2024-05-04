@@ -1,3 +1,5 @@
+/* eslint-disable no-console */
+
 // Package imports
 import fs from 'fs/promises';
 import path from 'path';

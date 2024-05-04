@@ -4,6 +4,7 @@ import {create as createHbs} from 'express-handlebars';
 import express from 'express';
 import path from 'path';
 // Local imports
+import {getCliFlag, getCliOverride} from './misc/cli';
 import {
   simulationEndpointRoutes,
   simulationEndpoints,
@@ -11,7 +12,6 @@ import {
 import {Simulation} from './simulation';
 import {createLoggerSection} from './services/logging';
 import {fileExists} from './misc/fileOperations';
-import {getCliOverride} from './misc/cli';
 import {getRouterPaths} from './misc/printExpressRoutes';
 import {ports} from './globals/defaults/ports';
 import {readCustomConfig} from './config/readCustomConfig';
@@ -21,6 +21,9 @@ import type {SimulationConfig} from './config/simulationConfig';
 
 const ROOT_DIR = path.join(__dirname, '..');
 const SRC_DIR = path.join(__dirname);
+
+const NAME = 'simulation';
+const VERSION = '1.0.0';
 
 const logger = createLoggerSection('index');
 
@@ -40,16 +43,16 @@ const defaultConfig: Readonly<SimulationConfig> = {
   },
   rideProvider: {
     countCompany: 3,
-    countCompanyFleetMax: 50,
-    countCompanyFleetMin: 15,
+    countCompanyFleet: 10,
     countPerson: 15,
   },
 
   // Location
-  cities: [
+  locations: [
     {
-      countryCode: 'de',
+      countryCode: 'DE',
       name: 'Stuttgart',
+      type: 'city',
     },
   ],
 
@@ -91,6 +94,13 @@ app.enable('view cache');
 
 async function main() {
   // Check for CLI overrides
+  // > Version
+  if (getCliFlag('--version')) {
+    // eslint-disable-next-line no-console
+    console.log(`${NAME} v${VERSION}`);
+    // eslint-disable-next-line no-process-exit
+    process.exit(0);
+  }
   // > Port
   let customPortWasFound = false;
   const customPort = await getCliOverride('--port', ports.simulation, a => {
@@ -125,6 +135,7 @@ async function main() {
   }
   /** The simulation. */
   const simulation = new Simulation(simulationConfig);
+  await simulation.initializeParticipants();
   app.use(
     simulationEndpointRoutes.simulation.route,
     simulation.generateRoutes()
@@ -148,8 +159,8 @@ async function main() {
       smartContracts: simulation.rideContractsJson,
 
       globalBaseUrlSimulation: `http://localhost:${simulationConfig.port}`,
-      globalSimulationEndpoints: simulationEndpoints,
-      globalStartPos: simulation.startPos,
+      globalSimulationEndpoints: JSON.stringify(simulationEndpoints),
+      globalStartPos: JSON.stringify(simulation.startPos),
     });
   });
 
@@ -178,10 +189,15 @@ async function main() {
     }
   });
 
-  simulation.run().catch(err => console.error(err));
+  simulation.run().catch(err => {
+    logger.error(err);
+    // eslint-disable-next-line no-console
+    console.error(err);
+  });
 }
 
 main().catch(err => {
   logger.error(err);
+  // eslint-disable-next-line no-console
   console.error(err);
 });

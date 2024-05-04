@@ -1,36 +1,30 @@
 export interface FetchJsonOptions {
+  fetchOptions?: Readonly<RequestInit>;
   timeoutInMs?: number;
-  showFetch?: boolean;
-  showResponse?: boolean;
 }
 
 export const fetchJson = async <T>(
   url: string,
   options?: Readonly<FetchJsonOptions>
 ): Promise<T> => {
-  if (options?.showFetch) {
-    console.info(`fetch ${url} ...`);
-  }
   let response: Response;
   if (options?.timeoutInMs !== undefined) {
     const controller = new AbortController();
     const id = setTimeout(() => controller.abort(), options?.timeoutInMs);
     response = await fetch(url, {
+      ...options?.fetchOptions,
       signal: controller.signal,
     });
     clearTimeout(id);
   } else {
-    response = await fetch(url);
+    response = await fetch(url, {
+      ...options?.fetchOptions,
+    });
   }
-  const result = response.json() as T;
-  if (options?.showResponse) {
-    console.info(`fetched ${url}`, result);
-  }
-  return result;
+  return response.json() as T;
 };
 
 export const fetchText = async (url: string): Promise<string> => {
   const response = await fetch(url);
-  const result = response.text();
-  return result;
+  return response.text();
 };

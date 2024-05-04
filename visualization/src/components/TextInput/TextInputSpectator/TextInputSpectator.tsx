@@ -73,6 +73,7 @@ export default function TextInputSpectator({
       <Autocomplete
         id="combo-box-demo"
         options={optionsState}
+        groupBy={option => option.type}
         sx={{width: '100%'}}
         value={val}
         defaultValue={getCurrentValue()}

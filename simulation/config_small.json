@@ -1,0 +1,24 @@
+{
+    "$schema": "./config.schema.json",
+    "locations": [{
+        "type": "bbox",
+        "minLat": 48.65,
+        "minLong": 9.05,
+        "maxLat": 48.70,
+        "maxLong": 9.10
+    }],
+    "rideProvider": {
+        "countPerson": 5,
+        "countCompany": 0,
+        "countCompanyFleet": 0
+    },
+    "customer": {
+        "count": 5
+    },
+    "authenticationService": {
+        "count": 1
+    },
+    "matchingService": {
+        "count": 1
+    }
+}

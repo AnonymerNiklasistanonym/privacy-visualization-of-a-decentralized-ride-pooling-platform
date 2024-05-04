@@ -17,7 +17,6 @@ import {osmnxServerRequest} from './misc/osmnx';
 import {simulationEndpointRoutes} from './globals/defaults/endpoints';
 import {updateRouteCoordinatesWithTime} from './misc/coordinatesInterpolation';
 // Type imports
-import type {OsmVertex, OsmVertexGraph} from './pathfinder/osm';
 import type {
   SimulationEndpointGraphInformation,
   SimulationEndpointParticipantCoordinates,
@@ -28,6 +27,7 @@ import type {
   SimulationEndpointSmartContracts,
 } from './globals/types/simulation';
 import type {Coordinates} from './globals/types/coordinates';
+import type {OsmVertexGraph} from './pathfinder/osm';
 import type {SimulationConfigWithData} from './config/simulationConfigWithData';
 
 const logger = createLoggerSection('simulation');
@@ -36,14 +36,14 @@ export interface StartPos extends Coordinates {
   zoom: number;
 }
 
-export const createMockedCustomer = (
+export const createMockedCustomer = async (
   index: number,
   config: Readonly<SimulationConfigWithData>
-): Customer => {
+): Promise<Customer> => {
   const id = `customer_${getRandomId()}`;
-  const randCity = getRandomElement(config.citiesData);
-  const randLocation = getRandomElement(randCity.places);
+  const randLocation = getRandomElement(config.places);
   const fakePerson = config.peopleData[index];
+  const keyPair = config.privatePublicKeyData[index];
   return new Customer(
     id,
     fakePerson.fullName,
@@ -52,22 +52,24 @@ export const createMockedCustomer = (
     fakePerson.dateOfBirth,
     fakePerson.emailAddress,
     fakePerson.phoneNumber,
-    `${randLocation.postcode} ${randLocation.city} ${randLocation.street} ${randLocation.houseNumber}`,
-    {lat: randLocation.lat, long: randLocation.lon}
+    randLocation.name,
+    randLocation,
+    keyPair.privateKey,
+    keyPair.publicKey
   );
 };
 
-export const createMockedRideProviderPerson = (
+export const createMockedRideProviderPerson = async (
   index: number,
   config: Readonly<SimulationConfigWithData>
-): RideProviderPerson => {
+): Promise<RideProviderPerson> => {
   const id = `ride_provider_${getRandomId()}`;
-  const city = getRandomElement(config.citiesData);
-  const randLocation = getRandomElement(city.places);
+  const randLocation = getRandomElement(config.places);
   const fakePerson = config.peopleData[index + config.customer.count];
+  const keyPair = config.privatePublicKeyData[index + config.customer.count];
   return new RideProviderPerson(
     id,
-    {lat: randLocation.lat, long: randLocation.lon},
+    randLocation,
     getRandomPlateNumber(['S']),
     getRandomId(),
     fakePerson.fullName,
@@ -76,23 +78,34 @@ export const createMockedRideProviderPerson = (
     fakePerson.dateOfBirth,
     fakePerson.emailAddress,
     fakePerson.phoneNumber,
-    `${randLocation.postcode} ${randLocation.city} ${randLocation.street} ${randLocation.houseNumber}`
+    randLocation.name,
+    keyPair.privateKey,
+    keyPair.publicKey
   );
 };
 
-export const createMockedRideProviderCompany = (
+export const createMockedRideProviderCompany = async (
   company: string,
+  index: number,
+  indexCompany: number,
   config: Readonly<SimulationConfigWithData>
-): RideProviderCompany => {
+): Promise<RideProviderCompany> => {
   const id = `ride_provider_company_${getRandomId()}`;
-  const city = getRandomElement(config.citiesData);
-  const randLocation = getRandomElement(city.places);
+  const randLocation = getRandomElement(config.places);
+  const keyPair =
+    config.privatePublicKeyData[
+      index +
+        config.customer.count +
+        config.rideProvider.countCompanyFleet * indexCompany
+    ];
   return new RideProviderCompany(
     id,
-    {lat: randLocation.lat, long: randLocation.lon},
+    randLocation,
     getRandomPlateNumber(['S']),
     getRandomId(),
-    company
+    company,
+    keyPair.privateKey,
+    keyPair.publicKey
   );
 };
 
@@ -100,11 +113,11 @@ export const createMockedAuthenticationService = (
   config: Readonly<SimulationConfigWithData>
 ): AuthenticationService => {
   const id = `as_${getRandomId()}`;
-  const city = getRandomElement(config.citiesData);
+  const randLocation = getRandomElement(config.places);
   return new AuthenticationService(
     id,
-    city.lat + getRandomIntFromInterval(-100, 100) * 0.001,
-    city.lon + getRandomIntFromInterval(-100, 100) * 0.001,
+    randLocation.lat + getRandomIntFromInterval(-100, 100) * 0.001,
+    randLocation.long + getRandomIntFromInterval(-100, 100) * 0.001,
     getRandomIntFromInterval(5000, 20000)
   );
 };
@@ -113,20 +126,21 @@ export const createMockedMatchingService = (
   config: Readonly<SimulationConfigWithData>
 ): MatchingService => {
   const id = `ms_${getRandomId()}`;
-  const city = getRandomElement(config.citiesData);
+  const randLocation = getRandomElement(config.places);
   return new MatchingService(
     id,
-    city.lat + getRandomIntFromInterval(-100, 100) * 0.001,
-    city.lon + getRandomIntFromInterval(-100, 100) * 0.001,
+    randLocation.lat + getRandomIntFromInterval(-100, 100) * 0.001,
+    randLocation.long + getRandomIntFromInterval(-100, 100) * 0.001,
     getRandomIntFromInterval(5000, 20000)
   );
 };
 
 export class Simulation {
   // Properties
-  public customers: Customer[];
+  public readonly customers: Customer[] = [];
 
-  public readonly rideProviders: (RideProviderPerson | RideProviderCompany)[];
+  public readonly rideProviders: (RideProviderPerson | RideProviderCompany)[] =
+    [];
 
   public readonly authenticationServices: AuthenticationService[];
 
@@ -140,9 +154,13 @@ export class Simulation {
 
   public readonly osmVertexGraph: OsmVertexGraph;
 
+  private readonly config: Readonly<SimulationConfigWithData>;
+
   public state: 'RUNNING' | 'PAUSING' | 'INACTIVE' = 'INACTIVE';
 
   constructor(config: Readonly<SimulationConfigWithData>) {
+    this.config = config;
+    logger.debug('Initialize simulation...');
     // Create OSM vertex graph
     this.osmVertexGraph = config.osmVertexGraph;
 
@@ -158,7 +176,7 @@ export class Simulation {
                   o[key] = value;
                   return o;
                 },
-                {} as Record<number, OsmVertex>
+                {} as Record<number, unknown>
               ),
           })
         );
@@ -166,28 +184,7 @@ export class Simulation {
         logger.error(err as Error);
       }
     }
-    // Create participants
-    this.customers = Array.from({length: config.customer.count}, (val, index) =>
-      createMockedCustomer(index, config)
-    );
-    this.rideProviders = Array.from(
-      {length: config.rideProvider.countPerson},
-      (val, index) => createMockedRideProviderPerson(index, config)
-    );
-    for (let index = 0; index < config.rideProvider.countCompany; index++) {
-      const fleetSize = getRandomIntFromInterval(
-        config.rideProvider.countCompanyFleetMin,
-        config.rideProvider.countCompanyFleetMax
-      );
-      this.rideProviders.push(
-        ...Array.from({length: fleetSize}, () =>
-          createMockedRideProviderCompany(
-            getRandomElement(config.companyNames),
-            config
-          )
-        )
-      );
-    }
+
     // Create services
     this.authenticationServices = Array.from(
       {length: config.authenticationService.count},
@@ -197,20 +194,82 @@ export class Simulation {
       {length: config.authenticationService.count},
       () => createMockedMatchingService(config)
     );
+
     // Create blockchain
     this.blockchain = new Blockchain('demo_blockchain');
     // Additional properties
     this.startPos = {
-      lat: config.citiesData[0].lat,
-      long: config.citiesData[0].lon,
+      ...config.startPos,
       zoom: 13,
     };
-    this.availableLocations = config.citiesData;
+    this.availableLocations = config.places;
+
+    logger.info('Initialized simulation', {
+      // Services
+      authServicesCount: this.authenticationServices.length,
+      matchServicesCount: this.matchingServices.length,
+
+      // Graph
+      graphVerticesCount: this.osmVertexGraph.vertices.size,
+      locationsCount: this.availableLocations.length,
+
+      // Misc
+      startPos: this.startPos,
+    });
+  }
+
+  /** Initialize simulation */
+  async initializeParticipants(): Promise<void> {
+    logger.debug('Initialize simulation participants...');
+
+    // Create participants
+    this.customers.push(
+      ...(await Promise.all(
+        Array.from({length: this.config.customer.count}, (val, index) =>
+          createMockedCustomer(index, this.config)
+        )
+      ))
+    );
+    this.rideProviders.push(
+      ...(await Promise.all(
+        Array.from(
+          {length: this.config.rideProvider.countPerson},
+          (val, index) => createMockedRideProviderPerson(index, this.config)
+        )
+      ))
+    );
+    for (
+      let indexCompany = 0;
+      indexCompany < this.config.rideProvider.countCompany;
+      indexCompany++
+    ) {
+      const company = getRandomElement(this.config.companyNames);
+      this.rideProviders.push(
+        ...(await Promise.all(
+          Array.from(
+            {length: this.config.rideProvider.countCompanyFleet},
+            (val, index) =>
+              createMockedRideProviderCompany(
+                company,
+                index,
+                indexCompany,
+                this.config
+              )
+          )
+        ))
+      );
+    }
+
+    logger.info('Initialized simulation participants', {
+      // Participants
+      customerCount: this.customers.length,
+      rideProviderCount: this.rideProviders.length,
+    });
   }
 
   /** Run simulation */
   async run(): Promise<void> {
-    logger.info('Run simulation...');
+    logger.debug('Run simulation...');
     this.state = 'RUNNING';
     await Promise.allSettled(
       [...this.customers, ...this.rideProviders, ...this.matchingServices].map(
@@ -218,11 +277,11 @@ export class Simulation {
       )
     );
     this.state = 'INACTIVE';
-    logger.info('Simulation inactive');
+    logger.debug('Simulation inactive');
   }
 
   pause(): void {
-    logger.info('Pause simulation...');
+    logger.debug('Pause simulation...');
     this.state = 'PAUSING';
   }
 
@@ -371,6 +430,8 @@ export class Simulation {
         if (rideRequest) {
           res.json({
             ...rideRequest.request,
+            auctionStatus: rideRequest.auctionStatus,
+            auctionWinner: rideRequest.auctionWinner,
             dropoffLocationCoordinates: rideRequest.request.dropoffLocationReal,
             id: rideRequest.id,
             pickupLocationCoordinates: rideRequest.request.pickupLocationReal,
@@ -430,6 +491,7 @@ export class Simulation {
     router
       .route(simulationEndpointRoutes.apiV1.graphInformation)
       .get((req, res) => {
+        logger.info('Request graph information');
         const geometry: Array<{id: number; geometry: Coordinates[]}> = [];
         if (this.osmVertexGraph.edges instanceof Function) {
           for (const [, vertex] of this.osmVertexGraph.vertices) {
@@ -438,7 +500,10 @@ export class Simulation {
                 this.osmVertexGraph.vertices.get(vertexNeighborId);
               if (vertexNeighbor) {
                 geometry.push({
-                  geometry: [vertex.coordinates, vertexNeighbor.coordinates],
+                  geometry: [
+                    {lat: vertex.lat, long: vertex.long},
+                    {lat: vertexNeighbor.lat, long: vertexNeighbor.long},
+                  ],
                   id: -1,
                 });
               }
@@ -466,10 +531,13 @@ export class Simulation {
         }
         res.json({
           geometry,
-          vertices: Array.from(this.osmVertexGraph.vertices).map(a => ({
-            id: a[0],
-            ...a[1].coordinates,
-          })),
+          vertices: Array.from(this.osmVertexGraph.vertices).map(
+            ([id, vertex]) => ({
+              id,
+              lat: vertex.lat,
+              long: vertex.long,
+            })
+          ),
         } as SimulationEndpointGraphInformation);
       });
     router
@@ -481,8 +549,8 @@ export class Simulation {
           vertices[vertices.length - 1][1],
         ];
         const shortestPath = await osmnxServerRequest(
-          coordinatesPath[0].coordinates,
-          coordinatesPath[1].coordinates
+          coordinatesPath[0],
+          coordinatesPath[1]
         );
         res.json({
           coordinatesPath,
@@ -500,6 +568,7 @@ export class Simulation {
 
   generateInternalRoutes(): express.Router {
     const router = express.Router();
+    // REMOVE
     router
       .route(simulationEndpointRoutes.internal.customers)
       .get((req, res) => {
@@ -520,12 +589,19 @@ export class Simulation {
       .get((req, res) => {
         res.json({matchingServices: this.matchingServicesJson});
       });
-    // REMOVE
+    router
+      .route(simulationEndpointRoutes.internal.rideRequest(':id'))
+      .get((req, res) => {
+        const rideRequests = this.matchingServicesJson.flatMap(a =>
+          a.auctionsDb.flatMap(b => b)
+        );
+        const rideRequest = rideRequests.find(a => a.id === req.params.id);
+        res.json({rideRequest});
+      });
     router
       .route(simulationEndpointRoutes.internal.rideRequests)
       .get((req, res) => {
         res.json({
-          delete: 'delete this',
           rideRequests: this.matchingServices.flatMap(a => a.getAuctions()),
         });
       });

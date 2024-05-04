@@ -1,40 +1,13 @@
-// Package imports
-import fs from 'fs/promises';
-import path from 'path';
 // Local imports
 import {createLoggerSection} from '../services/logging';
-import {fileExists} from '../misc/fileOperations';
+import {fetchJson} from '../globals/lib/fetch';
 
 const logger = createLoggerSection('nameFake');
 const baseUrlNameFakeApi = 'https://api.namefake.com';
 
-export const nameFakeRequest = async (): Promise<NameFakeResponse> => {
+export const nameFakeRequest = (): Promise<NameFakeResponse> => {
   logger.debug(`fetch ${baseUrlNameFakeApi}`);
-  const result = await fetch(baseUrlNameFakeApi).then(
-    data => data.json() as Promise<NameFakeResponse>
-  );
-  return result;
-};
-
-export const nameFakeRequestOrCache = async (
-  count: number,
-  cacheDir: string,
-  cacheFile: string,
-  ignoreCache = false
-): Promise<NameFakeResponse[]> => {
-  const requestCache = path.join(cacheDir, cacheFile);
-  if ((await fileExists(requestCache)) && ignoreCache === false) {
-    logger.info(`use cached web request ${requestCache}`);
-    const content = await fs.readFile(requestCache, {encoding: 'utf-8'});
-    return JSON.parse(content) as NameFakeResponse[];
-  }
-  const requests = await Promise.all(
-    [...Array(count).keys()].map(() => nameFakeRequest())
-  );
-  await fs.mkdir(cacheDir, {recursive: true});
-  await fs.writeFile(requestCache, JSON.stringify(requests));
-  logger.info(`cache web request ${requestCache}`);
-  return requests;
+  return fetchJson<NameFakeResponse>(baseUrlNameFakeApi);
 };
 
 export interface NameFakeResponse {

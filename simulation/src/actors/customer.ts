@@ -16,6 +16,7 @@ import type {Coordinates} from '../globals/types/coordinates';
 import type {Simulation} from '../simulation';
 import type {SimulationEndpointParticipantInformationCustomer} from '../globals/types/simulation';
 import type {SimulationTypeCustomer} from './participant';
+import {getShortestPathOsmCoordinates} from '../pathfinder/osm';
 
 export class Customer extends Participant<SimulationTypeCustomer> {
   // Private properties
@@ -31,14 +32,6 @@ export class Customer extends Participant<SimulationTypeCustomer> {
 
   private readonly homeAddress: string;
 
-  private rideRequestOld:
-    | {
-        address: string;
-        coordinates: Coordinates;
-        state: string;
-      }
-    | undefined = undefined;
-
   private rideRequest: string | undefined = undefined;
 
   private passenger: string | undefined = undefined;
@@ -51,9 +44,11 @@ export class Customer extends Participant<SimulationTypeCustomer> {
     emailAddress: string,
     phoneNumber: string,
     homeAddress: string,
-    currentLocation: Coordinates
+    currentLocation: Coordinates,
+    privateKey: string,
+    publicKey: string
   ) {
-    super(id, 'customer', currentLocation);
+    super(id, 'customer', currentLocation, privateKey, publicKey);
     this.fullName = fullName;
     this.gender = gender;
     this.dateOfBirth = dateOfBirth;
@@ -86,16 +81,38 @@ export class Customer extends Participant<SimulationTypeCustomer> {
       this.homeAddress
     );
     this.registeredAuthService = randAuthService;
+    if (this.registeredAuthService === null) {
+      throw Error('No registered auth server!');
+    }
     // Loop:
+    let badRouteCounter = 0;
     while (simulation.state === 'RUNNING') {
-      this.rideRequestOld = undefined;
+      // If no route is found multiple times disable customer
+      if (badRouteCounter >= 10) {
+        break;
+      }
+      this.status = 'determining target location';
       this.rideRequest = undefined;
       this.passenger = undefined;
       // 1. Authenticate to the platform via AS
       const pseudonym = randAuthService.getVerify(this.id);
       // 2. Request ride to a random location via a random MS
-      const randCity = getRandomElement(simulation.availableLocations);
-      const randLocation = getRandomElement(randCity.places);
+      const dropoffLocation = getRandomElement(simulation.availableLocations);
+      const dropoffLocationRoute = getShortestPathOsmCoordinates(
+        simulation.osmVertexGraph,
+        this.currentLocation,
+        dropoffLocation
+      );
+      if (dropoffLocationRoute === null) {
+        badRouteCounter++;
+        this.logger.warn('No route to dropoff location was found!', {
+          badRouteCounter,
+          currentLocation: this.currentLocation,
+          dropoffLocation,
+        });
+        continue;
+      }
+      badRouteCounter = 0;
       const randMatchService = getRandomElement(simulation.matchingServices);
       this.rideRequest = randMatchService.postRequestRide(
         pseudonym,
@@ -104,25 +121,21 @@ export class Customer extends Participant<SimulationTypeCustomer> {
           this.currentLocation.long,
           h3Resolution
         ),
-        latLngToCell(randLocation.lat, randLocation.lon, h3Resolution),
+        latLngToCell(dropoffLocation.lat, dropoffLocation.long, h3Resolution),
         this.getRating(),
-        `TODO ${pseudonym} public key`,
-        10 * 1000,
+        this.publicKey,
+        1 * 1000,
         getRandomFloatFromInterval(3, 4.5),
         getRandomFloatFromInterval(3, 4.5),
         getRandomIntFromInterval(0, 4),
-        {...this.currentLocation, address: 'current location'},
+        {...this.currentLocation, address: 'current customer location'},
         {
-          address: `${randLocation.postcode} ${randLocation.city} ${randLocation.street} ${randLocation.houseNumber}`,
-          lat: randLocation.lat,
-          long: randLocation.lon,
+          address: dropoffLocation.name,
+          lat: dropoffLocation.lat,
+          long: dropoffLocation.long,
         }
       );
-      this.rideRequestOld = {
-        address: `${randLocation.postcode} ${randLocation.city} ${randLocation.street} ${randLocation.houseNumber}`,
-        coordinates: {lat: randLocation.lat, long: randLocation.lon},
-        state: 'open',
-      };
+      this.status = 'wait for ride request signature';
       // 3. Wait for the MS to determine the winning bid
       while (
         randMatchService.getRideRequest(this.rideRequest).auctionStatus !==
@@ -135,13 +148,8 @@ export class Customer extends Participant<SimulationTypeCustomer> {
       // They then need to use the GET setContractAddress/:rideRequestId/:contractAddress endpoint to update their ride request with the contacts address on the blockchain
       // As the creation of the contract is understood as the initial signing of the ride contract, the status of the auction changes from 'waiting-for-signature' to 'closed'.
       const rideRequestInfo = randMatchService.getRideRequest(this.rideRequest);
-      this.rideRequestOld = {
-        address: `${randLocation.postcode} ${randLocation.city} ${randLocation.street} ${randLocation.houseNumber}`,
-        coordinates: {lat: randLocation.lat, long: randLocation.lon},
-        state: rideRequestInfo.auctionStatus,
-      };
       if (rideRequestInfo.auctionWinner === null) {
-        console.warn('customer ride request auction winner was null');
+        this.logger.warn('customer ride request auction winner was null');
         continue;
       }
       const contractAddress = simulation.blockchain.createRideContract(
@@ -151,13 +159,9 @@ export class Customer extends Participant<SimulationTypeCustomer> {
       );
       // Check: Contacts Ride Provider
       randMatchService.getSetContractAddress(this.rideRequest, contractAddress);
-      this.rideRequestOld = {
-        address: `${randLocation.postcode} ${randLocation.city} ${randLocation.street} ${randLocation.houseNumber}`,
-        coordinates: {lat: randLocation.lat, long: randLocation.lon},
-        state: 'closed',
-      };
       // 5. Be part of the ride and wait until the ride is over
       // TODO Fix this to correspond to the driver arriving at location, for now just wait the sky distance multiplied by a car speed
+      this.status = 'wait for ride provider to arrive';
       while (
         randMatchService.getRideRequest(this.rideRequest)
           .helperRideProviderArrived !== true
@@ -165,13 +169,15 @@ export class Customer extends Participant<SimulationTypeCustomer> {
         await wait(1 * 1000);
       }
       this.passenger = rideRequestInfo.auctionWinner;
-      await this.moveToLocation(simulation, {
-        lat: randLocation.lat,
-        long: randLocation.lon,
-      });
+      this.status = 'ride with ride provider to dropoff location';
+      await this.moveToLocation(simulation, dropoffLocation, true);
       // 6. Stay idle for a random duration
+      this.status = 'idle';
       await wait(getRandomIntFromInterval(1, 20) * 1000);
     }
+    this.status =
+      'not running any more' +
+      (badRouteCounter >= 10 ? ' (stopped because of a bad location)' : '');
   }
 
   get endpointCustomer(): SimulationEndpointParticipantInformationCustomer {
@@ -208,11 +214,9 @@ export class Customer extends Participant<SimulationTypeCustomer> {
       homeAddress: this.homeAddress,
       phoneNumber: this.phoneNumber,
 
-      rideRequest: this.rideRequest,
-
+      // Ride request details
       passenger: this.passenger,
-
-      rideRequestOld: this.rideRequestOld,
+      rideRequest: this.rideRequest,
     };
   }
 }

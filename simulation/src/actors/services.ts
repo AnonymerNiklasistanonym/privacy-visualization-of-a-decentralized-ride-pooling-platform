@@ -98,24 +98,34 @@ export interface MatchingServiceBid {
   vehiclePublicKey: string;
 }
 
-abstract class Service<JsonType> extends Actor<JsonType> {
-  latitude: number;
-
-  longitude: number;
-
-  radius: number;
+export abstract class Service<JsonType> extends Actor<JsonType> {
+  protected currentArea: {
+    lat: number;
+    long: number;
+    radius: number;
+  };
 
   constructor(
     id: string,
     type: string,
-    latitude: number,
-    longitude: number,
+    lat: number,
+    long: number,
     radius: number
   ) {
     super(id, type);
-    this.latitude = latitude;
-    this.longitude = longitude;
-    this.radius = radius;
+    this.currentArea = {
+      lat,
+      long,
+      radius,
+    };
+  }
+
+  get endpointService() {
+    return {
+      id: this.id,
+
+      currentArea: this.currentArea,
+    };
   }
 }
 
@@ -260,16 +270,10 @@ export class AuthenticationService extends Service<SimulationTypeAuthenticationS
 
   get json(): SimulationTypeAuthenticationService {
     return {
-      id: this.id,
-
-      currentArea: {
-        lat: this.latitude,
-        long: this.longitude,
-        radius: this.radius,
-      },
-      participantDb: this.participantDb,
-
+      ...this.endpointService,
       type: 'authentication',
+
+      participantDb: this.participantDb,
     };
   }
 }
@@ -287,7 +291,7 @@ export class MatchingService extends Service<SimulationTypeMatchingService> {
     this.logger.debug('run');
     // Loop:
     while (simulation.state === 'RUNNING') {
-      await wait(1 * 1000);
+      await wait(100);
       const currentTime = new Date().getTime();
       // Determine the winner
       for (const auction of this.auctions) {
@@ -304,7 +308,7 @@ export class MatchingService extends Service<SimulationTypeMatchingService> {
           );
           continue;
         }
-        // TODO Implement Vickery Auction
+        // Vickery Auction
         let cheapestBid = auction.bids[0];
         let cheapestBidSecond = auction.bids[0];
         for (const bid of auction.bids) {
@@ -463,16 +467,10 @@ export class MatchingService extends Service<SimulationTypeMatchingService> {
 
   get json(): SimulationTypeMatchingService {
     return {
-      id: this.id,
+      ...this.endpointService,
+      type: 'matching',
 
       auctionsDb: this.auctions,
-      currentArea: {
-        lat: this.latitude,
-        long: this.longitude,
-        radius: this.radius,
-      },
-
-      type: 'matching',
     };
   }
 }

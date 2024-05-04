@@ -9,6 +9,7 @@ import {fetchJsonEndpoint, fetchTextEndpoint} from '@misc/fetch';
 // > Components
 import Button from '@components/Button';
 import Map from '@components/Map';
+import TabContainer from '@components/Tab/TabContainer';
 import TableDebugData from '@components/Table/TableDebugData';
 import TextInputSpectator from '@components/TextInput/TextInputSpectator';
 // > Globals
@@ -123,15 +124,13 @@ export default function TabMap({
       return;
     }
     fetchJsonSimulation<SimulationEndpointGraphInformation>(
-      simulationEndpoints.apiV1.graphInformation,
-      {showFetch: true, showResponse: true}
+      simulationEndpoints.apiV1.graphInformation
     )
       .then(data => setGraphState(data))
       .catch(err => stateShowError('Fetch simulation graph', err));
     fetchJsonEndpoint<PathfinderEndpointGraphInformation>(
       stateSettingsMapBaseUrlPathfinder,
-      pathfinderEndpoints.graphInformation,
-      {showFetch: true, showResponse: true}
+      pathfinderEndpoints.graphInformation
     )
       .then(data => setPathfinderGraphState(data))
       .catch(err => stateShowError('Fetch pathfinder graph', err));
@@ -238,8 +237,12 @@ export default function TabMap({
   const switchSpectator = (newSpectator: string) => {
     setStateSpectator(newSpectator);
   };
+  //React.useMemo(
+  //  () => allValues.filter((v) => v.selected),
+  //  [allValues],
+  //)
   return (
-    <Box display="flex" justifyContent="center">
+    <TabContainer>
       <Box component="section" className={styles['tab-map']}>
         <TextInputSpectator
           stateOptions={stateSelectOptions}
@@ -398,6 +401,6 @@ export default function TabMap({
           )}
         </Box>
       </Box>
-    </Box>
+    </TabContainer>
   );
 }

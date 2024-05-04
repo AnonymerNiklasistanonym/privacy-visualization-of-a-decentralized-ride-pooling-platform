@@ -5,7 +5,7 @@
 .gitignore
 build
 cache
-dev.log
+*.log
 dist
 Dockerfile
 docs
@@ -16,3 +16,4 @@ README.md
 tests
 typedoc.js
 config.schema.json
+delete*

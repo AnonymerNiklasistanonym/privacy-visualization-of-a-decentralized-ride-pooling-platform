@@ -50,26 +50,47 @@
                         "countCompany": {
                             "type": "number"
                         },
-                        "countCompanyFleetMin": {
-                            "type": "number"
-                        },
-                        "countCompanyFleetMax": {
+                        "countCompanyFleet": {
                             "type": "number"
                         }
                     },
                     "required": [
                         "countPerson",
                         "countCompany",
-                        "countCompanyFleetMin",
-                        "countCompanyFleetMax"
+                        "countCompanyFleet"
                     ],
                     "additionalProperties": false
                 },
-                "cities": {
+                "locations": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/SimulationConfigCity"
+                        "anyOf": [
+                            {
+                                "$ref": "#/definitions/SimulationConfigCity"
+                            },
+                            {
+                                "$ref": "#/definitions/SimulationConfigBBox"
+                            }
+                        ]
                     }
+                },
+                "startPos": {
+                    "type": "object",
+                    "properties": {
+                        "lat": {
+                            "type": "number",
+                            "description": "Latitude"
+                        },
+                        "long": {
+                            "type": "number",
+                            "description": "Longitude"
+                        }
+                    },
+                    "required": [
+                        "lat",
+                        "long"
+                    ],
+                    "additionalProperties": false
                 },
                 "port": {
                     "type": "number"
@@ -89,6 +110,10 @@
         "SimulationConfigCity": {
             "type": "object",
             "properties": {
+                "type": {
+                    "type": "string",
+                    "const": "city"
+                },
                 "name": {
                     "type": "string"
                 },
@@ -97,8 +122,38 @@
                 }
             },
             "required": [
+                "countryCode",
                 "name",
-                "countryCode"
+                "type"
+            ],
+            "additionalProperties": false
+        },
+        "SimulationConfigBBox": {
+            "type": "object",
+            "properties": {
+                "type": {
+                    "type": "string",
+                    "const": "bbox"
+                },
+                "minLat": {
+                    "type": "number"
+                },
+                "maxLat": {
+                    "type": "number"
+                },
+                "minLong": {
+                    "type": "number"
+                },
+                "maxLong": {
+                    "type": "number"
+                }
+            },
+            "required": [
+                "maxLat",
+                "maxLong",
+                "minLat",
+                "minLong",
+                "type"
             ],
             "additionalProperties": false
         }

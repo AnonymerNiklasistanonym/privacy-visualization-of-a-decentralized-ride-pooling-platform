@@ -5,8 +5,10 @@ import {cellToLatLng} from 'h3-js';
 import {getRandomElement, getRandomIntFromInterval} from '../misc/helpers';
 import {Participant} from './participant';
 import {getTravelTimeInMsCoordinates} from '../misc/coordinatesInterpolation';
-import {speeds} from '../globals/defaults/speed';
 import {wait} from '../misc/wait';
+// > Globals
+import {costs} from '../globals/defaults/costs';
+import {speeds} from '../globals/defaults/speed';
 // Type imports
 import type {
   SimulationEndpointParticipantInformationRideProvider,
@@ -21,6 +23,7 @@ import type {
 import type {AuthenticationService} from './services';
 import type {Coordinates} from '../globals/types/coordinates';
 import type {Simulation} from '../simulation';
+import haversineDistance from 'haversine-distance';
 
 export abstract class RideProvider<
   JsonType extends SimulationTypeRideProvider,
@@ -34,13 +37,17 @@ export abstract class RideProvider<
 
   protected rideRequest: string | undefined = undefined;
 
+  protected model = getRandomElement(['Tesla', 'Mercedes', 'Smart']);
+
   constructor(
     id: string,
     currentLocation: Coordinates,
     vehicleNumberPlate: string,
-    vehicleIdentificationNumber: string
+    vehicleIdentificationNumber: string,
+    privateKey: string,
+    publicKey: string
   ) {
-    super(id, 'ride_provider', currentLocation);
+    super(id, 'ride_provider', currentLocation, privateKey, publicKey);
     this.vehicleNumberPlate = vehicleNumberPlate;
     this.vehicleIdentificationNumber = vehicleIdentificationNumber;
   }
@@ -54,36 +61,52 @@ export abstract class RideProvider<
     // 1. Register to a random AS
     this.registeredAuthService =
       this.runRegisterToRandomAuthService(simulation);
+    if (this.registeredAuthService === null) {
+      throw Error('No registered auth server!');
+    }
     // Loop:
     while (simulation.state === 'RUNNING') {
+      this.status = 'looking for ride requests';
       this.rideRequest = undefined;
       // 1. Authenticate to the platform via AS
-      if (this.registeredAuthService === null) {
-        throw Error('No registered auth server!');
-      }
       const pseudonym = this.registeredAuthService.getVerify(this.id);
       // 2. Bid on open ride requests
       const randMatchService = getRandomElement(simulation.matchingServices);
       const openRideRequests = randMatchService.getRideRequests();
       if (openRideRequests.length === 0) {
-        this.logger.debug('No open ride requests found');
-        await wait(1 * 1000);
+        await wait(100);
         continue;
       }
-      const openRideRequest = getRandomElement(
-        randMatchService.getRideRequests()
-      );
+      const openRideRequest = getRandomElement(openRideRequests);
+      this.rideRequest = openRideRequest.id;
       const coordinatesPickupLocation = cellToLatLng(
         openRideRequest.request.pickupLocation
       );
+      const coordinatesDropoffLocation = cellToLatLng(
+        openRideRequest.request.dropoffLocation
+      );
+      const estimatedDistanceToDriveInM =
+        haversineDistance(
+          {
+            lat: this.currentLocation.lat,
+            lon: this.currentLocation.long,
+          },
+          coordinatesPickupLocation
+        ) +
+        haversineDistance(
+          coordinatesPickupLocation,
+          coordinatesDropoffLocation
+        );
       this.logger.debug('Post bid for open ride request', {openRideRequest});
       randMatchService.postBid(
         openRideRequest.id,
         pseudonym,
-        // TODO Take length of path into account
-        getRandomIntFromInterval(5, 20),
+        // Base cost + random cost + cost to reach pickup + cost to reach destination
+        costs.baseCostRide +
+          getRandomIntFromInterval(1, 5) +
+          (estimatedDistanceToDriveInM / 1000) * costs.avgCostRideKilometer,
         this.getRating(),
-        getRandomElement(['Tesla', 'Mercedes', 'Smart']),
+        this.model,
         new Date(
           new Date().getTime() +
             getTravelTimeInMsCoordinates(
@@ -97,9 +120,10 @@ export abstract class RideProvider<
         ),
         // TODO Handle multiple passengers
         0,
-        `TODO ${this.id} vehiclePublicKey`
+        this.publicKey
       );
       // 3. Wait for auction to close
+      this.status = 'wait for ride request auction';
       while (
         randMatchService.getRideRequest(openRideRequest.id).auctionStatus !==
         'closed'
@@ -118,25 +142,24 @@ export abstract class RideProvider<
       this.logger.debug('Bid for open ride request was successful', {
         closedRideRequest,
       });
-      this.rideRequest = openRideRequest.id;
-      this.passengerList.push(closedRideRequest.request.userId);
       // 4. Drive to customer and drive them to the dropoff location
+      this.status = 'drive to ride requests pickup location';
       // TODO Fix this to correspond to the driver arriving at location, for now just wait the sky distance multiplied by a car speed
-      const coordinatesDropoffLocation = cellToLatLng(
-        openRideRequest.request.dropoffLocation
+      await this.moveToLocation(
+        simulation,
+        closedRideRequest.request.pickupLocationReal
       );
-      await this.moveToLocation(simulation, {
-        lat: coordinatesPickupLocation[0],
-        long: coordinatesPickupLocation[1],
-      });
       randMatchService.helperSetRideProviderArrived(openRideRequest.id);
-      await this.moveToLocation(simulation, {
-        lat: coordinatesDropoffLocation[0],
-        long: coordinatesDropoffLocation[1],
-      });
+      this.passengerList.push(closedRideRequest.request.userId);
+      this.status = 'drive to ride requests dropoff location';
+      await this.moveToLocation(
+        simulation,
+        closedRideRequest.request.dropoffLocationReal
+      );
       this.passengerList.pop();
       this.rideRequest = undefined;
       // 5. Stay idle for a random duration
+      this.status = 'idle';
       await wait(getRandomIntFromInterval(1, 20) * 1000);
     }
   }
@@ -168,9 +191,18 @@ export class RideProviderPerson extends RideProvider<SimulationTypeRideProviderP
     dateOfBirth: string,
     emailAddress: string,
     phoneNumber: string,
-    homeAddress: string
+    homeAddress: string,
+    privateKey: string,
+    publicKey: string
   ) {
-    super(id, currentLocation, vehicleNumberPlate, vehicleIdentificationNumber);
+    super(
+      id,
+      currentLocation,
+      vehicleNumberPlate,
+      vehicleIdentificationNumber,
+      privateKey,
+      publicKey
+    );
     this.fullName = fullName;
     this.gender = gender;
     this.dateOfBirth = dateOfBirth;
@@ -223,6 +255,7 @@ export class RideProviderPerson extends RideProvider<SimulationTypeRideProviderP
       phoneNumber: this.phoneNumber,
 
       passengers: this.passengerList,
+      rideRequest: this.rideRequest,
     };
   }
 
@@ -243,11 +276,9 @@ export class RideProviderPerson extends RideProvider<SimulationTypeRideProviderP
       homeAddress: this.homeAddress,
       phoneNumber: this.phoneNumber,
 
-      //Ride request
-      rideRequest: this.rideRequest,
-
-      // Passenger list
+      // Ride request / Passengers
       passengerList: this.passengerList,
+      rideRequest: this.rideRequest,
     };
   }
 }
@@ -261,9 +292,18 @@ export class RideProviderCompany extends RideProvider<SimulationTypeRideProvider
     currentLocation: Coordinates,
     vehicleNumberPlate: string,
     vehicleIdentificationNumber: string,
-    company: string
+    company: string,
+    privateKey: string,
+    publicKey: string
   ) {
-    super(id, currentLocation, vehicleNumberPlate, vehicleIdentificationNumber);
+    super(
+      id,
+      currentLocation,
+      vehicleNumberPlate,
+      vehicleIdentificationNumber,
+      privateKey,
+      publicKey
+    );
     this.company = company;
   }
 
@@ -300,6 +340,7 @@ export class RideProviderCompany extends RideProvider<SimulationTypeRideProvider
       vehicleNumberPlate: this.vehicleNumberPlate,
 
       passengers: this.passengerList,
+      rideRequest: this.rideRequest,
     };
   }
 
@@ -315,11 +356,9 @@ export class RideProviderCompany extends RideProvider<SimulationTypeRideProvider
       // Contact details
       company: this.company,
 
-      // Ride request
-      rideRequest: this.rideRequest,
-
-      // Passenger list
+      // Ride request / Passengers
       passengerList: this.passengerList,
+      rideRequest: this.rideRequest,
     };
   }
 }

@@ -2,7 +2,11 @@
 
 // Package imports
 // > Components
-import {Box, Divider, Typography} from '@mui/material';
+import {Divider, Typography} from '@mui/material';
+// Local imports
+// > Components
+import TabContainer from '@components/Tab/TabContainer';
+import TabElementContainer from '@components/Tab/TabElementContainer';
 // Type imports
 import type {SettingsOverviewPropsStates} from '@misc/settings';
 
@@ -12,18 +16,19 @@ export interface TabOverviewProps extends SettingsOverviewPropsStates {}
 // eslint-disable-next-line no-empty-pattern
 export default function TabOverview({}: TabOverviewProps) {
   return (
-    <Box display="flex" justifyContent="center">
-      <Box
-        component="section"
-        sx={{
-          maxWidth: 800,
-          width: '100%',
-        }}
+    <TabContainer>
+      <TabElementContainer
+        elevation={2}
+        style={
+          {
+            /*textAlign: 'center'*/
+          }
+        }
       >
         <Typography variant="h3" gutterBottom>
           GETACAR Platform
         </Typography>
-        <Divider />
+        <Divider style={{marginBottom: '1rem'}} />
         <Typography variant="h4" gutterBottom>
           h4. Heading
         </Typography>
@@ -62,7 +67,7 @@ export default function TabOverview({}: TabOverviewProps) {
         <Typography variant="overline" display="block" gutterBottom>
           overline text
         </Typography>
-      </Box>
-    </Box>
+      </TabElementContainer>
+    </TabContainer>
   );
 }

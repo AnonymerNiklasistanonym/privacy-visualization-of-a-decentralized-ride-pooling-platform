@@ -25,6 +25,7 @@ import type {
   GlobalPropsUserInputSet,
 } from '@misc/globalProps';
 import type {
+  SimulationEndpointParticipantIdFromPseudonym,
   SimulationEndpointParticipantInformationCustomer,
   SimulationEndpointParticipantInformationRideProvider,
   SimulationEndpointParticipantTypes,
@@ -78,6 +79,14 @@ export default function ParticipantMarker({
     useState<null | SimulationEndpointParticipantInformationRideProvider>(null);
   const [stateRideRequest, setStateRideRequest] =
     useState<null | SimulationEndpointRideRequestInformation>(null);
+  const [
+    stateRideRequestAuctionRideProviderId,
+    setStateRideRequestAuctionRideProviderId,
+  ] = useState<string>('NONE');
+  const [
+    stateRideRequestAuctionCustomerId,
+    setStateRideRequestAuctionCustomerId,
+  ] = useState<string>('NONE');
   // > Keep track if popup is open
   const [statePopupOpen, setStatePopupOpen] = useState<boolean>(false);
 
@@ -110,6 +119,22 @@ export default function ParticipantMarker({
           simulationEndpoints.apiV1.rideRequestInformation(rideRequestId)
         );
       setStateRideRequest(rideRequest);
+      if (rideRequest.auctionWinner !== null) {
+        const rideRequestAuctionWinnerId =
+          await fetchJsonSimulation<SimulationEndpointParticipantIdFromPseudonym>(
+            simulationEndpoints.apiV1.participantIdFromPseudonym(
+              rideRequest.auctionWinner
+            )
+          );
+        setStateRideRequestAuctionRideProviderId(rideRequestAuctionWinnerId.id);
+      }
+      const rideRequestUserId =
+        await fetchJsonSimulation<SimulationEndpointParticipantIdFromPseudonym>(
+          simulationEndpoints.apiV1.participantIdFromPseudonym(
+            rideRequest.userId
+          )
+        );
+      setStateRideRequestAuctionCustomerId(rideRequestUserId.id);
     }
   };
 
@@ -134,8 +159,12 @@ export default function ParticipantMarker({
   const showParticipant =
     stateSelectedParticipant === stateParticipantCoordinates.id ||
     stateSpectator === stateParticipantCoordinates.id ||
-    showRideRequest;
-
+    showRideRequest ||
+    (showRideRequest &&
+      stateRideRequestAuctionRideProviderId ===
+        stateParticipantCoordinates.id) ||
+    (showRideRequest &&
+      stateRideRequestAuctionCustomerId === stateParticipantCoordinates.id);
   const elementsToRender: Array<ReactNode> = [];
 
   // Icon that shows the current position of the participant

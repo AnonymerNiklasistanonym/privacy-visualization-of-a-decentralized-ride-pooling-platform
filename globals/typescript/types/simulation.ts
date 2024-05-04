@@ -40,6 +40,8 @@ export interface SimulationEndpointParticipantInformation
   currentRouteOsmxn?: Coordinates[] | null;
   /** Not undefined if there is currently an active ride request. */
   rideRequest?: SimulationEndpointRideRequestId;
+  /** Simulation status (to debug what the actor is doing) */
+  simulationStatus: string;
 }
 
 export interface SimulationEndpointParticipantInformationCustomer
@@ -69,6 +71,14 @@ export interface SimulationEndpointParticipantInformationRideProviderCompany
 
 export interface SimulationEndpointRideRequestInformation
   extends GetACarRideRequest {
+  /** The auction status */
+  auctionStatus:
+    | 'open'
+    | 'determining-winner'
+    | 'waiting-for-signature'
+    | 'closed';
+  /** The auction winner pseudonym */
+  auctionWinner: string;
   id: SimulationEndpointRideRequestId;
   pickupLocationCoordinates: CoordinatesAddress;
   dropoffLocationCoordinates: CoordinatesAddress;

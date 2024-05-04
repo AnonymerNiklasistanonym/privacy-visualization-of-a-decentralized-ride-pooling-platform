@@ -18,6 +18,7 @@ import {speeds} from '../globals/defaults/speed';
 export interface SimulationTypeParticipant {
   id: string;
   currentLocation: Coordinates;
+  rideRequest?: string;
   type: 'customer' | 'ride_provider';
 }
 
@@ -28,12 +29,6 @@ export interface SimulationTypeCustomer extends SimulationTypeParticipant {
   emailAddress: string;
   phoneNumber: string;
   homeAddress: string;
-  rideRequestOld?: {
-    address: string;
-    coordinates: Coordinates;
-    state: string;
-  };
-  rideRequest?: string;
   passenger?: string;
   type: 'customer';
 }
@@ -81,14 +76,26 @@ export abstract class Participant<JsonType> extends Actor<
 
   protected currentRoutes?: CurrentRoutes | null = undefined;
 
+  protected status: string;
+
+  protected privateKey: string;
+
+  protected publicKey: string;
+
   /** Create instance of participant. */
   constructor(
     id: string,
     type: GetACarParticipantTypes,
-    currentLocation: Coordinates
+    currentLocation: Coordinates,
+    privateKey: string,
+    publicKey: string
   ) {
     super(id, type);
     this.currentLocation = currentLocation;
+    this.status = 'created';
+
+    this.privateKey = privateKey;
+    this.publicKey = publicKey;
   }
 
   getRating(): number {
@@ -103,14 +110,15 @@ export abstract class Participant<JsonType> extends Actor<
 
   get endpointCoordinates(): SimulationEndpointParticipantCoordinatesParticipant {
     return {
-      id: this.id,
       ...this.currentLocation,
+      id: this.id,
     };
   }
 
   async moveToLocation(
     simulation: Readonly<Simulation>,
-    newLocation: Readonly<Coordinates>
+    newLocation: Readonly<Coordinates>,
+    isPassenger = false
   ): Promise<void> {
     this.logger.debug('Move to new location', {
       currentLocation: this.currentLocation,
@@ -120,27 +128,21 @@ export abstract class Participant<JsonType> extends Actor<
       this.currentLocation,
       newLocation
     );
-    this.logger.debug('Received path Osmnx', {
-      shortestPathOsmnx,
-    });
     this.currentRoute = getShortestPathOsmCoordinates(
       simulation.osmVertexGraph,
       this.currentLocation,
       newLocation
     );
-    if (this.currentRoute) {
-      console.log(this.currentRoute);
-    }
     this.currentRoutes = {
       custom: this.currentRoute,
       osmnxLength: shortestPathOsmnx.shortest_route_length ?? null,
       osmnxTime: shortestPathOsmnx.shortest_route_travel_time ?? null,
     };
     const interpolatedCoordinatesInfo = interpolateCurrentCoordinatesFromPath(
-      shortestPathOsmnx.shortest_route_length ??
-        shortestPathOsmnx.shortest_route_travel_time ??
-        this.currentRoute ?? [{...this.currentLocation}, {...newLocation}],
-      this.type === 'ride_provider' ? speeds.carInKmH : speeds.personInKmH
+      this.currentRoute ?? [{...this.currentLocation}, {...newLocation}],
+      this.type === 'ride_provider' || isPassenger
+        ? speeds.carInKmH
+        : speeds.personInKmH
     );
     this.logger.debug('Search shortest path', {
       currentLocation: this.currentLocation,
@@ -152,12 +154,12 @@ export abstract class Participant<JsonType> extends Actor<
     while (
       currentTravelTimeInMs <= interpolatedCoordinatesInfo.travelTimeInMs
     ) {
-      console.log(
-        this.id,
-        this.currentLocation,
-        currentTravelTimeInMs / 1000,
-        interpolatedCoordinatesInfo.travelTimeInMs / 1000
-      );
+      //console.log(
+      //  this.id,
+      //  this.currentLocation,
+      //  currentTravelTimeInMs / 1000,
+      //  interpolatedCoordinatesInfo.travelTimeInMs / 1000
+      //);
       this.currentLocation = interpolatedCoordinatesInfo.getCurrentPosition(
         currentTravelTimeInMs
       );
@@ -180,6 +182,8 @@ export abstract class Participant<JsonType> extends Actor<
       currentRoute: this.currentRoute,
       currentRouteOsmxn:
         this.currentRoutes?.osmnxTime ?? this.currentRoutes?.osmnxLength,
+
+      simulationStatus: this.status,
     };
   }
 }

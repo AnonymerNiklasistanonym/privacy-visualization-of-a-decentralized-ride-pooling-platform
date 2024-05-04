@@ -69,12 +69,32 @@ export default function PopupContentParticipant({
             {participantType === 'customer' ? 'Customer' : 'Ride Provider'}
           </Typography>
         </Stack>
-        <Chip
-          label={stateParticipantCoordinates.id}
-          size="small"
-          variant="outlined"
+        <Stack
+          direction="row"
+          spacing={1}
+          useFlexGap
+          flexWrap="wrap"
           style={{marginBottom: 10}}
-        />
+        >
+          <Chip
+            label={stateParticipantCoordinates.id}
+            size="small"
+            variant="outlined"
+          />
+          {rideProviderInformationState?.simulationStatus !== undefined ||
+          customerInformationState?.simulationStatus !== undefined ? (
+            <Chip
+              label={
+                rideProviderInformationState?.simulationStatus ??
+                customerInformationState?.simulationStatus
+              }
+              size="small"
+              color="primary"
+            />
+          ) : (
+            <></>
+          )}
+        </Stack>
         {customerInformationState === null && participantType === 'customer' ? (
           <Box sx={{display: 'flex', width: '100%'}} justifyContent="center">
             <CircularProgress />

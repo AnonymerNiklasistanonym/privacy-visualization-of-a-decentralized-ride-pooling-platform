@@ -2,9 +2,10 @@
 
 // Package imports
 // > Components
-import {Box, Divider, Typography} from '@mui/material';
+import {Divider, Typography} from '@mui/material';
 // Local imports
 // > Components
+import TabContainer from '@components/Tab/TabContainer';
 import TableBlockchain from '@components/Table/TableBlockchain';
 // Type imports
 import type {
@@ -36,36 +37,28 @@ export default function TabBlockchain({
   stateSpectator,
 }: TabBlockchainProps) {
   return (
-    <Box display="flex" justifyContent="center">
-      <Box
-        sx={{
-          maxWidth: 800,
-          minHeight: '50%',
-          width: '100%',
-        }}
-      >
-        <Typography variant="h5" gutterBottom>
-          Public Smart Contracts
-        </Typography>
-        <Divider />
-        <Typography variant="body1" gutterBottom>
-          TODO: Add pagination and don`t fetch all of them at once
-        </Typography>
-        <TableBlockchain
-          stateSettingsGlobalDebug={stateSettingsGlobalDebug}
-          fetchJsonSimulation={fetchJsonSimulation}
-          setStateSelectedParticipant={setStateSelectedParticipant}
-          setStateSelectedRideRequest={setStateSelectedRideRequest}
-          setStateSpectator={setStateSpectator}
-          showError={stateShowError}
-          stateSelectedParticipant={stateSelectedParticipant}
-          stateSelectedRideRequest={stateSelectedRideRequest}
-          stateSettingsBlockchainUpdateRateInMs={
-            stateSettingsBlockchainUpdateRateInMs
-          }
-          stateSpectator={stateSpectator}
-        />
-      </Box>
-    </Box>
+    <TabContainer>
+      <Typography variant="h5" gutterBottom>
+        Public Smart Contracts
+      </Typography>
+      <Divider />
+      <Typography variant="body1" gutterBottom>
+        TODO: Add pagination and don`t fetch all of them at once
+      </Typography>
+      <TableBlockchain
+        stateSettingsGlobalDebug={stateSettingsGlobalDebug}
+        fetchJsonSimulation={fetchJsonSimulation}
+        setStateSelectedParticipant={setStateSelectedParticipant}
+        setStateSelectedRideRequest={setStateSelectedRideRequest}
+        setStateSpectator={setStateSpectator}
+        showError={stateShowError}
+        stateSelectedParticipant={stateSelectedParticipant}
+        stateSelectedRideRequest={stateSelectedRideRequest}
+        stateSettingsBlockchainUpdateRateInMs={
+          stateSettingsBlockchainUpdateRateInMs
+        }
+        stateSpectator={stateSpectator}
+      />
+    </TabContainer>
   );
 }

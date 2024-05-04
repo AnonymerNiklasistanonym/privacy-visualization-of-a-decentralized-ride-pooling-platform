@@ -20,10 +20,10 @@ import {
   Toolbar,
   Typography,
 } from '@mui/material';
+import Link from 'next/link';
 // > Icons
 import {
-  Inbox as InboxIcon,
-  Mail as MailIcon,
+  Info as InfoIcon,
   Menu as MenuIcon,
   Search as SearchIcon,
 } from '@mui/icons-material';
@@ -80,6 +80,13 @@ export interface SearchAppBarElementProps {
 export function SearchAppBarDrawerList({
   toggleDrawer,
 }: SearchAppBarElementProps) {
+  const links = [
+    {
+      icon: <InfoIcon />,
+      id: 'About',
+      link: '/about',
+    },
+  ];
   return (
     <Box
       sx={{width: 250}}
@@ -87,28 +94,15 @@ export function SearchAppBarDrawerList({
       onClick={() => toggleDrawer(false)}
     >
       <List>
-        {['Inbox', 'Starred', 'Send email', 'Drafts'].map((text, index) => (
-          <ListItem key={text} disablePadding>
-            <ListItemButton>
-              <ListItemIcon>
-                {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-              </ListItemIcon>
-              <ListItemText primary={text} />
-            </ListItemButton>
-          </ListItem>
-        ))}
-      </List>
-      <Divider />
-      <List>
-        {['All mail', 'Trash', 'Spam'].map((text, index) => (
-          <ListItem key={text} disablePadding>
-            <ListItemButton>
-              <ListItemIcon>
-                {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-              </ListItemIcon>
-              <ListItemText primary={text} />
-            </ListItemButton>
-          </ListItem>
+        {links.map(a => (
+          <Link key={a.link} href={a.link}>
+            <ListItem key={a.id} disablePadding>
+              <ListItemButton>
+                <ListItemIcon>{a.icon}</ListItemIcon>
+                <ListItemText primary={a.id} />
+              </ListItemButton>
+            </ListItem>
+          </Link>
         ))}
       </List>
     </Box>

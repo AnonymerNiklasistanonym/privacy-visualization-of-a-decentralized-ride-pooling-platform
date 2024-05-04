@@ -31,5 +31,11 @@ p {
 }
 
 #map {
-    height: 450px;
+    height: 65vh;
+    width: 100%;
+}
+
+.leaflet-popup-content > ul {
+    padding: 0;
+    max-height: 60vh;
 }

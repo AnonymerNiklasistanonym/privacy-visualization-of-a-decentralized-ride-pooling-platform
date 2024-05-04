@@ -1,52 +1,58 @@
-/* global window:readonly, fetch:readonly, document:readonly */
+/* eslint-disable no-console */
+
+/* global fetch:readonly, document:readonly */
 /* global L:readonly */
 /* global globalStartPos:readonly, globalBaseUrlSimulation:readonly, globalSimulationEndpoints:readonly */
 
-let showAs = false;
-let showMs = false;
+const options = {
+  showAs: false,
+  showMs: false,
+};
 
-window.addEventListener('load', async () => {
-  const fetchElement = async endpoint => {
-    const result = await fetch(`${globalBaseUrlSimulation}${endpoint}`).then(
-      data => data.json()
-    );
-    //console.debug(`requested endpoint '${endpoint}':`, result);
-    return result;
-  };
-  const buttonSimulation = async endpoint => {
-    const result = await fetch(`${globalBaseUrlSimulation}${endpoint}`).then(
-      data => data.text()
-    );
-    console.debug(`requested simulation endpoint '${endpoint}':`, result);
-  };
+/**
+ * Fetch JSON data from endpoint
+ * @param {string} endpoint
+ */
+const fetchJsonSimulation = async endpoint =>
+  fetch(`${globalBaseUrlSimulation}${endpoint}`).then(data => data.json());
+const fetchTextSimulation = async endpoint =>
+  fetch(`${globalBaseUrlSimulation}${endpoint}`).then(data => data.text());
 
-  document
-    .getElementById('buttonState')
-    .addEventListener('click', () =>
-      buttonSimulation(globalSimulationEndpoints.simulation.state).catch(err =>
-        console.error(err)
-      )
-    );
-  document
-    .getElementById('buttonPause')
-    .addEventListener('click', () =>
-      buttonSimulation(globalSimulationEndpoints.simulation.pause).catch(err =>
-        console.error(err)
-      )
-    );
-  document
-    .getElementById('buttonRun')
-    .addEventListener('click', () =>
-      buttonSimulation(globalSimulationEndpoints.simulation.run).catch(err =>
-        console.error(err)
-      )
-    );
-  document.getElementById('buttonToggleAS').addEventListener('click', () => {
-    showAs = !showAs;
+const iconCustomer = L.icon({
+  iconUrl: '/icons/directions_walk_FILL0_wght400_GRAD0_opsz24.svg',
+});
+const iconRideProvider = L.icon({
+  iconUrl: '/icons/directions_car_FILL0_wght400_GRAD0_opsz24.svg',
+});
+
+const main = async () => {
+  // Add click listeners to existing elements
+
+  const addButtonClick = (buttonId, toggleFunc) =>
+    document
+      .getElementById(buttonId)
+      .addEventListener('click', () => toggleFunc());
+  const addButtonClickEndpoint = (buttonId, endpoint) =>
+    addButtonClick(buttonId, () => {
+      fetchTextSimulation(endpoint).catch(err => console.error(err));
+    });
+
+  for (const [id, endpoint] of [
+    ['buttonState', globalSimulationEndpoints.simulation.state],
+    ['buttonPause', globalSimulationEndpoints.simulation.pause],
+    ['buttonRun', globalSimulationEndpoints.simulation.run],
+  ]) {
+    addButtonClickEndpoint(id, endpoint);
+  }
+
+  addButtonClick('buttonToggleAS', () => {
+    options.showAs = !options.showAs;
   });
-  document.getElementById('buttonToggleMS').addEventListener('click', () => {
-    showMs = !showMs;
+  addButtonClick('buttonToggleMS', () => {
+    options.showMs = !options.showMs;
   });
+
+  // Add map and map rendering
 
   const map = L.map('map', {
     fullscreenControl: true,
@@ -60,236 +66,268 @@ window.addEventListener('load', async () => {
     const marker = e.popup._source;
     console.log('A popup was opened', marker, e);
   });
-  const iconCustomer = L.icon({
-    iconUrl: '/icons/directions_walk_FILL0_wght400_GRAD0_opsz24.svg',
-  });
-  const iconRideProvider = L.icon({
-    iconUrl: '/icons/directions_car_FILL0_wght400_GRAD0_opsz24.svg',
-  });
-  const createPopupContent = obj => {
-    const header = `<h2>${obj.type} (${obj.id})</h2>`;
-    const content = [];
-    for (const key in obj) {
-      if (['id', 'type', 'currentLocation', 'currentArea'].includes(key)) {
-        continue;
-      }
-      if (Object.hasOwn(obj, key)) {
-        let value = obj[key];
-        if (key === 'passengers') {
-          value = `<ul class="scrolling">${obj[key]
-            .map(a => `<li>${a}</li>`)
-            .join('')}</ul>`;
-        }
-        if (key === 'rideRequestOld') {
-          value = `<ul class="scrolling"><li>state: ${obj[key]['state']}</li><li>destination: ${obj[key]['address']}</li></ul>`;
-        }
-        if (key === 'participantDb') {
-          value = `<ul class="scrolling">${obj[key]
-            .map(
-              a =>
-                `<li>${a.contactDetails.id}<ul>${a.pseudonyms
-                  .map(b => `<li>${b}</li>`)
-                  .join('')}</ul></li>`
-            )
-            .join('')}</ul>`;
-        }
-        if (key === 'auctionsDb') {
-          value = `<ul class="scrolling">${obj[key]
-            .map(a => `<li>${JSON.stringify(a)}</li>`)
-            .join('')}</ul>`;
-        }
-        content.push(
-          `<p style="font-size: 1em; margin-top: 0.2em; margin-bottom: 0.2em"><strong>${key}</strong>: ${value}</p>`
-        );
-      }
-    }
-    return header + content.join('');
-  };
-  let currentElements = [];
+
+  /** @type {Array<import("leaflet").Circle|import("leaflet").Marker>} */
+  const currentElements = [];
   let errorWasThrown = false;
   do {
-    const currentDate = new Date();
-    for (const element of currentElements) {
-      if (element._custom_date === undefined) {
-        map.removeLayer(element);
-      }
-      if (
-        !showAs &&
-        element._custom_id !== undefined &&
-        element._custom_id.startsWith('as')
-      ) {
-        map.removeLayer(element);
-      }
-      if (
-        !showMs &&
-        element._custom_id !== undefined &&
-        element._custom_id.startsWith('ms')
-      ) {
-        map.removeLayer(element);
-      }
-    }
-    // Fetch current actors and draw them on the map
-    if (showAs) {
-      for (const authenticationService of (
-        await fetchElement(
-          globalSimulationEndpoints.internal.authenticationServices
-        )
-      ).authenticationServices) {
-        const element = currentElements.find(
-          a => a._custom_id === authenticationService.id
-        );
-        if (element !== undefined) {
-          element.setLatLng(
-            new L.LatLng(
-              authenticationService.currentArea.lat,
-              authenticationService.currentArea.long
-            )
-          );
-          element.setPopupContent(createPopupContent(authenticationService));
-          element._custom_date = currentDate;
-          continue;
-        }
-        const circle = L.circle(
-          [
-            authenticationService.currentArea.lat,
-            authenticationService.currentArea.long,
-          ],
-          {
-            fillColor: '#f03',
-            fillOpacity: 0.2,
-            radius: authenticationService.currentArea.radius,
-          }
-        );
-        circle.addTo(map);
-        circle.bindPopup(createPopupContent(authenticationService));
-        circle._custom_id = authenticationService.id;
-        circle._custom_date = currentDate;
-        currentElements.push(circle);
-      }
-    }
-    if (showMs) {
-      let matchingServices = [];
-      try {
-        matchingServices = (
-          await fetchElement(
-            globalSimulationEndpoints.internal.matchingServices
-          )
-        ).matchingServices;
-      } catch (err) {
-        console.error(err);
-        errorWasThrown = true;
-      }
-      for (const matchingService of matchingServices) {
-        const element = currentElements.find(
-          a => a._custom_id === matchingService.id
-        );
-        if (element !== undefined) {
-          element.setLatLng(
-            new L.LatLng(
-              matchingService.currentArea.lat,
-              matchingService.currentArea.long
-            )
-          );
-          element.setPopupContent(createPopupContent(matchingService));
-          element._custom_date = currentDate;
-          continue;
-        }
-        const circle = L.circle(
-          [matchingService.currentArea.lat, matchingService.currentArea.long],
-          {
-            fillColor: '#03f',
-            fillOpacity: 0.2,
-            radius: matchingService.currentArea.radius,
-          }
-        );
-        circle.addTo(map);
-        circle.bindPopup(createPopupContent(matchingService));
-        circle._custom_id = matchingService.id;
-        circle._custom_date = currentDate;
-        currentElements.push(circle);
-      }
-    }
-    let customers = [];
-    try {
-      customers = (
-        await fetchElement(globalSimulationEndpoints.internal.customers)
-      ).customers;
-    } catch (err) {
-      console.error(err);
-      errorWasThrown = true;
-    }
-    for (const customer of customers) {
-      const element = currentElements.find(a => a._custom_id === customer.id);
-      if (element !== undefined) {
-        element.setLatLng(
-          new L.LatLng(
-            customer.currentLocation.lat,
-            customer.currentLocation.long
-          )
-        );
-        element.setPopupContent(createPopupContent(customer));
-        element._custom_date = currentDate;
-        continue;
-      }
-      const marker = L.marker(
-        [customer.currentLocation.lat, customer.currentLocation.long],
-        {icon: iconCustomer}
-      );
-      marker.addTo(map);
-      const popup = L.popup();
-      popup.setContent(createPopupContent(customer));
-      marker.bindPopup(popup);
-      marker._custom_id = customer.id;
-      marker._custom_date = currentDate;
-      currentElements.push(marker);
-    }
-    for (const rideProvider of (
-      await fetchElement(globalSimulationEndpoints.internal.rideProviders)
-    ).rideProviders) {
-      const element = currentElements.find(
-        a => a._custom_id === rideProvider.id
-      );
-      if (element !== undefined) {
-        element.setLatLng(
-          new L.LatLng(
-            rideProvider.currentLocation.lat,
-            rideProvider.currentLocation.long
-          )
-        );
-        element.setPopupContent(createPopupContent(rideProvider));
-        element._custom_date = currentDate;
-        continue;
-      }
-      const marker = L.marker(
-        [rideProvider.currentLocation.lat, rideProvider.currentLocation.long],
-        {icon: iconRideProvider}
-      );
-      marker.addTo(map);
-      marker.bindPopup(createPopupContent(rideProvider));
-      marker._custom_id = rideProvider.id;
-      marker._custom_date = currentDate;
-      currentElements.push(marker);
-    }
-    currentElements = currentElements.filter(element => {
-      if (
-        element._custom_date !== undefined &&
-        element._custom_date !== currentDate
-      ) {
-        console.log(
-          'Remove',
-          element,
-          element._custom_date !== currentDate,
-          element._custom_date,
-          currentDate
-        );
-        map.removeLayer(element);
-        return false;
-      }
-      return true;
-    });
-    // Wait for a little
+    errorWasThrown = await renderMapElements(map, currentElements);
+    // Wait for a little before updating the map information
     await new Promise(resolve => {
       setTimeout(resolve, 1000 / 2);
     });
   } while (!errorWasThrown);
-});
+};
+
+/** @param {Array<any>} obj */
+const renderArrayToHtml = obj => {
+  if (!Array.isArray(obj)) {
+    throw Error('Element was not an array!');
+  }
+  if (obj.length === 0) {
+    return '[]';
+  }
+  return `<ul class="scrolling">${obj
+    .map(a => {
+      let value = a;
+      if (
+        typeof value === 'number' ||
+        typeof value === 'boolean' ||
+        typeof value === 'string'
+      ) {
+        value = `${value}`;
+      } else if (Array.isArray(value)) {
+        value = renderArrayToHtml(value);
+      } else if (typeof value === 'object') {
+        value = renderObjectToHtml(value);
+      } else {
+        throw Error(`Encountered unknown type: ${typeof value}`);
+      }
+      return `<li>${value}</li>`;
+    })
+    .join('')}</ul>`;
+};
+
+/** @param {Array<any>} obj */
+const renderObjectToHtml = obj => {
+  if (typeof obj !== 'object') {
+    throw Error('Element was not an object!');
+  }
+  const ignoreKeys = [
+    'type',
+    'id',
+    'currentLocation',
+    'currentRoute',
+    'currentRouteOsmxn',
+  ];
+  const content = [];
+  for (const key in obj) {
+    // Ignore keys used in the header
+    if (ignoreKeys.includes(key)) {
+      continue;
+    }
+    if (Object.hasOwn(obj, key)) {
+      let value = obj[key];
+      if (
+        typeof value === 'number' ||
+        typeof value === 'boolean' ||
+        typeof value === 'string' ||
+        value === undefined ||
+        value === null
+      ) {
+        value = `${value}`;
+      } else if (Array.isArray(value)) {
+        value = renderArrayToHtml(value);
+      } else if (typeof value === 'object') {
+        value = renderObjectToHtml(value);
+      } else {
+        throw Error(`Encountered unknown type: ${typeof value}`);
+      }
+      content.push(
+        `<p style="font-size: 1em; margin-top: 0.2em; margin-bottom: 0.2em"><strong>${key}</strong>: ${value}</p>`
+      );
+    }
+  }
+  return `<ul class="scrolling">${content
+    .map(a => `<li>${a}</li>`)
+    .join('')}</ul>`;
+};
+
+const createPopupContent = obj => {
+  const header = `<h4>${obj.type} (${obj.id})</h4>`;
+  return header + renderObjectToHtml(obj);
+};
+
+/**
+ * @param {Array<import("leaflet").Circle|import("leaflet").Marker>} currentElements
+ * @param {import("leaflet").Map} map
+ * @param {Date} currentDate
+ * @param {import("../../../src/actors/participant").Participant|import("../../../src/actors/services").Service} jsonObj
+ * @param {() => import("leaflet").Circle|import("leaflet").Marker} createElement
+ */
+const updateOrRenderElement = async (
+  map,
+  currentElements,
+  currentDate,
+  jsonObj,
+  createElement
+) => {
+  if (jsonObj.rideRequest !== undefined) {
+    jsonObj.rideRequestObj = (
+      await fetchJsonSimulation(
+        `${globalSimulationEndpoints.internal.rideRequest}${jsonObj.rideRequest}`
+      )
+    ).rideRequest;
+  }
+
+  let element = currentElements.find(a => a._custom_id === jsonObj.id);
+  if (element !== undefined) {
+    element.setLatLng(
+      'currentLocation' in jsonObj
+        ? new L.LatLng(
+            jsonObj.currentLocation.lat,
+            jsonObj.currentLocation.long
+          )
+        : 'currentArea' in jsonObj
+          ? new L.LatLng(jsonObj.currentArea.lat, jsonObj.currentArea.long)
+          : undefined
+    );
+  } else {
+    element = createElement();
+    element.addTo(map);
+    const popup = L.popup();
+    element.bindPopup(popup);
+    element._custom_id = jsonObj.id;
+    currentElements.push(element);
+  }
+  if (!element.isPopupOpen()) {
+    element.setPopupContent(createPopupContent(jsonObj));
+  }
+  element._custom_date = currentDate;
+};
+
+/**
+ * @param {Array<import("leaflet").Circle|import("leaflet").Marker>} currentElements
+ * @param {import("leaflet").Map} map
+ * @returns {Promise<boolean>}
+ */
+const renderMapElements = async (map, currentElements) => {
+  const currentDate = new Date();
+  for (const element of currentElements) {
+    if (element._custom_date === undefined) {
+      map.removeLayer(element);
+    }
+    if (
+      !options.showAs &&
+      element._custom_id !== undefined &&
+      element._custom_id.startsWith('as')
+    ) {
+      map.removeLayer(element);
+    }
+    if (
+      !options.showMs &&
+      element._custom_id !== undefined &&
+      element._custom_id.startsWith('ms')
+    ) {
+      map.removeLayer(element);
+    }
+  }
+  // Fetch current actors and draw them on the map
+  if (options.showAs) {
+    for (const authenticationService of (
+      await fetchJsonSimulation(
+        globalSimulationEndpoints.internal.authenticationServices
+      )
+    ).authenticationServices) {
+      await updateOrRenderElement(
+        map,
+        currentElements,
+        currentDate,
+        authenticationService,
+        () =>
+          L.circle(
+            [
+              authenticationService.currentArea.lat,
+              authenticationService.currentArea.long,
+            ],
+            {
+              fillColor: '#f03',
+              fillOpacity: 0.2,
+              radius: authenticationService.currentArea.radius,
+            }
+          )
+      );
+    }
+  }
+  if (options.showMs) {
+    for (const matchingService of (
+      await fetchJsonSimulation(
+        globalSimulationEndpoints.internal.matchingServices
+      )
+    ).matchingServices) {
+      await updateOrRenderElement(
+        map,
+        currentElements,
+        currentDate,
+        matchingService,
+        () =>
+          L.circle(
+            [matchingService.currentArea.lat, matchingService.currentArea.long],
+            {
+              fillColor: '#03f',
+              fillOpacity: 0.2,
+              radius: matchingService.currentArea.radius,
+            }
+          )
+      );
+    }
+  }
+  for (const customer of (
+    await fetchJsonSimulation(globalSimulationEndpoints.internal.customers)
+  ).customers) {
+    await updateOrRenderElement(
+      map,
+      currentElements,
+      currentDate,
+      customer,
+      () =>
+        L.marker(
+          [customer.currentLocation.lat, customer.currentLocation.long],
+          {
+            icon: iconCustomer,
+          }
+        )
+    );
+  }
+  for (const rideProvider of (
+    await fetchJsonSimulation(globalSimulationEndpoints.internal.rideProviders)
+  ).rideProviders) {
+    await updateOrRenderElement(
+      map,
+      currentElements,
+      currentDate,
+      rideProvider,
+      () =>
+        L.marker(
+          [rideProvider.currentLocation.lat, rideProvider.currentLocation.long],
+          {
+            icon: iconRideProvider,
+          }
+        )
+    );
+  }
+  currentElements = currentElements.filter(element => {
+    if (
+      element._custom_date !== undefined &&
+      element._custom_date !== currentDate
+    ) {
+      console.log('Remove element that doesn`t exist any more', element);
+      map.removeLayer(element);
+      return false;
+    }
+    return true;
+  });
+  return false;
+};
+
+main().catch(err => console.error(err));

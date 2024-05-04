@@ -1,4 +1,6 @@
 // Local imports
+// > Globals
+import {fetchJson} from '../globals/lib/fetch';
 import {pathfinderEndpoints} from '../globals/defaults/endpoints';
 import {ports} from '../globals/defaults/ports';
 // Type imports
@@ -9,16 +11,17 @@ import type {OsmnxServerResponse} from '../globals/lib/osmnx';
 export const osmnxServerRequest = async (
   source: Readonly<Coordinates>,
   target: Readonly<Coordinates>
-): Promise<OsmnxServerResponse> => {
-  const result = await fetch(
+): Promise<OsmnxServerResponse> =>
+  fetchJson<OsmnxServerResponse>(
     `http://localhost:${ports.pathfinder}${pathfinderEndpoints.shortestPathCoordinates}`,
     {
-      body: JSON.stringify({source, target}),
-      headers: {
-        'Content-Type': 'application/json',
+      fetchOptions: {
+        body: JSON.stringify({source, target}),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        method: 'POST',
       },
-      method: 'POST',
+      timeoutInMs: 100,
     }
   );
-  return result.json() as Promise<OsmnxServerResponse>;
-};

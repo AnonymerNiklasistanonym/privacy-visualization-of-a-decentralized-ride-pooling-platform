@@ -1,5 +1,9 @@
 // Package imports
 import {MinPriorityQueue} from '@datastructures-js/priority-queue';
+// Local imports
+import {createLoggerSection} from '../services/logging';
+
+const logger = createLoggerSection('pathfinder', 'shortestPath');
 
 export type VertexId = number;
 export type VertexEdgeId = number;
@@ -25,7 +29,12 @@ export interface VertexEdge {
 }
 
 export interface VertexEdgeMaps<U extends VertexEdge = VertexEdge> {
+  /** A map that contains all vertex edges */
   vertexEdgeIdMap: Map<VertexEdgeId, U>;
+  /**
+   * A map that contains information about what vertex edge connects
+   * 2 vertices.
+   */
   idMap: Map<VertexId, Map<VertexId, VertexEdgeId>>;
 }
 
@@ -52,7 +61,7 @@ export const getVertexFromGraphError = <
   id: VertexId,
   name?: string
 ): T => {
-  const vertexOrError = getVertexFromGraph(graph, id, false, name);
+  const vertexOrError = getVertexFromGraph(graph, id, name);
   if (vertexOrError instanceof Error) {
     throw vertexOrError;
   }
@@ -65,7 +74,6 @@ export const getVertexFromGraph = <
 >(
   graph: Readonly<VertexGraph<T, U>>,
   id: VertexId,
-  warn = true,
   name?: string
 ): T | Error => {
   const vertex = graph.vertices.get(id);
@@ -75,9 +83,7 @@ export const getVertexFromGraph = <
   const error = `Vertex ${id}${
     name ? ` (${name})` : ''
   } was not found in graph`;
-  if (warn) {
-    console.warn(error);
-  }
+  logger.warn(error);
   return Error(error);
 };
 
@@ -212,7 +218,7 @@ export const getShortestPath = <
   sourceId: VertexId,
   targetId: VertexId,
   heuristic?: (currentNode: Readonly<T>, targetNode: Readonly<T>) => number,
-  options: GetShortestPathOptions = {}
+  options: Readonly<GetShortestPathOptions> = {}
 ): T[] | null => {
   // A vertex (besides the source and target vertex) can have 3 possible states:
   // 1. Unknown:  It is unknown if the vertex is even connected to the source/target
@@ -265,11 +271,10 @@ export const getShortestPath = <
       const neighborVertex = getVertexFromGraph(
         graph,
         neighbor,
-        options.ignoreMissingIds !== true,
         `neighbor of ${currentVertex.id}`
       );
       if (neighborVertex instanceof Error) {
-        if (options.ignoreMissingIds !== true) {
+        if (options.ignoreMissingIds === true) {
           continue;
         } else {
           throw neighborVertex;

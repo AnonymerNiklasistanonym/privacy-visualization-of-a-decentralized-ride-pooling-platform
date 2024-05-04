@@ -14,7 +14,8 @@
   <link href='https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/leaflet.fullscreen.css'
     rel='stylesheet' />
   {{#each scripts}}
-      <script src="{{this}}"></script>
+      <!-- Wait until the DOM is loaded (defer) -->
+      <script src="{{this}}" defer></script>
   {{/each}}
 </head>
 

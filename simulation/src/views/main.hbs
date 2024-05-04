@@ -1,4 +1,4 @@
-<h1>Current Simulation State</h1>
+<h1>Current Simulation State (internal data!)</h1>
 
 <div id="map"></div>
 
@@ -9,9 +9,14 @@
 <button id="buttonToggleMS">Toggle MS</button>
 
 <scr{{!}}ipt>
-  var globalStartPos = {{globalStartPos}};
-  var globalBaseUrlSimulation = {{globalBaseUrlSimulation}};
-  var globalSimulationEndpoints = {{globalSimulationEndpoints}};
+  function decodeEntities(encodedString) {
+    var textArea = document.createElement('textarea');
+    textArea.innerHTML = encodedString;
+    return textArea.value;
+  }
+  var globalStartPos = JSON.parse(decodeEntities("{{globalStartPos}}"));
+  var globalBaseUrlSimulation = "{{globalBaseUrlSimulation}}";
+  var globalSimulationEndpoints = JSON.parse(decodeEntities("{{globalSimulationEndpoints}}"));
 </scr{{!}}ipt>
 
 <h2>Customers ({{customers.length}}) <a href="/json/customers">[json]</a></h2>

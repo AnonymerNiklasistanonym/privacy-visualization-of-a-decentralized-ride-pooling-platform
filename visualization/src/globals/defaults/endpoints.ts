@@ -29,6 +29,7 @@ export const simulationEndpointRoutes = Object.freeze({
     customers: '/customers',
     matchingServices: '/matching_services',
     rideProviders: '/ride_providers',
+    rideRequest: (id: string) => `/ride_request/${id}`,
     rideRequests: '/ride_requests',
     smartContracts: '/smart_contracts',
   }),
@@ -78,6 +79,9 @@ export const simulationEndpoints = Object.freeze({
     customers: `${simulationEndpointRoutes.internal.route}${simulationEndpointRoutes.internal.customers}`,
     matchingServices: `${simulationEndpointRoutes.internal.route}${simulationEndpointRoutes.internal.matchingServices}`,
     rideProviders: `${simulationEndpointRoutes.internal.route}${simulationEndpointRoutes.internal.rideProviders}`,
+    rideRequest: `${
+      simulationEndpointRoutes.internal.route
+    }${simulationEndpointRoutes.internal.rideRequest('')}`,
     rideRequests: `${simulationEndpointRoutes.internal.route}${simulationEndpointRoutes.internal.rideRequests}`,
     smartContracts: `${simulationEndpointRoutes.internal.route}${simulationEndpointRoutes.internal.smartContracts}`,
   }),

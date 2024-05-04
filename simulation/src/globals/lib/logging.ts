@@ -15,6 +15,7 @@ export enum LoggerLevel {
   INFO = 'info',
   OFF = 'off',
   WARN = 'warn',
+  VERBOSE = 'verbose',
 }
 
 /**
@@ -116,6 +117,7 @@ export interface LoggerSections {
   debug: LoggerSectionsMethod;
   error: (err: Error) => void;
   info: LoggerSectionsMethod;
+  verbose: LoggerSectionsMethod;
   warn: LoggerSectionsMethod;
 }
 
@@ -143,6 +145,7 @@ export const createLoggerSections = (
     debug: baseLogFunc(LoggerLevel.DEBUG),
     error: (err: Error) => {
       logger.log({
+        error: err,
         level: LoggerLevel.ERROR,
         message: err.message,
         section,
@@ -151,6 +154,7 @@ export const createLoggerSections = (
       });
     },
     info: baseLogFunc(LoggerLevel.INFO),
+    verbose: baseLogFunc(LoggerLevel.VERBOSE),
     warn: baseLogFunc(LoggerLevel.WARN),
   };
 };
