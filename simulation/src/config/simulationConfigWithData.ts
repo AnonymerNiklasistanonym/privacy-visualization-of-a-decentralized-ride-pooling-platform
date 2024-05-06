@@ -76,7 +76,7 @@ export const getPeopleData = (config: Readonly<SimulationConfig>) =>
 
 export const timeCacheWrapper = async <DATA_TYPE>(
   config: Readonly<SimulationConfig>,
-  getData: (() => DATA_TYPE | Promise<DATA_TYPE>) | Promise<DATA_TYPE>,
+  getData: () => DATA_TYPE | Promise<DATA_TYPE>,
   cacheFilePath: string,
   name: string
 ): Promise<DATA_TYPE> => {
@@ -108,19 +108,19 @@ export const updateSimulationConfigWithData = async (
   const [locationData, peopleData, privatePublicKeyData] = await Promise.all([
     timeCacheWrapper(
       config,
-      getLocationData(config),
+      () => getLocationData(config),
       cacheFilePathLocationData(config),
       'LocationData'
     ),
     timeCacheWrapper(
       config,
-      getPeopleData(config),
+      () => getPeopleData(config),
       cacheFilePathPeopleData(config),
       'PeopleData'
     ),
     timeCacheWrapper(
       config,
-      getPrivatePublicKeyData(config),
+      () => getPrivatePublicKeyData(config),
       cacheFilePathPrivatePublicKeyData(config),
       'PrivatePublicKeyData'
     ),

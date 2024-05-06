@@ -124,20 +124,24 @@ export abstract class Participant<JsonType> extends Actor<
       currentLocation: this.currentLocation,
       newLocation,
     });
-    const shortestPathOsmnx = await osmnxServerRequest(
-      this.currentLocation,
-      newLocation
-    );
     this.currentRoute = getShortestPathOsmCoordinates(
       simulation.osmVertexGraph,
       this.currentLocation,
       newLocation
     );
-    this.currentRoutes = {
-      custom: this.currentRoute,
-      osmnxLength: shortestPathOsmnx.shortest_route_length ?? null,
-      osmnxTime: shortestPathOsmnx.shortest_route_travel_time ?? null,
-    };
+    try {
+      const shortestPathOsmnx = await osmnxServerRequest(
+        this.currentLocation,
+        newLocation
+      );
+      this.currentRoutes = {
+        custom: this.currentRoute,
+        osmnxLength: shortestPathOsmnx.shortest_route_length ?? null,
+        osmnxTime: shortestPathOsmnx.shortest_route_travel_time ?? null,
+      };
+    } catch (err) {
+      this.logger.error(err as Error);
+    }
     const interpolatedCoordinatesInfo = interpolateCurrentCoordinatesFromPath(
       this.currentRoute ?? [{...this.currentLocation}, {...newLocation}],
       this.type === 'ride_provider' || isPassenger

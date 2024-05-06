@@ -9,6 +9,7 @@ import {
   getRandomIntFromInterval,
 } from '../misc/helpers';
 import {Participant} from './participant';
+import {getShortestPathOsmCoordinates} from '../pathfinder/osm';
 import {h3Resolution} from '../globals/defaults/h3';
 import {wait} from '../misc/wait';
 // Type imports
@@ -16,7 +17,6 @@ import type {Coordinates} from '../globals/types/coordinates';
 import type {Simulation} from '../simulation';
 import type {SimulationEndpointParticipantInformationCustomer} from '../globals/types/simulation';
 import type {SimulationTypeCustomer} from './participant';
-import {getShortestPathOsmCoordinates} from '../pathfinder/osm';
 
 export class Customer extends Participant<SimulationTypeCustomer> {
   // Private properties

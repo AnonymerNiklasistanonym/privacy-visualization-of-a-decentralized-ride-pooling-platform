@@ -8,10 +8,17 @@
         "type": "node",
         "request": "launch",
         "name": "Debug Simulation",
-        "program": "${workspaceFolder}/src/index.ts",
+        "program": "${workspaceFolder}/dist/index.js",
         "preLaunchTask": "npm: build",
         "cwd": "${workspaceFolder}",
-        "outFiles": ["${workspaceFolder}/dist/**/*.js"]
+        "outFiles": ["${workspaceFolder}/dist/**/*.js.map"]
+      },
+      {
+        "type": "node",
+        "request": "launch",
+        "name": "Launch Program",
+        "skipFiles": ["<node_internals>/**"],
+        "program": "${workspaceFolder}/dist/index.js"
       }
     ]
   }

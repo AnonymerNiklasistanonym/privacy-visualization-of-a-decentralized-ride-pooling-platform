@@ -11,7 +11,7 @@ export interface GetJsonCacheWrapperOptions {
 }
 
 export const getJsonCacheWrapper = async <DATA_TYPE>(
-  getData: (() => DATA_TYPE | Promise<DATA_TYPE>) | Promise<DATA_TYPE>,
+  getData: () => DATA_TYPE | Promise<DATA_TYPE>,
   cacheFilePath: string,
   options?: Readonly<GetJsonCacheWrapperOptions>
 ): Promise<DATA_TYPE> => {
@@ -22,7 +22,7 @@ export const getJsonCacheWrapper = async <DATA_TYPE>(
     const content = await fs.readFile(cacheFilePath, {encoding: 'utf-8'});
     return JSON.parse(content) as DATA_TYPE;
   }
-  const data = typeof getData === 'function' ? await getData() : await getData;
+  const data = await getData();
   await fs.mkdir(getParentDir(cacheFilePath), {recursive: true});
   await fs.writeFile(cacheFilePath, JSON.stringify(data));
   return data;
