@@ -4,7 +4,7 @@ import {getRandomElement, getRandomIntFromInterval} from '../misc/helpers';
 
 const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
 
-export const getRandomPlateNumber = (locations: ReadonlyArray<string>) => {
+export const generateRandomNumberPlate = (locations: ReadonlyArray<string>) => {
   return (
     getRandomElement(locations) +
     ' ' +

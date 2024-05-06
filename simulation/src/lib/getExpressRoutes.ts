@@ -10,7 +10,7 @@ export interface ExpressLayer {
   route?: {path: string; stack: ExpressLayer[]};
 }
 
-export const getRouterPaths = (
+export const getExpressRoutes = (
   rootLayers: ReadonlyArray<ExpressLayer>,
   rootPath = ''
 ) => {

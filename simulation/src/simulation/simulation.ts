@@ -1,21 +1,25 @@
 // Package imports
 import express from 'express';
-import fs from 'node:fs/promises';
+import fs from 'fs/promises';
 // Local imports
 import {AuthenticationService, MatchingService} from './actors/services';
 import {RideProviderCompany, RideProviderPerson} from './actors/rideProvider';
+import {Blockchain} from './actors/blockchain';
+import {Customer} from './actors/customer';
+// > Libs
+import {generateRandomNumberPlate} from '../lib/numberPlate';
+import {getShortestPathOsmCoordinates} from '../lib/pathfinderOsm';
+import {getVertexEdgeKey} from '../lib/pathfinder';
+import {osmnxServerRequest} from '../lib/osmnx';
+import {simulationEndpointRoutes} from '../globals/defaults/endpoints';
+// > Misc
 import {
   getRandomElement,
   getRandomId,
   getRandomIntFromInterval,
-} from './misc/helpers';
-import {Blockchain} from './actors/blockchain';
-import {Customer} from './actors/customer';
-import {createLoggerSection} from './services/logging';
-import {getRandomPlateNumber} from './config/numberPlate';
-import {osmnxServerRequest} from './misc/osmnx';
-import {simulationEndpointRoutes} from './globals/defaults/endpoints';
-import {updateRouteCoordinatesWithTime} from './misc/coordinatesInterpolation';
+} from '../misc/helpers';
+// > Services
+import {createLoggerSection} from '../services/logging';
 // Type imports
 import type {
   SimulationEndpointGraphInformation,
@@ -25,9 +29,9 @@ import type {
   SimulationEndpointRideRequests,
   SimulationEndpointSmartContractInformation,
   SimulationEndpointSmartContracts,
-} from './globals/types/simulation';
-import type {Coordinates} from './globals/types/coordinates';
-import type {OsmVertexGraph} from './pathfinder/osm';
+} from '../globals/types/simulation';
+import type {Coordinates} from '../globals/types/coordinates';
+import type {OsmVertexGraph} from '../lib/pathfinderOsm';
 import type {SimulationConfigWithData} from './config/simulationConfigWithData';
 
 const logger = createLoggerSection('simulation');
@@ -70,7 +74,7 @@ export const createMockedRideProviderPerson = async (
   return new RideProviderPerson(
     id,
     randLocation,
-    getRandomPlateNumber(['S']),
+    generateRandomNumberPlate(['S']),
     getRandomId(),
     fakePerson.fullName,
     /[0-9]*(?<gender>\S*)/.exec(fakePerson.gender)?.groups?.gender ||
@@ -101,7 +105,7 @@ export const createMockedRideProviderCompany = async (
   return new RideProviderCompany(
     id,
     randLocation,
-    getRandomPlateNumber(['S']),
+    generateRandomNumberPlate(['S']),
     getRandomId(),
     company,
     keyPair.privateKey,
@@ -492,9 +496,9 @@ export class Simulation {
       .route(simulationEndpointRoutes.apiV1.graphInformation)
       .get((req, res) => {
         logger.info('Request graph information');
-        const geometry: Array<{id: number; geometry: Coordinates[]}> = [];
+        const geometry: Array<{id: string; geometry: Coordinates[]}> = [];
         if (this.osmVertexGraph.edges instanceof Function) {
-          for (const [, vertex] of this.osmVertexGraph.vertices) {
+          for (const [vertexId, vertex] of this.osmVertexGraph.vertices) {
             for (const vertexNeighborId of vertex.neighbors) {
               const vertexNeighbor =
                 this.osmVertexGraph.vertices.get(vertexNeighborId);
@@ -504,13 +508,13 @@ export class Simulation {
                     {lat: vertex.lat, long: vertex.long},
                     {lat: vertexNeighbor.lat, long: vertexNeighbor.long},
                   ],
-                  id: -1,
+                  id: getVertexEdgeKey(vertexId, vertexNeighborId),
                 });
               }
             }
           }
         } else {
-          for (const [id, a] of this.osmVertexGraph.edges.vertexEdgeIdMap) {
+          for (const [id, a] of this.osmVertexGraph.edges) {
             geometry.push({geometry: a.geometry, id});
           }
           ////console.log(this.osmVertexGraph.edges.idMap);
@@ -545,22 +549,27 @@ export class Simulation {
       .get(async (req, res) => {
         const vertices = Array.from(this.osmVertexGraph.vertices);
         const coordinatesPath = [
-          vertices[0][1],
-          vertices[vertices.length - 1][1],
+          getRandomElement(vertices)[1],
+          getRandomElement(vertices)[1],
         ];
-        const shortestPath = await osmnxServerRequest(
+        let shortestPathOsmnx = undefined;
+        try {
+          shortestPathOsmnx = await osmnxServerRequest(
+            coordinatesPath[0],
+            coordinatesPath[1]
+          );
+        } catch (err) {
+          logger.error(err as Error);
+        }
+        const shortestPath = getShortestPathOsmCoordinates(
+          this.osmVertexGraph,
           coordinatesPath[0],
           coordinatesPath[1]
         );
         res.json({
           coordinatesPath,
           shortestPath,
-          shortestPathTime:
-            shortestPath.error === null
-              ? updateRouteCoordinatesWithTime(
-                  shortestPath.shortest_route_length
-                )
-              : null,
+          shortestPathOsmnx,
         });
       });
     return router;

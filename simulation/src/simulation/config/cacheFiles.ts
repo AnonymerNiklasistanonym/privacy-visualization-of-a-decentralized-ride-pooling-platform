@@ -1,5 +1,5 @@
 // Local imports
-import {generateMd5Hash} from '../misc/crypto';
+import {generateMd5Hash} from '../../lib/crypto';
 // Type imports
 import type {SimulationConfig} from './simulationConfig';
 

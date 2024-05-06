@@ -1,15 +1,15 @@
 /* eslint-disable max-classes-per-file */
 // Local imports
-import {getRandomId, getRandomIntFromInterval} from '../misc/helpers';
+import {getRandomId, getRandomIntFromInterval} from '../../misc/helpers';
 import {Actor} from './actor';
-import {wait} from '../misc/wait';
+import {wait} from '../../lib/wait';
 // Type imports
 import type {
   SimulationTypeCustomer,
   SimulationTypeRideProviderCompany,
   SimulationTypeRideProviderPerson,
 } from './participant';
-import type {Coordinates} from '../globals/types/coordinates';
+import type {Coordinates} from '../../globals/types/coordinates';
 import type {Simulation} from '../simulation';
 
 export interface Area extends Coordinates {

@@ -12,15 +12,19 @@ import {
   overpassRequestBbDataCity,
 } from './overpass';
 import {companyNames} from './companyNames';
-import {createLoggerSection} from '../services/logging';
-import {createOsmVertexGraph} from '../pathfinder/osm';
-import {generatePublicKey} from '../misc/crypto';
-import {getJsonCacheWrapper} from '../globals/lib/cacheWrapper';
-import {measureTimeWrapper} from '../globals/lib/timeWrapper';
-import {nameFakeRequest} from './nameFake';
+import {createOsmVertexGraph} from './createOsmVertexGraph';
+// > Globals
+import {getJsonCacheWrapper} from '../../globals/lib/cacheWrapper';
+import {measureTimeWrapper} from '../../globals/lib/timeWrapper';
+// > Libs
+import {generatePublicKey} from '../../lib/crypto';
+import {nameFakeApiRequest} from '../../lib/nameFake';
+// > Services
+import {createLoggerSection} from '../../services/logging';
 // Type imports
-import type {Coordinates} from '../globals/types/coordinates';
-import type {OsmVertexGraph} from '../pathfinder/osm';
+import type {Coordinates} from '../../globals/types/coordinates';
+import type {OsmVertexGraph} from '../../lib/pathfinderOsm';
+import type {OverpassRequestBbDataBuilding} from './overpass';
 import type {SimulationConfig} from './simulationConfig';
 
 const logger = createLoggerSection('simulationConfigWithData');
@@ -63,7 +67,7 @@ export const getPeopleData = (config: Readonly<SimulationConfig>) =>
     [
       ...Array(config.customer.count + config.rideProvider.countPerson).keys(),
     ].map(() =>
-      nameFakeRequest().then(a => ({
+      nameFakeApiRequest().then(a => ({
         company: a.company,
         dateOfBirth: a.birth_data,
         emailAddress: a.email_d,
@@ -137,12 +141,15 @@ export const updateSimulationConfigWithData = async (
     measureTimeWrapper(
       () =>
         locationData
-          .flatMap(a => a.buildings)
-          .map<SimulationConfigCityPlace>(a => ({
+          .flatMap(a => a.buildings.map(a => [a, overpassGetBuildingName(a)]))
+          .filter(
+            (a): a is [OverpassRequestBbDataBuilding, string] =>
+              a[1] !== undefined
+          )
+          .map<SimulationConfigCityPlace>(([a, name]) => ({
             ...a,
-            name: overpassGetBuildingName(a),
-          }))
-          .filter(a => a.name !== 'TODO'),
+            name,
+          })),
       stats => logger.info(`created Places in ${stats.executionTimeInMS}ms`)
     ),
   ]);

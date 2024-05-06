@@ -3,19 +3,23 @@
 // Package imports
 import {latLngToCell} from 'h3-js';
 // Local imports
+import {Participant} from './participant';
+// > Globals
+import {h3Resolution} from '../../globals/defaults/h3';
+import {measureTimeWrapper} from '../../globals/lib/timeWrapper';
+// > Libs
+import {getShortestPathOsmCoordinates} from '../../lib/pathfinderOsm';
+import {wait} from '../../lib/wait';
+// > Misc
 import {
   getRandomElement,
   getRandomFloatFromInterval,
   getRandomIntFromInterval,
-} from '../misc/helpers';
-import {Participant} from './participant';
-import {getShortestPathOsmCoordinates} from '../pathfinder/osm';
-import {h3Resolution} from '../globals/defaults/h3';
-import {wait} from '../misc/wait';
+} from '../../misc/helpers';
 // Type imports
-import type {Coordinates} from '../globals/types/coordinates';
+import type {Coordinates} from '../../globals/types/coordinates';
 import type {Simulation} from '../simulation';
-import type {SimulationEndpointParticipantInformationCustomer} from '../globals/types/simulation';
+import type {SimulationEndpointParticipantInformationCustomer} from '../../globals/types/simulation';
 import type {SimulationTypeCustomer} from './participant';
 
 export class Customer extends Participant<SimulationTypeCustomer> {
@@ -98,10 +102,18 @@ export class Customer extends Participant<SimulationTypeCustomer> {
       const pseudonym = randAuthService.getVerify(this.id);
       // 2. Request ride to a random location via a random MS
       const dropoffLocation = getRandomElement(simulation.availableLocations);
-      const dropoffLocationRoute = getShortestPathOsmCoordinates(
-        simulation.osmVertexGraph,
-        this.currentLocation,
-        dropoffLocation
+      const dropoffLocationRoute = await measureTimeWrapper(
+        () =>
+          getShortestPathOsmCoordinates(
+            simulation.osmVertexGraph,
+            this.currentLocation,
+            dropoffLocation
+          ),
+        stats =>
+          this.logger.debug(
+            'dropoff location route calculation',
+            `${stats.executionTimeInMS}ms`
+          )
       );
       if (dropoffLocationRoute === null) {
         badRouteCounter++;

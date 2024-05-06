@@ -19,3 +19,15 @@ export const loggerVisualization = createLogger(
 
 export const createLoggerSection = (section: string, subsection?: string) =>
   createLoggerSections(loggerVisualization, section, subsection);
+
+export const loggerPathfinder = createLogger(
+  'pathfinder',
+  logDir,
+  LoggerLevel.INFO,
+  LoggerLevel.DEBUG
+);
+
+export const createLoggerPathfinderSection = (
+  section: string,
+  subsection?: string
+) => createLoggerSections(loggerPathfinder, section, subsection);

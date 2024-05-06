@@ -1,4 +1,4 @@
-import type {Coordinates} from '../globals/types/coordinates';
+import type {Coordinates} from '../../globals/types/coordinates';
 
 export interface SimulationConfigAS {
   count: number;

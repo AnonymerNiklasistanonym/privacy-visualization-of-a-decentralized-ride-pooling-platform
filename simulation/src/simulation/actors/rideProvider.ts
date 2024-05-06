@@ -1,29 +1,31 @@
 /* eslint-disable max-classes-per-file */
 // Package imports
 import {cellToLatLng} from 'h3-js';
+import haversineDistance from 'haversine-distance';
 // Local imports
-import {getRandomElement, getRandomIntFromInterval} from '../misc/helpers';
 import {Participant} from './participant';
-import {getTravelTimeInMsCoordinates} from '../misc/coordinatesInterpolation';
-import {wait} from '../misc/wait';
 // > Globals
-import {costs} from '../globals/defaults/costs';
-import {speeds} from '../globals/defaults/speed';
+import {costs} from '../../globals/defaults/costs';
+import {speeds} from '../../globals/defaults/speed';
+// > Libs
+import {getTravelTimeInMsCoordinates} from '../../lib/coordinatesInterpolation';
+import {wait} from '../../lib/wait';
+// > Misc
+import {getRandomElement, getRandomIntFromInterval} from '../../misc/helpers';
 // Type imports
 import type {
   SimulationEndpointParticipantInformationRideProvider,
   SimulationEndpointParticipantInformationRideProviderCompany,
   SimulationEndpointParticipantInformationRideProviderPerson,
-} from '../globals/types/simulation';
+} from '../../globals/types/simulation';
 import type {
   SimulationTypeRideProvider,
   SimulationTypeRideProviderCompany,
   SimulationTypeRideProviderPerson,
 } from './participant';
 import type {AuthenticationService} from './services';
-import type {Coordinates} from '../globals/types/coordinates';
+import type {Coordinates} from '../../globals/types/coordinates';
 import type {Simulation} from '../simulation';
-import haversineDistance from 'haversine-distance';
 
 export abstract class RideProvider<
   JsonType extends SimulationTypeRideProvider,

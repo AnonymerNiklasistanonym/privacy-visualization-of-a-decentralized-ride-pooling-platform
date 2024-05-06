@@ -4,71 +4,34 @@ import {create as createHbs} from 'express-handlebars';
 import express from 'express';
 import path from 'path';
 // Local imports
-import {getCliFlag, getCliOverride} from './misc/cli';
+import {NAME, VERSION} from './info';
+import {Simulation} from './simulation';
+import {defaultConfig} from './defaults';
+import {updateSimulationConfigWithData} from './simulation/config/simulationConfigWithData';
+// > Globals
 import {
   simulationEndpointRoutes,
   simulationEndpoints,
 } from './globals/defaults/endpoints';
-import {Simulation} from './simulation';
-import {createLoggerSection} from './services/logging';
-import {fileExists} from './misc/fileOperations';
-import {getRouterPaths} from './misc/printExpressRoutes';
 import {ports} from './globals/defaults/ports';
-import {readCustomConfig} from './config/readCustomConfig';
-import {updateSimulationConfigWithData} from './config/simulationConfigWithData';
+// > Libs
+import {getCliFlag, getCliOverride} from './lib/cli';
+import {fileExists} from './lib/fileOperations';
+import {getExpressRoutes} from './lib/getExpressRoutes';
+import {validateJsonDataFile} from './lib/validateJsonData';
+// > Services
+import {createLoggerSection} from './services/logging';
 // Type imports
-import type {SimulationConfig} from './config/simulationConfig';
-
-const ROOT_DIR = path.join(__dirname, '..');
-const SRC_DIR = path.join(__dirname);
-
-const NAME = 'simulation';
-const VERSION = '1.0.0';
+import type {SimulationConfig} from './simulation';
 
 const logger = createLoggerSection('index');
-
-/** The simulation configuration. */
-const defaultConfig: Readonly<SimulationConfig> = {
-  // Services
-  authenticationService: {
-    count: 2,
-  },
-  matchingService: {
-    count: 3,
-  },
-
-  // Participants
-  customer: {
-    count: 200,
-  },
-  rideProvider: {
-    countCompany: 3,
-    countCompanyFleet: 10,
-    countPerson: 15,
-  },
-
-  // Location
-  locations: [
-    {
-      countryCode: 'DE',
-      name: 'Stuttgart',
-      type: 'city',
-    },
-  ],
-
-  // Port of server
-  port: ports.simulation,
-
-  // Misc
-  cacheDir: path.join(ROOT_DIR, 'cache'),
-};
 
 /** The webserver of the simulation. */
 const app = express();
 const hbs = createHbs({
   extname: '.hbs',
-  layoutsDir: path.join(SRC_DIR, 'views', 'layouts'),
-  partialsDir: path.join(SRC_DIR, 'views', 'partials'),
+  layoutsDir: path.join(__dirname, 'views', 'layouts'),
+  partialsDir: path.join(__dirname, 'views', 'partials'),
 });
 
 // Middlewares
@@ -82,14 +45,14 @@ app.use((req, res, next) => {
 });
 
 // Express setup additional static directories
-app.use('/scripts', express.static(path.join(SRC_DIR, 'public', 'scripts')));
-app.use('/styles', express.static(path.join(SRC_DIR, 'public', 'styles')));
-app.use('/icons', express.static(path.join(SRC_DIR, 'public', 'icons')));
+app.use('/scripts', express.static(path.join(__dirname, 'public', 'scripts')));
+app.use('/styles', express.static(path.join(__dirname, 'public', 'styles')));
+app.use('/icons', express.static(path.join(__dirname, 'public', 'icons')));
 
 // Express setup handlebars integration
 app.engine('hbs', hbs.engine);
 app.set('view engine', 'hbs');
-app.set('views', path.join(SRC_DIR, 'views'));
+app.set('views', path.join(__dirname, 'views'));
 app.enable('view cache');
 
 async function main() {
@@ -98,6 +61,7 @@ async function main() {
   if (getCliFlag('--version')) {
     // eslint-disable-next-line no-console
     console.log(`${NAME} v${VERSION}`);
+
     // eslint-disable-next-line no-process-exit
     process.exit(0);
   }
@@ -114,7 +78,7 @@ async function main() {
     async customConfig => {
       if (await fileExists(customConfig)) {
         logger.info(`load custom config file ${customConfig}`);
-        return await readCustomConfig(
+        return await validateJsonDataFile(
           customConfig,
           path.join(__dirname, 'config.schema.json')
         );
@@ -179,7 +143,7 @@ async function main() {
       `Express is listening at http://localhost:${simulationConfig.port}`
     );
     // Print all registered server routes
-    const routerPaths = getRouterPaths(
+    const routerPaths = getExpressRoutes(
       app._router.stack,
       `http://localhost:${simulationConfig.port}`
     );

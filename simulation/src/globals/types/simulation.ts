@@ -94,7 +94,7 @@ export interface SimulationEndpointParticipantCoordinates {
 
 export interface SimulationEndpointGraphInformation {
   vertices: Array<{id: number} & Coordinates>;
-  geometry: Array<{id: number; geometry: Array<Coordinates>}>;
+  geometry: Array<{id: string; geometry: Array<Coordinates>}>;
 }
 
 export interface SimulationEndpointRideRequests {

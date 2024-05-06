@@ -1,6 +1,9 @@
 /* eslint-disable max-classes-per-file */
+
+// Local imports
 import {Actor} from './actor';
-import {getRandomId} from '../misc/helpers';
+// > Misc
+import {getRandomId} from '../../misc/helpers';
 // Type imports
 import type {Simulation} from '../simulation';
 

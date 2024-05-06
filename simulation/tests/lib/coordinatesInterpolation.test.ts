@@ -5,7 +5,7 @@ import {describe, expect, test} from '@jest/globals';
 import {
   getTravelTimeInMs,
   interpolateCurrentCoordinatesFromPath,
-} from '../../src/misc/coordinatesInterpolation';
+} from '../../src/lib/coordinatesInterpolation';
 
 describe('Coordinates Interpolation', () => {
   test('getTravelTimeInMs', () => {

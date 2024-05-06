@@ -1,19 +1,20 @@
 // Local imports
 import {Actor} from './actor';
-import {getShortestPathOsmCoordinates} from '../pathfinder/osm';
-import {interpolateCurrentCoordinatesFromPath} from '../misc/coordinatesInterpolation';
-import {osmnxServerRequest} from '../misc/osmnx';
-import {wait} from '../misc/wait';
+import {getShortestPathOsmCoordinates} from '../../lib/pathfinderOsm';
+import {interpolateCurrentCoordinatesFromPath} from '../../lib/coordinatesInterpolation';
+import {measureTimeWrapper} from '../../globals/lib/timeWrapper';
+import {osmnxServerRequest} from '../../lib/osmnx';
+import {speeds} from '../../globals/defaults/speed';
+import {wait} from '../../lib/wait';
 // Type imports
 import type {
   SimulationEndpointParticipantCoordinatesParticipant,
   SimulationEndpointParticipantInformation,
-} from '../globals/types/simulation';
+} from '../../globals/types/simulation';
 import type {AuthenticationService} from './services';
-import type {Coordinates} from '../globals/types/coordinates';
-import type {GetACarParticipantTypes} from '../globals/types/participant';
+import type {Coordinates} from '../../globals/types/coordinates';
+import type {GetACarParticipantTypes} from '../../globals/types/participant';
 import type {Simulation} from '../simulation';
-import {speeds} from '../globals/defaults/speed';
 
 export interface SimulationTypeParticipant {
   id: string;
@@ -124,15 +125,27 @@ export abstract class Participant<JsonType> extends Actor<
       currentLocation: this.currentLocation,
       newLocation,
     });
-    this.currentRoute = getShortestPathOsmCoordinates(
-      simulation.osmVertexGraph,
-      this.currentLocation,
-      newLocation
+    this.currentRoute = await measureTimeWrapper(
+      () =>
+        getShortestPathOsmCoordinates(
+          simulation.osmVertexGraph,
+          this.currentLocation,
+          newLocation
+        ),
+      stats =>
+        this.logger.debug(
+          'move to location route calculation',
+          `${stats.executionTimeInMS}ms`
+        )
     );
     try {
-      const shortestPathOsmnx = await osmnxServerRequest(
-        this.currentLocation,
-        newLocation
+      const shortestPathOsmnx = await measureTimeWrapper(
+        () => osmnxServerRequest(this.currentLocation, newLocation),
+        stats =>
+          this.logger.debug(
+            'move to location osmnx route fetch',
+            `${stats.executionTimeInMS}ms`
+          )
       );
       this.currentRoutes = {
         custom: this.currentRoute,

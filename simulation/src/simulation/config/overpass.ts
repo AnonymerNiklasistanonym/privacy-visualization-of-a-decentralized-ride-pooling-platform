@@ -2,10 +2,12 @@
 import fs from 'fs/promises';
 import path from 'path';
 // Local imports
-import {createLoggerSection} from '../services/logging';
 // > Globals
-import {fetchJson} from '../globals/lib/fetch';
-import {getJsonCacheWrapper} from '../globals/lib/cacheWrapper';
+import {getJsonCacheWrapper} from '../../globals/lib/cacheWrapper';
+// > Libs
+import {overpassApiRequest} from '../../lib/overpass';
+// > Services
+import {createLoggerSection} from '../../services/logging';
 // Type imports
 import type {
   OverpassApiResponse,
@@ -15,34 +17,11 @@ import type {
   OverpassApiResponseElements,
   TagsNodesRelevant,
   TagsWaysRelevant,
-} from '../lib/overpass';
-import type {PartialRecord, WithRequired} from '../globals/types/logic';
-import type {Coordinates} from '../globals/types/coordinates';
+} from '../../lib/overpass';
+import type {PartialRecord, WithRequired} from '../../globals/types/logic';
+import type {Coordinates} from '../../globals/types/coordinates';
 
 const logger = createLoggerSection('overpass');
-const baseUrlOverpassApi = 'https://overpass-api.de/api/interpreter';
-
-/** Overpass API prefix to get a JSON response and timeout after 90ms */
-const overpassApiPrefixJsonTimeout = '[out:json][timeout:90];';
-
-export const overpassRequest = async <JsonResponseType>(
-  query: string
-): Promise<JsonResponseType> => {
-  const method = 'POST';
-  const body = `data=${encodeURIComponent(
-    `${overpassApiPrefixJsonTimeout}${query}`
-  )}`;
-  logger.info(`fetch ${method} ${baseUrlOverpassApi} body=${body}...`);
-  return fetchJson<JsonResponseType>(baseUrlOverpassApi, {
-    fetchOptions: {
-      // The body contains the query
-      // to understand the query language see "The Programmatic Query Language" on
-      // https://wiki.openstreetmap.org/wiki/Overpass_API#The_Programmatic_Query_Language_(OverpassQL)
-      body,
-      method,
-    },
-  });
-};
 
 export const overpassCachedRequest = async <JsonResponseType extends {}>(
   query: string,
@@ -52,7 +31,7 @@ export const overpassCachedRequest = async <JsonResponseType extends {}>(
   getJsonCacheWrapper(
     () => {
       logger.info(`cache web request ${cacheFilePath} (${query})`);
-      return overpassRequest<OverpassApiResponse<JsonResponseType>>(query);
+      return overpassApiRequest<JsonResponseType>(query);
     },
     cacheFilePath,
     {
@@ -162,7 +141,7 @@ export const overpassGetBuildingName = (
   if (addressList.length > 0) {
     return addressList.join(' ');
   }
-  return 'TODO';
+  return undefined;
 };
 
 export const overpassRequestBbData = async (
