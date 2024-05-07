@@ -50,6 +50,7 @@ export interface SimulationConfig {
   port: number;
   // Misc
   cacheDir: string;
+  customPathfinder?: 'pathfinder-server' | 'all';
   ignoreCache?: boolean;
 }
 

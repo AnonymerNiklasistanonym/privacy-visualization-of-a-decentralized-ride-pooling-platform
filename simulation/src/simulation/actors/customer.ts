@@ -6,9 +6,7 @@ import {latLngToCell} from 'h3-js';
 import {Participant} from './participant';
 // > Globals
 import {h3Resolution} from '../../globals/defaults/h3';
-import {measureTimeWrapper} from '../../globals/lib/timeWrapper';
 // > Libs
-import {getShortestPathOsmCoordinates} from '../../lib/pathfinderOsm';
 import {wait} from '../../lib/wait';
 // > Misc
 import {
@@ -102,18 +100,10 @@ export class Customer extends Participant<SimulationTypeCustomer> {
       const pseudonym = randAuthService.getVerify(this.id);
       // 2. Request ride to a random location via a random MS
       const dropoffLocation = getRandomElement(simulation.availableLocations);
-      const dropoffLocationRoute = await measureTimeWrapper(
-        () =>
-          getShortestPathOsmCoordinates(
-            simulation.osmVertexGraph,
-            this.currentLocation,
-            dropoffLocation
-          ),
-        stats =>
-          this.logger.debug(
-            'dropoff location route calculation',
-            `${stats.executionTimeInMS}ms`
-          )
+      const dropoffLocationRoute = await this.getRoute(
+        simulation,
+        dropoffLocation,
+        'dropoff location'
       );
       if (dropoffLocationRoute === null) {
         badRouteCounter++;

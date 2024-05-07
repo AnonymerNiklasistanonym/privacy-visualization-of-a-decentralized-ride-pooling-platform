@@ -1,17 +1,17 @@
 // Package imports
 import express from 'express';
-import fs from 'fs/promises';
 // Local imports
 import {AuthenticationService, MatchingService} from './actors/services';
 import {RideProviderCompany, RideProviderPerson} from './actors/rideProvider';
 import {Blockchain} from './actors/blockchain';
 import {Customer} from './actors/customer';
+// > Globals
+import {simulationEndpointRoutes} from '../globals/defaults/endpoints';
 // > Libs
+import {getVertexEdge, getVertexEdgeKey} from '../lib/pathfinder';
 import {generateRandomNumberPlate} from '../lib/numberPlate';
 import {getShortestPathOsmCoordinates} from '../lib/pathfinderOsm';
-import {getVertexEdgeKey} from '../lib/pathfinder';
 import {osmnxServerRequest} from '../lib/osmnx';
-import {simulationEndpointRoutes} from '../globals/defaults/endpoints';
 // > Misc
 import {
   getRandomElement,
@@ -40,10 +40,10 @@ export interface StartPos extends Coordinates {
   zoom: number;
 }
 
-export const createMockedCustomer = async (
+export const createMockedCustomer = (
   index: number,
   config: Readonly<SimulationConfigWithData>
-): Promise<Customer> => {
+): Customer => {
   const id = `customer_${getRandomId()}`;
   const randLocation = getRandomElement(config.places);
   const fakePerson = config.peopleData[index];
@@ -63,10 +63,10 @@ export const createMockedCustomer = async (
   );
 };
 
-export const createMockedRideProviderPerson = async (
+export const createMockedRideProviderPerson = (
   index: number,
   config: Readonly<SimulationConfigWithData>
-): Promise<RideProviderPerson> => {
+): RideProviderPerson => {
   const id = `ride_provider_${getRandomId()}`;
   const randLocation = getRandomElement(config.places);
   const fakePerson = config.peopleData[index + config.customer.count];
@@ -88,12 +88,12 @@ export const createMockedRideProviderPerson = async (
   );
 };
 
-export const createMockedRideProviderCompany = async (
+export const createMockedRideProviderCompany = (
   company: string,
   index: number,
   indexCompany: number,
   config: Readonly<SimulationConfigWithData>
-): Promise<RideProviderCompany> => {
+): RideProviderCompany => {
   const id = `ride_provider_company_${getRandomId()}`;
   const randLocation = getRandomElement(config.places);
   const keyPair =
@@ -141,10 +141,9 @@ export const createMockedMatchingService = (
 
 export class Simulation {
   // Properties
-  public readonly customers: Customer[] = [];
+  public readonly customers: Customer[];
 
-  public readonly rideProviders: (RideProviderPerson | RideProviderCompany)[] =
-    [];
+  public readonly rideProviders: (RideProviderPerson | RideProviderCompany)[];
 
   public readonly authenticationServices: AuthenticationService[];
 
@@ -158,36 +157,20 @@ export class Simulation {
 
   public readonly osmVertexGraph: OsmVertexGraph;
 
-  private readonly config: Readonly<SimulationConfigWithData>;
+  public readonly config: Readonly<SimulationConfigWithData>;
 
   public state: 'RUNNING' | 'PAUSING' | 'INACTIVE' = 'INACTIVE';
 
   constructor(config: Readonly<SimulationConfigWithData>) {
     this.config = config;
     logger.debug('Initialize simulation...');
-    // Create OSM vertex graph
+    // Set variables that need no processing
     this.osmVertexGraph = config.osmVertexGraph;
-
-    if (process.env.NODE_ENV !== 'production') {
-      try {
-        fs.writeFile(
-          'test.json',
-          JSON.stringify({
-            vertices: Array.from(this.osmVertexGraph.vertices.entries())
-              .slice(0, 100)
-              .reduce(
-                (o, [key, value]) => {
-                  o[key] = value;
-                  return o;
-                },
-                {} as Record<number, unknown>
-              ),
-          })
-        );
-      } catch (err) {
-        logger.error(err as Error);
-      }
-    }
+    this.startPos = {
+      ...config.startPos,
+      zoom: 13,
+    };
+    this.availableLocations = config.places;
 
     // Create services
     this.authenticationServices = Array.from(
@@ -201,46 +184,15 @@ export class Simulation {
 
     // Create blockchain
     this.blockchain = new Blockchain('demo_blockchain');
-    // Additional properties
-    this.startPos = {
-      ...config.startPos,
-      zoom: 13,
-    };
-    this.availableLocations = config.places;
-
-    logger.info('Initialized simulation', {
-      // Services
-      authServicesCount: this.authenticationServices.length,
-      matchServicesCount: this.matchingServices.length,
-
-      // Graph
-      graphVerticesCount: this.osmVertexGraph.vertices.size,
-      locationsCount: this.availableLocations.length,
-
-      // Misc
-      startPos: this.startPos,
-    });
-  }
-
-  /** Initialize simulation */
-  async initializeParticipants(): Promise<void> {
-    logger.debug('Initialize simulation participants...');
 
     // Create participants
-    this.customers.push(
-      ...(await Promise.all(
-        Array.from({length: this.config.customer.count}, (val, index) =>
-          createMockedCustomer(index, this.config)
-        )
-      ))
+    this.customers = Array.from(
+      {length: this.config.customer.count},
+      (val, index) => createMockedCustomer(index, this.config)
     );
-    this.rideProviders.push(
-      ...(await Promise.all(
-        Array.from(
-          {length: this.config.rideProvider.countPerson},
-          (val, index) => createMockedRideProviderPerson(index, this.config)
-        )
-      ))
+    this.rideProviders = Array.from(
+      {length: this.config.rideProvider.countPerson},
+      (val, index) => createMockedRideProviderPerson(index, this.config)
     );
     for (
       let indexCompany = 0;
@@ -249,25 +201,34 @@ export class Simulation {
     ) {
       const company = getRandomElement(this.config.companyNames);
       this.rideProviders.push(
-        ...(await Promise.all(
-          Array.from(
-            {length: this.config.rideProvider.countCompanyFleet},
-            (val, index) =>
-              createMockedRideProviderCompany(
-                company,
-                index,
-                indexCompany,
-                this.config
-              )
-          )
-        ))
+        ...Array.from(
+          {length: this.config.rideProvider.countCompanyFleet},
+          (val, index) =>
+            createMockedRideProviderCompany(
+              company,
+              index,
+              indexCompany,
+              this.config
+            )
+        )
       );
     }
 
-    logger.info('Initialized simulation participants', {
+    logger.info('Initialized simulation', {
+      // Services
+      authServiceCount: this.authenticationServices.length,
+      matchServiceCount: this.matchingServices.length,
+
       // Participants
       customerCount: this.customers.length,
       rideProviderCount: this.rideProviders.length,
+
+      // Graph
+      graphVertexCount: this.osmVertexGraph.vertices.size,
+      locationCount: this.availableLocations.length,
+
+      // Misc
+      startPos: this.startPos,
     });
   }
 
@@ -496,6 +457,7 @@ export class Simulation {
       .route(simulationEndpointRoutes.apiV1.graphInformation)
       .get((req, res) => {
         logger.info('Request graph information');
+        const edges: Array<{id: string; geometry: Coordinates[]}> = [];
         const geometry: Array<{id: string; geometry: Coordinates[]}> = [];
         if (this.osmVertexGraph.edges instanceof Function) {
           for (const [vertexId, vertex] of this.osmVertexGraph.vertices) {
@@ -503,7 +465,7 @@ export class Simulation {
               const vertexNeighbor =
                 this.osmVertexGraph.vertices.get(vertexNeighborId);
               if (vertexNeighbor) {
-                geometry.push({
+                edges.push({
                   geometry: [
                     {lat: vertex.lat, long: vertex.long},
                     {lat: vertexNeighbor.lat, long: vertexNeighbor.long},
@@ -514,26 +476,35 @@ export class Simulation {
             }
           }
         } else {
+          for (const [vertexId, vertex] of this.osmVertexGraph.vertices) {
+            for (const vertexNeighborId of vertex.neighbors) {
+              const vertexNeighbor =
+                this.osmVertexGraph.vertices.get(vertexNeighborId);
+              if (vertexNeighbor) {
+                const edgeId = getVertexEdgeKey(vertexId, vertexNeighborId);
+                const edge = getVertexEdge(
+                  this.osmVertexGraph,
+                  [vertexId, vertex],
+                  [vertexNeighborId, vertexNeighbor]
+                );
+                edges.push({
+                  geometry: [
+                    vertexId < vertexNeighborId ? vertex : vertexNeighbor,
+                    ...(edge?.geometry !== undefined ? edge.geometry : []),
+                    vertexId < vertexNeighborId ? vertexNeighbor : vertex,
+                    {lat: vertexNeighbor.lat, long: vertexNeighbor.long},
+                  ],
+                  id: edgeId,
+                });
+              }
+            }
+          }
           for (const [id, a] of this.osmVertexGraph.edges) {
             geometry.push({geometry: a.geometry, id});
           }
-          ////console.log(this.osmVertexGraph.edges.idMap);
-          //for (const [idVertexA, a] of this.osmVertexGraph.edges.idMap) {
-          //  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          //  for (const [idVertexB, edgeId] of a) {
-          //    const vertexA = this.osmVertexGraph.vertices.get(idVertexA);
-          //    const vertexB = this.osmVertexGraph.vertices.get(idVertexB);
-          //    if (vertexA === undefined || vertexB === undefined) {
-          //      //console.warn(
-          //      //  `Could not find vertex A ${idVertexA} to vertex B ${idVertexB}`
-          //      //);
-          //      continue;
-          //    }
-          //    edges.push([vertexA.coordinates, vertexB.coordinates]);
-          //  }
-          //}
         }
         res.json({
+          edges,
           geometry,
           vertices: Array.from(this.osmVertexGraph.vertices).map(
             ([id, vertex]) => ({

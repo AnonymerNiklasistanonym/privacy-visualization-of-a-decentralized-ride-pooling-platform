@@ -22,6 +22,5 @@ export const osmnxServerRequest = async (
         },
         method: 'POST',
       },
-      timeoutInMs: 100,
     }
   );

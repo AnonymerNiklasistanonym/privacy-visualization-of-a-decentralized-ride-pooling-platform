@@ -131,11 +131,20 @@ export default function Map({
           {stateSettingsGlobalDebug ? (
             <LayersControl.Overlay checked={false} name="Debug: Dijkstra Graph">
               <LayerGroup>
+                {stateGraph.edges.map(a => (
+                  <Polyline
+                    key={`graph_edge_${a.id}`}
+                    positions={a.geometry.map(a => [a.lat, a.long])}
+                    color={'cyan'}
+                    weight={3}
+                    smoothFactor={1}
+                  />
+                ))}
                 {stateGraph.geometry.map(a => (
                   <Polyline
                     key={`graph_geometry_${a.id}`}
                     positions={a.geometry.map(a => [a.lat, a.long])}
-                    color={'cyan'}
+                    color={'green'}
                     weight={3}
                     smoothFactor={1}
                   />

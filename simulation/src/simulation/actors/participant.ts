@@ -55,12 +55,6 @@ export interface SimulationTypeRideProviderCompany
   company: string;
 }
 
-export interface CurrentRoutes {
-  custom: Coordinates[] | null;
-  osmnxLength: Coordinates[] | null;
-  osmnxTime: Coordinates[] | null;
-}
-
 /**
  * Abstract Class that represents a participant of the simulation.
  */
@@ -75,7 +69,7 @@ export abstract class Participant<JsonType> extends Actor<
 
   protected currentRoute?: Coordinates[] | null = undefined;
 
-  protected currentRoutes?: CurrentRoutes | null = undefined;
+  protected currentRoutes?: {[index: string]: Coordinates[] | null} = {};
 
   protected status: string;
 
@@ -116,6 +110,75 @@ export abstract class Participant<JsonType> extends Actor<
     };
   }
 
+  async getRoute(
+    simulation: Readonly<Simulation>,
+    newLocation: Readonly<Coordinates>,
+    id: string
+  ): Promise<Coordinates[] | null> {
+    this.logger.debug('Get route', {
+      currentLocation: this.currentLocation,
+      newLocation,
+    });
+    let routeInternal;
+    if (
+      simulation.config.customPathfinder === undefined ||
+      simulation.config.customPathfinder === 'all'
+    ) {
+      routeInternal = await measureTimeWrapper(
+        () =>
+          getShortestPathOsmCoordinates(
+            simulation.osmVertexGraph,
+            this.currentLocation,
+            newLocation
+          ),
+        stats =>
+          this.logger.debug(
+            'get route calculation',
+            id,
+            `${stats.executionTimeInMS}ms`
+          )
+      );
+      this.currentRoutes = {
+        ...this.currentRoutes,
+        [id]: routeInternal,
+      };
+    }
+    let routeOsmnx;
+    if (
+      simulation.config.customPathfinder === 'pathfinder-server' ||
+      simulation.config.customPathfinder === 'all'
+    ) {
+      try {
+        routeOsmnx = await measureTimeWrapper(
+          () => osmnxServerRequest(this.currentLocation, newLocation),
+          stats =>
+            this.logger.debug(
+              'get route fetch osmnx',
+              `${stats.executionTimeInMS}ms`
+            )
+        );
+        this.currentRoutes = {
+          ...this.currentRoutes,
+          [`${id} osmnx [Length]`]: routeOsmnx.shortest_route_length ?? null,
+          [`${id} osmnx [Travel Time]`]:
+            routeOsmnx.shortest_route_travel_time ?? null,
+        };
+      } catch (err) {
+        this.logger.error(err as Error);
+      }
+    }
+    if (
+      simulation.config.customPathfinder === undefined ||
+      simulation.config.customPathfinder === 'all'
+    ) {
+      return routeInternal ?? null;
+    }
+    if (simulation.config.customPathfinder === 'pathfinder-server') {
+      return routeOsmnx?.shortest_route_travel_time ?? null;
+    }
+    return null;
+  }
+
   async moveToLocation(
     simulation: Readonly<Simulation>,
     newLocation: Readonly<Coordinates>,
@@ -125,58 +188,18 @@ export abstract class Participant<JsonType> extends Actor<
       currentLocation: this.currentLocation,
       newLocation,
     });
-    this.currentRoute = await measureTimeWrapper(
-      () =>
-        getShortestPathOsmCoordinates(
-          simulation.osmVertexGraph,
-          this.currentLocation,
-          newLocation
-        ),
-      stats =>
-        this.logger.debug(
-          'move to location route calculation',
-          `${stats.executionTimeInMS}ms`
-        )
-    );
-    try {
-      const shortestPathOsmnx = await measureTimeWrapper(
-        () => osmnxServerRequest(this.currentLocation, newLocation),
-        stats =>
-          this.logger.debug(
-            'move to location osmnx route fetch',
-            `${stats.executionTimeInMS}ms`
-          )
-      );
-      this.currentRoutes = {
-        custom: this.currentRoute,
-        osmnxLength: shortestPathOsmnx.shortest_route_length ?? null,
-        osmnxTime: shortestPathOsmnx.shortest_route_travel_time ?? null,
-      };
-    } catch (err) {
-      this.logger.error(err as Error);
-    }
+    const routeId = 'current';
+    this.currentRoute = await this.getRoute(simulation, newLocation, routeId);
     const interpolatedCoordinatesInfo = interpolateCurrentCoordinatesFromPath(
       this.currentRoute ?? [{...this.currentLocation}, {...newLocation}],
       this.type === 'ride_provider' || isPassenger
         ? speeds.carInKmH
         : speeds.personInKmH
     );
-    this.logger.debug('Search shortest path', {
-      currentLocation: this.currentLocation,
-      currentRoutes: this.currentRoutes,
-      interpolatedCoordinatesInfo,
-      newLocation,
-    });
     let currentTravelTimeInMs = 0;
     while (
       currentTravelTimeInMs <= interpolatedCoordinatesInfo.travelTimeInMs
     ) {
-      //console.log(
-      //  this.id,
-      //  this.currentLocation,
-      //  currentTravelTimeInMs / 1000,
-      //  interpolatedCoordinatesInfo.travelTimeInMs / 1000
-      //);
       this.currentLocation = interpolatedCoordinatesInfo.getCurrentPosition(
         currentTravelTimeInMs
       );
@@ -185,7 +208,15 @@ export abstract class Participant<JsonType> extends Actor<
       currentTravelTimeInMs += performance.now() - startPerformanceTime;
     }
     this.currentRoute = undefined;
-    this.currentRoutes = undefined;
+    for (const routeName of [
+      routeId,
+      `${routeId} osmnx [Length]`,
+      `${routeId} osmnx [Travel Time]`,
+    ]) {
+      if (this.currentRoutes !== undefined && routeName in this.currentRoutes) {
+        delete this.currentRoutes[routeName];
+      }
+    }
   }
 
   get endpointParticipant(): SimulationEndpointParticipantInformation {
@@ -195,10 +226,11 @@ export abstract class Participant<JsonType> extends Actor<
       // Location
       currentLocation: this.currentLocation,
 
-      // TODO: Routes
-      currentRoute: this.currentRoute,
-      currentRouteOsmxn:
-        this.currentRoutes?.osmnxTime ?? this.currentRoutes?.osmnxLength,
+      // Routes
+      currentRoutes: {
+        ...this.currentRoutes,
+        current: this.currentRoute ?? null,
+      },
 
       simulationStatus: this.status,
     };

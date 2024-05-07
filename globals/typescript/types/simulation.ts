@@ -31,13 +31,18 @@ export interface SimulationEndpointParticipantCoordinatesParticipant
   extends SimulationEndpointParticipant,
     Coordinates {}
 
+export interface SimulationEndpointParticipantInformationCurrentRoutes {
+  /** Other/Future/Past routes. */
+  [index: string]: Coordinates[] | null;
+  /** Not undefined if there is a current route, null if the route is invalid. */
+  current: Coordinates[] | null;
+}
+
 export interface SimulationEndpointParticipantInformation
   extends SimulationEndpointParticipant,
     Omit<GetACarParticipant, 'type'> {
-  /** Not undefined if there is a current route, null if the route is invalid. */
-  currentRoute?: Coordinates[] | null;
-  /** Not undefined if there is a current route (from OSMNX), null if the route is invalid. */
-  currentRouteOsmxn?: Coordinates[] | null;
+  /** Contains current/other/future/past routes. */
+  currentRoutes?: SimulationEndpointParticipantInformationCurrentRoutes;
   /** Not undefined if there is currently an active ride request. */
   rideRequest?: SimulationEndpointRideRequestId;
   /** Simulation status (to debug what the actor is doing) */
@@ -92,7 +97,8 @@ export interface SimulationEndpointParticipantCoordinates {
 
 export interface SimulationEndpointGraphInformation {
   vertices: Array<{id: number} & Coordinates>;
-  geometry: Array<{id: number; geometry: Array<Coordinates>}>;
+  geometry: Array<{id: string; geometry: Array<Coordinates>}>;
+  edges: Array<{id: string; geometry: Array<Coordinates>}>;
 }
 
 export interface SimulationEndpointRideRequests {

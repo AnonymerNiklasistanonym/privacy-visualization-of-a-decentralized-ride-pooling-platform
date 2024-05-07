@@ -7,7 +7,7 @@ import path from 'path';
 import {NAME, VERSION} from './info';
 import {Simulation} from './simulation';
 import {defaultConfig} from './defaults';
-import {updateSimulationConfigWithData} from './simulation/config/simulationConfigWithData';
+import {updateSimulationConfigWithData} from './simulation';
 // > Globals
 import {
   simulationEndpointRoutes,
@@ -99,7 +99,6 @@ async function main() {
   }
   /** The simulation. */
   const simulation = new Simulation(simulationConfig);
-  await simulation.initializeParticipants();
   app.use(
     simulationEndpointRoutes.simulation.route,
     simulation.generateRoutes()

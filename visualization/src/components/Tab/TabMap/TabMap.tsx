@@ -102,6 +102,7 @@ export default function TabMap({
     });
   const [stateGraph, setGraphState] =
     useState<SimulationEndpointGraphInformation>({
+      edges: [],
       geometry: [],
       vertices: [],
     });
@@ -114,6 +115,7 @@ export default function TabMap({
   const fetchGraphs = (clear = false) => {
     if (clear === true) {
       setGraphState({
+        edges: [],
         geometry: [],
         vertices: [],
       });

@@ -24,6 +24,7 @@ import type {
   GlobalPropsUserInput,
   GlobalPropsUserInputSet,
 } from '@misc/globalProps';
+import type {ReactSetState, ReactState} from '@misc/react';
 import type {
   SimulationEndpointParticipantIdFromPseudonym,
   SimulationEndpointParticipantInformationCustomer,
@@ -31,7 +32,6 @@ import type {
   SimulationEndpointParticipantTypes,
   SimulationEndpointRideRequestInformation,
 } from '@globals/types/simulation';
-import type {ReactState} from '@misc/react';
 import type {SimulationEndpointParticipantCoordinatesParticipant} from '@globals/types/simulation';
 
 interface ParticipantMarkerProps
@@ -77,7 +77,7 @@ export default function ParticipantMarker({
     useState<null | SimulationEndpointParticipantInformationCustomer>(null);
   const [stateRideProviderInformation, setStateRideProviderInformation] =
     useState<null | SimulationEndpointParticipantInformationRideProvider>(null);
-  const [stateRideRequest, setStateRideRequest] =
+  const [stateRideRequestInformation, setStateRideRequestInformation] =
     useState<null | SimulationEndpointRideRequestInformation>(null);
   const [
     stateRideRequestAuctionRideProviderId,
@@ -118,7 +118,7 @@ export default function ParticipantMarker({
         await fetchJsonSimulation<SimulationEndpointRideRequestInformation>(
           simulationEndpoints.apiV1.rideRequestInformation(rideRequestId)
         );
-      setStateRideRequest(rideRequest);
+      setStateRideRequestInformation(rideRequest);
       if (rideRequest.auctionWinner !== null) {
         const rideRequestAuctionWinnerId =
           await fetchJsonSimulation<SimulationEndpointParticipantIdFromPseudonym>(
@@ -154,7 +154,7 @@ export default function ParticipantMarker({
   });
 
   const showRideRequest =
-    stateSelectedRideRequest === stateRideRequest?.id ||
+    stateSelectedRideRequest === stateRideRequestInformation?.id ||
     stateSpectator === stateParticipantCoordinates.id;
   const showParticipant =
     stateSelectedParticipant === stateParticipantCoordinates.id ||
@@ -165,6 +165,62 @@ export default function ParticipantMarker({
         stateParticipantCoordinates.id) ||
     (showRideRequest &&
       stateRideRequestAuctionCustomerId === stateParticipantCoordinates.id);
+
+  return (
+    <ParticipantMarkerElement
+      fetchJsonSimulation={fetchJsonSimulation}
+      fetchParticipantInformation={fetchParticipantInformation}
+      participantType={participantType}
+      setStatePopupOpen={setStatePopupOpen}
+      setStateSelectedParticipant={setStateSelectedParticipant}
+      setStateSelectedRideRequest={setStateSelectedRideRequest}
+      setStateSpectator={setStateSpectator}
+      showError={showError}
+      showParticipant={showParticipant}
+      showRideRequest={showRideRequest}
+      stateCustomerInformation={stateCustomerInformation}
+      stateOpenPopupOnHover={stateOpenPopupOnHover}
+      stateParticipantCoordinates={stateParticipantCoordinates}
+      stateRideProviderInformation={stateRideProviderInformation}
+      stateRideRequestInformation={stateRideRequestInformation}
+      stateSelectedParticipant={stateSelectedParticipant}
+      stateSelectedRideRequest={stateSelectedRideRequest}
+      stateShowTooltip={stateShowTooltip}
+      stateSpectator={stateSpectator}
+    />
+  );
+}
+interface ParticipantMarkerElementProps extends ParticipantMarkerProps {
+  showParticipant: boolean;
+  showRideRequest: boolean;
+  setStatePopupOpen: ReactSetState<boolean>;
+  fetchParticipantInformation: () => Promise<void>;
+  stateCustomerInformation: ReactState<SimulationEndpointParticipantInformationCustomer | null>;
+  stateRideProviderInformation: ReactState<SimulationEndpointParticipantInformationRideProvider | null>;
+  stateRideRequestInformation: ReactState<SimulationEndpointRideRequestInformation | null>;
+}
+
+export function ParticipantMarkerElement({
+  stateParticipantCoordinates,
+  stateSpectator,
+  setStateSpectator,
+  participantType,
+  stateShowTooltip,
+  stateOpenPopupOnHover,
+  stateSelectedParticipant,
+  setStateSelectedParticipant,
+  showError,
+  fetchJsonSimulation,
+  setStateSelectedRideRequest,
+  stateSelectedRideRequest,
+  showParticipant,
+  showRideRequest,
+  setStatePopupOpen,
+  fetchParticipantInformation,
+  stateCustomerInformation,
+  stateRideProviderInformation,
+  stateRideRequestInformation,
+}: ParticipantMarkerElementProps) {
   const elementsToRender: Array<ReactNode> = [];
 
   // Icon that shows the current position of the participant
@@ -238,20 +294,20 @@ export default function ParticipantMarker({
     </Marker>
   );
 
-  if (stateRideRequest !== null && showRideRequest) {
+  if (stateRideRequestInformation !== null && showRideRequest) {
     // Show ride request information
     const locations = [
       {
-        cloaked: stateRideRequest.pickupLocation,
+        cloaked: stateRideRequestInformation.pickupLocation,
         color: 'green',
         label: 'Ride request: Pickup location',
-        real: stateRideRequest.pickupLocationCoordinates,
+        real: stateRideRequestInformation.pickupLocationCoordinates,
       },
       {
-        cloaked: stateRideRequest.dropoffLocation,
+        cloaked: stateRideRequestInformation.dropoffLocation,
         color: 'red',
         label: 'Ride request: Dropoff location',
-        real: stateRideRequest.dropoffLocationCoordinates,
+        real: stateRideRequestInformation.dropoffLocationCoordinates,
       },
     ];
     elementsToRender.push(
@@ -276,10 +332,7 @@ export default function ParticipantMarker({
             fillColor={location.color}
             positions={getH3Polygon(location.cloaked)}
           >
-            <Tooltip
-              content={location.label + ' (cloaked)'}
-              permanent={true}
-            ></Tooltip>
+            <Tooltip content={location.label + ' (cloaked)'}></Tooltip>
           </Polygon>
         </>
       ))
@@ -288,33 +341,27 @@ export default function ParticipantMarker({
 
   if (showParticipant) {
     // Show current routes
-    const routes = [
-      {
-        color: participantType === 'customer' ? 'brown' : 'yellow',
-        coordinateList:
-          stateCustomerInformation?.currentRoute ??
-          stateRideProviderInformation?.currentRoute,
-        label: 'Current Route [' + participantType + ']',
-      },
-      {
-        color: participantType === 'customer' ? 'cyan' : 'pink',
-        coordinateList:
-          stateCustomerInformation?.currentRouteOsmxn ??
-          stateRideProviderInformation?.currentRouteOsmxn,
-        label: 'Current Route (OSMXN) [' + participantType + ']',
-      },
-    ];
     elementsToRender.push(
-      ...routes.map(route =>
-        route.coordinateList ? (
+      ...[
+        ...(stateCustomerInformation?.currentRoutes !== undefined
+          ? Object.entries(stateCustomerInformation.currentRoutes)
+          : []),
+        ...(stateRideProviderInformation?.currentRoutes !== undefined
+          ? Object.entries(stateRideProviderInformation.currentRoutes)
+          : []),
+      ].map(([name, coordinates]) =>
+        coordinates !== null ? (
           <Polyline
-            key={`route_${route.label}_${stateParticipantCoordinates.id}`}
-            positions={route.coordinateList.map(a => [a.lat, a.long])}
-            color={'blue'}
+            key={`route_${name}_${stateParticipantCoordinates.id}`}
+            positions={coordinates.map(a => [a.lat, a.long])}
+            color={name === 'current' ? 'blue' : 'gray'}
             weight={3}
             smoothFactor={1}
           >
-            <Tooltip content={route.label} permanent={true}></Tooltip>
+            <Tooltip
+              content={name}
+              permanent={name === 'current' ? true : undefined}
+            ></Tooltip>
           </Polyline>
         ) : (
           <></>

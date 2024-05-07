@@ -1,3 +1,4 @@
 {
-    "$schema": "./config.schema.json"
+    "$schema": "./config.schema.json",
+    "customPathfinder": "pathfinder-server"
 }

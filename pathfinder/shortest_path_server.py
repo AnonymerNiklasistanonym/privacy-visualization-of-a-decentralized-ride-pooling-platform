@@ -17,8 +17,12 @@ app = Flask(__name__)
 cors = CORS(app, resources={r"/*": {"origins": "*"}})
 
 # create the graph
-location = ("stuttgart", "Stuttgart, Baden-Württemberg, Germany")
-G = ox.graph_from_place(location[1], network_type="drive")
+# > from a location (e.g. city)
+# location = ("stuttgart", "Stuttgart, Baden-Württemberg, Germany")
+# G = ox.graph_from_place(location[1], network_type="drive")
+# > from bounding box (input is overpass bb)
+bbox = (48.6920188, 9.0386007, 48.8663994, 9.3160228)
+G = ox.graph_from_bbox(bbox=(bbox[0], bbox[2], bbox[1], bbox[3]), network_type="drive")
 # Early exit to only cache the web request
 if "ONLY_CACHE" in os.environ and os.environ["ONLY_CACHE"] == "1":
     exit(0)

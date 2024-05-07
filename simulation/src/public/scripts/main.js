@@ -113,13 +113,7 @@ const renderObjectToHtml = obj => {
   if (typeof obj !== 'object') {
     throw Error('Element was not an object!');
   }
-  const ignoreKeys = [
-    'type',
-    'id',
-    'currentLocation',
-    'currentRoute',
-    'currentRouteOsmxn',
-  ];
+  const ignoreKeys = ['type', 'id', 'currentLocation', 'currentRoutes'];
   const content = [];
   for (const key in obj) {
     // Ignore keys used in the header
