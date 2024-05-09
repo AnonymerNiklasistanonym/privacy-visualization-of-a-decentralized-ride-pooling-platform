@@ -1,7 +1,7 @@
-import haversineDistance from 'haversine-distance';
 // Local imports
 import {createLoggerSection} from '../../services/logging';
 import {getVertexEdgeKey} from '../../lib/pathfinder';
+import {haversineDistance} from '../../lib/haversineDistance';
 // Type imports
 import type {
   OsmVertex,
@@ -66,10 +66,7 @@ export const createOsmVertexGraph = (
         }
         edges.set(getVertexEdgeKey(currentVertexId, validNeighborVertexId), {
           geometry: [],
-          weight: haversineDistance(
-            {lat: vertex.lat, lon: vertex.long},
-            {lat: neighborVertex.lat, lon: neighborVertex.long}
-          ),
+          weight: haversineDistance(vertex, neighborVertex),
         });
       }
     }
@@ -84,7 +81,11 @@ export const createOsmVertexGraph = (
   }
   const verticesSizePurge = vertices.size;
   // Purge intermediate vertices that connect 2 neighbors but have no other neighbor (do that multiple times)
-  for (let index = 0; index < 10; index++) {
+  let previousVerticesSize: number;
+  let counterPurgeIntermediateVertices = 0;
+  do {
+    previousVerticesSize = vertices.size;
+    counterPurgeIntermediateVertices++;
     for (const [vertexId, vertex] of vertices.entries()) {
       if (vertex.neighbors.length === 2) {
         const vertexNA = vertices.get(vertex.neighbors[0]);
@@ -152,7 +153,7 @@ export const createOsmVertexGraph = (
         edges.delete(getVertexEdgeKey(vertexId, vertexNB.id));
       }
     }
-  }
+  } while (vertices.size < previousVerticesSize);
   logger.info(
     `Found ${vertices.size} vertices of original ${
       nodes.length
@@ -160,7 +161,7 @@ export const createOsmVertexGraph = (
       verticesSizeOriginal - verticesSizePurge
     } vertices and removed intermediate vertices ${
       verticesSizePurge - vertices.size
-    })`
+    } [${counterPurgeIntermediateVertices} purges])`
   );
   logger.debug(`Found ${edges.size} edges of original ${ways.length} ways`);
   return {edges, vertices};

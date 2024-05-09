@@ -15,6 +15,12 @@ import type {AuthenticationService} from './services';
 import type {Coordinates} from '../../globals/types/coordinates';
 import type {GetACarParticipantTypes} from '../../globals/types/participant';
 import type {Simulation} from '../simulation';
+//import {workerCaller} from '../../lib/workerCaller';
+//import {
+//  WorkerDataPathfinder,
+//  WorkerResultPathfinder,
+//  workerFilePathPathfinder,
+//} from '../../worker/pathfinderWorker';
 
 export interface SimulationTypeParticipant {
   id: string;
@@ -124,6 +130,23 @@ export abstract class Participant<JsonType> extends Actor<
       simulation.config.customPathfinder === undefined ||
       simulation.config.customPathfinder === 'all'
     ) {
+      //routeInternal = await measureTimeWrapper(
+      //  () =>
+      //    workerCaller<WorkerDataPathfinder, WorkerResultPathfinder>(
+      //      {
+      //        graph: simulation.osmVertexGraph,
+      //        sourceCoordinates: this.currentLocation,
+      //        targetCoordinates: newLocation,
+      //      },
+      //      workerFilePathPathfinder
+      //    ),
+      //  stats =>
+      //    this.logger.info(
+      //      'get route calculation [worker]',
+      //      id,
+      //      `${stats.executionTimeInMS}ms`
+      //    )
+      //);
       routeInternal = await measureTimeWrapper(
         () =>
           getShortestPathOsmCoordinates(
@@ -165,6 +188,9 @@ export abstract class Participant<JsonType> extends Actor<
         };
       } catch (err) {
         this.logger.error(err as Error);
+        if (simulation.config.customPathfinder === 'pathfinder-server') {
+          throw err;
+        }
       }
     }
     if (

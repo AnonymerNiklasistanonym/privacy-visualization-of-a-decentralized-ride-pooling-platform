@@ -13,3 +13,8 @@ logs
 # Other files
 test.json
 delete*
+
+# Profiling
+*.0x
+isolate-*.log
+processed.txt

@@ -221,7 +221,7 @@ export const getVertexEdge = <
  *   - (A1, 4, S)
  *   - (S, 0, null)
  */
-export const getShortestPath = <
+export function getShortestPath<
   VERTEX extends Vertex = Vertex,
   EDGE extends VertexEdge = VertexEdge,
 >(
@@ -233,7 +233,7 @@ export const getShortestPath = <
     target: Readonly<VertexPair<VERTEX>>
   ) => number,
   options: Readonly<GetShortestPathOptions> = {}
-): Array<VertexPair<VERTEX>> | null => {
+): Array<VertexPair<VERTEX>> | null {
   const timings: Map<string, number> = new Map();
   // A vertex (besides the source and target vertex) can have 3 possible states:
   // 1. Unknown:  It is unknown if the vertex is even connected to the source/target
@@ -356,7 +356,7 @@ export const getShortestPath = <
       .join(', ')}`
   );
   return null;
-};
+}
 
 export const reconstructShortestPath = <
   VERTEX extends Vertex = Vertex,

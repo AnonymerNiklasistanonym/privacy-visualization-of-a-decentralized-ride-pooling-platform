@@ -116,3 +116,78 @@ If you are finished you can:
 
 The server logs are stored in `$LOG_DIR=/app/logs/`.
 To copy them out of the container run: `docker cp $ID:$LOG_DIR ./app_logs`
+
+## Profiling
+
+There are a number of ways to get a quick overview on what functions slow down the server:
+
+> In case anonymous functions are used be careful since the can't be tracked by name (only line and file location)!
+>
+> ```ts
+> // JS: *<anonymous> ./simulation/dist/lib/pathfinderOsm.js:37:101
+> const noName = () => {};
+> // JS: *haversineDistance ./simulation/node_modules/haversine-distance/index.js:17:28
+> export function haversineDistance (a, b) {}
+> // > or the JS syntax
+> module.exports = haversineDistance
+> ```
+
+### Ticks
+
+Based on [an article by `nodejs.org`](https://nodejs.org/en/learn/getting-started/profiling):
+
+```sh
+# Create a file that tracks everything going on in the interpreter
+# > the output is stored in a file called 'isolate-0xnnnnnnnnnnnn-v8.log'
+NODE_ENV=production node --prof .
+# Using the tick processor bundled with the Node.js binary we can get a summary
+node --prof-process isolate-0xnnnnnnnnnnnn-v8.log > processed.txt
+```
+
+```text
+Statistical profiling result from isolate-0x55d5d3f55d60-31840-v8.log, (123205 ticks, 49227 unaccounted, 0 excluded).
+
+ [Shared libraries]:
+   ticks  total  nonlib   name
+    388    0.3%          /usr/lib/libc.so.6
+     31    0.0%          [vdso]
+      2    0.0%          /usr/lib/libuv.so.1.0.0
+      1    0.0%          /usr/lib/libm.so.6
+
+ [JavaScript]:
+   ticks  total  nonlib   name
+  17540   14.2%   14.3%  JS: *<anonymous> ./simulation/dist/lib/pathfinderOsm.js:37:101
+  16388   13.3%   13.3%  JS: *haversineDistance ./simulation/node_modules/haversine-distance/index.js:17:28
+  13350   10.8%   10.9%  Builtin: LoadIC
+   7451    6.0%    6.1%  JS: *_heapifyDown ./simulation/node_modules/@datastructures-js/heap/src/heap.js:140:15
+   6374    5.2%    5.2%  JS: *_compareChildrenOf ./simulation/node_modules/@datastructures-js/heap/src/heap.js:87:21
+   1404    1.1%    1.1%  JS: *_heapifyUp ./simulation/node_modules/@datastructures-js/heap/src/heap.js:125:13
+   1135    0.9%    0.9%  JS: *insert ./simulation/node_modules/@datastructures-js/heap/src/heap.js:184:9
+   1098    0.9%    0.9%  JS: *getShortestPath ./simulation/dist/lib/pathfinder.js:34:25
+
+...
+
+ [Summary]:
+   ticks  total  nonlib   name
+  68371   55.5%   55.7%  JavaScript
+   5185    4.2%    4.2%  C++
+   2459    2.0%    2.0%  GC
+    422    0.3%          Shared libraries
+  49227   40.0%          Unaccounted
+
+...
+```
+
+### Flamegraph
+
+Based on [the README of the GitHub project `davidmarkclements/0x`](https://github.com/davidmarkclements/0x?tab=readme-ov-file):
+
+```sh
+npx 0x .
+```
+
+When finished send a `SIGINT`/`SIGTERM` signal (`CTRL` + `C`) and then open the generated `flamegraph.html` in your browser.
+
+> On some terminals this might not be possible via `CTRL` + `C` but you can always use for example `htop`, use the tree perspective and filter for `0x`, then send a `SIGTERM` to the parent `0x` process.
+
+![Example flamegraph output of `0x`](./res/flamegraph_example.png)

@@ -19,9 +19,15 @@ import {getCliFlag, getCliOverride} from './lib/cli';
 import {fileExists} from './lib/fileOperations';
 import {getExpressRoutes} from './lib/getExpressRoutes';
 import {validateJsonDataFile} from './lib/validateJsonData';
+//import {workerCaller} from './lib/workerCaller';
+//import {workerFilePathExample} from './worker/exampleWorker';
 // > Services
 import {createLoggerSection} from './services/logging';
 // Type imports
+//import type {
+//  WorkerDataExample,
+//  WorkerResultExample,
+//} from './worker/exampleWorker';
 import type {SimulationConfig} from './simulation';
 
 const logger = createLoggerSection('index');
@@ -61,6 +67,19 @@ async function main() {
   if (getCliFlag('--version')) {
     // eslint-disable-next-line no-console
     console.log(`${NAME} v${VERSION}`);
+
+    //const output: Array<Promise<WorkerResultExample>> = [];
+    //for (let index = 0; index < 100; index++) {
+    //  output[index] = workerCaller<WorkerDataExample, WorkerResultExample>(
+    //    {message: `Test ${index}`},
+    //    workerFilePathExample
+    //  );
+    //}
+    //await Promise.all(output);
+    //for (let index = 0; index < output.length; index++) {
+    //  // eslint-disable-next-line no-console
+    //  console.log(output[index]);
+    //}
 
     // eslint-disable-next-line no-process-exit
     process.exit(0);

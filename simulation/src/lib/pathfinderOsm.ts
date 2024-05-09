@@ -1,8 +1,7 @@
-// Package imports
-import haversine from 'haversine-distance';
 // Local imports
 import {getShortestPath, getVertexEdge} from './pathfinder';
 import {createLoggerSection} from '../services/logging';
+import {haversineDistance} from './haversineDistance';
 // Type imports
 import type {Vertex, VertexEdge, VertexGraph, VertexPair} from './pathfinder';
 import type {Coordinates} from '../globals/types/coordinates';
@@ -29,10 +28,7 @@ export const getClosestVertex = (
   let closestVertexId = null;
   let closestDistance = Infinity;
   for (const [vertexId, vertex] of graph.vertices) {
-    const distanceToCoordinates = haversine(
-      {lat: coordinates.lat, lon: coordinates.long},
-      {lat: vertex.lat, lon: vertex.long}
-    );
+    const distanceToCoordinates = haversineDistance(coordinates, vertex);
     if (distanceToCoordinates < closestDistance) {
       closestVertex = vertex;
       closestVertexId = vertexId;
@@ -50,7 +46,7 @@ export const getShortestPathOsmCoordinates = (
   graph: Readonly<OsmVertexGraph>,
   sourceCoordinates: Readonly<Coordinates>,
   targetCoordinates: Readonly<Coordinates>
-) => {
+): Array<Coordinates> | null => {
   const sourceVertex = getClosestVertex(graph, sourceCoordinates);
   const targetVertex = getClosestVertex(graph, targetCoordinates);
   if (sourceVertex === null || targetVertex === null) {
@@ -62,11 +58,7 @@ export const getShortestPathOsmCoordinates = (
     sourceVertex.id,
     targetVertex.id,
     // Use the air-line distance as heuristic
-    ([, vertex]) =>
-      haversine(
-        {lat: vertex.lat, lon: vertex.long},
-        {lat: targetCoordinates.lat, lon: targetCoordinates.long}
-      )
+    ([, vertex]) => haversineDistance(vertex, targetCoordinates)
   );
   if (shortestPath === null || shortestPath.length === 0) {
     logger.error(

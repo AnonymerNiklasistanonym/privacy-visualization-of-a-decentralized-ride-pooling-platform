@@ -1,7 +1,6 @@
 /* eslint-disable max-classes-per-file */
 // Package imports
 import {cellToLatLng} from 'h3-js';
-import haversineDistance from 'haversine-distance';
 // Local imports
 import {Participant} from './participant';
 // > Globals
@@ -9,6 +8,7 @@ import {costs} from '../../globals/defaults/costs';
 import {speeds} from '../../globals/defaults/speed';
 // > Libs
 import {getTravelTimeInMsCoordinates} from '../../lib/coordinatesInterpolation';
+import {haversineDistance} from '../../lib/haversineDistance';
 import {wait} from '../../lib/wait';
 // > Misc
 import {getRandomElement, getRandomIntFromInterval} from '../../misc/helpers';
@@ -81,20 +81,22 @@ export abstract class RideProvider<
       }
       const openRideRequest = getRandomElement(openRideRequests);
       this.rideRequest = openRideRequest.id;
-      const coordinatesPickupLocation = cellToLatLng(
+      const coordinatesPickupLocationPair = cellToLatLng(
         openRideRequest.request.pickupLocation
       );
-      const coordinatesDropoffLocation = cellToLatLng(
+      const coordinatesPickupLocation: Coordinates = {
+        lat: coordinatesPickupLocationPair[0],
+        long: coordinatesPickupLocationPair[1],
+      };
+      const coordinatesDropoffLocationPair = cellToLatLng(
         openRideRequest.request.dropoffLocation
       );
+      const coordinatesDropoffLocation: Coordinates = {
+        lat: coordinatesDropoffLocationPair[0],
+        long: coordinatesDropoffLocationPair[1],
+      };
       const estimatedDistanceToDriveInM =
-        haversineDistance(
-          {
-            lat: this.currentLocation.lat,
-            lon: this.currentLocation.long,
-          },
-          coordinatesPickupLocation
-        ) +
+        haversineDistance(this.currentLocation, coordinatesPickupLocation) +
         haversineDistance(
           coordinatesPickupLocation,
           coordinatesDropoffLocation
@@ -113,10 +115,7 @@ export abstract class RideProvider<
           new Date().getTime() +
             getTravelTimeInMsCoordinates(
               this.currentLocation,
-              {
-                lat: coordinatesPickupLocation[0],
-                long: coordinatesPickupLocation[1],
-              },
+              coordinatesPickupLocation,
               speeds.carInKmH
             )
         ),

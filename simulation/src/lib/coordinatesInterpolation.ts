@@ -1,22 +1,8 @@
-// Package imports
-import haversineDistance from 'haversine-distance';
+// Local imports
+// > Lib
+import {haversineDistance} from './haversineDistance';
 // Type imports
 import type {Coordinates} from '../globals/types/coordinates';
-
-export const getDistanceInM = (
-  coordinatesA: Readonly<Coordinates>,
-  coordinatesB: Readonly<Coordinates>
-) =>
-  haversineDistance(
-    {
-      lat: coordinatesA.lat,
-      lon: coordinatesA.long,
-    },
-    {
-      lat: coordinatesB.lat,
-      lon: coordinatesB.long,
-    }
-  );
 
 export const getTravelTimeInMs = (distanceInM: number, speedInKmH: number) =>
   (distanceInM / 1000 /* 1000m=1km */ / speedInKmH) *
@@ -26,7 +12,8 @@ export const getTravelTimeInMsCoordinates = (
   coordinatesA: Readonly<Coordinates>,
   coordinatesB: Readonly<Coordinates>,
   speedInKmH: number
-) => getTravelTimeInMs(getDistanceInM(coordinatesA, coordinatesB), speedInKmH);
+) =>
+  getTravelTimeInMs(haversineDistance(coordinatesA, coordinatesB), speedInKmH);
 
 export interface CoordinatesWithTime extends Coordinates {
   /** The distance between this coordinate and the previous one. */
@@ -50,7 +37,7 @@ export const updateRouteCoordinatesWithTime = (
     return [];
   }
   return coordinates.map((a, index) => {
-    const distanceInM = getDistanceInM(
+    const distanceInM = haversineDistance(
       coordinates[index > 0 ? index - 1 : index],
       a
     );

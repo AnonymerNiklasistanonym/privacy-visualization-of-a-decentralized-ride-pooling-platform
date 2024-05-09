@@ -3,10 +3,10 @@ export interface FetchJsonOptions {
   timeoutInMs?: number;
 }
 
-export const fetchJson = async <T>(
+export async function fetchJson<T>(
   url: string,
   options?: Readonly<FetchJsonOptions>
-): Promise<T> => {
+): Promise<T> {
   let response: Response;
   if (options?.timeoutInMs !== undefined) {
     const controller = new AbortController();
@@ -22,9 +22,9 @@ export const fetchJson = async <T>(
     });
   }
   return response.json() as T;
-};
+}
 
-export const fetchText = async (url: string): Promise<string> => {
+export async function fetchText(url: string): Promise<string> {
   const response = await fetch(url);
   return response.text();
-};
+}
