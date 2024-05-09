@@ -31,3 +31,10 @@ if __name__ == "__main__":
         },
     )
     make_request(f"{base_url}/graph")
+    make_request(
+        f"{base_url}/update_config",
+        {
+            "type": "location",
+            "location": "Stuttgart, Baden-Württemberg, Germany",
+        },
+    )

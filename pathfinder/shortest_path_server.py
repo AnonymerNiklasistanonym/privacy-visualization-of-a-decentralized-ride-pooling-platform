@@ -1,34 +1,74 @@
+from dataclasses import dataclass
 from flask import Flask, request, jsonify, Response
 from flask_cors import CORS
+from pathlib import Path
+import json
 import networkx as nx
-import osmnx as ox
 import os
-from dataclasses import dataclass
+import osmnx as ox
 
 # python -m pip install flask flask-cors networkx osmnx scikit-learn
 # python -m shortest_path_server
 # python -m flask --app shortest_path_server run --host="0.0.0.0" --port 3010
 
+# osmnx config
 ox.settings.use_cache = True
 ox.settings.log_console = True
 
-# create the flask app
-app = Flask(__name__)
-cors = CORS(app, resources={r"/*": {"origins": "*"}})
+# app config
+config = {
+    "type": "location",
+    "location": "Stuttgart, Baden-Württemberg, Germany",
+    #"type": "bbox",
+    #"bbox": [48.6920188, 9.0386007, 48.8663994, 9.3160228],
+}
+config_file_path = Path("config.json")
+if config_file_path.is_file():
+    with open(config_file_path,"r") as file:
+        config = json.loads(file.read())
+        print("Use custom config file:", config)
 
-# create the graph
-# > from a location (e.g. city)
-# location = ("stuttgart", "Stuttgart, Baden-Württemberg, Germany")
-# G = ox.graph_from_place(location[1], network_type="drive")
-# > from bounding box (input is overpass bb)
-bbox = (48.6920188, 9.0386007, 48.8663994, 9.3160228)
-G = ox.graph_from_bbox(bbox=(bbox[0], bbox[2], bbox[1], bbox[3]), network_type="drive")
-# Early exit to only cache the web request
-if "ONLY_CACHE" in os.environ and os.environ["ONLY_CACHE"] == "1":
-    exit(0)
-# calculate additional weights
-G = ox.add_edge_speeds(G)
-G = ox.add_edge_travel_times(G)
+# global graph
+G: nx.MultiDiGraph = None
+
+
+def initialize_graph(config: dict):
+    global G
+    if config["type"] == "location":
+        # > from a location (e.g. city)
+        #location = "Stuttgart, Baden-Württemberg, Germany"
+        G = ox.graph_from_place(config["location"], network_type="drive")
+    elif config["type"] == "bbox":
+        # > from a location (e.g. city)
+        #bbox = (48.6920188, 9.0386007, 48.8663994, 9.3160228)
+        bbox = config["bbox"]
+        G = ox.graph_from_bbox(bbox=(bbox[0], bbox[2], bbox[1], bbox[3]), network_type="drive")
+    else:
+        raise RuntimeError("Found no valid configuration!")
+
+    # calculate additional weights
+    G = ox.add_edge_speeds(G)
+    G = ox.add_edge_travel_times(G)
+
+
+def init_app():
+    """Initialize the core application."""
+    # create the flask app
+    app = Flask(__name__)
+    cors = CORS(app, resources={r"/*": {"origins": "*"}})
+
+    # initialize the graph
+    initialize_graph(config)
+
+    # early exit to only cache the web request
+    if "ONLY_CACHE" in os.environ and os.environ["ONLY_CACHE"] == "1":
+        exit(0)
+
+    with app.app_context():
+        return app
+
+
+app = init_app()
 
 
 @dataclass
@@ -114,6 +154,15 @@ def get_graph() -> GraphResponse:
     )
 
 
+def convert_node_ids_to_coordinates(node_ids: list[int]):
+    return list(
+        map(
+            lambda node: {"lat": node["y"], "long": node["x"]},
+            map(lambda node_id: G.nodes[node_id], node_ids),
+        )
+    )
+
+
 def get_shortest_path_ids(
     source_id: int, target_id: int, source_coordinates=None, target_coordinates=None
 ) -> ShortestPathResponse:
@@ -154,17 +203,15 @@ def get_shortest_path_ids(
     )
 
 
-def convert_node_ids_to_coordinates(node_ids: list[int]):
-    return list(
-        map(
-            lambda node: {"lat": node["y"], "long": node["x"]},
-            map(lambda node_id: G.nodes[node_id], node_ids),
-        )
-    )
-
-
-@app.route("/running", methods=["GET", "POST"])
+@app.route("/running", methods=["GET"])
 def running():
+    return "Success", 200
+
+
+@app.route("/update_config", methods=["POST"])
+def update_config():
+    config = request.get_json(silent=True)
+    initialize_graph(config)
     return "Success", 200
 
 
