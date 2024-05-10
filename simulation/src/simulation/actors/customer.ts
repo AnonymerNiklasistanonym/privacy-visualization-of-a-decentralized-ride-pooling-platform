@@ -3,7 +3,7 @@
 // Package imports
 import {latLngToCell} from 'h3-js';
 // Local imports
-import {Participant} from './participant';
+import {ParticipantPerson} from './participant';
 // > Globals
 import {h3Resolution} from '../../globals/defaults/h3';
 // > Libs
@@ -20,19 +20,8 @@ import type {Simulation} from '../simulation';
 import type {SimulationEndpointParticipantInformationCustomer} from '../../globals/types/simulation';
 import type {SimulationTypeCustomer} from './participant';
 
-export class Customer extends Participant<SimulationTypeCustomer> {
+export class Customer extends ParticipantPerson<SimulationTypeCustomer> {
   // Private properties
-  private readonly fullName: string;
-
-  private readonly gender: string;
-
-  private readonly dateOfBirth: string;
-
-  private readonly emailAddress: string;
-
-  private readonly phoneNumber: string;
-
-  private readonly homeAddress: string;
 
   private rideRequest: string | undefined = undefined;
 
@@ -50,22 +39,19 @@ export class Customer extends Participant<SimulationTypeCustomer> {
     privateKey: string,
     publicKey: string
   ) {
-    super(id, 'customer', currentLocation, privateKey, publicKey);
-    this.fullName = fullName;
-    this.gender = gender;
-    this.dateOfBirth = dateOfBirth;
-    this.emailAddress = emailAddress;
-    this.phoneNumber = phoneNumber;
-    this.homeAddress = homeAddress;
-  }
-
-  logInfo(): unknown {
-    return {
-      id: this.id,
-
-      fullName: this.fullName,
-      homeAddress: this.homeAddress,
-    };
+    super(
+      id,
+      'customer',
+      currentLocation,
+      privateKey,
+      publicKey,
+      fullName,
+      gender,
+      dateOfBirth,
+      emailAddress,
+      phoneNumber,
+      homeAddress
+    );
   }
 
   async run(simulation: Simulation): Promise<void> {
@@ -184,37 +170,21 @@ export class Customer extends Participant<SimulationTypeCustomer> {
 
   get endpointCustomer(): SimulationEndpointParticipantInformationCustomer {
     return {
-      ...this.endpointParticipant,
+      ...this.endpointParticipantPerson,
       type: 'customer',
 
-      // Contact details
-      dateOfBirth: this.dateOfBirth,
-      emailAddress: this.emailAddress,
-      fullName: this.fullName,
-      gender: this.gender,
-      homeAddress: this.homeAddress,
-      phoneNumber: this.phoneNumber,
-
-      // TODO: Ride requests
+      // Ride requests
       rideRequest: this.rideRequest,
 
-      // TODO: Passenger
+      // Passenger
       passenger: this.passenger,
     };
   }
 
   get json(): SimulationTypeCustomer {
     return {
-      ...this.endpointParticipant,
+      ...this.endpointParticipantPerson,
       type: 'customer',
-
-      // Contact details
-      dateOfBirth: this.dateOfBirth,
-      emailAddress: this.emailAddress,
-      fullName: this.fullName,
-      gender: this.gender,
-      homeAddress: this.homeAddress,
-      phoneNumber: this.phoneNumber,
 
       // Ride request details
       passenger: this.passenger,

@@ -1,14 +1,14 @@
 // This file was copied from the global types directory, do not change!
 
-export interface FetchJsonOptions {
+export interface FetchOptions {
   fetchOptions?: Readonly<RequestInit>;
   timeoutInMs?: number;
 }
 
-export async function fetchJson<T>(
+export async function fetchGeneric(
   url: string,
-  options?: Readonly<FetchJsonOptions>
-): Promise<T> {
+  options?: Readonly<FetchOptions>
+): Promise<Response> {
   let response: Response;
   if (options?.timeoutInMs !== undefined) {
     const controller = new AbortController();
@@ -23,10 +23,21 @@ export async function fetchJson<T>(
       ...options?.fetchOptions,
     });
   }
+  return response;
+}
+
+export async function fetchJson<T>(
+  url: string,
+  options?: Readonly<FetchOptions>
+): Promise<T> {
+  const response = await fetchGeneric(url, options);
   return response.json() as T;
 }
 
-export async function fetchText(url: string): Promise<string> {
-  const response = await fetch(url);
+export async function fetchText(
+  url: string,
+  options?: Readonly<FetchOptions>
+): Promise<string> {
+  const response = await fetchGeneric(url, options);
   return response.text();
 }

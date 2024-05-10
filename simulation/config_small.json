@@ -20,5 +20,6 @@
     },
     "matchingService": {
         "count": 1
-    }
+    },
+    "customPathfinderProvider": "all"
 }

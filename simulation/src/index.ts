@@ -9,30 +9,22 @@ import {Simulation} from './simulation';
 import {defaultConfig} from './defaults';
 import {updateSimulationConfigWithData} from './simulation';
 // > Globals
-import {
-  simulationEndpointRoutes,
-  simulationEndpoints,
-} from './globals/defaults/endpoints';
-import {ports} from './globals/defaults/ports';
+import {simulationEndpointRoutes} from './globals/defaults/routes';
+import {simulationEndpoints} from './globals/defaults/endpoints';
 // > Libs
 import {getCliFlag, getCliOverride} from './lib/cli';
 import {fileExists} from './lib/fileOperations';
 import {getExpressRoutes} from './lib/getExpressRoutes';
 import {validateJsonDataFile} from './lib/validateJsonData';
-//import {workerCaller} from './lib/workerCaller';
-//import {workerFilePathExample} from './worker/exampleWorker';
 // > Services
 import {createLoggerSection} from './services/logging';
 // Type imports
-//import type {
-//  WorkerDataExample,
-//  WorkerResultExample,
-//} from './worker/exampleWorker';
-import type {SimulationConfig} from './simulation';
+import type {SimulationConfig, SimulationConfigCustom} from './simulation';
 
+/** The logger of this file */
 const logger = createLoggerSection('index');
 
-/** The webserver of the simulation. */
+/** The webserver of the simulation */
 const app = express();
 const hbs = createHbs({
   extname: '.hbs',
@@ -67,29 +59,9 @@ async function main() {
   if (getCliFlag('--version')) {
     // eslint-disable-next-line no-console
     console.log(`${NAME} v${VERSION}`);
-
-    //const output: Array<Promise<WorkerResultExample>> = [];
-    //for (let index = 0; index < 100; index++) {
-    //  output[index] = workerCaller<WorkerDataExample, WorkerResultExample>(
-    //    {message: `Test ${index}`},
-    //    workerFilePathExample
-    //  );
-    //}
-    //await Promise.all(output);
-    //for (let index = 0; index < output.length; index++) {
-    //  // eslint-disable-next-line no-console
-    //  console.log(output[index]);
-    //}
-
     // eslint-disable-next-line no-process-exit
     process.exit(0);
   }
-  // > Port
-  let customPortWasFound = false;
-  const customPort = await getCliOverride('--port', ports.simulation, a => {
-    customPortWasFound = true;
-    return parseInt(a);
-  });
   // > Config
   const customConfig = await getCliOverride(
     '--config',
@@ -97,37 +69,78 @@ async function main() {
     async customConfig => {
       if (await fileExists(customConfig)) {
         logger.info(`load custom config file ${customConfig}`);
-        return await validateJsonDataFile(
+        return await validateJsonDataFile<SimulationConfigCustom>(
           customConfig,
           path.join(__dirname, 'config.schema.json')
         );
       } else {
-        throw Error(`Could not load find config file '${customConfig}'`);
+        throw Error(`Could not find custom config file '${customConfig}'`);
       }
     }
   );
+  // Overwrite default config with custom config but also prioritize CLI port argument
   const config: SimulationConfig = {
     ...defaultConfig,
     ...customConfig,
-    port: customPortWasFound ? customPort : defaultConfig.port,
+    port: await getCliOverride(
+      '--port',
+      customConfig.port ?? defaultConfig.port,
+      a => parseInt(a)
+    ),
   };
 
+  /** Updated configuration with additional preprocessed data */
   const simulationConfig = await updateSimulationConfigWithData(config);
-  if ('ONLY_CACHE' in process.env && process.env['ONLY_CACHE'] === '1') {
+
+  // Early exit (in case only the caching of the preprocessed data was wanted)
+  if (process.env.ONLY_CACHE === '1') {
     return;
   }
-  /** The simulation. */
+
+  /** The simulation */
   const simulation = new Simulation(simulationConfig);
+  await simulation.prepare();
+  simulation.run().catch(err => {
+    logger.error(err);
+    // Hard exit the program if the simulation crashes
+    throw err;
+  });
+
+  // Health check route to indicate if the server is running
+  app.get('/running', (req, res) => {
+    res.send('Success').status(200);
+  });
+
+  // Generate simulated server routes
   app.use(
     simulationEndpointRoutes.simulation.route,
     simulation.generateRoutes()
   );
 
-  app.get('/running', (req, res) => {
-    res.send('Success').status(200);
-  });
+  // Generate simulation API routes
+  app.use(
+    simulationEndpointRoutes.apiV1.route,
+    simulation.generateFrontendRoutes()
+  );
 
+  // Generate internal API routes
+  app.use(
+    simulationEndpointRoutes.internal.route,
+    simulation.generateInternalRoutes()
+  );
+
+  // Debug route which shows most of the internal data
   app.get('/', (req, res) => {
+    // Prevent serialized functions from disappearing
+    const globalSimulationEndpoints: {
+      internal: Record<string, unknown | string>;
+    } = {
+      ...simulationEndpoints,
+    };
+    globalSimulationEndpoints.internal = {
+      ...globalSimulationEndpoints.internal,
+      rideRequest: simulationEndpoints.internal.rideRequest(''),
+    };
     res.render('main', {
       layout: 'index',
 
@@ -136,26 +149,17 @@ async function main() {
       authenticationServices: simulation.authenticationServicesJson,
       customers: simulation.customersJson,
       matchingServices: simulation.matchingServicesJson,
-      port: defaultConfig.port,
       rideProviders: simulation.rideProvidersJson,
       smartContracts: simulation.rideContractsJson,
 
+      // Objects lose function properties when serialized!
       globalBaseUrlSimulation: `http://localhost:${simulationConfig.port}`,
-      globalSimulationEndpoints: JSON.stringify(simulationEndpoints),
+      globalSimulationEndpoints: JSON.stringify(globalSimulationEndpoints),
       globalStartPos: JSON.stringify(simulation.startPos),
     });
   });
 
-  app.use(
-    simulationEndpointRoutes.apiV1.route,
-    simulation.generateFrontendRoutes()
-  );
-
-  app.use(
-    simulationEndpointRoutes.internal.route,
-    simulation.generateInternalRoutes()
-  );
-
+  // Callback listener to when the server is running
   app.listen(simulationConfig.port, () => {
     logger.info(
       `Express is listening at http://localhost:${simulationConfig.port}`
@@ -171,10 +175,8 @@ async function main() {
     }
   });
 
-  simulation.run().catch(err => {
-    logger.error(err);
-    // eslint-disable-next-line no-console
-    console.error(err);
+  process.on('exit', () => {
+    logger.info('Process exit');
   });
 }
 

@@ -72,7 +72,8 @@
                                 "$ref": "#/definitions/SimulationConfigBBox"
                             }
                         ]
-                    }
+                    },
+                    "description": "List of locations on which the simulation should be running on"
                 },
                 "startPos": {
                     "type": "object",
@@ -90,23 +91,33 @@
                         "lat",
                         "long"
                     ],
-                    "additionalProperties": false
+                    "additionalProperties": false,
+                    "description": "Custom starting position"
                 },
                 "port": {
-                    "type": "number"
+                    "type": "number",
+                    "description": "Run the simulation on a specific port"
                 },
                 "cacheDir": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Use a specific cache directory"
                 },
-                "customPathfinder": {
+                "customPathfinderProvider": {
                     "type": "string",
                     "enum": [
                         "pathfinder-server",
-                        "all"
-                    ]
+                        "all",
+                        "internal"
+                    ],
+                    "description": "Use a specific pathfinder provider"
                 },
                 "ignoreCache": {
-                    "type": "boolean"
+                    "type": "boolean",
+                    "description": "Ignore created cache files"
+                },
+                "ignoreActorErrors": {
+                    "type": "boolean",
+                    "description": "Ignore actors throwing errors in simulation"
                 },
                 "$schema": {
                     "type": "string"

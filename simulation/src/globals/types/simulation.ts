@@ -6,6 +6,7 @@ import type {
   GetACarCustomer,
   GetACarParticipant,
   GetACarParticipantId,
+  GetACarParticipantPersonContactDetails,
   GetACarParticipantTypes,
   GetACarRideProviderCompany,
   GetACarRideProviderPerson,
@@ -32,6 +33,14 @@ export interface SimulationEndpointParticipant {
 export interface SimulationEndpointParticipantCoordinatesParticipant
   extends SimulationEndpointParticipant,
     Coordinates {}
+
+export interface SimulationEndpointParticipantPersonInformation
+  extends SimulationEndpointParticipant,
+    Omit<GetACarParticipant, 'type'>,
+    GetACarParticipantPersonContactDetails {
+  /** Simulation status (to debug what the actor is doing) */
+  simulationStatus: string;
+}
 
 export interface SimulationEndpointParticipantInformationCurrentRoutes {
   /** Other/Future/Past routes. */

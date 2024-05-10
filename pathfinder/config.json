@@ -1,9 +1,17 @@
 {
-    "type": "bbox",
-    "bbox": [
-        48.6920188,
-        9.0386007,
-        48.8663994,
-        9.3160228
+    "locations": [
+        {
+            "type": "bbox",
+            "bbox": [
+                48.6920188,
+                9.0386007,
+                48.8663994,
+                9.3160228
+            ]
+        },
+        {
+            "type": "location",
+            "location": "Stuttgart, Baden-Württemberg, Germany"
+        }
     ]
 }

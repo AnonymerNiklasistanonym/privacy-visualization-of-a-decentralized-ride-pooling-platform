@@ -18,6 +18,7 @@ export const osmnxServerRequest = async (
       fetchOptions: {
         body: JSON.stringify({source, target}),
         headers: {
+          Accept: 'application/json',
           'Content-Type': 'application/json',
         },
         method: 'POST',

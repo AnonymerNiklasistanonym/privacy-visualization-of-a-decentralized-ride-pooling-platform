@@ -4,7 +4,13 @@ import path from 'path';
 // > Globals
 import {ports} from './globals/defaults/ports';
 // Type imports
-import {SimulationConfig} from './simulation';
+import type {SimulationConfig, SimulationConfigCustom} from './simulation';
+
+/** The default custom simulation configuration during development. */
+export const defaultConfigCustomDev: Readonly<SimulationConfigCustom> = {
+  customPathfinderProvider: 'pathfinder-server',
+  ignoreActorErrors: true,
+};
 
 /** The default simulation configuration. */
 export const defaultConfig: Readonly<SimulationConfig> = {
@@ -28,10 +34,17 @@ export const defaultConfig: Readonly<SimulationConfig> = {
 
   // Location
   locations: [
+    //{
+    //  countryCode: 'DE',
+    //  name: 'Stuttgart',
+    //  type: 'city',
+    //},
     {
-      countryCode: 'DE',
-      name: 'Stuttgart',
-      type: 'city',
+      maxLat: 48.8663994,
+      maxLong: 9.3160228,
+      minLat: 48.6920188,
+      minLong: 9.0386007,
+      type: 'bbox',
     },
   ],
 
@@ -40,4 +53,9 @@ export const defaultConfig: Readonly<SimulationConfig> = {
 
   // Misc
   cacheDir: path.join(__dirname, '..', 'cache'),
+
+  // Load custom config in case this is a development build
+  ...(process.env.NODE_ENV === 'development'
+    ? defaultConfigCustomDev
+    : undefined),
 };

@@ -67,6 +67,16 @@ export const createOsmVertexGraph = (
         edges.set(getVertexEdgeKey(currentVertexId, validNeighborVertexId), {
           geometry: [],
           weight: haversineDistance(vertex, neighborVertex),
+
+          // Debugging (remove later)
+          end:
+            currentVertexId < validNeighborVertexId
+              ? validNeighborVertexId
+              : currentVertexId,
+          start:
+            currentVertexId < validNeighborVertexId
+              ? currentVertexId
+              : validNeighborVertexId,
         });
       }
     }
@@ -144,6 +154,10 @@ export const createOsmVertexGraph = (
             // If ID(NA) < ID(NB) the list is correct, otherwise reverse
             geometry: vertexNA.id < vertexNB.id ? geometry : geometry.reverse(),
             weight: edgeNA.weight + edgeNB.weight,
+
+            // Debugging (remove later)
+            end: vertexNA.id < vertexNB.id ? vertexNB.id : vertexNA.id,
+            start: vertexNA.id < vertexNB.id ? vertexNA.id : vertexNB.id,
           });
         }
         // Delete the intermediate vertex from the map

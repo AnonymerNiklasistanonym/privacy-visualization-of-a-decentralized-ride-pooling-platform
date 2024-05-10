@@ -15,11 +15,11 @@ RUN rm -f requirements.txt
 
 # Run once to cache data
 ENV ONLY_CACHE=1
-RUN python3 -m "pathfinder"
+RUN python3 -m pathfinder
 ENV ONLY_CACHE=
 
 # Expose ports to the outside
 EXPOSE 3010
 
 # Specify command to be run when starting container
-CMD python3 -m flask --app "pathfinder" run --host="0.0.0.0" --port "3010"
+CMD python3 -m flask --app pathfinder run --host="0.0.0.0" --port 3010

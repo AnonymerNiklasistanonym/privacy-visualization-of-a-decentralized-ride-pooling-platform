@@ -10,6 +10,7 @@ import {wait} from '../../lib/wait';
 import type {
   SimulationEndpointParticipantCoordinatesParticipant,
   SimulationEndpointParticipantInformation,
+  SimulationEndpointParticipantPersonInformation,
 } from '../../globals/types/simulation';
 import type {AuthenticationService} from './services';
 import type {Coordinates} from '../../globals/types/coordinates';
@@ -29,13 +30,18 @@ export interface SimulationTypeParticipant {
   type: 'customer' | 'ride_provider';
 }
 
-export interface SimulationTypeCustomer extends SimulationTypeParticipant {
+export interface SimulationTypeParticipantPerson
+  extends SimulationTypeParticipant {
   fullName: string;
   gender: string;
   dateOfBirth: string;
   emailAddress: string;
   phoneNumber: string;
   homeAddress: string;
+}
+
+export interface SimulationTypeCustomer
+  extends SimulationTypeParticipantPerson {
   passenger?: string;
   type: 'customer';
 }
@@ -63,25 +69,24 @@ export interface SimulationTypeRideProviderCompany
 
 /**
  * Abstract Class that represents a participant of the simulation.
+ *
+ * This means it's an actor that participates in the world as a physical entity.
  */
 export abstract class Participant<JsonType> extends Actor<
   JsonType,
   GetACarParticipantTypes
 > {
-  // Private dynamic information
   protected currentLocation: Coordinates;
 
   protected registeredAuthService: AuthenticationService | null = null;
 
-  protected currentRoute?: Coordinates[] | null = undefined;
-
-  protected currentRoutes?: {[index: string]: Coordinates[] | null} = {};
-
-  protected status: string;
-
   protected privateKey: string;
 
   protected publicKey: string;
+
+  protected currentRoute?: Coordinates[] | null = undefined;
+
+  protected currentRoutes?: {[index: string]: Coordinates[] | null} = {};
 
   /** Create instance of participant. */
   constructor(
@@ -93,7 +98,6 @@ export abstract class Participant<JsonType> extends Actor<
   ) {
     super(id, type);
     this.currentLocation = currentLocation;
-    this.status = 'created';
 
     this.privateKey = privateKey;
     this.publicKey = publicKey;
@@ -105,15 +109,8 @@ export abstract class Participant<JsonType> extends Actor<
         'Participant is not yet registered to an authentication service.'
       );
     }
-    this.registeredAuthService.getVerify(this.id);
-    return this.registeredAuthService.getRating(this.id);
-  }
-
-  get endpointCoordinates(): SimulationEndpointParticipantCoordinatesParticipant {
-    return {
-      ...this.currentLocation,
-      id: this.id,
-    };
+    const pseudonym = this.registeredAuthService.getVerify(this.id);
+    return this.registeredAuthService.getRating(pseudonym);
   }
 
   async getRoute(
@@ -127,8 +124,9 @@ export abstract class Participant<JsonType> extends Actor<
     });
     let routeInternal;
     if (
-      simulation.config.customPathfinder === undefined ||
-      simulation.config.customPathfinder === 'all'
+      simulation.config.customPathfinderProvider === undefined ||
+      simulation.config.customPathfinderProvider === 'all' ||
+      simulation.config.customPathfinderProvider === 'internal'
     ) {
       //routeInternal = await measureTimeWrapper(
       //  () =>
@@ -168,8 +166,8 @@ export abstract class Participant<JsonType> extends Actor<
     }
     let routeOsmnx;
     if (
-      simulation.config.customPathfinder === 'pathfinder-server' ||
-      simulation.config.customPathfinder === 'all'
+      simulation.config.customPathfinderProvider === 'pathfinder-server' ||
+      simulation.config.customPathfinderProvider === 'all'
     ) {
       try {
         routeOsmnx = await measureTimeWrapper(
@@ -188,18 +186,22 @@ export abstract class Participant<JsonType> extends Actor<
         };
       } catch (err) {
         this.logger.error(err as Error);
-        if (simulation.config.customPathfinder === 'pathfinder-server') {
+        if (
+          simulation.config.customPathfinderProvider === 'pathfinder-server'
+        ) {
           throw err;
         }
       }
     }
     if (
-      simulation.config.customPathfinder === undefined ||
-      simulation.config.customPathfinder === 'all'
+      simulation.config.customPathfinderProvider === undefined ||
+      simulation.config.customPathfinderProvider === 'all' ||
+      simulation.config.customPathfinderProvider === 'internal'
     ) {
       return routeInternal ?? null;
-    }
-    if (simulation.config.customPathfinder === 'pathfinder-server') {
+    } else if (
+      simulation.config.customPathfinderProvider === 'pathfinder-server'
+    ) {
       return routeOsmnx?.shortest_route_travel_time ?? null;
     }
     return null;
@@ -214,10 +216,14 @@ export abstract class Participant<JsonType> extends Actor<
       currentLocation: this.currentLocation,
       newLocation,
     });
+    this.logger.info('Move to new location', {
+      currentLocation: this.currentLocation,
+      newLocation,
+    });
     const routeId = 'current';
     this.currentRoute = await this.getRoute(simulation, newLocation, routeId);
     const interpolatedCoordinatesInfo = interpolateCurrentCoordinatesFromPath(
-      this.currentRoute ?? [{...this.currentLocation}, {...newLocation}],
+      this.currentRoute ?? [this.currentLocation, newLocation],
       this.type === 'ride_provider' || isPassenger
         ? speeds.carInKmH
         : speeds.personInKmH
@@ -245,6 +251,13 @@ export abstract class Participant<JsonType> extends Actor<
     }
   }
 
+  get endpointCoordinates(): SimulationEndpointParticipantCoordinatesParticipant {
+    return {
+      ...this.currentLocation,
+      id: this.id,
+    };
+  }
+
   get endpointParticipant(): SimulationEndpointParticipantInformation {
     return {
       id: this.id,
@@ -258,7 +271,61 @@ export abstract class Participant<JsonType> extends Actor<
         current: this.currentRoute ?? null,
       },
 
+      // Status
       simulationStatus: this.status,
+    };
+  }
+}
+
+export abstract class ParticipantPerson<
+  JsonType,
+> extends Participant<JsonType> {
+  // Private properties
+  protected readonly fullName: string;
+
+  protected readonly gender: string;
+
+  protected readonly dateOfBirth: string;
+
+  protected readonly emailAddress: string;
+
+  protected readonly phoneNumber: string;
+
+  protected readonly homeAddress: string;
+
+  constructor(
+    id: string,
+    type: GetACarParticipantTypes,
+    currentLocation: Coordinates,
+    privateKey: string,
+    publicKey: string,
+    fullName: string,
+    gender: string,
+    dateOfBirth: string,
+    emailAddress: string,
+    phoneNumber: string,
+    homeAddress: string
+  ) {
+    super(id, type, currentLocation, privateKey, publicKey);
+    this.fullName = fullName;
+    this.gender = gender;
+    this.dateOfBirth = dateOfBirth;
+    this.emailAddress = emailAddress;
+    this.phoneNumber = phoneNumber;
+    this.homeAddress = homeAddress;
+  }
+
+  get endpointParticipantPerson(): SimulationEndpointParticipantPersonInformation {
+    return {
+      ...this.endpointParticipant,
+
+      // Contact details
+      dateOfBirth: this.dateOfBirth,
+      emailAddress: this.emailAddress,
+      fullName: this.fullName,
+      gender: this.gender,
+      homeAddress: this.homeAddress,
+      phoneNumber: this.phoneNumber,
     };
   }
 }

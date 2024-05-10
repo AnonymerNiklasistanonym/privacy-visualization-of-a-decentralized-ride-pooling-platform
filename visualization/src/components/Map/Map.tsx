@@ -4,13 +4,14 @@
 // > Components
 import {
   Circle,
+  Tooltip as LTooltip,
   LayerGroup,
   LayersControl,
   MapContainer,
   Polyline,
   TileLayer,
 } from 'react-leaflet';
-import {Box} from '@mui/material';
+import {Box, Tooltip} from '@mui/material';
 import {FullscreenControl} from 'react-leaflet-fullscreen';
 // > Styles
 import 'leaflet/dist/leaflet.css';
@@ -138,16 +139,9 @@ export default function Map({
                     color={'cyan'}
                     weight={3}
                     smoothFactor={1}
-                  />
-                ))}
-                {stateGraph.geometry.map(a => (
-                  <Polyline
-                    key={`graph_geometry_${a.id}`}
-                    positions={a.geometry.map(a => [a.lat, a.long])}
-                    color={'green'}
-                    weight={3}
-                    smoothFactor={1}
-                  />
+                  >
+                    <LTooltip>{a.id}</LTooltip>
+                  </Polyline>
                 ))}
                 {stateGraph.vertices.map(a => (
                   <Circle
@@ -156,7 +150,43 @@ export default function Map({
                     color={'red'}
                     fillColor={'red'}
                     center={[a.lat, a.long]}
-                  />
+                  >
+                    <LTooltip>{a.id}</LTooltip>
+                  </Circle>
+                ))}
+              </LayerGroup>
+            </LayersControl.Overlay>
+          ) : (
+            <></>
+          )}
+          {stateSettingsGlobalDebug ? (
+            <LayersControl.Overlay
+              checked={false}
+              name="Debug: Dijkstra Graph (geometry)"
+            >
+              <LayerGroup>
+                {stateGraph.geometry.map(a => (
+                  <>
+                    {a.geometry.length > 0 ? (
+                      <Circle
+                        radius={2}
+                        color={'red'}
+                        fillColor={'red'}
+                        center={[a.geometry[0].lat, a.geometry[0].long]}
+                      />
+                    ) : (
+                      <></>
+                    )}
+                    <Polyline
+                      key={`graph_geometry_${a.id}`}
+                      positions={a.geometry.map(a => [a.lat, a.long])}
+                      color={'green'}
+                      weight={3}
+                      smoothFactor={1}
+                    >
+                      <LTooltip>{a.id}</LTooltip>
+                    </Polyline>
+                  </>
                 ))}
               </LayerGroup>
             </LayersControl.Overlay>
@@ -176,7 +206,9 @@ export default function Map({
                     color={'cyan'}
                     weight={3}
                     smoothFactor={1}
-                  />
+                  >
+                    <LTooltip>{index}</LTooltip>
+                  </Polyline>
                 ))}
                 {stateGraphPathfinder.vertices.map(a => (
                   <Circle
@@ -185,7 +217,9 @@ export default function Map({
                     color={'red'}
                     fillColor={'red'}
                     center={[a.lat, a.long]}
-                  />
+                  >
+                    <LTooltip>{a.id}</LTooltip>
+                  </Circle>
                 ))}
               </LayerGroup>
             </LayersControl.Overlay>

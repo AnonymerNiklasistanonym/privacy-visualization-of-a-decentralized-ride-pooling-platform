@@ -1,97 +1,45 @@
-export const simulationEndpointRoutes = Object.freeze({
-  apiV1: Object.freeze({
-    route: '/apiv1',
-
-    // Routes
-    graphInformation: '/graph',
-    participantCoordinates: '/participant_coordinates',
-    participantIdFromPseudonym: (pseudonym: string) =>
-      `/participant_id_from_pseudonym/${pseudonym}`,
-    participantInformationCustomer: (id: string) =>
-      `/participant_customer/${id}`,
-    participantInformationRideProvider: (id: string) =>
-      `/participant_ride_provider/${id}`,
-    rideRequestInformation: (id: string) => `/ride_request/${id}`,
-    rideRequests: '/ride_requests',
-    shortestPath: '/shortest_path',
-    smartContract: (id: string) => `/smart_contract/${id}`,
-    smartContracts: '/smart_contracts',
-  }),
-
-  // Routes only used internally
-  internal: Object.freeze({
-    route: '/internal',
-
-    // Routes
-    authenticationServices: '/authentication_services',
-    customers: '/customers',
-    matchingServices: '/matching_services',
-    rideProviders: '/ride_providers',
-    rideRequest: (id: string) => `/ride_request/${id}`,
-    rideRequests: '/ride_requests',
-    smartContracts: '/smart_contracts',
-  }),
-
-  simulation: Object.freeze({
-    route: '/simulation',
-
-    // Routes
-    pause: '/pause',
-    run: '/run',
-    state: '/state',
-  }),
-});
+// Local imports
+import {simulationEndpointRoutes as ser} from './routes';
 
 export const simulationEndpoints = Object.freeze({
   apiV1: Object.freeze({
-    graphInformation: `${simulationEndpointRoutes.apiV1.route}${simulationEndpointRoutes.apiV1.graphInformation}`,
-    participantCoordinates: `${simulationEndpointRoutes.apiV1.route}${simulationEndpointRoutes.apiV1.participantCoordinates}`,
+    graphInformation: `${ser.apiV1.route}${ser.apiV1.graphInformation}`,
+    participantCoordinates: `${ser.apiV1.route}${ser.apiV1.participantCoordinates}`,
     participantIdFromPseudonym: (pseudonym: string) =>
-      `${
-        simulationEndpointRoutes.apiV1.route
-      }${simulationEndpointRoutes.apiV1.participantIdFromPseudonym(pseudonym)}`,
+      `${ser.apiV1.route}${ser.apiV1.participantIdFromPseudonym(pseudonym)}`,
     participantInformationCustomer: (id: string) =>
-      `${
-        simulationEndpointRoutes.apiV1.route
-      }${simulationEndpointRoutes.apiV1.participantInformationCustomer(id)}`,
+      `${ser.apiV1.route}${ser.apiV1.participantInformationCustomer(id)}`,
     participantInformationRideProvider: (id: string) =>
-      `${
-        simulationEndpointRoutes.apiV1.route
-      }${simulationEndpointRoutes.apiV1.participantInformationRideProvider(
-        id
-      )}`,
+      `${ser.apiV1.route}${ser.apiV1.participantInformationRideProvider(id)}`,
     rideRequestInformation: (id: string) =>
-      `${
-        simulationEndpointRoutes.apiV1.route
-      }${simulationEndpointRoutes.apiV1.rideRequestInformation(id)}`,
-    rideRequests: `${simulationEndpointRoutes.apiV1.route}${simulationEndpointRoutes.apiV1.rideRequests}`,
-    shortestPath: `${simulationEndpointRoutes.apiV1.route}${simulationEndpointRoutes.apiV1.shortestPath}`,
+      `${ser.apiV1.route}${ser.apiV1.rideRequestInformation(id)}`,
+    rideRequests: `${ser.apiV1.route}${ser.apiV1.rideRequests}`,
+    shortestPath: `${ser.apiV1.route}${ser.apiV1.shortestPath}`,
     smartContract: (id: string) =>
-      `${
-        simulationEndpointRoutes.apiV1.route
-      }${simulationEndpointRoutes.apiV1.smartContract(id)}`,
-    smartContracts: `${simulationEndpointRoutes.apiV1.route}${simulationEndpointRoutes.apiV1.smartContracts}`,
+      `${ser.apiV1.route}${ser.apiV1.smartContract(id)}`,
+    smartContracts: `${ser.apiV1.route}${ser.apiV1.smartContracts}`,
   }),
   internal: Object.freeze({
-    authenticationServices: `${simulationEndpointRoutes.internal.route}${simulationEndpointRoutes.internal.authenticationServices}`,
-    customers: `${simulationEndpointRoutes.internal.route}${simulationEndpointRoutes.internal.customers}`,
-    matchingServices: `${simulationEndpointRoutes.internal.route}${simulationEndpointRoutes.internal.matchingServices}`,
-    rideProviders: `${simulationEndpointRoutes.internal.route}${simulationEndpointRoutes.internal.rideProviders}`,
-    rideRequest: `${
-      simulationEndpointRoutes.internal.route
-    }${simulationEndpointRoutes.internal.rideRequest('')}`,
-    rideRequests: `${simulationEndpointRoutes.internal.route}${simulationEndpointRoutes.internal.rideRequests}`,
-    smartContracts: `${simulationEndpointRoutes.internal.route}${simulationEndpointRoutes.internal.smartContracts}`,
+    authenticationServices: `${ser.internal.route}${ser.internal.authenticationServices}`,
+    customers: `${ser.internal.route}${ser.internal.customers}`,
+    matchingServices: `${ser.internal.route}${ser.internal.matchingServices}`,
+    rideProviders: `${ser.internal.route}${ser.internal.rideProviders}`,
+    rideRequest: (id: string) =>
+      `${ser.apiV1.route}${ser.internal.rideRequest(id)}`,
+    rideRequests: `${ser.internal.route}${ser.internal.rideRequests}`,
+    smartContracts: `${ser.internal.route}${ser.internal.smartContracts}`,
   }),
   simulation: Object.freeze({
-    pause: `${simulationEndpointRoutes.simulation.route}${simulationEndpointRoutes.simulation.pause}`,
-    run: `${simulationEndpointRoutes.simulation.route}${simulationEndpointRoutes.simulation.run}`,
-    state: `${simulationEndpointRoutes.simulation.route}${simulationEndpointRoutes.simulation.state}`,
+    pause: `${ser.simulation.route}${ser.simulation.pause}`,
+    run: `${ser.simulation.route}${ser.simulation.run}`,
+    state: `${ser.simulation.route}${ser.simulation.state}`,
   }),
 });
 
 export const pathfinderEndpoints = Object.freeze({
   graphInformation: '/graph',
+  running: '/running',
   shortestPath: '/shortest_path',
   shortestPathCoordinates: '/shortest_path_coordinates',
+  updateConfig: '/update_config',
 });

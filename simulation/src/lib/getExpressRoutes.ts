@@ -10,19 +10,19 @@ export interface ExpressLayer {
   route?: {path: string; stack: ExpressLayer[]};
 }
 
-export const getExpressRoutes = (
+export function getExpressRoutes(
   rootLayers: ReadonlyArray<ExpressLayer>,
   rootPath = ''
-) => {
+) {
   const paths: string[] = [];
   for (const rootLayer of rootLayers) {
     paths.push(...getRouterLayerPaths(rootLayer, [rootPath]));
   }
   return paths.sort();
-};
+}
 
 /**
- * Print all paths of the layer
+ * Get all paths of the layer
  *
  * @param parentPath Parent path
  * @param layer Child layer

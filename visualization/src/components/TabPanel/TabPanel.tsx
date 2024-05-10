@@ -22,7 +22,7 @@ import TabPanelHeader from './TabPanelHeader';
 import TabSettings from '@components/Tab/TabSettings';
 // Type imports
 import type {ErrorModalContentElement} from '@misc/modals';
-import type {FetchJsonOptions} from '@globals/lib/fetch';
+import type {FetchOptions} from '@globals/lib/fetch';
 import type {PropsWithChildren} from 'react';
 import type {ReactPropsI18n} from '@misc/react';
 
@@ -121,7 +121,7 @@ export default function TabPanel({
   // Functions: With global state context
   const fetchJsonSimulation = async <T,>(
     endpoint: string,
-    options?: Readonly<FetchJsonOptions>
+    options?: Readonly<FetchOptions>
   ): Promise<T> =>
     fetchJson<T>(`${stateSettingsMapBaseUrlSimulation}${endpoint}`, options);
   const showError = showErrorBuilder({

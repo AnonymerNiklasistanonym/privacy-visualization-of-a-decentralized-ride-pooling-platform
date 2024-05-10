@@ -26,9 +26,9 @@ python -m pip install flask flask-cors networkx osmnx scikit-learn
 python -m pip install -r requirements.txt
 # Run
 # > Flask
-python3 -m flask --app shortest_path_server run --host=0.0.0.0
+python3 -m flask --app pathfinder run --host=0.0.0.0
 # > File
-python -m shortest_path_server
+python -m pathfinder
 # Disable virtual environment
 deactivate
 ```
@@ -99,9 +99,28 @@ class GraphResponse:
     edges: list[Coordinates] | None
 
 @app.route("/graph", methods=["GET", "POST"])
+
+@dataclass
+class PathfinderConfigLocationBbox:
+    # minLat, minLong, maxLat, maxLong
+    bbox: tuple[float, float, float, float]
+    type: str = "bbox"
+
+@dataclass
+class PathfinderConfigLocationCity:
+    location: str
+    type = "location"
+
+@dataclass
+class PathfinderConfig:
+    locations: list[PathfinderConfigLocationBbox | PathfinderConfigLocationCity]
+
+@app.route("/update_config", methods=["POST"])
+
+@app.route("/running", methods=["GET"])
 ```
 
-You can get some example outputs by running [the example client](shortest_path_example_client.py) via `python -m shortest_path_example_client`.
+You can get some example outputs by running [the example client](pathfinder_example_client.py) via `python -m pathfinder_example_client`.
 
 ## Other
 

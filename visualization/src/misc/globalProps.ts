@@ -1,6 +1,6 @@
 // Type imports
 import type {ReactSetState, ReactState} from './react';
-import type {FetchJsonOptions} from '@globals/lib/fetch';
+import type {FetchOptions} from '@globals/lib/fetch';
 import type {ShowError} from './modals';
 
 export interface GlobalPropsUserInput {
@@ -13,7 +13,7 @@ export interface GlobalPropsFetch {
   /** Fetch a JSON endpoint of the simulation server. */
   fetchJsonSimulation: <T>(
     endpoint: string,
-    options?: Readonly<FetchJsonOptions>
+    options?: Readonly<FetchOptions>
   ) => Promise<T>;
 }
 

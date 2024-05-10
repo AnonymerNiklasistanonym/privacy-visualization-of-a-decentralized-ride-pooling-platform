@@ -6,7 +6,10 @@ import {RideProviderCompany, RideProviderPerson} from './actors/rideProvider';
 import {Blockchain} from './actors/blockchain';
 import {Customer} from './actors/customer';
 // > Globals
-import {simulationEndpointRoutes} from '../globals/defaults/endpoints';
+import {baseUrlPathfinder} from '../globals/defaults/urls';
+import {fetchText} from '../globals/lib/fetch';
+import {pathfinderEndpoints} from '../globals/defaults/endpoints';
+import {simulationEndpointRoutes} from '../globals/defaults/routes';
 // > Libs
 import {getVertexEdge, getVertexEdgeKey} from '../lib/pathfinder';
 import {generateRandomNumberPlate} from '../lib/numberPlate';
@@ -232,15 +235,83 @@ export class Simulation {
     });
   }
 
+  /** Prepare simulation */
+  async prepare(): Promise<void> {
+    logger.debug('Prepare simulation...');
+
+    // Make sure that the pathfinder server is running when it's specified
+    if (
+      this.config.customPathfinderProvider === 'pathfinder-server' ||
+      this.config.customPathfinderProvider === 'all'
+    ) {
+      try {
+        const responseRunning = await fetchText(
+          `${baseUrlPathfinder}${pathfinderEndpoints.running}`
+        );
+        if (responseRunning !== 'Success') {
+          throw Error(
+            `Pathfinder server was found but does not appear to be running! (${responseRunning})`
+          );
+        }
+        const responseUpdateConfig = await fetchText(
+          `${baseUrlPathfinder}${pathfinderEndpoints.updateConfig}`,
+          {
+            fetchOptions: {
+              body: JSON.stringify({
+                locations: this.config.locations.map(a =>
+                  a.type === 'city'
+                    ? {
+                        location: `${a.name}, ${a.countryCode}`,
+                        type: 'location',
+                      }
+                    : {
+                        bbox: [a.minLat, a.minLong, a.maxLat, a.maxLong],
+                        type: 'bbox',
+                      }
+                ),
+              }),
+              headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+              },
+              method: 'POST',
+            },
+          }
+        );
+        if (responseUpdateConfig !== 'Success') {
+          throw Error(
+            `Pathfinder server config could not be updated! (${responseUpdateConfig})`
+          );
+        }
+      } catch (err) {
+        const error = Error(
+          `Pathfinder server check failed! (${(err as Error).message})`,
+          {cause: err as Error}
+        );
+        if (this.config.customPathfinderProvider === 'pathfinder-server') {
+          logger.error(error);
+          throw error;
+        } else {
+          logger.warn(error.message);
+        }
+      }
+    }
+  }
+
   /** Run simulation */
   async run(): Promise<void> {
     logger.debug('Run simulation...');
     this.state = 'RUNNING';
-    await Promise.allSettled(
-      [...this.customers, ...this.rideProviders, ...this.matchingServices].map(
-        a => a.run(this)
-      )
-    );
+    const runningActors = [
+      ...this.customers,
+      ...this.rideProviders,
+      ...this.matchingServices,
+    ].map(a => a.run(this));
+    if (this.config.ignoreActorErrors) {
+      await Promise.allSettled(runningActors);
+    } else {
+      await Promise.all(runningActors);
+    }
     this.state = 'INACTIVE';
     logger.debug('Simulation inactive');
   }
@@ -481,20 +552,36 @@ export class Simulation {
               const vertexNeighbor =
                 this.osmVertexGraph.vertices.get(vertexNeighborId);
               if (vertexNeighbor) {
-                const edgeId = getVertexEdgeKey(vertexId, vertexNeighborId);
                 const edge = getVertexEdge(
                   this.osmVertexGraph,
                   [vertexId, vertex],
                   [vertexNeighborId, vertexNeighbor]
                 );
+                const geometry: Array<Coordinates> = [];
+                if (vertexId < vertexNeighborId) {
+                  if (
+                    edge?.start !== vertexId ||
+                    edge?.end !== vertexNeighborId
+                  ) {
+                    throw Error(
+                      `Logic error: edge?.start !== vertexId: vertexId=${vertexId},vertexNeighborId=${vertexNeighborId},edge?.start=${edge?.start},edge?.end=${edge?.end}`
+                    );
+                  }
+                  geometry.push(vertex, ...edge.geometry, vertexNeighbor);
+                } else {
+                  if (
+                    edge?.start !== vertexNeighborId ||
+                    edge?.end !== vertexId
+                  ) {
+                    throw Error(
+                      `Logic error: edge?.start !== vertexId: vertexId=${vertexId},vertexNeighborId=${vertexNeighborId},edge?.start=${edge?.start},edge?.end=${edge?.end}`
+                    );
+                  }
+                  geometry.push(vertexNeighbor, ...edge.geometry, vertex);
+                }
                 edges.push({
-                  geometry: [
-                    vertexId < vertexNeighborId ? vertex : vertexNeighbor,
-                    ...(edge?.geometry !== undefined ? edge.geometry : []),
-                    vertexId < vertexNeighborId ? vertexNeighbor : vertex,
-                    {lat: vertexNeighbor.lat, long: vertexNeighbor.long},
-                  ],
-                  id: edgeId,
+                  geometry,
+                  id: getVertexEdgeKey(vertexId, vertexNeighborId),
                 });
               }
             }

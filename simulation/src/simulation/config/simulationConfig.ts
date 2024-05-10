@@ -40,18 +40,30 @@ export interface SimulationConfig {
   // Services
   authenticationService: Readonly<SimulationConfigAS>;
   matchingService: Readonly<SimulationConfigMS>;
+
   // Participants
   customer: Readonly<SimulationConfigCustomer>;
   rideProvider: Readonly<SimulationConfigRideProvider>;
+
   // Location
+  /** List of locations on which the simulation should be running on */
   locations: ReadonlyArray<SimulationConfigCity | SimulationConfigBBox>;
+  /** Custom starting position */
   startPos?: Readonly<Coordinates>;
+
   // Port of server
+  /** Run the simulation on a specific port */
   port: number;
+
   // Misc
+  /** Use a specific cache directory */
   cacheDir: string;
-  customPathfinder?: 'pathfinder-server' | 'all';
+  /** Use a specific pathfinder provider */
+  customPathfinderProvider?: 'pathfinder-server' | 'all' | 'internal';
+  /** Ignore created cache files */
   ignoreCache?: boolean;
+  /** Ignore actors throwing errors in simulation */
+  ignoreActorErrors?: boolean;
 }
 
 export interface SimulationConfigCustom extends Partial<SimulationConfig> {

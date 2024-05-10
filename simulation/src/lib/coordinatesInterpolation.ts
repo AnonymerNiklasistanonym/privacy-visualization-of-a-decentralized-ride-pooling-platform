@@ -1,8 +1,11 @@
 // Local imports
 // > Lib
+import {createLoggerSection} from '../services/logging';
 import {haversineDistance} from './haversineDistance';
 // Type imports
 import type {Coordinates} from '../globals/types/coordinates';
+
+const logger = createLoggerSection('lib', 'coordinatesInterpolation');
 
 export const getTravelTimeInMs = (distanceInM: number, speedInKmH: number) =>
   (distanceInM / 1000 /* 1000m=1km */ / speedInKmH) *
@@ -59,7 +62,18 @@ export const interpolateCurrentCoordinatesFromPath = (
   speedInKmH: number
 ): InterpolatedCoordinatesFromPath => {
   if (coordinatesPath.length < 2) {
-    throw Error('A coordinates path cannot be smaller than 2 coordinates!');
+    logger.error(
+      Error(
+        `A coordinates path cannot be smaller than 2 coordinates! ${JSON.stringify(
+          coordinatesPath
+        )}`
+      )
+    );
+    throw Error(
+      `A coordinates path cannot be smaller than 2 coordinates! ${JSON.stringify(
+        coordinatesPath
+      )}`
+    );
   }
   const coordinatesPathWithTime = updateRouteCoordinatesWithTime(
     coordinatesPath,

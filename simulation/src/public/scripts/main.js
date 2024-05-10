@@ -7,6 +7,7 @@
 const options = {
   showAs: false,
   showMs: false,
+  showRoutes: false,
 };
 
 /**
@@ -18,11 +19,18 @@ const fetchJsonSimulation = async endpoint =>
 const fetchTextSimulation = async endpoint =>
   fetch(`${globalBaseUrlSimulation}${endpoint}`).then(data => data.text());
 
+const iconSize = 25;
 const iconCustomer = L.icon({
   iconUrl: '/icons/directions_walk_FILL0_wght400_GRAD0_opsz24.svg',
+
+  iconAnchor: [iconSize / 2, iconSize / 2],
+  iconSize: L.point(iconSize, iconSize),
 });
 const iconRideProvider = L.icon({
   iconUrl: '/icons/directions_car_FILL0_wght400_GRAD0_opsz24.svg',
+
+  iconAnchor: [iconSize / 2, iconSize / 2],
+  iconSize: L.point(iconSize, iconSize),
 });
 
 const main = async () => {
@@ -50,6 +58,9 @@ const main = async () => {
   });
   addButtonClick('buttonToggleMS', () => {
     options.showMs = !options.showMs;
+  });
+  addButtonClick('buttonToggleRoutes', () => {
+    options.showRoutes = !options.showRoutes;
   });
 
   // Add map and map rendering
@@ -186,6 +197,36 @@ const updateOrRenderElement = async (
           ? new L.LatLng(jsonObj.currentArea.lat, jsonObj.currentArea.long)
           : undefined
     );
+
+    if (
+      options.showRoutes &&
+      'currentRoutes' in jsonObj &&
+      jsonObj['currentRoutes'] !== undefined
+    ) {
+      for (const [id, route] of Object.entries(jsonObj['currentRoutes'])) {
+        if (route === undefined || route === null) {
+          continue;
+        }
+        const routeId = `${jsonObj.id}_route_${id}`;
+        const previousRouteElement = currentElements.find(
+          a => a._custom_id === routeId
+        );
+        const color =
+          previousRouteElement !== undefined
+            ? previousRouteElement._custom_color
+            : `#${Math.floor(Math.random() * 16777215).toString(16)}`;
+        const routeElement = L.polyline(
+          route.map(a => [a.lat, a.long]),
+          {color}
+        );
+        routeElement.bindTooltip(`${jsonObj.type} [${jsonObj.id}] ${id} route`);
+        routeElement.addTo(map);
+        routeElement._custom_color = color;
+        routeElement._custom_id = routeId;
+        routeElement._custom_date = currentDate;
+        currentElements.push(routeElement);
+      }
+    }
   } else {
     element = createElement();
     element.addTo(map);
@@ -315,7 +356,7 @@ const renderMapElements = async (map, currentElements) => {
       element._custom_date !== undefined &&
       element._custom_date !== currentDate
     ) {
-      console.log('Remove element that doesn`t exist any more', element);
+      console.debug('Remove element that doesn`t exist any more', element);
       map.removeLayer(element);
       return false;
     }

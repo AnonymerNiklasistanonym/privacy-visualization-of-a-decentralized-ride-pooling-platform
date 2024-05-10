@@ -4,7 +4,7 @@
     "rootDir": ".",
     "outDir": "build",
     "lib": [
-      "DOM"
+      "DOM", "ES2022"
     ],
     "esModuleInterop": true,
     "removeComments": true,

@@ -15,12 +15,17 @@ export abstract class Actor<JsonType, T extends string = string> {
   /** Actor type ID. */
   protected readonly type: T;
 
+  /** Actor logger. */
   protected readonly logger: LoggerSections;
+
+  /** Actor status (currently used for debugging). */
+  protected status: string;
 
   /** Create instance of actor. */
   constructor(id: string, type: T) {
     this.id = id;
     this.type = type;
+    this.status = 'created';
     this.logger = createLoggerSection('actor', `${type}#${id}`);
     this.logger.debug('Create');
   }

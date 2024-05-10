@@ -1,4 +1,3 @@
-/* eslint-disable max-classes-per-file */
 // Package imports
 import {cellToLatLng} from 'h3-js';
 // Local imports
@@ -212,14 +211,6 @@ export class RideProviderPerson extends RideProvider<SimulationTypeRideProviderP
     this.homeAddress = homeAddress;
   }
 
-  logInfo(): unknown {
-    return {
-      fullName: this.fullName,
-      id: this.id,
-      vehicleNumberPlate: this.vehicleNumberPlate,
-    };
-  }
-
   runRegisterToRandomAuthService(
     simulation: Simulation
   ): AuthenticationService {
@@ -306,15 +297,6 @@ export class RideProviderCompany extends RideProvider<SimulationTypeRideProvider
       publicKey
     );
     this.company = company;
-  }
-
-  logInfo(): unknown {
-    return {
-      id: this.id,
-
-      company: this.company,
-      vehicleNumberPlate: this.vehicleNumberPlate,
-    };
   }
 
   runRegisterToRandomAuthService(
