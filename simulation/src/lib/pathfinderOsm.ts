@@ -16,9 +16,6 @@ export interface OsmVertexEdge extends VertexEdge {
    * They are sorted from lesser ID to bigger ID!
    */
   geometry: Array<Coordinates>;
-  // Debug problems [Remove later]
-  start: number;
-  end: number;
 }
 
 export type OsmVertexGraph = VertexGraph<OsmVertex, OsmVertexEdge>;
@@ -87,7 +84,7 @@ export const getShortestPathOsmCoordinates = (
       ...prev,
       ...(lastVertexPair[0] < curr[0]
         ? edge.geometry
-        : edge.geometry.reverse()),
+        : edge.geometry.slice().reverse()),
       curr[1],
     ];
     lastVertexPair = curr;

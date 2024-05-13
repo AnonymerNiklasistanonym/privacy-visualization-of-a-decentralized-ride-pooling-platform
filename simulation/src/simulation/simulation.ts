@@ -557,26 +557,13 @@ export class Simulation {
                   [vertexId, vertex],
                   [vertexNeighborId, vertexNeighbor]
                 );
+                if (edge === null) {
+                  continue;
+                }
                 const geometry: Array<Coordinates> = [];
                 if (vertexId < vertexNeighborId) {
-                  if (
-                    edge?.start !== vertexId ||
-                    edge?.end !== vertexNeighborId
-                  ) {
-                    throw Error(
-                      `Logic error: edge?.start !== vertexId: vertexId=${vertexId},vertexNeighborId=${vertexNeighborId},edge?.start=${edge?.start},edge?.end=${edge?.end}`
-                    );
-                  }
                   geometry.push(vertex, ...edge.geometry, vertexNeighbor);
                 } else {
-                  if (
-                    edge?.start !== vertexNeighborId ||
-                    edge?.end !== vertexId
-                  ) {
-                    throw Error(
-                      `Logic error: edge?.start !== vertexId: vertexId=${vertexId},vertexNeighborId=${vertexNeighborId},edge?.start=${edge?.start},edge?.end=${edge?.end}`
-                    );
-                  }
                   geometry.push(vertexNeighbor, ...edge.geometry, vertex);
                 }
                 edges.push({

@@ -4,14 +4,14 @@
 // > Components
 import {
   Circle,
-  Tooltip as LTooltip,
   LayerGroup,
   LayersControl,
   MapContainer,
   Polyline,
   TileLayer,
+  Tooltip,
 } from 'react-leaflet';
-import {Box, Tooltip} from '@mui/material';
+import {Box} from '@mui/material';
 import {FullscreenControl} from 'react-leaflet-fullscreen';
 // > Styles
 import 'leaflet/dist/leaflet.css';
@@ -77,6 +77,7 @@ export default function Map({
       <MapContainer
         center={[startPos.lat, startPos.long]}
         zoom={12}
+        maxZoom={18}
         // Allow scroll wheel zooming
         scrollWheelZoom={true}
         className={styles.map}
@@ -140,7 +141,7 @@ export default function Map({
                     weight={3}
                     smoothFactor={1}
                   >
-                    <LTooltip>{a.id}</LTooltip>
+                    <Tooltip sticky>edge {a.id} [cyan]</Tooltip>
                   </Polyline>
                 ))}
                 {stateGraph.vertices.map(a => (
@@ -151,7 +152,7 @@ export default function Map({
                     fillColor={'red'}
                     center={[a.lat, a.long]}
                   >
-                    <LTooltip>{a.id}</LTooltip>
+                    <Tooltip>vertex {a.id}</Tooltip>
                   </Circle>
                 ))}
               </LayerGroup>
@@ -184,7 +185,7 @@ export default function Map({
                       weight={3}
                       smoothFactor={1}
                     >
-                      <LTooltip>{a.id}</LTooltip>
+                      <Tooltip sticky>geometry {a.id} [green]</Tooltip>
                     </Polyline>
                   </>
                 ))}
@@ -207,7 +208,7 @@ export default function Map({
                     weight={3}
                     smoothFactor={1}
                   >
-                    <LTooltip>{index}</LTooltip>
+                    <Tooltip>{index}</Tooltip>
                   </Polyline>
                 ))}
                 {stateGraphPathfinder.vertices.map(a => (
@@ -218,7 +219,7 @@ export default function Map({
                     fillColor={'red'}
                     center={[a.lat, a.long]}
                   >
-                    <LTooltip>{a.id}</LTooltip>
+                    <Tooltip>{a.id}</Tooltip>
                   </Circle>
                 ))}
               </LayerGroup>

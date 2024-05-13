@@ -325,6 +325,7 @@ export function ParticipantMarkerElement({
             <Tooltip
               content={location.label + ' (real)'}
               permanent={true}
+              sticky
             ></Tooltip>
           </Circle>
           <Polygon
@@ -361,6 +362,7 @@ export function ParticipantMarkerElement({
             <Tooltip
               content={name}
               permanent={name === 'current' ? true : undefined}
+              sticky
             ></Tooltip>
           </Polyline>
         ) : (

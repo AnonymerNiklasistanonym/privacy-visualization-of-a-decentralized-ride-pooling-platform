@@ -67,16 +67,6 @@ export const createOsmVertexGraph = (
         edges.set(getVertexEdgeKey(currentVertexId, validNeighborVertexId), {
           geometry: [],
           weight: haversineDistance(vertex, neighborVertex),
-
-          // Debugging (remove later)
-          end:
-            currentVertexId < validNeighborVertexId
-              ? validNeighborVertexId
-              : currentVertexId,
-          start:
-            currentVertexId < validNeighborVertexId
-              ? currentVertexId
-              : validNeighborVertexId,
         });
       }
     }
@@ -129,35 +119,38 @@ export const createOsmVertexGraph = (
         vertexNB.neighbors.push(vertex.neighbors[0]);
         // Fix the edges
         // > In case there is an already existing edge check if it's weight is less
-        if (
-          edgeNAB === undefined ||
-          edgeNAB.weight >= edgeNA.weight + edgeNB.weight
-        ) {
-          const geometry = [];
-          // NA ---- VERTEX ---- NB
+        const weight = edgeNA.weight + edgeNB.weight;
+        if (edgeNAB === undefined || weight < edgeNAB.weight) {
+          /**
+           * Contains the coordinates for the path between:
+           *
+           * NA ---- VERTEX ---- NB
+           */
+          const geometryTemp = [];
+          // NA ---- VERTEX
           // => Intermediate coordinates between NA ---- VERTEX are sorted from lower ID to highest
           //    -> [1,2,3,4] if ID(NA) < ID(VERTEX)
-          // => Intermediate coordinates between VERTEX ---- NB are sorted from lower ID to highest
-          //    -> [1,2,3,4] if ID(VERTEX) < ID(NB)
-          geometry.push(
+          geometryTemp.push(
             ...(vertexNA.id < vertexId
               ? edgeNA.geometry
               : edgeNA.geometry.reverse())
           );
-          geometry.push(vertex);
-          geometry.push(
+          // VERTEX
+          geometryTemp.push(vertex);
+          // VERTEX ---- NB
+          // => Intermediate coordinates between VERTEX ---- NB are sorted from lower ID to highest
+          //    -> [1,2,3,4] if ID(VERTEX) < ID(NB)
+          geometryTemp.push(
             ...(vertexId < vertexNB.id
               ? edgeNB.geometry
               : edgeNB.geometry.reverse())
           );
           edges.set(getVertexEdgeKey(vertexNA.id, vertexNB.id), {
-            // If ID(NA) < ID(NB) the list is correct, otherwise reverse
-            geometry: vertexNA.id < vertexNB.id ? geometry : geometry.reverse(),
-            weight: edgeNA.weight + edgeNB.weight,
-
-            // Debugging (remove later)
-            end: vertexNA.id < vertexNB.id ? vertexNB.id : vertexNA.id,
-            start: vertexNA.id < vertexNB.id ? vertexNA.id : vertexNB.id,
+            // The current geometry [1,2,3,4] is sorted assuming ID(NA) < ID(NB)
+            // If that isn't the case reverse the list
+            geometry:
+              vertexNA.id < vertexNB.id ? geometryTemp : geometryTemp.reverse(),
+            weight,
           });
         }
         // Delete the intermediate vertex from the map
