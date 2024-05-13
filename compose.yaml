@@ -1,17 +1,18 @@
-version: '3'
 name: getacar-visualization
 
 services:
   pathfinder:
     build: pathfinder
+    expose:
+      - 3010
     ports:
       - "3010:3010"
     healthcheck:
       test: "curl --silent --fail http://localhost:3010/running > /dev/null || exit 1"
       # the grace period during which Compose will not consider the health check failures
       # (if the health check succeeds, then the container is marked healthy, and the grace period ends early)
-      start_period: 20s
-      start_interval: 5s
+      start_period: 30s
+      start_interval: 2s
       # the period between health checks
       interval: 15s
       # the amount of time given to the command to complete
@@ -21,14 +22,16 @@ services:
     restart: always
   simulation:
     build: simulation
+    expose:
+      - 3020
     ports:
       - "3020:3020"
     healthcheck:
       test: "curl --silent --fail http://localhost:3020/running > /dev/null || exit 1"
       # the grace period during which Compose will not consider the health check failures
       # (if the health check succeeds, then the container is marked healthy, and the grace period ends early)
-      start_period: 20s
-      start_interval: 5s
+      start_period: 120s
+      start_interval: 2s
       # the period between health checks
       interval: 15s
       # the amount of time given to the command to complete
@@ -41,6 +44,8 @@ services:
     restart: always
   visualization:
     build: visualization
+    expose:
+      - 3000
     ports:
       - "3000:3000"
     depends_on:
@@ -50,8 +55,8 @@ services:
       test: "curl --silent --fail http://localhost:3000/running > /dev/null || exit 1"
       # the grace period during which Compose will not consider the health check failures
       # (if the health check succeeds, then the container is marked healthy, and the grace period ends early)
-      start_period: 20s
-      start_interval: 5s
+      start_period: 30s
+      start_interval: 2s
       # the period between health checks
       interval: 15s
       # the amount of time given to the command to complete

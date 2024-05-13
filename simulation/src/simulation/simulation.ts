@@ -245,6 +245,9 @@ export class Simulation {
       this.config.customPathfinderProvider === 'all'
     ) {
       try {
+        logger.info(
+          `fetchText ${baseUrlPathfinder}${pathfinderEndpoints.running}`
+        );
         const responseRunning = await fetchText(
           `${baseUrlPathfinder}${pathfinderEndpoints.running}`
         );
