@@ -1,6 +1,6 @@
 // Local imports
 import {Actor} from './actor';
-import {getShortestPathOsmCoordinates} from '../../lib/pathfinderOsm';
+import {getShortestPathOsmCoordinates} from '../../lib/pathfinderOsm2';
 import {interpolateCurrentCoordinatesFromPath} from '../../lib/coordinatesInterpolation';
 import {measureTimeWrapper} from '../../globals/lib/timeWrapper';
 import {osmnxServerRequest} from '../../lib/osmnx';

@@ -12,7 +12,7 @@ import {
   overpassRequestBbDataCity,
 } from './overpass';
 import {companyNames} from './companyNames';
-import {createOsmVertexGraph} from './createOsmVertexGraph';
+import {createOsmVertexGraph} from './createOsmVertexGraph2';
 // > Globals
 import {getJsonCacheWrapper} from '../../globals/lib/cacheWrapper';
 import {measureTimeWrapper} from '../../globals/lib/timeWrapper';
@@ -23,7 +23,7 @@ import {nameFakeApiRequest} from '../../lib/nameFake';
 import {createLoggerSection} from '../../services/logging';
 // Type imports
 import type {Coordinates} from '../../globals/types/coordinates';
-import type {OsmVertexGraph} from '../../lib/pathfinderOsm';
+import type {OsmVertexGraph} from '../../lib/pathfinderOsm2';
 import type {OverpassRequestBbDataBuilding} from './overpass';
 import type {SimulationConfig} from './simulationConfig';
 

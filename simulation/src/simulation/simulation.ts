@@ -11,9 +11,9 @@ import {fetchText} from '../globals/lib/fetch';
 import {pathfinderEndpoints} from '../globals/defaults/endpoints';
 import {simulationEndpointRoutes} from '../globals/defaults/routes';
 // > Libs
-import {getVertexEdge, getVertexEdgeKey} from '../lib/pathfinder';
+import {getVertexEdgeFromGraph2, getVertexEdgeKey} from '../lib/pathfinder3';
 import {generateRandomNumberPlate} from '../lib/numberPlate';
-import {getShortestPathOsmCoordinates} from '../lib/pathfinderOsm';
+import {getShortestPathOsmCoordinates} from '../lib/pathfinderOsm2';
 import {osmnxServerRequest} from '../lib/osmnx';
 // > Misc
 import {
@@ -34,7 +34,7 @@ import type {
   SimulationEndpointSmartContracts,
 } from '../globals/types/simulation';
 import type {Coordinates} from '../globals/types/coordinates';
-import type {OsmVertexGraph} from '../lib/pathfinderOsm';
+import type {OsmVertexGraph} from '../lib/pathfinderOsm2';
 import type {SimulationConfigWithData} from './config/simulationConfigWithData';
 
 const logger = createLoggerSection('simulation');
@@ -535,7 +535,7 @@ export class Simulation {
         const geometry: Array<{id: string; geometry: Coordinates[]}> = [];
         if (this.osmVertexGraph.edges instanceof Function) {
           for (const [vertexId, vertex] of this.osmVertexGraph.vertices) {
-            for (const vertexNeighborId of vertex.neighbors) {
+            for (const vertexNeighborId of vertex.neighborIds) {
               const vertexNeighbor =
                 this.osmVertexGraph.vertices.get(vertexNeighborId);
               if (vertexNeighbor) {
@@ -551,23 +551,23 @@ export class Simulation {
           }
         } else {
           for (const [vertexId, vertex] of this.osmVertexGraph.vertices) {
-            for (const vertexNeighborId of vertex.neighbors) {
+            for (const vertexNeighborId of vertex.neighborIds) {
               const vertexNeighbor =
                 this.osmVertexGraph.vertices.get(vertexNeighborId);
               if (vertexNeighbor) {
-                const edge = getVertexEdge(
+                const edge = getVertexEdgeFromGraph2(
                   this.osmVertexGraph,
-                  [vertexId, vertex],
-                  [vertexNeighborId, vertexNeighbor]
+                  vertexId,
+                  vertexNeighborId
                 );
                 if (edge === null) {
                   continue;
                 }
                 const geometry: Array<Coordinates> = [];
                 if (vertexId < vertexNeighborId) {
-                  geometry.push(vertex, ...edge.geometry, vertexNeighbor);
+                  geometry.push(vertex, ...edge[1].geometry, vertexNeighbor);
                 } else {
-                  geometry.push(vertexNeighbor, ...edge.geometry, vertex);
+                  geometry.push(vertexNeighbor, ...edge[1].geometry, vertex);
                 }
                 edges.push({
                   geometry,

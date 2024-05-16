@@ -61,6 +61,10 @@ export type VertexIdPair<VERTEX extends DefaultVertex = DefaultVertex> = [
 ];
 
 /** Represents a tuple of a vertex Id and vertex information. */
+export type VertexTupleInternal<VERTEX extends DefaultVertex = DefaultVertex> =
+  [...VertexIdPair<VERTEX>, VertexInternal];
+
+/** Represents a tuple of a vertex Id and vertex information. */
 export type VertexEdgeIdPair<
   EDGE extends DefaultVertexEdge = DefaultVertexEdge,
 > = [VertexEdgeId, Readonly<EDGE>];
@@ -240,10 +244,11 @@ export function getShortestPath<
   let timingCalculateCost = 0;
   let timesCalculatedHeuristic = 0;
   /** Function to calculate vertex cost */
-  function getVertexCost([vertexId, vertex, vertexInternal]: [
-    ...VertexIdPair<VERTEX>,
-    VertexInternal,
-  ]) {
+  function getVertexCost([
+    vertexId,
+    vertex,
+    vertexInternal,
+  ]: VertexTupleInternal<VERTEX>) {
     timesCalculatedHeuristic++;
     const timingsCalculateCostStart = performance.now();
     const result =
@@ -256,9 +261,7 @@ export function getShortestPath<
     return result;
   }
   // 0. Initialize the necessary data structures
-  const openList = new MinPriorityQueue<
-    [...VertexIdPair<VERTEX>, VertexInternal]
-  >();
+  const openList = new MinPriorityQueue<VertexTupleInternal<VERTEX>>();
   const closedList = new Map<number, VertexInternal>();
   // 1. Insert the source vertex into the priority queue
   const sourceVertexInternal: VertexInternal = {shortestDistanceG: 0};
