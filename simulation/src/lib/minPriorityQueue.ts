@@ -1,6 +1,101 @@
-interface QueueElement<T> {
-  element: Readonly<T>;
-  priority: number;
+/**
+ * A heap is a type of binary tree that satisfies a specific property:
+ * every node is either greater than or equal to (max-heap) or less than or equal to (min-heap) its children.
+ *
+ * This means that the root node of a heap always contains the maximum (max-heap) or minimum (min-heap) value of the entire tree.
+ * A heap is usually implemented as an array, where the parent-child relationship is determined by the index of each element.
+ * For example, if the root node is at index 0, then its left child is at index 1 and its right child is at index 2.
+ * A heap can be used to efficiently perform operations such as finding the kth largest or smallest element, sorting, or merging sorted lists.
+ */
+export class MinHeap<ELEMENT_TYPE> {
+  private items: Array<[ELEMENT_TYPE, number]>;
+
+  constructor() {
+    this.items = [];
+  }
+
+  push(element: ELEMENT_TYPE, value: number) {
+    this.items.push([element, value]);
+    this.bubbleUp();
+  }
+
+  pop(): ELEMENT_TYPE {
+    if (this.size() === 0) {
+      throw Error('MinHeap is empty!');
+    }
+    const min = this.items[0];
+    const last = this.items.pop();
+    if (this.items.length > 0 && last) {
+      this.items[0] = last;
+      this.bubbleDown();
+    }
+    return min[0];
+  }
+
+  size(): number {
+    return this.items.length;
+  }
+
+  removeAll(callback: (element: Readonly<ELEMENT_TYPE>) => boolean): void {
+    this.items = this.items.filter(item => !callback(item[0]));
+    // Rebuild the heap after removal
+    this.buildHeap();
+  }
+
+  private buildHeap(): void {
+    for (let i = Math.floor(this.items.length / 2) - 1; i >= 0; i--) {
+      this.bubbleDown(i);
+    }
+  }
+
+  private bubbleUp(index: number = this.items.length - 1): void {
+    const [element, val] = this.items[index];
+    while (index > 0) {
+      const parentIndex = Math.floor((index - 1) / 2);
+      const parent = this.items[parentIndex];
+      if (val >= val) break;
+      this.items[index] = parent;
+      index = parentIndex;
+    }
+    this.items[index] = [element, val];
+  }
+
+  private bubbleDown(index: number = 0): void {
+    const length = this.items.length;
+    const element = this.items[index];
+
+    // eslint-disable-next-line no-constant-condition
+    while (true) {
+      const leftChildIndex = 2 * index + 1;
+      const rightChildIndex = 2 * index + 2;
+      let leftChild = null;
+      let rightChild = null;
+      let swap = null;
+
+      if (leftChildIndex < length) {
+        leftChild = this.items[leftChildIndex];
+        if (leftChild[1] < element[1]) {
+          swap = leftChildIndex;
+        }
+      }
+
+      if (rightChildIndex < length) {
+        rightChild = this.items[rightChildIndex];
+        if (
+          (swap === null && rightChild[1] < element[1]) ||
+          (swap !== null && rightChild[1] < leftChild![1])
+        ) {
+          swap = rightChildIndex;
+        }
+      }
+
+      if (swap === null) break;
+      this.items[index] = this.items[swap];
+      index = swap;
+    }
+
+    this.items[index] = element;
+  }
 }
 
 /**
@@ -29,99 +124,33 @@ Benefits
     Simplicity and Versatility:
         Heaps are relatively simple to implement and can be used for a variety of applications, such as scheduling tasks, managing resources, and implementing algorithms like Dijkstra's and A*.
  */
-
 export class MinPriorityQueue<T> {
-  private items: QueueElement<T>[];
+  private items: MinHeap<T>;
 
   constructor() {
-    this.items = [];
+    this.items = new MinHeap<T>();
   }
 
   enqueue(element: Readonly<T>, priority: number): void {
-    const newNode = {element, priority};
-    this.items.push(newNode);
-    this.bubbleUp();
+    this.items.push(element, priority);
   }
 
   dequeue(): T {
     if (this.isEmpty()) {
       throw Error('MinPriorityQueue is empty!');
     }
-    const min = this.items[0];
-    const last = this.items.pop();
-    if (this.items.length > 0 && last) {
-      this.items[0] = last;
-      this.bubbleDown();
-    }
-    return min.element;
+    return this.items.pop();
   }
 
-  removeAll(callback: (element: T) => boolean): void {
-    this.items = this.items.filter(item => !callback(item.element));
-    // Rebuild the heap after removal
-    this.buildHeap();
+  removeAll(callback: (element: Readonly<T>) => boolean): void {
+    this.items.removeAll(callback);
   }
 
   isEmpty(): boolean {
-    return this.items.length === 0;
+    return this.items.size() === 0;
   }
 
   size(): number {
-    return this.items.length;
-  }
-
-  private buildHeap(): void {
-    for (let i = Math.floor(this.items.length / 2) - 1; i >= 0; i--) {
-      this.bubbleDown(i);
-    }
-  }
-
-  private bubbleUp(index: number = this.items.length - 1): void {
-    const element = this.items[index];
-    while (index > 0) {
-      const parentIndex = Math.floor((index - 1) / 2);
-      const parent = this.items[parentIndex];
-      if (element.priority >= parent.priority) break;
-      this.items[index] = parent;
-      index = parentIndex;
-    }
-    this.items[index] = element;
-  }
-
-  private bubbleDown(index: number = 0): void {
-    const length = this.items.length;
-    const element = this.items[index];
-
-    // eslint-disable-next-line no-constant-condition
-    while (true) {
-      const leftChildIndex = 2 * index + 1;
-      const rightChildIndex = 2 * index + 2;
-      let leftChild: QueueElement<T> | null = null;
-      let rightChild: QueueElement<T> | null = null;
-      let swap = null;
-
-      if (leftChildIndex < length) {
-        leftChild = this.items[leftChildIndex];
-        if (leftChild.priority < element.priority) {
-          swap = leftChildIndex;
-        }
-      }
-
-      if (rightChildIndex < length) {
-        rightChild = this.items[rightChildIndex];
-        if (
-          (swap === null && rightChild.priority < element.priority) ||
-          (swap !== null && rightChild.priority < leftChild!.priority)
-        ) {
-          swap = rightChildIndex;
-        }
-      }
-
-      if (swap === null) break;
-      this.items[index] = this.items[swap];
-      index = swap;
-    }
-
-    this.items[index] = element;
+    return this.items.size();
   }
 }

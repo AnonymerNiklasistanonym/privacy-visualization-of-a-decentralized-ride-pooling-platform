@@ -11,9 +11,9 @@ import {fetchText} from '../globals/lib/fetch';
 import {pathfinderEndpoints} from '../globals/defaults/endpoints';
 import {simulationEndpointRoutes} from '../globals/defaults/routes';
 // > Libs
-import {getVertexEdgeFromGraph2, getVertexEdgeKey} from '../lib/pathfinder3';
+import {getVertexEdgeFromGraph2, getVertexEdgeKey} from '../lib/pathfinder';
 import {generateRandomNumberPlate} from '../lib/numberPlate';
-import {getShortestPathOsmCoordinates} from '../lib/pathfinderOsm2';
+import {getShortestPathOsmCoordinates} from '../lib/pathfinderOsm';
 import {osmnxServerRequest} from '../lib/osmnx';
 // > Misc
 import {
@@ -34,7 +34,7 @@ import type {
   SimulationEndpointSmartContracts,
 } from '../globals/types/simulation';
 import type {Coordinates} from '../globals/types/coordinates';
-import type {OsmVertexGraph} from '../lib/pathfinderOsm2';
+import type {OsmVertexGraph} from '../lib/pathfinderOsm';
 import type {SimulationConfigWithData} from './config/simulationConfigWithData';
 
 const logger = createLoggerSection('simulation');

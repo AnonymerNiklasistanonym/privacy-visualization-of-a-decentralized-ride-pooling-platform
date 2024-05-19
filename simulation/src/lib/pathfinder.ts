@@ -1,104 +1,119 @@
-// Package imports
-//import {MinPriorityQueue} from '@datastructures-js/priority-queue';
 // Local imports
 import {MinPriorityQueue} from './minPriorityQueue';
 import {loggerPathfinder} from '../services/logging';
 
 const logger = loggerPathfinder;
 
+/** Unique vertex ID for indexing it */
 export type VertexId = number;
+
+/** Unique vertex edge ID for indexing it */
 export type VertexEdgeId = string;
 
+/** Represents a vertex in the graph */
 export interface Vertex {
-  /** Unique vertex ID for indexing it in a map */
+  /** Unique vertex ID for indexing it */
   id: VertexId;
-  /** The closest neighbor vertex (for reconstructing the path) */
-  shortestDistanceNeighbor?: VertexId;
-  /** The closest neighbor vertex edge (for reconstructing the path) */
-  shortestDistanceEdge?: VertexEdgeId;
-  /** Cost function $g$ (shortest distance from start vertex to this vertex) */
-  shortestDistanceG?: number;
-  /** Neighbor vertices of this vertex */
-  neighbors: VertexId[];
+  /** Neighbor vertex IDs of all vertices that are connected to this vertex */
+  neighborIds: VertexId[];
 }
 
+/** Represents internal information of a vertex in the graph */
+export interface VertexInternal {
+  /** The closest neighbor vertex (for reconstructing the path) */
+  shortestDistanceNeighbor?: VertexId;
+  /** The cost function $g$ (shortest distance from start vertex to this vertex) */
+  shortestDistanceG: number;
+}
+
+/** Represents a edge that connects 2 vertices in the graph */
 export interface VertexEdge {
-  /** The vertex edge weight */
+  /** Unique vertex ID for indexing it */
+  id: VertexId;
+  /** The weight */
   weight: number;
 }
 
-export type VertexGraphVertices<VERTEX extends Vertex = Vertex> = Map<
-  VertexId,
-  Omit<VERTEX, 'id'>
->;
+export type DefaultVertex = Omit<Vertex, 'id'>;
+export type DefaultVertexEdge = Omit<VertexEdge, 'id'>;
 
+export type VertexGraphVertices<VERTEX extends DefaultVertex = DefaultVertex> =
+  ReadonlyMap<VertexId, VERTEX>;
 export type VertexGraphEdges<
-  VERTEX extends Vertex = Vertex,
-  EDGE extends VertexEdge = VertexEdge,
-> = VertexGraphEdgesFunc<VERTEX, EDGE> | VertexGraphEdgesMap<EDGE>;
+  EDGE extends DefaultVertexEdge = DefaultVertexEdge,
+> = ReadonlyMap<VertexEdgeId, EDGE>;
 
-export type VertexGraphEdgesFunc<
-  VERTEX extends Vertex = Vertex,
-  EDGE extends VertexEdge = VertexEdge,
-> = (
-  vertexA: Readonly<VertexPair<VERTEX>>,
-  vertexB: Readonly<VertexPair<VERTEX>>
-) => Omit<EDGE, 'id'> | null;
-
-export type VertexGraphEdgesMap<EDGE extends VertexEdge = VertexEdge> = Map<
-  VertexEdgeId,
-  Omit<EDGE, 'id'>
->;
-
+/** Represents a graph consisting of edges and vertices */
 export interface VertexGraph<
-  VERTEX extends Vertex = Vertex,
-  EDGE extends VertexEdge = VertexEdge,
+  VERTEX extends DefaultVertex = DefaultVertex,
+  EDGE extends DefaultVertexEdge = DefaultVertexEdge,
 > {
-  /** The vertices of the graph. */
+  /** The vertices of the graph */
   vertices: VertexGraphVertices<VERTEX>;
-  /**
-   * The edges of the graph.
-   * This can either be:
-   * - A function that returns the vertex edge between 2 vertices (or null if no edge)
-   * - A map that contains all edges
-   */
-  edges: VertexGraphEdges<VERTEX, EDGE>;
+  /** The edges of the graph */
+  edges: VertexGraphEdges<EDGE>;
 }
 
-export type VertexPair<VERTEX extends Vertex = Vertex> = [
+/** Represents a tuple of a vertex Id and vertex information. */
+export type VertexIdPair<VERTEX extends DefaultVertex = DefaultVertex> = [
   VertexId,
-  Omit<VERTEX, 'id'>,
+  Readonly<VERTEX>,
 ];
 
+/** Represents a tuple of a vertex Id and vertex information. */
+export type VertexTupleInternal<VERTEX extends DefaultVertex = DefaultVertex> =
+  [...VertexIdPair<VERTEX>, VertexInternal];
+
+/** Represents a tuple of a vertex Id and vertex information. */
+export type VertexEdgeIdPair<
+  EDGE extends DefaultVertexEdge = DefaultVertexEdge,
+> = [VertexEdgeId, Readonly<EDGE>];
+
 export const getVertexFromGraph = <
-  VERTEX extends Vertex = Vertex,
-  EDGE extends VertexEdge = VertexEdge,
+  VERTEX extends DefaultVertex = DefaultVertex,
+  EDGE extends DefaultVertexEdge = DefaultVertexEdge,
 >(
   graph: Readonly<VertexGraph<VERTEX, EDGE>>,
   id: VertexId,
   name?: string
-): VertexPair<VERTEX> => {
+): VertexIdPair<VERTEX> => {
   const vertex = graph.vertices.get(id);
-  if (vertex !== undefined) {
+  if (vertex) {
     return [id, vertex];
   }
   throw Error(`Vertex ${id}${name ? ` (${name})` : ''} was not found in graph`);
 };
 
-export const getVertexEdgeKey = (a: VertexId, b: VertexId) =>
-  (a >= b ? [b, a] : [a, b]).join(':');
-
-export const getVertexEdge = <
-  VERTEX extends Vertex = Vertex,
-  EDGE extends VertexEdge = VertexEdge,
+export const getVertexEdgeFromGraph = <
+  VERTEX extends DefaultVertex = DefaultVertex,
+  EDGE extends DefaultVertexEdge = DefaultVertexEdge,
 >(
   graph: Readonly<VertexGraph<VERTEX, EDGE>>,
-  vertexA: Readonly<VertexPair<VERTEX>>,
-  vertexB: Readonly<VertexPair<VERTEX>>
-): Omit<EDGE, 'id'> | null =>
-  graph.edges instanceof Function
-    ? graph.edges(vertexA, vertexB)
-    : graph.edges.get(getVertexEdgeKey(vertexA[0], vertexB[0])) ?? null;
+  id: VertexEdgeId,
+  name?: string
+): VertexEdgeIdPair<EDGE> => {
+  const edge = graph.edges.get(id);
+  if (edge) {
+    return [id, edge];
+  }
+  throw Error(
+    `Vertex edge ${id}${name ? ` (${name})` : ''} was not found in graph`
+  );
+};
+
+export const getVertexEdgeFromGraph2 = <
+  VERTEX extends DefaultVertex = DefaultVertex,
+  EDGE extends DefaultVertexEdge = DefaultVertexEdge,
+>(
+  graph: Readonly<VertexGraph<VERTEX, EDGE>>,
+  idA: VertexId,
+  idB: VertexId,
+  name?: string
+): VertexEdgeIdPair<EDGE> =>
+  getVertexEdgeFromGraph<VERTEX, EDGE>(graph, getVertexEdgeKey(idA, idB), name);
+
+export const getVertexEdgeKey = (a: VertexId, b: VertexId) =>
+  (a >= b ? [b, a] : [a, b]).join(':');
 
 /**
  * A* implementation between 2 nodes in an OSM graph.
@@ -199,83 +214,87 @@ export const getVertexEdge = <
  *   - (S, 0, null)
  */
 export function getShortestPath<
-  VERTEX extends Vertex = Vertex,
-  EDGE extends VertexEdge = VertexEdge,
+  VERTEX extends DefaultVertex = DefaultVertex,
+  EDGE extends DefaultVertexEdge = DefaultVertexEdge,
 >(
   graph: Readonly<VertexGraph<VERTEX, EDGE>>,
   sourceId: VertexId,
   targetId: VertexId,
   heuristic?: (
-    current: Readonly<VertexPair<VERTEX>>,
-    target: Readonly<VertexPair<VERTEX>>
+    current: Readonly<VertexIdPair<VERTEX>>,
+    target: Readonly<VertexIdPair<VERTEX>>
   ) => number
-): Array<VertexPair<VERTEX>> | null {
-  const timings: Map<string, number> = new Map();
+): Array<VertexIdPair<VERTEX>> | null {
   // A vertex (besides the source and target vertex) can have 3 possible states:
-  // 1. Unknown:  It is unknown if the vertex is even connected to the source/target
-  //              - Stored in the *graph* [Map<ID,vertex>]
-  // 2. Known:    It is connected to a vertex that was checked but at this point still
-  //              may be on a suboptimal path (not the shortest distance)
-  //              - Stored in the *open list* [PriorityQueue<vertex>]
-  // 3. Explored: The shortest path to this vertex is known
-  //              - Stored in the *closed list* to prevent being loaded into the
-  //                *open list* again [Set<ID>]
-  const source = getVertexFromGraph(graph, sourceId, 'source');
-  const target = getVertexFromGraph(graph, targetId, 'target');
-  // Reset cost function g and the connected neighbor
-  const timingDeleteShortestDistanceStart = performance.now();
-  for (const [, vertex] of graph.vertices) {
-    if (vertex.shortestDistanceG !== undefined) {
-      delete vertex.shortestDistanceG;
-      delete vertex.shortestDistanceNeighbor;
-    }
-  }
-  timings.set(
-    'delete vertex.shortestDistance',
-    performance.now() - timingDeleteShortestDistanceStart
-  );
+  // > 1. Unknown:  It is unknown if the vertex is even connected to the source/target
+  // >              - Stored in the *graph* [Map<ID,vertex>]
+  // > 2. Known:    It is connected to a vertex that was checked but at this point still
+  // >              may be on a suboptimal path (not the shortest distance)
+  // >              - Stored in the *open list* [PriorityQueue<vertex>]
+  // > 3. Explored: The shortest path to this vertex is known
+  // >              - Stored in the *closed list* to prevent being loaded into the
+  // >                *open list* again [Set<ID>]
+  // 0. Setup
+  /** Store timings for analysis */
+  const timings: Map<string, number> = new Map();
+  /** Vertex from which the path starts */
+  const sourceVertex = getVertexFromGraph(graph, sourceId, 'source');
+  /** Vertex to which the path goes */
+  const targetVertex = getVertexFromGraph(graph, targetId, 'target');
   let timingCalculateCost = 0;
   let timesCalculatedHeuristic = 0;
-  const getCost = ([id, vertex]: Readonly<VertexPair<VERTEX>>) => {
+  /** Function to calculate vertex cost */
+  function getVertexCost([
+    vertexId,
+    vertex,
+    vertexInternal,
+  ]: VertexTupleInternal<VERTEX>) {
     timesCalculatedHeuristic++;
     const timingsCalculateCostStart = performance.now();
     const result =
       // if heuristic is found use A*, otherwise just plain dijkstra:
       // f = g  + h   (A*)
       // f = g (+ 0)  (dijkstra)
-      (vertex.shortestDistanceG ?? Infinity) +
-      (heuristic ? heuristic([id, vertex], target) : 0);
+      (vertexInternal.shortestDistanceG ?? Infinity) +
+      (heuristic ? heuristic([vertexId, vertex], targetVertex) : 0);
     timingCalculateCost += performance.now() - timingsCalculateCostStart;
     return result;
-  };
+  }
   // 0. Initialize the necessary data structures
-  //const openList = new MinPriorityQueue<[VertexId, Omit<VERTEX, 'id'>]>(a => {
-  //  timesCalculatedHeuristic++;
-  //  return a[1].totalCostF ?? Infinity;
-  //});
-  const openList = new MinPriorityQueue<VertexPair<VERTEX>>();
-  const closedList = new Set<number>();
+  const openList = new MinPriorityQueue<VertexTupleInternal<VERTEX>>();
+  const closedList = new Map<number, VertexInternal>();
   // 1. Insert the source vertex into the priority queue
-  source[1].shortestDistanceG = 0;
-  openList.enqueue(source, heuristic ? heuristic(source, target) : 0);
+  const sourceVertexInternal: VertexInternal = {shortestDistanceG: 0};
+  openList.enqueue(
+    [...sourceVertex, sourceVertexInternal],
+    getVertexCost([...sourceVertex, sourceVertexInternal])
+  );
   // 2. Loop while there are to the start vertex connected vertices in the queue
   let foundPath = false;
-  let timingSumRemove = 0;
+  //let timingSumRemove = 0;
   const timingsWhileLoopStart = performance.now();
-  while (!openList.isEmpty()) {
-    const [currentVertexId, currentVertex] = openList.dequeue();
+  do {
+    const [currentVertexId, currentVertex, currentVertexInternal] =
+      openList.dequeue();
+    if (
+      (closedList.get(currentVertexId)?.shortestDistanceG ?? Infinity) <
+      currentVertexInternal.shortestDistanceG
+    ) {
+      continue;
+    }
+    closedList.set(currentVertexId, currentVertexInternal);
     // 2.1 Early exit when the target vertex is popped
     if (currentVertexId === targetId) {
       foundPath = true;
       break;
     }
     // 2.2 Check neighboring vertices
-    for (const neighbor of currentVertex.neighbors) {
-      if (neighbor === currentVertexId) {
+    for (const neighborVertexId of currentVertex.neighborIds) {
+      if (neighborVertexId === currentVertexId) {
         continue;
       }
       // 2.2a If vertex was already explored skip it
-      if (closedList.has(neighbor)) {
+      if (closedList.has(neighborVertexId)) {
         continue;
       }
       // 2.2b If vertex was not found either throw error or ignore
@@ -283,45 +302,45 @@ export function getShortestPath<
       //        unknown to it as the neighbors
       const neighborVertex = getVertexFromGraph(
         graph,
-        neighbor,
+        neighborVertexId,
         `neighbor of ${currentVertexId}`
       );
       // 2.2c Update the neighbor vertex distance/neighbor if a smaller one is found
-      const edge = getVertexEdge(
+      const [, edge] = getVertexEdgeFromGraph2(
         graph,
-        [currentVertexId, currentVertex],
-        neighborVertex
+        currentVertexId,
+        neighborVertexId,
+        `Expected edge between vertex ${currentVertexId} and vertex ${neighborVertexId}`
       );
-      if (edge === null) {
-        throw Error(
-          `Expected edge between vertex ${currentVertexId} and vertex ${neighborVertex[0]}`
-        );
-      }
       const distanceToNeighbor =
-        (currentVertex.shortestDistanceG ?? Infinity) + edge.weight;
-      if (
-        distanceToNeighbor < (neighborVertex[1].shortestDistanceG ?? Infinity)
-      ) {
-        neighborVertex[1].shortestDistanceG = distanceToNeighbor;
-        neighborVertex[1].shortestDistanceNeighbor = currentVertexId;
-      }
+        (currentVertexInternal.shortestDistanceG ?? Infinity) + edge.weight;
+      const neighborVertexInternal = {
+        shortestDistanceG: distanceToNeighbor,
+        shortestDistanceNeighbor: currentVertexId,
+      };
       // 2.2d Enqueue the neighbor vertex to the priority queue
       //openList.remove(([id]) => id === neighborVertex[0]);
-      const timingRemoveStart = performance.now();
-      openList.removeAll(([id]) => id === neighborVertex[0]);
-      timingSumRemove += performance.now() - timingRemoveStart;
-      openList.enqueue(neighborVertex, getCost(neighborVertex));
+      //const timingRemoveStart = performance.now();
+      //openList.removeAll(
+      //  ([vertexId, , vertexInternal]) =>
+      //    vertexId === neighborVertexId &&
+      //    vertexInternal.shortestDistanceG >
+      //      neighborVertexInternal.shortestDistanceG
+      //);
+      //timingSumRemove += performance.now() - timingRemoveStart;
+      openList.enqueue(
+        [...neighborVertex, neighborVertexInternal],
+        getVertexCost([...neighborVertex, neighborVertexInternal])
+      );
     }
-    // 2.3 Add current vertex to closed list since it is now explored
-    closedList.add(currentVertexId);
-  }
+  } while (!openList.isEmpty());
   timings.set('while loop', performance.now() - timingsWhileLoopStart);
-  timings.set('remove (sum)', timingSumRemove);
+  //timings.set('remove (sum)', timingSumRemove);
   timings.set('cost (sum)', timingCalculateCost);
-  let result: null | Array<VertexPair<VERTEX>> = null;
+  let result: null | Array<VertexIdPair<VERTEX>> = null;
   if (foundPath) {
     const timingReconstructStart = performance.now();
-    result = reconstructShortestPath(graph, targetId);
+    result = reconstructShortestPath(graph, closedList, targetId);
     timings.set('reconstruct', performance.now() - timingReconstructStart);
   }
   logger.info(
@@ -335,21 +354,27 @@ export function getShortestPath<
 }
 
 export const reconstructShortestPath = <
-  VERTEX extends Vertex = Vertex,
-  EDGE extends VertexEdge = VertexEdge,
+  VERTEX extends DefaultVertex = DefaultVertex,
+  EDGE extends DefaultVertexEdge = DefaultVertexEdge,
 >(
   graph: Readonly<VertexGraph<VERTEX, EDGE>>,
+  closedList: ReadonlyMap<VertexId, Readonly<VertexInternal>>,
   targetId: VertexId
-): Array<VertexPair<VERTEX>> => {
+): Array<VertexIdPair<VERTEX>> => {
   let currentVertex = getVertexFromGraph(graph, targetId, 'target:reconstruct');
+  let currentVertexInternal = closedList.get(targetId);
   const reconstructedPath = [currentVertex];
   while (
     currentVertex !== undefined &&
-    currentVertex[1].shortestDistanceNeighbor !== undefined
+    currentVertexInternal !== undefined &&
+    currentVertexInternal.shortestDistanceNeighbor !== undefined
   ) {
     currentVertex = getVertexFromGraph(
       graph,
-      currentVertex[1].shortestDistanceNeighbor
+      currentVertexInternal.shortestDistanceNeighbor
+    );
+    currentVertexInternal = closedList.get(
+      currentVertexInternal.shortestDistanceNeighbor
     );
     reconstructedPath.push(currentVertex);
   }

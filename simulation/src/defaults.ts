@@ -8,7 +8,6 @@ import type {SimulationConfig, SimulationConfigCustom} from './simulation';
 
 /** The default custom simulation configuration during development. */
 export const defaultConfigCustomDev: Readonly<SimulationConfigCustom> = {
-  customPathfinderProvider: 'pathfinder-server',
   ignoreActorErrors: true,
 };
 

@@ -1,4 +1,3 @@
 {
-    "$schema": "./config.schema.json",
-    "customPathfinderProvider": "all"
+    "$schema": "./config.schema.json"
 }

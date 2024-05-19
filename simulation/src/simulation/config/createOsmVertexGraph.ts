@@ -28,14 +28,13 @@ export const createOsmVertexGraph = (
     nodes.map<[number, OsmVertex]>(a => [
       a.id,
       {
-        id: a.id,
         lat: a.lat,
         long: a.long,
-        neighbors: [],
+        neighborIds: [],
       },
     ])
   );
-  // Add neighbors
+  // Add neighborIds
   for (const way of ways) {
     for (let index = 0; index < way.nodes.length; index++) {
       const currentVertexId = way.nodes[index];
@@ -55,7 +54,7 @@ export const createOsmVertexGraph = (
       }
 
       for (const validNeighborVertexId of validNeighborVertexIds) {
-        vertex.neighbors.push(validNeighborVertexId);
+        vertex.neighborIds.push(validNeighborVertexId);
         const neighborVertex = vertices.get(validNeighborVertexId);
         if (neighborVertex === undefined) {
           // If a neighbor vertex is not found skip it but warn since this should not happen!
@@ -73,39 +72,38 @@ export const createOsmVertexGraph = (
   }
   const verticesSizeOriginal = vertices.size;
   for (const [vertexId, vertex] of vertices.entries()) {
-    // Purge vertices without neighbors
-    if (vertex.neighbors.length === 0) {
+    // Purge vertices without neighborIds
+    if (vertex.neighborIds.length === 0) {
       vertices.delete(vertexId);
       continue;
     }
   }
   const verticesSizePurge = vertices.size;
-  // Purge intermediate vertices that connect 2 neighbors but have no other neighbor (do that multiple times)
+  // Purge intermediate vertices that connect 2 neighborIds but have no other neighbor (do that multiple times)
   let previousVerticesSize: number;
   let counterPurgeIntermediateVertices = 0;
   do {
     previousVerticesSize = vertices.size;
     counterPurgeIntermediateVertices++;
     for (const [vertexId, vertex] of vertices.entries()) {
-      if (vertex.neighbors.length === 2) {
-        const vertexNA = vertices.get(vertex.neighbors[0]);
-        const vertexNB = vertices.get(vertex.neighbors[1]);
-        if (
-          vertexNA?.neighbors === undefined ||
-          vertexNB?.neighbors === undefined
-        ) {
-          logger.warn('vertex neighbors could not be found!', {
+      if (vertex.neighborIds.length === 2) {
+        const vertexNAId = vertex.neighborIds[0];
+        const vertexNBId = vertex.neighborIds[1];
+        const vertexNA = vertices.get(vertexNAId);
+        const vertexNB = vertices.get(vertexNBId);
+        if (vertexNA === undefined || vertexNB === undefined) {
+          logger.warn('vertex neighborIds could not be found!', {
             vertex,
             vertexNA,
             vertexNB,
           });
           continue;
         }
-        const edgeNA = edges.get(getVertexEdgeKey(vertexId, vertexNA.id));
-        const edgeNB = edges.get(getVertexEdgeKey(vertexId, vertexNB.id));
-        const edgeNAB = edges.get(getVertexEdgeKey(vertexNA.id, vertexNB.id));
+        const edgeNA = edges.get(getVertexEdgeKey(vertexId, vertexNAId));
+        const edgeNB = edges.get(getVertexEdgeKey(vertexId, vertexNBId));
+        const edgeNAB = edges.get(getVertexEdgeKey(vertexNAId, vertexNBId));
         if (edgeNA === undefined || edgeNB === undefined) {
-          logger.warn('vertex neighbors edges could not be found!', {
+          logger.warn('vertex neighborIds edges could not be found!', {
             vertex,
             vertexNA,
             vertexNB,
@@ -113,10 +111,10 @@ export const createOsmVertexGraph = (
           continue;
         }
         // Fix the neighbor IDs
-        vertexNA.neighbors = vertexNA.neighbors.filter(c => c !== vertexId);
-        vertexNB.neighbors = vertexNB.neighbors.filter(c => c !== vertexId);
-        vertexNA.neighbors.push(vertex.neighbors[1]);
-        vertexNB.neighbors.push(vertex.neighbors[0]);
+        vertexNA.neighborIds = vertexNA.neighborIds.filter(c => c !== vertexId);
+        vertexNB.neighborIds = vertexNB.neighborIds.filter(c => c !== vertexId);
+        vertexNA.neighborIds.push(vertex.neighborIds[1]);
+        vertexNB.neighborIds.push(vertex.neighborIds[0]);
         // Fix the edges
         // > In case there is an already existing edge check if it's weight is less
         const weight = edgeNA.weight + edgeNB.weight;
@@ -131,7 +129,7 @@ export const createOsmVertexGraph = (
           // => Intermediate coordinates between NA ---- VERTEX are sorted from lower ID to highest
           //    -> [1,2,3,4] if ID(NA) < ID(VERTEX)
           geometryTemp.push(
-            ...(vertexNA.id < vertexId
+            ...(vertexNAId < vertexId
               ? edgeNA.geometry
               : edgeNA.geometry.reverse())
           );
@@ -141,23 +139,23 @@ export const createOsmVertexGraph = (
           // => Intermediate coordinates between VERTEX ---- NB are sorted from lower ID to highest
           //    -> [1,2,3,4] if ID(VERTEX) < ID(NB)
           geometryTemp.push(
-            ...(vertexId < vertexNB.id
+            ...(vertexId < vertexNBId
               ? edgeNB.geometry
               : edgeNB.geometry.reverse())
           );
-          edges.set(getVertexEdgeKey(vertexNA.id, vertexNB.id), {
+          edges.set(getVertexEdgeKey(vertexNAId, vertexNBId), {
             // The current geometry [1,2,3,4] is sorted assuming ID(NA) < ID(NB)
             // If that isn't the case reverse the list
             geometry:
-              vertexNA.id < vertexNB.id ? geometryTemp : geometryTemp.reverse(),
+              vertexNAId < vertexNBId ? geometryTemp : geometryTemp.reverse(),
             weight,
           });
         }
         // Delete the intermediate vertex from the map
         vertices.delete(vertexId);
         // Delete the intermediate edged from the map
-        edges.delete(getVertexEdgeKey(vertexId, vertexNA.id));
-        edges.delete(getVertexEdgeKey(vertexId, vertexNB.id));
+        edges.delete(getVertexEdgeKey(vertexId, vertexNAId));
+        edges.delete(getVertexEdgeKey(vertexId, vertexNBId));
       }
     }
   } while (vertices.size < previousVerticesSize);
