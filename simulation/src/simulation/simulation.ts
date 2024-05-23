@@ -70,12 +70,11 @@ export const createMockedRideProviderPerson = (
   index: number,
   config: Readonly<SimulationConfigWithData>
 ): RideProviderPerson => {
-  const id = `ride_provider_${getRandomId()}`;
   const randLocation = getRandomElement(config.places);
   const fakePerson = config.peopleData[index + config.customer.count];
   const keyPair = config.privatePublicKeyData[index + config.customer.count];
   return new RideProviderPerson(
-    id,
+    getRandomId(),
     randLocation,
     generateRandomNumberPlate(['S']),
     getRandomId(),
@@ -97,7 +96,6 @@ export const createMockedRideProviderCompany = (
   indexCompany: number,
   config: Readonly<SimulationConfigWithData>
 ): RideProviderCompany => {
-  const id = `ride_provider_company_${getRandomId()}`;
   const randLocation = getRandomElement(config.places);
   const keyPair =
     config.privatePublicKeyData[
@@ -106,7 +104,7 @@ export const createMockedRideProviderCompany = (
         config.rideProvider.countCompanyFleet * indexCompany
     ];
   return new RideProviderCompany(
-    id,
+    getRandomId(),
     randLocation,
     generateRandomNumberPlate(['S']),
     getRandomId(),
@@ -119,10 +117,9 @@ export const createMockedRideProviderCompany = (
 export const createMockedAuthenticationService = (
   config: Readonly<SimulationConfigWithData>
 ): AuthenticationService => {
-  const id = `as_${getRandomId()}`;
   const randLocation = getRandomElement(config.places);
   return new AuthenticationService(
-    id,
+    getRandomId(),
     randLocation.lat + getRandomIntFromInterval(-100, 100) * 0.001,
     randLocation.long + getRandomIntFromInterval(-100, 100) * 0.001,
     getRandomIntFromInterval(5000, 20000)
@@ -132,10 +129,9 @@ export const createMockedAuthenticationService = (
 export const createMockedMatchingService = (
   config: Readonly<SimulationConfigWithData>
 ): MatchingService => {
-  const id = `ms_${getRandomId()}`;
   const randLocation = getRandomElement(config.places);
   return new MatchingService(
-    id,
+    getRandomId(),
     randLocation.lat + getRandomIntFromInterval(-100, 100) * 0.001,
     randLocation.long + getRandomIntFromInterval(-100, 100) * 0.001,
     getRandomIntFromInterval(5000, 20000)

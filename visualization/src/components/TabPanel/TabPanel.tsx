@@ -2,6 +2,7 @@
 
 // Package imports
 import {useEffect, useState} from 'react';
+import {usePathname, useRouter, useSearchParams} from 'next/navigation';
 // > Components
 import {Box, ButtonGroup, Chip, Divider} from '@mui/material';
 import Link from 'next/link';
@@ -42,7 +43,9 @@ function CustomTabPanel(props: PropsWithChildren<CustomTabPanelProps>) {
       aria-labelledby={`simple-tab-${index}`}
       {...other}
     >
-      {value === index && <Box sx={{p: 3}}>{children}</Box>}
+      <a href={`link_${value}`}>
+        {value === index && <Box sx={{p: 3}}>{children}</Box>}
+      </a>
     </div>
   );
 }
@@ -54,6 +57,11 @@ export default function TabPanel({
   locale,
   messages,
 }: PropsWithChildren<TabPanelProps>) {
+  // Nextjs: Routing
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+
   // React: States
   // > Error Modal
   const [stateErrorModalOpen, setStateErrorModalOpen] = useState(false);
@@ -61,7 +69,9 @@ export default function TabPanel({
     ErrorModalContentElement[]
   >([]);
   // > Tabpanel
-  const [stateTabIndex, setStateTabIndex] = useState(1);
+  const [stateTabIndex, setStateTabIndex] = useState(
+    searchParams.get('index') ? Number(searchParams.get('index')) : 1
+  );
   // > Settings
   const [stateSettingsMapShowTooltips, setStateSettingsMapShowTooltips] =
     useState(false);
@@ -82,7 +92,6 @@ export default function TabPanel({
   ] = useState(1000 / 4);
   const [stateSettingsGlobalDebug, setStateSettingsGlobalDebug] =
     useState(false);
-
   // > Snackbar
   const [stateSnackbarSpectatorOpen, setStateSnackbarSpectatorOpen] =
     useState(false);
@@ -136,9 +145,12 @@ export default function TabPanel({
         <Box sx={{borderBottom: 1, borderColor: 'divider'}}>
           <TabPanelHeader
             stateTabIndex={stateTabIndex}
-            handleChangeTabIndex={(event, newTabIndex) =>
-              setStateTabIndex(newTabIndex)
-            }
+            handleChangeTabIndex={(event, newTabIndex) => {
+              const params = new URLSearchParams(searchParams);
+              params.set('index', `${newTabIndex}`);
+              router.replace(`${pathname}?${params.toString()}`);
+              setStateTabIndex(newTabIndex);
+            }}
           />
         </Box>
         <CustomTabPanel value={stateTabIndex} index={0}>
