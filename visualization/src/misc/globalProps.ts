@@ -1,7 +1,7 @@
 // Type imports
 import type {ReactSetState, ReactState} from './react';
 import type {FetchOptions} from '@globals/lib/fetch';
-import type {ShowError} from './modals';
+import type {ShowError} from '@components/Modal/ErrorModal';
 
 export interface GlobalPropsUserInput {
   stateSpectator: ReactState<string>;

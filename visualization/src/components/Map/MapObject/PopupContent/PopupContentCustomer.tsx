@@ -8,9 +8,9 @@ import {
   TravelExplore as TravelExploreIcon,
 } from '@mui/icons-material';
 // Local imports
-import {renderDataElement} from './PopupContentGeneric';
+import {RenderDataElement} from './PopupContentGeneric';
 // > Components
-import ChangeViewButton from './ChangeViewButton';
+import ChangeViewButton from '../../../Button/ChangeViewButton/ChangeViewButton';
 // Type imports
 import type {
   GlobalPropsFetch,
@@ -29,16 +29,17 @@ export interface PopupContentCustomerProps
   customer: SimulationEndpointParticipantInformationCustomer;
 }
 
-export default function PopupContentCustomer({
-  customer,
-  showError: stateShowError,
-  setStateSpectator,
-  fetchJsonSimulation,
-  stateSelectedParticipant,
-  stateSpectator,
-  setStateSelectedRideRequest,
-  stateSelectedRideRequest,
-}: PopupContentCustomerProps) {
+export default function PopupContentCustomer(props: PopupContentCustomerProps) {
+  const {
+    customer,
+    showError: stateShowError,
+    setStateSpectator,
+    fetchJsonSimulation,
+    stateSelectedParticipant,
+    stateSpectator,
+    setStateSelectedRideRequest,
+    stateSelectedRideRequest,
+  } = props;
   const showContentSpectatorContactDetails = [
     {
       description: 'registered authentication service',
@@ -83,9 +84,14 @@ export default function PopupContentCustomer({
         <Chip icon={<PersonIcon />} label="Personal Details" size="small" />
       </Divider>
       <List>
-        {personalData.map(a =>
-          renderDataElement(a, stateSpectator, customer.id)
-        )}
+        {personalData.map((a, index) => (
+          <RenderDataElement
+            {...props}
+            key={`render-data-element-${index}`}
+            element={a}
+            id={customer.id}
+          />
+        ))}
       </List>
       <Divider>
         <Chip icon={<DirectionsCarIcon />} label="Passenger" size="small" />

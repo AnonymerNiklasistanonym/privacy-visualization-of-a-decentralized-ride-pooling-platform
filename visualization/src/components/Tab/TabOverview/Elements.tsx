@@ -1,16 +1,17 @@
 // Package imports
 // > Components
 import {Box, Chip, Typography} from '@mui/material';
+// Local imports
 // > Icons
 import {
-  CurrencyExchange as CurrencyExchangeIcon,
-  DirectionsCar as DirectionsCarIcon,
-  DirectionsWalk as DirectionsWalkIcon,
-  Foundation as FoundationIcon,
-  Group as GroupIcon,
-  SlowMotionVideo as SlowMotionVideoIcon,
-  Verified as VerifiedIcon,
-} from '@mui/icons-material';
+  MiscCryptoExchangeIcon,
+  MiscGetACarFoundationIcon,
+  MiscRideContractServiceIcon,
+  ParticipantCustomerIcon,
+  ParticipantRideProviderIcon,
+  ServiceAuthenticationIcon,
+  ServiceMatchingIcon,
+} from '@components/Icons';
 // Type imports
 import type {ReactElement} from 'react';
 
@@ -53,64 +54,70 @@ export function Stakeholders() {
       </Typography>
       <Typography variant="body1" gutterBottom>
         Platform Participants:
-        <ChipList
-          elements={[
-            {
-              description: 'requests rides (human)',
-              icon: <DirectionsWalkIcon />,
-              label: 'Customer',
-              link: '#anchor-customer',
-            },
-            {
-              description: 'provides rides (human/autonomous vehicle)',
-              icon: <DirectionsCarIcon />,
-              label: 'Ride Provider',
-              link: '#anchor-ride-provider',
-            },
-          ]}
-        />
-        Platform (decentralized) Services:
-        <ChipList
-          elements={[
-            {
-              icon: <VerifiedIcon />,
-              label: 'Authentication Service (AS)',
-              link: '#anchor-as',
-            },
-            {
-              icon: <GroupIcon />,
-              label: 'Matching Service (MS)',
-              link: '#anchor-ms',
-            },
-          ]}
-        />
-        Platform Blockchain Connection:
-        <ChipList
-          elements={[
-            {
-              icon: <CurrencyExchangeIcon />,
-              label: 'Crypto Exchange',
-              link: '#anchor-crypto-exchange',
-            },
-            {
-              icon: <SlowMotionVideoIcon />,
-              label: 'Ride Contract Service',
-              link: '#anchor-ride-provider',
-            },
-          ]}
-        />
-        Other:
-        <ChipList
-          elements={[
-            {
-              description: 'verifies Authentication Services',
-              icon: <FoundationIcon />,
-              label: 'GETACAR foundation',
-              link: '#anchor-getacar-foundation',
-            },
-          ]}
-        />
       </Typography>
+      <ChipList
+        elements={[
+          {
+            description: 'requests rides (human)',
+            icon: <ParticipantCustomerIcon />,
+            label: 'Customer',
+            link: '#anchor-customer',
+          },
+          {
+            description: 'provides rides (human/autonomous vehicle)',
+            icon: <ParticipantRideProviderIcon />,
+            label: 'Ride Provider',
+            link: '#anchor-ride-provider',
+          },
+        ]}
+      />
+      <Typography variant="body1" gutterBottom>
+        Platform (decentralized) Services:
+      </Typography>
+      <ChipList
+        elements={[
+          {
+            icon: <ServiceAuthenticationIcon />,
+            label: 'Authentication Service (AS)',
+            link: '#anchor-as',
+          },
+          {
+            icon: <ServiceMatchingIcon />,
+            label: 'Matching Service (MS)',
+            link: '#anchor-ms',
+          },
+        ]}
+      />
+      <Typography variant="body1" gutterBottom>
+        Platform Blockchain Connection:
+      </Typography>
+      <ChipList
+        elements={[
+          {
+            icon: <MiscCryptoExchangeIcon />,
+            label: 'Crypto Exchange',
+            link: '#anchor-crypto-exchange',
+          },
+          {
+            icon: <MiscRideContractServiceIcon />,
+            label: 'Ride Contract Service',
+            link: '#anchor-ride-provider',
+          },
+        ]}
+      />
+      <Typography variant="body1" gutterBottom>
+        Other:
+      </Typography>
+      <ChipList
+        elements={[
+          {
+            description: 'verifies Authentication Services',
+            icon: <MiscGetACarFoundationIcon />,
+            label: 'GETACAR foundation',
+            link: '#anchor-getacar-foundation',
+          },
+        ]}
+      />
     </>
   );
 }
@@ -122,13 +129,13 @@ export function Participants() {
         Participants
       </Typography>
       <Typography variant="h5" id="anchor-customer" gutterBottom>
-        <DirectionsWalkIcon fontSize="small" /> Customer
+        <ParticipantCustomerIcon fontSize="small" /> Customer
       </Typography>
       <Typography variant="body1" gutterBottom>
         Text
       </Typography>
       <Typography variant="h5" id="anchor-ride-provider" gutterBottom>
-        <DirectionsCarIcon fontSize="small" /> Ride Provider
+        <ParticipantRideProviderIcon fontSize="small" /> Ride Provider
       </Typography>
       <Typography variant="body1" gutterBottom>
         Text
@@ -144,13 +151,13 @@ export function Services() {
         Services
       </Typography>
       <Typography variant="h5" id="anchor-as" gutterBottom>
-        <VerifiedIcon fontSize="small" /> Authentication Service
+        <ServiceAuthenticationIcon fontSize="small" /> Authentication Service
       </Typography>
       <Typography variant="body1" gutterBottom>
         Text
       </Typography>
       <Typography variant="h5" id="anchor-ms" gutterBottom>
-        <GroupIcon fontSize="small" /> Matching Service
+        <ServiceMatchingIcon fontSize="small" /> Matching Service
       </Typography>
       <Typography variant="body1" gutterBottom>
         Text
@@ -166,13 +173,13 @@ export function Blockchain() {
         Blockchain
       </Typography>
       <Typography variant="h5" id="anchor-crypto-exchange" gutterBottom>
-        <CurrencyExchangeIcon fontSize="small" /> Crypto Exchange
+        <MiscCryptoExchangeIcon fontSize="small" /> Crypto Exchange
       </Typography>
       <Typography variant="body1" gutterBottom>
         Text
       </Typography>
       <Typography variant="h5" id="anchor-ride-contract-service" gutterBottom>
-        <SlowMotionVideoIcon fontSize="small" /> Ride Contract Service
+        <MiscRideContractServiceIcon fontSize="small" /> Ride Contract Service
       </Typography>
       <Typography variant="body1" gutterBottom>
         Text

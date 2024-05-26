@@ -1,7 +1,13 @@
 // Package imports
+import {useState} from 'react';
 // > Components
 import {Box, ListItem, Tooltip, Typography} from '@mui/material';
+// Local imports
+// > Components
+import DataModal from '@components/Modal/DataModal';
 // Type imports
+import type {ChangeViewButtonProps} from '@components/Button/ChangeViewButton';
+import type {DataModalInformation} from '@components/Modal/DataModal';
 import type {ReactNode} from 'react';
 
 export interface ShowContentSpectatorElement {
@@ -16,23 +22,37 @@ export interface DataElement {
   showContentSpectator: ShowContentSpectatorElement[];
 }
 
-export const renderDataElement = (
-  a: Readonly<DataElement>,
-  spectator: string,
-  id: string
-) => {
-  let content = a.content;
+export interface RenderDataElementProps extends ChangeViewButtonProps {
+  element: Readonly<DataElement>;
+  id: string;
+}
+
+export function RenderDataElement(props: RenderDataElementProps) {
+  const {element, stateSpectator, id} = props;
+
+  const [stateOpen, setStateOpen] = useState(false);
+
+  const dataModalContent: Array<DataModalInformation> = [
+    {
+      accessType: 'owner',
+      description: 'Test ...',
+      name: 'Test',
+      spectator: props.id,
+    },
+  ];
+
+  let content = element.content;
   let tooltip = '';
   if (
-    spectator !== id &&
-    spectator !== 'everything' &&
-    !a.showContentSpectator.some(a => a.spectator === spectator)
+    stateSpectator !== id &&
+    stateSpectator !== 'everything' &&
+    !element.showContentSpectator.some(a => a.spectator === stateSpectator)
   ) {
     content = '******';
     tooltip = `This information is only available to this actor${
-      a.showContentSpectator.length > 0
+      element.showContentSpectator.length > 0
         ? ' and ' +
-          a.showContentSpectator
+          element.showContentSpectator
             .map(a => `${a.spectator} (${a.description})`)
             .join(', ')
         : ''
@@ -40,7 +60,7 @@ export const renderDataElement = (
   }
   return (
     <ListItem
-      key={a.label}
+      key={element.label}
       style={{
         paddingTop: 4,
       }}
@@ -55,14 +75,20 @@ export const renderDataElement = (
         }}
       >
         <Box fontWeight="medium" display="inline">
-          {a.label}:{' '}
+          {element.label}:{' '}
         </Box>
-        <Tooltip title={tooltip} arrow>
+        <Tooltip title={tooltip} onClick={() => setStateOpen(true)} arrow>
           <Typography variant="body2" display="inline" noWrap gutterBottom>
             {content}
           </Typography>
         </Tooltip>
+        <DataModal
+          {...props}
+          stateDataModalOpen={stateOpen}
+          setStateDataModalOpen={setStateOpen}
+          stateDataModalContent={dataModalContent}
+        />
       </Typography>
     </ListItem>
   );
-};
+}

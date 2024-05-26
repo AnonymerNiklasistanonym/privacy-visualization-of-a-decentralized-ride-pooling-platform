@@ -1,15 +1,15 @@
 // Package imports
 // > Components
 import {Box, Chip, CircularProgress, Stack, Typography} from '@mui/material';
-// > Icons
-import {
-  DirectionsCar as DirectionsCarIcon,
-  DirectionsWalk as DirectionsWalkIcon,
-} from '@mui/icons-material';
 // Local imports
-import ChangeViewButton from './ChangeViewButton';
 import PopupContentCustomer from './PopupContentCustomer';
 import PopupContentRideProvider from './PopupContentRideProvider';
+// > Components
+import {
+  ParticipantCustomerIcon,
+  ParticipantRideProviderIcon,
+} from '@components/Icons';
+import ChangeViewButton from '@components/Button/ChangeViewButton';
 // Type imports
 import type {
   GlobalPropsFetch,
@@ -23,33 +23,30 @@ import type {
   SimulationEndpointParticipantInformationRideProvider,
   SimulationEndpointParticipantTypes,
 } from '@globals/types/simulation';
+import type {ChangeViewButtonProps} from '@components/Button/ChangeViewButton';
 import type {ReactState} from '@misc/react';
 
 export interface PopupContentParticipantProps
   extends GlobalPropsUserInput,
     GlobalPropsUserInputSet,
     GlobalPropsShowError,
-    GlobalPropsFetch {
+    GlobalPropsFetch,
+    ChangeViewButtonProps {
   stateParticipantCoordinates: ReactState<SimulationEndpointParticipantCoordinatesParticipant>;
   stateCustomerInformation: ReactState<null | SimulationEndpointParticipantInformationCustomer>;
   stateRideProviderInformation: ReactState<null | SimulationEndpointParticipantInformationRideProvider>;
   participantType: SimulationEndpointParticipantTypes;
 }
 
-export default function PopupContentParticipant({
-  stateParticipantCoordinates,
-  stateCustomerInformation: customerInformationState,
-  stateRideProviderInformation: rideProviderInformationState,
-  stateSpectator,
-  setStateSpectator,
-  setStateSelectedParticipant,
-  stateSelectedParticipant,
-  participantType,
-  showError,
-  fetchJsonSimulation,
-  stateSelectedRideRequest,
-  setStateSelectedRideRequest,
-}: PopupContentParticipantProps) {
+export default function PopupContentParticipant(
+  props: PopupContentParticipantProps
+) {
+  const {
+    stateParticipantCoordinates,
+    stateCustomerInformation: customerInformationState,
+    stateRideProviderInformation: rideProviderInformationState,
+    participantType,
+  } = props;
   return (
     <Box display="flex" justifyContent="left">
       <Box
@@ -61,9 +58,9 @@ export default function PopupContentParticipant({
       >
         <Stack alignItems="center" direction="row" gap={2}>
           {participantType === 'customer' ? (
-            <DirectionsWalkIcon />
+            <ParticipantCustomerIcon />
           ) : (
-            <DirectionsCarIcon />
+            <ParticipantRideProviderIcon />
           )}
           <Typography variant="h5" gutterBottom>
             {participantType === 'customer' ? 'Customer' : 'Ride Provider'}
@@ -101,15 +98,8 @@ export default function PopupContentParticipant({
           </Box>
         ) : customerInformationState !== null ? (
           <PopupContentCustomer
+            {...props}
             customer={customerInformationState}
-            fetchJsonSimulation={fetchJsonSimulation}
-            setStateSelectedParticipant={setStateSelectedParticipant}
-            setStateSelectedRideRequest={setStateSelectedRideRequest}
-            setStateSpectator={setStateSpectator}
-            showError={showError}
-            stateSelectedParticipant={stateSelectedParticipant}
-            stateSelectedRideRequest={stateSelectedRideRequest}
-            stateSpectator={stateSpectator}
           />
         ) : null}
         {rideProviderInformationState === null &&
@@ -119,25 +109,18 @@ export default function PopupContentParticipant({
           </Box>
         ) : rideProviderInformationState !== null ? (
           <PopupContentRideProvider
-            fetchJsonSimulation={fetchJsonSimulation}
+            {...props}
             rideProvider={rideProviderInformationState}
-            setStateSelectedParticipant={setStateSelectedParticipant}
-            setStateSelectedRideRequest={setStateSelectedRideRequest}
-            setStateSpectator={setStateSpectator}
-            showError={showError}
-            stateSelectedParticipant={stateSelectedParticipant}
-            stateSelectedRideRequest={stateSelectedRideRequest}
-            stateSpectator={stateSpectator}
           />
         ) : null}
         <ChangeViewButton
+          {...props}
           actorId={stateParticipantCoordinates.id}
-          fetchJsonSimulation={fetchJsonSimulation}
           icon={
             participantType === 'customer' ? (
-              <DirectionsWalkIcon />
+              <ParticipantCustomerIcon />
             ) : (
-              <DirectionsCarIcon />
+              <ParticipantRideProviderIcon />
             )
           }
           isPseudonym={false}
@@ -146,11 +129,6 @@ export default function PopupContentParticipant({
               ? 'this customer'
               : 'this ride provider'
           }
-          setStateSpectator={setStateSpectator}
-          showError={showError}
-          stateSelectedParticipant={stateSelectedParticipant}
-          stateSelectedRideRequest={stateSelectedRideRequest}
-          stateSpectator={stateSpectator}
         />
       </Box>
     </Box>

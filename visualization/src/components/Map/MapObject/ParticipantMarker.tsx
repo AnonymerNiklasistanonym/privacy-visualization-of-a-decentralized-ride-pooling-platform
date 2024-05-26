@@ -200,27 +200,23 @@ interface ParticipantMarkerElementProps extends ParticipantMarkerProps {
   stateRideRequestInformation: ReactState<SimulationEndpointRideRequestInformation | null>;
 }
 
-export function ParticipantMarkerElement({
-  stateParticipantCoordinates,
-  stateSpectator,
-  setStateSpectator,
-  participantType,
-  stateShowTooltip,
-  stateOpenPopupOnHover,
-  stateSelectedParticipant,
-  setStateSelectedParticipant,
-  showError,
-  fetchJsonSimulation,
-  setStateSelectedRideRequest,
-  stateSelectedRideRequest,
-  showParticipant,
-  showRideRequest,
-  setStatePopupOpen,
-  fetchParticipantInformation,
-  stateCustomerInformation,
-  stateRideProviderInformation,
-  stateRideRequestInformation,
-}: ParticipantMarkerElementProps) {
+export function ParticipantMarkerElement(props: ParticipantMarkerElementProps) {
+  const {
+    stateParticipantCoordinates,
+    participantType,
+    stateShowTooltip,
+    stateOpenPopupOnHover,
+    setStateSelectedParticipant,
+    showError,
+    showParticipant,
+    showRideRequest,
+    setStatePopupOpen,
+    fetchParticipantInformation,
+    stateCustomerInformation,
+    stateRideProviderInformation,
+    stateRideRequestInformation,
+  } = props;
+
   const elementsToRender: Array<ReactNode> = [];
 
   // Icon that shows the current position of the participant
@@ -276,20 +272,7 @@ export function ParticipantMarkerElement({
         <></>
       )}
       <Popup>
-        <PopupContentParticipant
-          fetchJsonSimulation={fetchJsonSimulation}
-          participantType={participantType}
-          setStateSelectedParticipant={setStateSelectedParticipant}
-          setStateSelectedRideRequest={setStateSelectedRideRequest}
-          setStateSpectator={setStateSpectator}
-          showError={showError}
-          stateCustomerInformation={stateCustomerInformation}
-          stateParticipantCoordinates={stateParticipantCoordinates}
-          stateRideProviderInformation={stateRideProviderInformation}
-          stateSelectedParticipant={stateSelectedParticipant}
-          stateSelectedRideRequest={stateSelectedRideRequest}
-          stateSpectator={stateSpectator}
-        />
+        <PopupContentParticipant {...props} />
       </Popup>
     </Marker>
   );

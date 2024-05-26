@@ -3,26 +3,28 @@
 // Package imports
 import L from 'leaflet';
 import ReactDOMServer from 'react-dom/server';
+// Local imports
 // > Icons
 import {
-  DirectionsCar as DirectionsCarIcon,
-  DirectionsWalk as DirectionsWalkIcon,
-} from '@mui/icons-material';
-// Local imports
+  ParticipantCustomerIcon,
+  ParticipantRideProviderIcon,
+} from '@components/Icons';
 // > Styles
 import styles from '@styles/Map.module.scss';
 
 export const participantIconSize = 32;
 
-const iconCustomerHTML = ReactDOMServer.renderToString(<DirectionsWalkIcon />);
+const iconCustomerHTML = ReactDOMServer.renderToString(
+  <ParticipantCustomerIcon />
+);
 const iconRideProviderHTML = ReactDOMServer.renderToString(
-  <DirectionsCarIcon />
+  <ParticipantRideProviderIcon />
 );
 const iconCustomerHTMLGray = ReactDOMServer.renderToString(
-  <DirectionsWalkIcon fill="gray" />
+  <ParticipantCustomerIcon fill="gray" />
 );
 const iconRideProviderHTMLGray = ReactDOMServer.renderToString(
-  <DirectionsCarIcon fill="gray" />
+  <ParticipantRideProviderIcon fill="gray" />
 );
 
 export const iconCustomer = L.divIcon({

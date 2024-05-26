@@ -4,8 +4,10 @@ import MuiButton from '@mui/material/Button';
 // Type imports
 import type {PropsWithChildren} from 'react';
 
+/** Props necessary to render the 'Generic Button' */
 export interface ButtonProps {
-  onClick: () => void;
+  /** Function that should be run when button is clicked */
+  onClick?: () => void;
 }
 
 export default function Button({
@@ -13,7 +15,7 @@ export default function Button({
   onClick,
 }: PropsWithChildren<ButtonProps>) {
   return (
-    <MuiButton variant="contained" onClick={onClick}>
+    <MuiButton variant="contained" onClick={onClick ?? (() => {})}>
       {children}
     </MuiButton>
   );

@@ -7,7 +7,7 @@ import {Box, ButtonGroup, Chip, Divider} from '@mui/material';
 // Local imports
 import {fetchJsonEndpoint, fetchTextEndpoint} from '@misc/fetch';
 // > Components
-import Button from '@components/Button';
+import GenericButton from '@components/Button/GenericButton';
 import Map from '@components/Map';
 import TabContainer from '@components/Tab/TabContainer';
 import TableDebugData from '@components/Table/TableDebugData';
@@ -49,22 +49,21 @@ export interface TabMapProps
     GlobalPropsShowError,
     GlobalPropsFetch {}
 
-export default function TabMap({
-  fetchJsonSimulation,
-  setStateSelectedParticipant,
-  setStateSelectedRideRequest,
-  setStateSpectator,
-  showError: stateShowError,
-  stateSelectedParticipant,
-  stateSelectedRideRequest,
-  stateSettingsGlobalDebug,
-  stateSettingsMapBaseUrlPathfinder,
-  stateSettingsMapBaseUrlSimulation,
-  stateSettingsMapOpenPopupOnHover,
-  stateSettingsMapShowTooltips,
-  stateSettingsMapUpdateRateInMs,
-  stateSpectator,
-}: TabMapProps) {
+export default function TabMap(props: TabMapProps) {
+  const {
+    fetchJsonSimulation,
+    setStateSelectedParticipant,
+    setStateSelectedRideRequest,
+    setStateSpectator,
+    showError,
+    stateSelectedParticipant,
+    stateSelectedRideRequest,
+    stateSettingsGlobalDebug,
+    stateSettingsMapBaseUrlPathfinder,
+    stateSettingsMapBaseUrlSimulation,
+    stateSettingsMapUpdateRateInMs,
+  } = props;
+
   // React states
   const defaultOptions: TextInputSpectatorOptionStateType = [
     {
@@ -88,7 +87,7 @@ export default function TabMap({
       type: 'match',
     },
   ];
-  const [stateSelectOptions, setSelectOptionsState] = useState(defaultOptions);
+  const [stateOptions, setStateOptions] = useState(defaultOptions);
   const [stateDebugData, setStateDebugData] = useState<DebugData>({
     customers: [],
     rideProviders: [],
@@ -129,13 +128,13 @@ export default function TabMap({
       simulationEndpoints.apiV1.graphInformation
     )
       .then(data => setGraphState(data))
-      .catch(err => stateShowError('Fetch simulation graph', err));
+      .catch(err => showError('Fetch simulation graph', err));
     fetchJsonEndpoint<PathfinderEndpointGraphInformation>(
       stateSettingsMapBaseUrlPathfinder,
       pathfinderEndpoints.graphInformation
     )
       .then(data => setPathfinderGraphState(data))
-      .catch(err => stateShowError('Fetch pathfinder graph', err));
+      .catch(err => showError('Fetch pathfinder graph', err));
   };
 
   const fetchDebugData = (clear = false) => {
@@ -203,7 +202,19 @@ export default function TabMap({
           smartContracts,
         })
       )
-      .catch(err => stateShowError('Fetch debug data', err));
+      .catch(err => showError('Fetch debug data', err));
+  };
+
+  // TODO: Start Position
+
+  const propsTabMap = {
+    setStateSelectedParticipant,
+    setStateSelectedRideRequest,
+    stateGraph,
+    stateGraphPathfinder,
+    stateParticipants,
+    stateSelectedParticipant,
+    stateSelectedRideRequest,
   };
 
   // React: Effects
@@ -214,7 +225,7 @@ export default function TabMap({
       )
         .then(data => {
           setParticipantsState(data);
-          setSelectOptionsState([
+          setStateOptions([
             ...defaultOptions,
             ...(stateParticipants.customers.map(a => ({
               label: `${a.id}`,
@@ -229,7 +240,7 @@ export default function TabMap({
           ]);
         })
         .catch(err =>
-          stateShowError('Fetch simulation participant coordinates', err)
+          showError('Fetch simulation participant coordinates', err)
         );
     }, stateSettingsMapUpdateRateInMs);
     return () => {
@@ -246,31 +257,11 @@ export default function TabMap({
   return (
     <TabContainer>
       <Box component="section" className={styles['tab-map']}>
-        <TextInputSpectator
-          stateOptions={stateSelectOptions}
-          stateSpectator={stateSpectator}
-          setStateSpectator={setStateSpectator}
-        />
-
+        <TextInputSpectator {...props} stateOptions={stateOptions} />
         <Map
-          stateParticipants={stateParticipants}
+          {...props}
+          {...propsTabMap}
           startPos={{lat: 48.7784485, long: 9.1800132, zoom: 11}}
-          stateSpectator={stateSpectator}
-          setStateSpectator={setStateSpectator}
-          stateSelectedParticipant={stateSelectedParticipant}
-          setStateSelectedParticipant={setStateSelectedParticipant}
-          stateGraph={stateGraph}
-          stateGraphPathfinder={stateGraphPathfinder}
-          stateSettingsGlobalDebug={stateSettingsGlobalDebug}
-          stateSettingsMapShowTooltips={stateSettingsMapShowTooltips}
-          stateSettingsMapOpenPopupOnHover={stateSettingsMapOpenPopupOnHover}
-          stateSettingsMapBaseUrlPathfinder={stateSettingsMapBaseUrlPathfinder}
-          stateSettingsMapBaseUrlSimulation={stateSettingsMapBaseUrlSimulation}
-          stateSettingsMapUpdateRateInMs={stateSettingsMapUpdateRateInMs}
-          stateSelectedRideRequest={stateSelectedRideRequest}
-          setStateSelectedRideRequest={setStateSelectedRideRequest}
-          showError={stateShowError}
-          fetchJsonSimulation={fetchJsonSimulation}
         />
 
         <Box
@@ -286,56 +277,56 @@ export default function TabMap({
             <Chip label="Control Simulation" size="small" />
           </Divider>
           <ButtonGroup variant="contained" aria-label="Basic button group">
-            <Button
+            <GenericButton
               onClick={() =>
                 fetchTextEndpoint(
                   stateSettingsMapBaseUrlSimulation,
                   simulationEndpoints.simulation.state
                 )
                   .then(a => alert(`Simulation state: ${a}`))
-                  .catch(err => stateShowError('Fetch simulation state', err))
+                  .catch(err => showError('Fetch simulation state', err))
               }
             >
               State
-            </Button>
-            <Button
+            </GenericButton>
+            <GenericButton
               onClick={() =>
                 fetchTextEndpoint(
                   stateSettingsMapBaseUrlSimulation,
                   simulationEndpoints.simulation.pause
-                ).catch(err =>
-                  stateShowError('Fetch simulation state pause', err)
-                )
+                ).catch(err => showError('Fetch simulation state pause', err))
               }
             >
               Pause
-            </Button>
-            <Button
+            </GenericButton>
+            <GenericButton
               onClick={() =>
                 fetchTextEndpoint(
                   stateSettingsMapBaseUrlSimulation,
                   simulationEndpoints.simulation.run
-                ).catch(err =>
-                  stateShowError('Fetch simulation state run', err)
-                )
+                ).catch(err => showError('Fetch simulation state run', err))
               }
             >
               Run
-            </Button>
+            </GenericButton>
           </ButtonGroup>
 
           <Divider>
             <Chip label="Change Spectator" size="small" />
           </Divider>
           <ButtonGroup variant="contained" aria-label="Basic button group">
-            <Button onClick={() => switchSpectator('everything')}>
+            <GenericButton onClick={() => switchSpectator('everything')}>
               Everything
-            </Button>
-            <Button onClick={() => switchSpectator('public')}>Public</Button>
-            <Button onClick={() => switchSpectator('auth')}>AuthService</Button>
-            <Button onClick={() => switchSpectator('match')}>
+            </GenericButton>
+            <GenericButton onClick={() => switchSpectator('public')}>
+              Public
+            </GenericButton>
+            <GenericButton onClick={() => switchSpectator('auth')}>
+              AuthService
+            </GenericButton>
+            <GenericButton onClick={() => switchSpectator('match')}>
               MatchService
-            </Button>
+            </GenericButton>
           </ButtonGroup>
           {stateSettingsGlobalDebug ? (
             <>
@@ -343,8 +334,12 @@ export default function TabMap({
                 <Chip label="Debug Graphs/Pathfinder" size="small" />
               </Divider>
               <ButtonGroup variant="contained" aria-label="Basic button group">
-                <Button onClick={() => fetchGraphs()}>Fetch Graphs</Button>
-                <Button onClick={() => fetchGraphs(true)}>Clear Graphs</Button>
+                <GenericButton onClick={() => fetchGraphs()}>
+                  Fetch Graphs
+                </GenericButton>
+                <GenericButton onClick={() => fetchGraphs(true)}>
+                  Clear Graphs
+                </GenericButton>
               </ButtonGroup>
             </>
           ) : (
@@ -356,12 +351,12 @@ export default function TabMap({
                 <Chip label="Debug Data" size="small" />
               </Divider>
               <ButtonGroup variant="contained" aria-label="Basic button group">
-                <Button onClick={() => fetchDebugData()}>
+                <GenericButton onClick={() => fetchDebugData()}>
                   Fetch Debug Data
-                </Button>
-                <Button onClick={() => fetchDebugData(true)}>
+                </GenericButton>
+                <GenericButton onClick={() => fetchDebugData(true)}>
                   Clear Debug Data
-                </Button>
+                </GenericButton>
               </ButtonGroup>
             </>
           ) : (

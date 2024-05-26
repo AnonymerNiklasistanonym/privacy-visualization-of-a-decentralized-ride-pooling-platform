@@ -178,6 +178,7 @@ export default function TabSettings({
   stateSettingsMapShowTooltips,
   stateSettingsMapUpdateRateInMs,
 }: TabSettingsProps) {
+  // Settings cards
   const settingsBlockchain = renderSettings('BLOCKCHAIN', [
     {
       label: 'Blockchain update rate',

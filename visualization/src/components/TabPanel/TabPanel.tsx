@@ -1,7 +1,7 @@
 'use client';
 
 // Package imports
-import {useEffect, useState} from 'react';
+import {useCallback, useEffect, useMemo, useState} from 'react';
 import {usePathname, useRouter, useSearchParams} from 'next/navigation';
 // > Components
 import {Box, ButtonGroup, Chip, Divider} from '@mui/material';
@@ -10,10 +10,10 @@ import Link from 'next/link';
 import {baseUrlPathfinder, baseUrlSimulation} from '@globals/defaults/urls';
 // Local imports
 import {fetchJson} from '@globals/lib/fetch';
-import {showErrorBuilder} from '@misc/modals';
+import {showErrorBuilder} from '@components/Modal/ErrorModal';
 // > Components
-import Button from '@components/Button';
 import ErrorModal from '@components/Modal/ErrorModal';
+import GenericButton from '@components/Button/GenericButton';
 import SnackbarContentChange from '@components/Snackbar/SnackbarContentChange';
 import TabBlockchain from '@components/Tab/TabBlockchain';
 import TabMap from '@components/Tab/TabMap';
@@ -22,7 +22,7 @@ import TabPanelContainer from './TabPanelContainer';
 import TabPanelHeader from './TabPanelHeader';
 import TabSettings from '@components/Tab/TabSettings';
 // Type imports
-import type {ErrorModalContentElement} from '@misc/modals';
+import type {ErrorModalContentElement} from '@components/Modal/ErrorModal';
 import type {FetchOptions} from '@globals/lib/fetch';
 import type {PropsWithChildren} from 'react';
 import type {ReactPropsI18n} from '@misc/react';
@@ -43,15 +43,19 @@ function CustomTabPanel(props: PropsWithChildren<CustomTabPanelProps>) {
       aria-labelledby={`simple-tab-${index}`}
       {...other}
     >
-      <a href={`link_${value}`}>
-        {value === index && <Box sx={{p: 3}}>{children}</Box>}
-      </a>
+      {value === index && <Box sx={{p: 3}}>{children}</Box>}
     </div>
   );
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface TabPanelProps extends ReactPropsI18n {}
+
+enum UrlParameters {
+  TAB_INDEX = 'tabIndex',
+  DEBUG = 'debug',
+  SPECTATOR = 'spectator',
+}
 
 export default function TabPanel({
   locale,
@@ -61,6 +65,13 @@ export default function TabPanel({
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
+  const params = useMemo(
+    () => new URLSearchParams(searchParams),
+    [searchParams]
+  );
+  const updateRouter = useCallback(() => {
+    router.replace(`${pathname}?${params.toString()}`);
+  }, [router, pathname, params]);
 
   // React: States
   // > Error Modal
@@ -70,7 +81,13 @@ export default function TabPanel({
   >([]);
   // > Tabpanel
   const [stateTabIndex, setStateTabIndex] = useState(
-    searchParams.get('index') ? Number(searchParams.get('index')) : 1
+    searchParams.get(UrlParameters.TAB_INDEX)
+      ? // Never go below min index 0 or over max index 3 (needs to be updated if additional pages are added!)
+        Math.min(
+          Math.max(0, Number(searchParams.get(UrlParameters.TAB_INDEX))),
+          3
+        )
+      : 1
   );
   // > Settings
   const [stateSettingsMapShowTooltips, setStateSettingsMapShowTooltips] =
@@ -83,15 +100,19 @@ export default function TabPanel({
     stateSettingsMapBaseUrlSimulation,
     setStateSettingsMapBaseUrlSimulation,
   ] = useState(baseUrlSimulation);
-  const [stateOpenPopupOnHover, setStateOpenPopupOnHover] = useState(false);
+  const [
+    stateSettingsMapOpenPopupOnHover,
+    setStateSettingsMapOpenPopupOnHover,
+  ] = useState(false);
   const [stateSettingsMapUpdateRateInMs, setStateSettingsMapUpdateRateInMs] =
     useState(1000 / 4);
   const [
     stateSettingsBlockchainUpdateRateInMs,
     setStateSettingsBlockchainUpdateRateInMs,
   ] = useState(1000 / 4);
-  const [stateSettingsGlobalDebug, setStateSettingsGlobalDebug] =
-    useState(false);
+  const [stateSettingsGlobalDebug, setStateSettingsGlobalDebug] = useState(
+    params.get(UrlParameters.DEBUG) === 'true'
+  );
   // > Snackbar
   const [stateSnackbarSpectatorOpen, setStateSnackbarSpectatorOpen] =
     useState(false);
@@ -104,7 +125,9 @@ export default function TabPanel({
     setStateSnackbarSelectedRideRequestOpen,
   ] = useState(false);
   // > Global States
-  const [stateSpectator, setStateSpectator] = useState('everything');
+  const [stateSpectator, setStateSpectator] = useState(
+    searchParams.get(UrlParameters.SPECTATOR) ?? 'everything'
+  );
   const [stateSelectedParticipant, setStateSelectedParticipant] = useState<
     string | undefined
   >(undefined);
@@ -126,6 +149,27 @@ export default function TabPanel({
     console.log('Selected ride request changed:', stateSelectedRideRequest);
     setStateSnackbarSelectedRideRequestOpen(true);
   }, [stateSelectedRideRequest, setStateSnackbarSelectedRideRequestOpen]);
+  // > URL parameters based on states
+  useEffect(() => {
+    console.log('Debug changed:', stateSettingsGlobalDebug);
+    if (stateSettingsGlobalDebug) {
+      params.set(UrlParameters.DEBUG, `${stateSettingsGlobalDebug}`);
+    } else {
+      params.delete(UrlParameters.DEBUG);
+    }
+    updateRouter();
+  }, [stateSettingsGlobalDebug, updateRouter, pathname, params]);
+  useEffect(() => {
+    console.log('Tab index changed:', stateTabIndex);
+    params.set(UrlParameters.TAB_INDEX, `${stateTabIndex}`);
+    updateRouter();
+  }, [stateTabIndex, updateRouter, pathname, params]);
+  useEffect(() => {
+    console.log('Spectator changed:', stateSpectator);
+    params.set(UrlParameters.SPECTATOR, stateSpectator);
+    updateRouter();
+  }, [stateSpectator, updateRouter, pathname, params]);
+  // TODO Add URL Parameters for spectator, etc.
 
   // Functions: With global state context
   const fetchJsonSimulation = async <T,>(
@@ -139,6 +183,36 @@ export default function TabPanel({
     stateErrorModalContent,
   });
 
+  // Group all available props together for easy forwarding
+  const props = {
+    fetchJsonSimulation,
+    setStateErrorModalContent,
+    setStateErrorModalOpen,
+    setStateSelectedParticipant,
+    setStateSelectedRideRequest,
+    setStateSettingsBlockchainUpdateRateInMs,
+    setStateSettingsGlobalDebug,
+    setStateSettingsMapBaseUrlPathfinder,
+    setStateSettingsMapBaseUrlSimulation,
+    setStateSettingsMapOpenPopupOnHover,
+    setStateSettingsMapShowTooltips,
+    setStateSettingsMapUpdateRateInMs,
+    setStateSpectator,
+    showError,
+    stateErrorModalContent,
+    stateErrorModalOpen,
+    stateSelectedParticipant,
+    stateSelectedRideRequest,
+    stateSettingsBlockchainUpdateRateInMs,
+    stateSettingsGlobalDebug,
+    stateSettingsMapBaseUrlPathfinder,
+    stateSettingsMapBaseUrlSimulation,
+    stateSettingsMapOpenPopupOnHover,
+    stateSettingsMapShowTooltips,
+    stateSettingsMapUpdateRateInMs,
+    stateSpectator,
+  };
+
   return (
     <TabPanelContainer locale={locale} messages={messages}>
       <Box sx={{width: '100%'}}>
@@ -146,9 +220,6 @@ export default function TabPanel({
           <TabPanelHeader
             stateTabIndex={stateTabIndex}
             handleChangeTabIndex={(event, newTabIndex) => {
-              const params = new URLSearchParams(searchParams);
-              params.set('index', `${newTabIndex}`);
-              router.replace(`${pathname}?${params.toString()}`);
               setStateTabIndex(newTabIndex);
             }}
           />
@@ -157,74 +228,13 @@ export default function TabPanel({
           <TabOverview stateSettingsGlobalDebug={stateSettingsGlobalDebug} />
         </CustomTabPanel>
         <CustomTabPanel value={stateTabIndex} index={1}>
-          <TabMap
-            fetchJsonSimulation={fetchJsonSimulation}
-            setStateSelectedParticipant={setStateSelectedParticipant}
-            setStateSelectedRideRequest={setStateSelectedRideRequest}
-            setStateSpectator={setStateSpectator}
-            showError={showError}
-            stateSelectedParticipant={stateSelectedParticipant}
-            stateSelectedRideRequest={stateSelectedRideRequest}
-            stateSettingsGlobalDebug={stateSettingsGlobalDebug}
-            stateSettingsMapBaseUrlPathfinder={
-              stateSettingsMapBaseUrlPathfinder
-            }
-            stateSettingsMapBaseUrlSimulation={
-              stateSettingsMapBaseUrlSimulation
-            }
-            stateSettingsMapOpenPopupOnHover={stateOpenPopupOnHover}
-            stateSettingsMapShowTooltips={stateSettingsMapShowTooltips}
-            stateSettingsMapUpdateRateInMs={stateSettingsMapUpdateRateInMs}
-            stateSpectator={stateSpectator}
-          />
+          <TabMap {...props} />
         </CustomTabPanel>
         <CustomTabPanel value={stateTabIndex} index={2}>
-          <TabBlockchain
-            fetchJsonSimulation={fetchJsonSimulation}
-            setStateSelectedParticipant={setStateSelectedParticipant}
-            setStateSelectedRideRequest={setStateSelectedRideRequest}
-            setStateSpectator={setStateSpectator}
-            showError={showError}
-            stateSelectedParticipant={stateSelectedParticipant}
-            stateSelectedRideRequest={stateSelectedRideRequest}
-            stateSettingsBlockchainUpdateRateInMs={
-              stateSettingsBlockchainUpdateRateInMs
-            }
-            stateSettingsGlobalDebug={stateSettingsGlobalDebug}
-            stateSpectator={stateSpectator}
-          />
+          <TabBlockchain {...props} />
         </CustomTabPanel>
         <CustomTabPanel value={stateTabIndex} index={3}>
-          <TabSettings
-            stateSettingsMapShowTooltips={stateSettingsMapShowTooltips}
-            setStateSettingsMapShowTooltips={setStateSettingsMapShowTooltips}
-            stateSettingsMapOpenPopupOnHover={stateOpenPopupOnHover}
-            setStateSettingsMapOpenPopupOnHover={setStateOpenPopupOnHover}
-            stateSettingsMapBaseUrlPathfinder={
-              stateSettingsMapBaseUrlPathfinder
-            }
-            stateSettingsMapBaseUrlSimulation={
-              stateSettingsMapBaseUrlSimulation
-            }
-            setStateSettingsMapBaseUrlPathfinder={
-              setStateSettingsMapBaseUrlPathfinder
-            }
-            setStateSettingsMapBaseUrlSimulation={
-              setStateSettingsMapBaseUrlSimulation
-            }
-            stateSettingsMapUpdateRateInMs={stateSettingsMapUpdateRateInMs}
-            stateSettingsBlockchainUpdateRateInMs={
-              stateSettingsBlockchainUpdateRateInMs
-            }
-            setStateSettingsMapUpdateRateInMs={
-              setStateSettingsMapUpdateRateInMs
-            }
-            setStateSettingsBlockchainUpdateRateInMs={
-              setStateSettingsBlockchainUpdateRateInMs
-            }
-            stateSettingsGlobalDebug={stateSettingsGlobalDebug}
-            setStateSettingsGlobalDebug={setStateSettingsGlobalDebug}
-          />
+          <TabSettings {...props} />
         </CustomTabPanel>
       </Box>
       <Box
@@ -242,14 +252,14 @@ export default function TabPanel({
               <Chip label="Debugging" size="small" />
             </Divider>
             <ButtonGroup variant="contained" aria-label="Basic button group">
-              <Button onClick={() => setStateErrorModalOpen(true)}>
+              <GenericButton onClick={() => setStateErrorModalOpen(true)}>
                 Open Error Modal
-              </Button>
+              </GenericButton>
               <Link target="_blank" href={stateSettingsMapBaseUrlSimulation}>
-                <Button onClick={() => {}}>Open Simulation Website</Button>
+                <GenericButton>Open Simulation Website</GenericButton>
               </Link>
               <Link target="_blank" href={stateSettingsMapBaseUrlPathfinder}>
-                <Button onClick={() => {}}>Open Pathfinder Website</Button>
+                <GenericButton>Open Pathfinder Website</GenericButton>
               </Link>
             </ButtonGroup>
           </>
@@ -257,12 +267,7 @@ export default function TabPanel({
           <></>
         )}
       </Box>
-      <ErrorModal
-        setStateErrorModalOpen={setStateErrorModalOpen}
-        setStateErrorModalContent={setStateErrorModalContent}
-        stateErrorModalContent={stateErrorModalContent}
-        stateErrorModalOpen={stateErrorModalOpen}
-      />
+      <ErrorModal {...props} />
       <SnackbarContentChange
         stateOpen={stateSnackbarSpectatorOpen}
         stateContent={stateSpectator}
