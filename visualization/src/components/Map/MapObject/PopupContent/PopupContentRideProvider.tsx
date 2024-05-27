@@ -11,22 +11,15 @@ import {
   ParticipantRideRequestIcon,
 } from '@components/Icons';
 import ChangeViewButton from '@components/Button/ChangeViewButton';
+import {ParticipantsRideProvider} from '@components/Tab/TabOverview/Elements';
 // Type imports
-import type {
-  GlobalPropsFetch,
-  GlobalPropsShowError,
-  GlobalPropsUserInput,
-  GlobalPropsUserInputSet,
-} from '@misc/globalProps';
 import type {ChangeViewButtonProps} from '@components/Button/ChangeViewButton';
 import type {DataElement} from './PopupContentGeneric';
+import type {GlobalPropsSpectatorSelectedElementsSet} from '@misc/props/global';
 import type {SimulationEndpointParticipantInformationRideProvider} from '@globals/types/simulation';
 
 export interface PopupContentRideProviderProps
-  extends GlobalPropsUserInput,
-    GlobalPropsUserInputSet,
-    GlobalPropsShowError,
-    GlobalPropsFetch,
+  extends GlobalPropsSpectatorSelectedElementsSet,
     ChangeViewButtonProps {
   rideProvider: SimulationEndpointParticipantInformationRideProvider;
 }
@@ -112,6 +105,10 @@ export default function PopupContentRideProvider(
             key={`car-data-${a.label}`}
             element={a}
             id={rideProvider.id}
+            dataOriginId={rideProvider.id}
+            dataOriginIcon={<ParticipantRideProviderIcon />}
+            dataOriginName={`Ride Provider (${rideProvider.id})`}
+            dataOriginInformation={<ParticipantsRideProvider />}
           />
         ))}
       </List>
@@ -129,6 +126,10 @@ export default function PopupContentRideProvider(
             key={`personal-data-${a.label}`}
             element={a}
             id={rideProvider.id}
+            dataOriginId={rideProvider.id}
+            dataOriginIcon={<ParticipantRideProviderIcon />}
+            dataOriginName={`Ride Provider (${rideProvider.id})`}
+            dataOriginInformation={<ParticipantsRideProvider />}
           />
         ))}
       </List>

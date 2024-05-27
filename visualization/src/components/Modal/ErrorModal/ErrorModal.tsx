@@ -23,19 +23,23 @@ export interface ErrorModalContentElement {
 }
 
 export interface ErrorModalProps
-  extends ErrorModalPropsSetStates,
-    ErrorModalPropsErrorBuilder {
+  extends ErrorModalPropsGet,
+    ErrorModalPropsSet,
+    ErrorModalPropsErrorBuilder {}
+
+export interface ErrorModalPropsGet {
   stateErrorModalOpen: ReactState<boolean>;
+  stateErrorModalContent: ReactState<Array<ErrorModalContentElement>>;
 }
 
-export interface ErrorModalPropsSetStates {
+export interface ErrorModalPropsSet {
   setStateErrorModalOpen: ReactSetState<boolean>;
   setStateErrorModalContent: ReactSetState<Array<ErrorModalContentElement>>;
 }
 
-export interface ErrorModalPropsErrorBuilder extends ErrorModalPropsSetStates {
-  stateErrorModalContent: ReactState<Array<ErrorModalContentElement>>;
-}
+export interface ErrorModalPropsErrorBuilder
+  extends ErrorModalPropsGet,
+    ErrorModalPropsSet {}
 
 export const compareErrorModalContent = (
   title: string,

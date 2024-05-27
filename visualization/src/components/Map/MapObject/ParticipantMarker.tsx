@@ -21,9 +21,9 @@ import {simulationEndpoints} from '@globals/defaults/endpoints';
 import type {
   GlobalPropsFetch,
   GlobalPropsShowError,
-  GlobalPropsUserInput,
-  GlobalPropsUserInputSet,
-} from '@misc/globalProps';
+  GlobalPropsSpectatorSelectedElements,
+  GlobalPropsSpectatorSelectedElementsSet,
+} from '@misc/props/global';
 import type {ReactSetState, ReactState} from '@misc/react';
 import type {
   SimulationEndpointParticipantIdFromPseudonym,
@@ -32,19 +32,19 @@ import type {
   SimulationEndpointParticipantTypes,
   SimulationEndpointRideRequestInformation,
 } from '@globals/types/simulation';
+import type {SettingsMapProps} from '@misc/props/settings';
 import type {SimulationEndpointParticipantCoordinatesParticipant} from '@globals/types/simulation';
 
 interface ParticipantMarkerProps
-  extends GlobalPropsUserInputSet,
-    GlobalPropsUserInput,
+  extends GlobalPropsSpectatorSelectedElementsSet,
+    GlobalPropsSpectatorSelectedElements,
     GlobalPropsFetch,
-    GlobalPropsShowError {
+    GlobalPropsShowError,
+    SettingsMapProps {
   /** The participant ID and current coordinates */
   stateParticipantCoordinates: ReactState<SimulationEndpointParticipantCoordinatesParticipant>;
   /** The participant ID and current coordinates */
   participantType: SimulationEndpointParticipantTypes;
-  stateOpenPopupOnHover: ReactState<boolean>;
-  stateShowTooltip: ReactState<boolean>;
 }
 
 // TODO
@@ -57,20 +57,17 @@ const rideRequestColor = 'blue';
  * On click it opens a popup element which allows further interaction and prints detailed information.
  * The displayed content changes depending on who the current spectator is.
  */
-export default function ParticipantMarker({
-  stateParticipantCoordinates,
-  stateSpectator,
-  setStateSpectator,
-  participantType,
-  stateShowTooltip,
-  stateOpenPopupOnHover,
-  stateSelectedParticipant,
-  setStateSelectedParticipant,
-  showError,
-  fetchJsonSimulation,
-  setStateSelectedRideRequest,
-  stateSelectedRideRequest,
-}: ParticipantMarkerProps) {
+export default function ParticipantMarker(props: ParticipantMarkerProps) {
+  const {
+    stateParticipantCoordinates,
+    stateSpectator,
+    participantType,
+    stateSelectedParticipant,
+    showError,
+    fetchJsonSimulation,
+    stateSelectedRideRequest,
+  } = props;
+
   // React: States
   // > Fetch additional participant information
   const [stateCustomerInformation, setStateCustomerInformation] =
@@ -168,25 +165,14 @@ export default function ParticipantMarker({
 
   return (
     <ParticipantMarkerElement
-      fetchJsonSimulation={fetchJsonSimulation}
+      {...props}
       fetchParticipantInformation={fetchParticipantInformation}
-      participantType={participantType}
       setStatePopupOpen={setStatePopupOpen}
-      setStateSelectedParticipant={setStateSelectedParticipant}
-      setStateSelectedRideRequest={setStateSelectedRideRequest}
-      setStateSpectator={setStateSpectator}
-      showError={showError}
       showParticipant={showParticipant}
       showRideRequest={showRideRequest}
       stateCustomerInformation={stateCustomerInformation}
-      stateOpenPopupOnHover={stateOpenPopupOnHover}
-      stateParticipantCoordinates={stateParticipantCoordinates}
       stateRideProviderInformation={stateRideProviderInformation}
       stateRideRequestInformation={stateRideRequestInformation}
-      stateSelectedParticipant={stateSelectedParticipant}
-      stateSelectedRideRequest={stateSelectedRideRequest}
-      stateShowTooltip={stateShowTooltip}
-      stateSpectator={stateSpectator}
     />
   );
 }
@@ -204,8 +190,8 @@ export function ParticipantMarkerElement(props: ParticipantMarkerElementProps) {
   const {
     stateParticipantCoordinates,
     participantType,
-    stateShowTooltip,
-    stateOpenPopupOnHover,
+    stateSettingsMapShowTooltips,
+    stateSettingsMapOpenPopupOnHover,
     setStateSelectedParticipant,
     showError,
     showParticipant,
@@ -242,14 +228,14 @@ export function ParticipantMarkerElement(props: ParticipantMarkerElementProps) {
           setStateSelectedParticipant(stateParticipantCoordinates.id),
         // Open/Close popup on mouse hover if enabled
         mouseout: e => {
-          if (stateOpenPopupOnHover) {
+          if (stateSettingsMapOpenPopupOnHover) {
             setTimeout(() => {
               e.target.closePopup();
             }, 1000);
           }
         },
         mouseover: e => {
-          if (stateOpenPopupOnHover) {
+          if (stateSettingsMapOpenPopupOnHover) {
             e.target.openPopup();
           }
         },
@@ -263,7 +249,7 @@ export function ParticipantMarkerElement(props: ParticipantMarkerElementProps) {
         },
       }}
     >
-      {stateShowTooltip ? (
+      {stateSettingsMapShowTooltips ? (
         // Show tooltip if enabled
         <Tooltip direction="bottom" offset={[0, 0]} opacity={1} permanent>
           {participantType} {stateParticipantCoordinates.id}

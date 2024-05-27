@@ -2,18 +2,19 @@
 // > Components
 import {
   Box,
+  Chip,
+  Divider,
   List,
-  ListItem,
-  ListItemText,
   ListSubheader,
   Modal,
   Typography,
 } from '@mui/material';
-// > Icons
-import {QuestionMark as QuestionMarkIcon} from '@mui/icons-material';
+import {Lock as LockIcon, LockOpen as LockOpenIcon} from '@mui/icons-material';
 // Local imports
-import ChangeViewButton from '@components/Button/ChangeViewButton';
+// > Components
+import DataModelListElement from './DataModalElement';
 // Type imports
+import type {ReactElement, ReactNode} from 'react';
 import type {ReactSetState, ReactState} from '@misc/react';
 import type {ChangeViewButtonProps} from '@components/Button/ChangeViewButton';
 
@@ -24,11 +25,13 @@ export type DataModalInformationAccessType =
   | 'transitive';
 
 export interface DataModalInformation {
+  icon?: ReactNode;
   isPseudonym?: boolean;
   accessType: DataModalInformationAccessType;
   name: string;
   description?: string;
-  spectator: string;
+  spectatorId: string;
+  spectatorInformation?: ReactNode;
 }
 
 export interface DataModalPropsSetStates {
@@ -40,47 +43,35 @@ export interface DataModalProps
     ChangeViewButtonProps {
   stateDataModalOpen: ReactState<boolean>;
   stateDataModalContent: ReactState<Array<DataModalInformation>>;
-}
-
-export interface DataModalPropsElement extends ChangeViewButtonProps {
-  stateDataModalContentElement: ReactState<DataModalInformation>;
-}
-
-export function DataModelListElement(props: DataModalPropsElement) {
-  const {stateDataModalContentElement} = props;
-  // TODO: Reuse element from overview to explain what a customer/service/... is!
-  return (
-    <>
-      <ListItem>
-        <ListItemText
-          primary={`${stateDataModalContentElement.name} (${stateDataModalContentElement.spectator})`}
-          secondary={stateDataModalContentElement.description}
-        />
-        <ChangeViewButton
-          {...props}
-          key={`modal_${stateDataModalContentElement.name}`}
-          actorId={stateDataModalContentElement.spectator}
-          icon={<QuestionMarkIcon />}
-          label={stateDataModalContentElement.name}
-          isPseudonym={stateDataModalContentElement.isPseudonym ?? false}
-        />
-      </ListItem>
-    </>
-  );
+  dataLabel: string;
+  dataValue: ReactNode;
+  dataValueSpectator: ReactNode;
+  dataOriginIcon: ReactElement;
+  dataOriginId: string;
+  dataOriginName: string;
 }
 
 export default function DataModal(props: DataModalProps) {
-  const {stateDataModalOpen, stateDataModalContent, setStateDataModalOpen} =
-    props;
+  const {
+    stateDataModalOpen,
+    stateDataModalContent,
+    setStateDataModalOpen,
+    dataLabel,
+    dataOriginName,
+    dataOriginIcon,
+    dataValueSpectator,
+  } = props;
   const listInformation: ReadonlyArray<
     [string, DataModalInformationAccessType]
   > = [
     ['Data Owner', 'owner'],
     ['Stores this data', 'local_storage'],
     ['Can request this data', 'transitive'],
-    ['Special information about why this actor has no access', 'none'],
+    ['Has no access', 'none'],
   ];
   // TODO: Add what data and from whom is inspected!
+  // TODO: Make this better
+  const dataValueHidden = dataValueSpectator === '******';
   return (
     <div>
       <Modal
@@ -103,9 +94,24 @@ export default function DataModal(props: DataModalProps) {
             transform: 'translate(-50%, -50%)',
           }}
         >
-          <Typography variant="h4" gutterBottom>
-            Who can see this data?
+          <Typography variant="h5" gutterBottom>
+            Who can see {dataLabel} from{' '}
+            <Chip
+              icon={dataOriginIcon}
+              label={dataOriginName}
+              color="primary"
+              onClick={() => {}}
+            />
+            ?
           </Typography>
+          {dataValueSpectator}
+          <Chip
+            sx={{marginLeft: '1rem', marginRight: '1rem'}}
+            icon={dataValueHidden ? <LockIcon /> : <LockOpenIcon />}
+            color={dataValueHidden ? 'error' : 'success'}
+            label={dataValueHidden ? 'Hidden' : 'Visible'}
+          />
+          <Divider sx={{paddingTop: '1rem'}} />
           {listInformation.map(([title, accessType]) => {
             const elements = stateDataModalContent.filter(
               a => a.accessType === accessType

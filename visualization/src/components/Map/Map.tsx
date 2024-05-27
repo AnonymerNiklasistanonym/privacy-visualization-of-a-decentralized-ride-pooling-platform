@@ -26,16 +26,16 @@ import '@styles/Map.module.scss';
 import type {
   GlobalPropsFetch,
   GlobalPropsShowError,
-  GlobalPropsUserInput,
-  GlobalPropsUserInputSet,
-} from '@misc/globalProps';
+  GlobalPropsSpectatorSelectedElements,
+  GlobalPropsSpectatorSelectedElementsSet,
+} from '@misc/props/global';
 import type {
   SimulationEndpointGraphInformation,
   SimulationEndpointParticipantCoordinates,
 } from '@globals/types/simulation';
 import type {PathfinderEndpointGraphInformation} from '@globals/types/pathfinder';
 import type {ReactState} from '@misc/react';
-import type {SettingsMapPropsStates} from '@misc/settings';
+import type {SettingsMapProps} from '@misc/props/settings';
 
 export interface StatPos {
   lat: number;
@@ -44,34 +44,28 @@ export interface StatPos {
 }
 
 export interface MapProps
-  extends SettingsMapPropsStates,
+  extends SettingsMapProps,
     GlobalPropsFetch,
     GlobalPropsShowError,
-    GlobalPropsUserInput,
-    GlobalPropsUserInputSet {
+    GlobalPropsSpectatorSelectedElements,
+    GlobalPropsSpectatorSelectedElementsSet {}
+
+export interface MapPropsInput extends MapProps {
   stateGraph: ReactState<SimulationEndpointGraphInformation>;
   stateGraphPathfinder: ReactState<PathfinderEndpointGraphInformation>;
-  stateParticipants: ReactState<SimulationEndpointParticipantCoordinates>;
   startPos: StatPos;
+  stateParticipants: ReactState<SimulationEndpointParticipantCoordinates>;
 }
 
-export default function Map({
-  stateGraph,
-  stateGraphPathfinder,
-  stateParticipants,
-  startPos,
-  stateSettingsGlobalDebug,
-  stateSpectator,
-  setStateSpectator,
-  stateSettingsMapShowTooltips,
-  stateSettingsMapOpenPopupOnHover,
-  stateSelectedParticipant,
-  setStateSelectedParticipant,
-  setStateSelectedRideRequest,
-  stateSelectedRideRequest,
-  showError,
-  fetchJsonSimulation,
-}: MapProps) {
+export default function Map(props: MapPropsInput) {
+  const {
+    stateGraph,
+    stateGraphPathfinder,
+    stateParticipants,
+    startPos,
+    stateSettingsGlobalDebug,
+  } = props;
+
   return (
     <Box sx={{width: 1}}>
       <MapContainer
@@ -92,19 +86,10 @@ export default function Map({
             <LayerGroup>
               {stateParticipants.customers.map(customer => (
                 <ParticipantMarker
+                  {...props}
                   key={`customer_marker_${customer.id}`}
                   stateParticipantCoordinates={customer}
-                  stateSpectator={stateSpectator}
-                  setStateSpectator={setStateSpectator}
                   participantType="customer"
-                  stateShowTooltip={stateSettingsMapShowTooltips}
-                  stateOpenPopupOnHover={stateSettingsMapOpenPopupOnHover}
-                  stateSelectedParticipant={stateSelectedParticipant}
-                  setStateSelectedParticipant={setStateSelectedParticipant}
-                  setStateSelectedRideRequest={setStateSelectedRideRequest}
-                  stateSelectedRideRequest={stateSelectedRideRequest}
-                  showError={showError}
-                  fetchJsonSimulation={fetchJsonSimulation}
                 />
               ))}
             </LayerGroup>
@@ -113,19 +98,10 @@ export default function Map({
             <LayerGroup>
               {stateParticipants.rideProviders.map(rideProvider => (
                 <ParticipantMarker
+                  {...props}
                   key={`ride_provider_marker_${rideProvider.id}`}
                   stateParticipantCoordinates={rideProvider}
-                  stateSpectator={stateSpectator}
-                  setStateSpectator={setStateSpectator}
                   participantType="ride_provider"
-                  stateShowTooltip={stateSettingsMapShowTooltips}
-                  stateOpenPopupOnHover={stateSettingsMapOpenPopupOnHover}
-                  stateSelectedParticipant={stateSelectedParticipant}
-                  setStateSelectedParticipant={setStateSelectedParticipant}
-                  setStateSelectedRideRequest={setStateSelectedRideRequest}
-                  stateSelectedRideRequest={stateSelectedRideRequest}
-                  showError={showError}
-                  fetchJsonSimulation={fetchJsonSimulation}
                 />
               ))}
             </LayerGroup>

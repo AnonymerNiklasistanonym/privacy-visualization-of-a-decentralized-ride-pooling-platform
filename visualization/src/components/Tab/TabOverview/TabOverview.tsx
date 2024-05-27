@@ -9,10 +9,10 @@ import {Blockchain, Participants, Services, Stakeholders} from './Elements';
 import TabContainer from '@components/Tab/TabContainer';
 import TabElementContainer from '@components/Tab/TabElementContainer';
 // Type imports
-import type {SettingsOverviewPropsStates} from '@misc/settings';
+import type {SettingsOverviewProps} from '@misc/props/settings';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface TabOverviewProps extends SettingsOverviewPropsStates {}
+export interface TabOverviewProps extends SettingsOverviewProps {}
 
 // eslint-disable-next-line no-empty-pattern
 export default function TabOverview({}: TabOverviewProps) {

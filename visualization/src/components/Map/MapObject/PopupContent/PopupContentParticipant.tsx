@@ -12,12 +12,6 @@ import {
 import ChangeViewButton from '@components/Button/ChangeViewButton';
 // Type imports
 import type {
-  GlobalPropsFetch,
-  GlobalPropsShowError,
-  GlobalPropsUserInput,
-  GlobalPropsUserInputSet,
-} from '@misc/globalProps';
-import type {
   SimulationEndpointParticipantCoordinatesParticipant,
   SimulationEndpointParticipantInformationCustomer,
   SimulationEndpointParticipantInformationRideProvider,
@@ -26,12 +20,7 @@ import type {
 import type {ChangeViewButtonProps} from '@components/Button/ChangeViewButton';
 import type {ReactState} from '@misc/react';
 
-export interface PopupContentParticipantProps
-  extends GlobalPropsUserInput,
-    GlobalPropsUserInputSet,
-    GlobalPropsShowError,
-    GlobalPropsFetch,
-    ChangeViewButtonProps {
+export interface PopupContentParticipantProps extends ChangeViewButtonProps {
   stateParticipantCoordinates: ReactState<SimulationEndpointParticipantCoordinatesParticipant>;
   stateCustomerInformation: ReactState<null | SimulationEndpointParticipantInformationCustomer>;
   stateRideProviderInformation: ReactState<null | SimulationEndpointParticipantInformationRideProvider>;
@@ -43,8 +32,8 @@ export default function PopupContentParticipant(
 ) {
   const {
     stateParticipantCoordinates,
-    stateCustomerInformation: customerInformationState,
-    stateRideProviderInformation: rideProviderInformationState,
+    stateCustomerInformation,
+    stateRideProviderInformation,
     participantType,
   } = props;
   return (
@@ -78,12 +67,12 @@ export default function PopupContentParticipant(
             size="small"
             variant="outlined"
           />
-          {rideProviderInformationState?.simulationStatus !== undefined ||
-          customerInformationState?.simulationStatus !== undefined ? (
+          {stateRideProviderInformation?.simulationStatus !== undefined ||
+          stateCustomerInformation?.simulationStatus !== undefined ? (
             <Chip
               label={
-                rideProviderInformationState?.simulationStatus ??
-                customerInformationState?.simulationStatus
+                stateRideProviderInformation?.simulationStatus ??
+                stateCustomerInformation?.simulationStatus
               }
               size="small"
               color="primary"
@@ -92,25 +81,25 @@ export default function PopupContentParticipant(
             <></>
           )}
         </Stack>
-        {customerInformationState === null && participantType === 'customer' ? (
+        {stateCustomerInformation === null && participantType === 'customer' ? (
           <Box sx={{display: 'flex', width: '100%'}} justifyContent="center">
             <CircularProgress />
           </Box>
-        ) : customerInformationState !== null ? (
+        ) : stateCustomerInformation !== null ? (
           <PopupContentCustomer
             {...props}
-            customer={customerInformationState}
+            customer={stateCustomerInformation}
           />
         ) : null}
-        {rideProviderInformationState === null &&
+        {stateRideProviderInformation === null &&
         participantType === 'ride_provider' ? (
           <Box sx={{display: 'flex', width: '100%'}} justifyContent="center">
             <CircularProgress />
           </Box>
-        ) : rideProviderInformationState !== null ? (
+        ) : stateRideProviderInformation !== null ? (
           <PopupContentRideProvider
             {...props}
-            rideProvider={rideProviderInformationState}
+            rideProvider={stateRideProviderInformation}
           />
         ) : null}
         <ChangeViewButton

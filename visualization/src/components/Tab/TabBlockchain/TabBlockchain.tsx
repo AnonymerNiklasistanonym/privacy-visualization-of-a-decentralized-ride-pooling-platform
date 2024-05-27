@@ -8,34 +8,13 @@ import {Divider, Typography} from '@mui/material';
 import TabContainer from '@components/Tab/TabContainer';
 import TableBlockchain from '@components/Table/TableBlockchain';
 // Type imports
-import type {
-  GlobalPropsFetch,
-  GlobalPropsShowError,
-  GlobalPropsUserInput,
-  GlobalPropsUserInputSet,
-} from '@misc/globalProps';
-import type {SettingsBlockchainPropsStates} from '@misc/settings';
+import type {TableBlockchainProps} from '@components/Table/TableBlockchain';
 
-export interface TabBlockchainProps
-  extends SettingsBlockchainPropsStates,
-    GlobalPropsUserInput,
-    GlobalPropsUserInputSet,
-    GlobalPropsShowError,
-    GlobalPropsFetch {}
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface TabBlockchainProps extends TableBlockchainProps {}
 
 // eslint-disable-next-line no-empty-pattern
-export default function TabBlockchain({
-  fetchJsonSimulation,
-  setStateSelectedParticipant,
-  setStateSelectedRideRequest,
-  setStateSpectator,
-  showError: stateShowError,
-  stateSelectedParticipant,
-  stateSelectedRideRequest,
-  stateSettingsBlockchainUpdateRateInMs,
-  stateSettingsGlobalDebug,
-  stateSpectator,
-}: TabBlockchainProps) {
+export default function TabBlockchain(props: TabBlockchainProps) {
   return (
     <TabContainer>
       <Typography variant="h5" gutterBottom>
@@ -45,20 +24,7 @@ export default function TabBlockchain({
       <Typography variant="body1" gutterBottom>
         TODO: Add pagination and don`t fetch all of them at once
       </Typography>
-      <TableBlockchain
-        stateSettingsGlobalDebug={stateSettingsGlobalDebug}
-        fetchJsonSimulation={fetchJsonSimulation}
-        setStateSelectedParticipant={setStateSelectedParticipant}
-        setStateSelectedRideRequest={setStateSelectedRideRequest}
-        setStateSpectator={setStateSpectator}
-        showError={stateShowError}
-        stateSelectedParticipant={stateSelectedParticipant}
-        stateSelectedRideRequest={stateSelectedRideRequest}
-        stateSettingsBlockchainUpdateRateInMs={
-          stateSettingsBlockchainUpdateRateInMs
-        }
-        stateSpectator={stateSpectator}
-      />
+      <TableBlockchain {...props} />
     </TabContainer>
   );
 }

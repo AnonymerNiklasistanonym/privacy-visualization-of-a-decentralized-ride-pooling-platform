@@ -3,13 +3,15 @@
 import {Box, Rating} from '@mui/material';
 import {DataGrid, GridToolbar} from '@mui/x-data-grid';
 // > Icons
+import {Error as ErrorIcon} from '@mui/icons-material';
+// Local imports
+// > Components
 import {
-  DirectionsCar as DirectionsCarIcon,
-  DirectionsWalk as DirectionsWalkIcon,
-  Error as ErrorIcon,
-  TravelExplore as TravelExploreIcon,
-  WebStories as WebStoriesIcon,
-} from '@mui/icons-material';
+  MiscRideContractSmartContractIcon,
+  ParticipantCustomerIcon,
+  ParticipantRideProviderIcon,
+  ParticipantRideRequestIcon,
+} from '@components/Icons';
 // Type imports
 import type {
   GridColDef,
@@ -39,13 +41,13 @@ export interface TableDebugDataProps {
 
 const renderTypeIcon = (type: DebugDataType) =>
   type === 'customer' ? (
-    <DirectionsWalkIcon />
+    <ParticipantCustomerIcon />
   ) : type === 'ride_provider' ? (
-    <DirectionsCarIcon />
+    <ParticipantRideProviderIcon />
   ) : type === 'ride_request' ? (
-    <TravelExploreIcon />
+    <ParticipantRideRequestIcon />
   ) : type === 'smart_contract' ? (
-    <WebStoriesIcon />
+    <MiscRideContractSmartContractIcon />
   ) : (
     <ErrorIcon />
   );

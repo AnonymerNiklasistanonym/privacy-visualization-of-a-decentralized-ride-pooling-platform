@@ -21,7 +21,7 @@ import TabElementContainer from '@components/Tab/TabElementContainer';
 // Type imports
 import type {ReactSetState, ReactState} from '@misc/react';
 import type {ReactNode} from 'react';
-import type {SettingsProps} from '@misc/settings';
+import type {SettingsProps} from '@misc/props/settings';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface TabSettingsProps extends SettingsProps {}

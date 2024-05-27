@@ -1,45 +1,32 @@
 // Package imports
 // > Components
 import {Button, Chip, Divider, List, Typography} from '@mui/material';
-// > Icons
-import {
-  DirectionsCar as DirectionsCarIcon,
-  Person as PersonIcon,
-  TravelExplore as TravelExploreIcon,
-} from '@mui/icons-material';
 // Local imports
+// > Components
+import {
+  ParticipantCustomerIcon,
+  ParticipantPersonalDataIcon,
+  ParticipantRideProviderIcon,
+  ParticipantRideRequestIcon,
+} from '@components/Icons';
+import {ParticipantsCustomer} from '@components/Tab/TabOverview/Elements';
 import {RenderDataElement} from './PopupContentGeneric';
 // > Components
-import ChangeViewButton from '../../../Button/ChangeViewButton/ChangeViewButton';
+import ChangeViewButton from '@components/Button/ChangeViewButton';
 // Type imports
-import type {
-  GlobalPropsFetch,
-  GlobalPropsShowError,
-  GlobalPropsUserInput,
-  GlobalPropsUserInputSet,
-} from '@misc/globalProps';
+import type {ChangeViewButtonProps} from '@components/Button/ChangeViewButton';
 import type {DataElement} from './PopupContentGeneric';
+import type {GlobalPropsSpectatorSelectedElementsSet} from '@misc/props/global';
 import type {SimulationEndpointParticipantInformationCustomer} from '@globals/types/simulation';
 
 export interface PopupContentCustomerProps
-  extends GlobalPropsUserInput,
-    GlobalPropsUserInputSet,
-    GlobalPropsShowError,
-    GlobalPropsFetch {
+  extends GlobalPropsSpectatorSelectedElementsSet,
+    ChangeViewButtonProps {
   customer: SimulationEndpointParticipantInformationCustomer;
 }
 
 export default function PopupContentCustomer(props: PopupContentCustomerProps) {
-  const {
-    customer,
-    showError: stateShowError,
-    setStateSpectator,
-    fetchJsonSimulation,
-    stateSelectedParticipant,
-    stateSpectator,
-    setStateSelectedRideRequest,
-    stateSelectedRideRequest,
-  } = props;
+  const {customer, setStateSelectedRideRequest} = props;
   const showContentSpectatorContactDetails = [
     {
       description: 'registered authentication service',
@@ -81,7 +68,11 @@ export default function PopupContentCustomer(props: PopupContentCustomerProps) {
   return (
     <>
       <Divider>
-        <Chip icon={<PersonIcon />} label="Personal Details" size="small" />
+        <Chip
+          icon={<ParticipantPersonalDataIcon />}
+          label="Personal Details"
+          size="small"
+        />
       </Divider>
       <List>
         {personalData.map((a, index) => (
@@ -90,36 +81,43 @@ export default function PopupContentCustomer(props: PopupContentCustomerProps) {
             key={`render-data-element-${index}`}
             element={a}
             id={customer.id}
+            dataOriginName={`Customer (${customer.id})`}
+            dataOriginId={customer.id}
+            dataOriginIcon={<ParticipantCustomerIcon />}
+            dataOriginInformation={<ParticipantsCustomer />}
           />
         ))}
       </List>
       <Divider>
-        <Chip icon={<DirectionsCarIcon />} label="Passenger" size="small" />
+        <Chip
+          icon={<ParticipantRideProviderIcon />}
+          label="Passenger"
+          size="small"
+        />
       </Divider>
       {customer.passenger !== undefined ? (
         <ChangeViewButton
+          {...props}
           actorId={customer.passenger}
-          icon={<DirectionsCarIcon />}
+          icon={<ParticipantRideProviderIcon />}
           label={'the current ride provider'}
-          setStateSpectator={setStateSpectator}
           isPseudonym={true}
-          showError={stateShowError}
-          fetchJsonSimulation={fetchJsonSimulation}
-          stateSelectedParticipant={stateSelectedParticipant}
-          stateSpectator={stateSpectator}
-          stateSelectedRideRequest={stateSelectedRideRequest}
         />
       ) : (
         <></>
       )}
       <Divider>
-        <Chip icon={<TravelExploreIcon />} label="Ride Request" size="small" />
+        <Chip
+          icon={<ParticipantRideRequestIcon />}
+          label="Ride Request"
+          size="small"
+        />
       </Divider>
       <Typography variant="body2" gutterBottom>
         {customer.rideRequest !== undefined ? (
           <Button
             variant="contained"
-            startIcon={<TravelExploreIcon />}
+            startIcon={<ParticipantRideRequestIcon />}
             onClick={() => setStateSelectedRideRequest(customer.rideRequest)}
           >
             Show ride request ({customer.rideRequest})

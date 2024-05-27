@@ -14,19 +14,23 @@ import {
 } from '@mui/material';
 // > Icons
 import {
-  DirectionsCar as DirectionsCarIcon,
-  DirectionsWalk as DirectionsWalkIcon,
   ExpandLess as ExpandLessIcon,
   ExpandMore as ExpandMoreIcon,
-  WebStories as WebStoriesIcon,
 } from '@mui/icons-material';
+// Local imports
+// > Components
+import {
+  MiscRideContractSmartContractIcon,
+  ParticipantCustomerIcon,
+  ParticipantRideProviderIcon,
+} from '@components/Icons';
 // Type imports
-import type {GlobalPropsUserInputSetParticipant} from '@misc/globalProps';
+import type {GlobalPropsSpectatorSelectedElementsSet} from '@misc/props/global';
 import type {ReactState} from '@misc/react';
 import type {SimulationEndpointSmartContractInformation} from '@globals/types/simulation';
 
 export interface TableBlockchainElementProps
-  extends GlobalPropsUserInputSetParticipant {
+  extends GlobalPropsSpectatorSelectedElementsSet {
   stateSmartContract: ReactState<SimulationEndpointSmartContractInformation>;
 }
 
@@ -44,7 +48,7 @@ export default function TableBlockchainElement({
     <>
       <ListItemButton onClick={handleClick}>
         <ListItemIcon>
-          <WebStoriesIcon />
+          <MiscRideContractSmartContractIcon />
         </ListItemIcon>
         <ListItemText primary={`Wallet ${stateSmartContract.walletId}`} />
         {open ? <ExpandLessIcon /> : <ExpandMoreIcon />}
@@ -64,7 +68,7 @@ export default function TableBlockchainElement({
               }
             >
               <ListItemIcon>
-                <DirectionsWalkIcon />
+                <ParticipantCustomerIcon />
               </ListItemIcon>
               <ListItemText
                 primary={`Customer ${stateSmartContract.customerId}`}
@@ -84,7 +88,7 @@ export default function TableBlockchainElement({
               }
             >
               <ListItemIcon>
-                <DirectionsCarIcon />
+                <ParticipantRideProviderIcon />
               </ListItemIcon>
               <ListItemText
                 primary={`Ride Provider ${stateSmartContract.rideProviderId}`}

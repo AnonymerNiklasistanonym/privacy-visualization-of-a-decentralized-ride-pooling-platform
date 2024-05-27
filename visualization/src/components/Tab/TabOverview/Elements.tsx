@@ -128,17 +128,33 @@ export function Participants() {
       <Typography variant="h4" id="anchor-participants" gutterBottom>
         Participants
       </Typography>
+      <ParticipantsCustomer />
+      <ParticipantsRideProvider />
+    </>
+  );
+}
+
+export function ParticipantsCustomer() {
+  return (
+    <>
       <Typography variant="h5" id="anchor-customer" gutterBottom>
         <ParticipantCustomerIcon fontSize="small" /> Customer
       </Typography>
       <Typography variant="body1" gutterBottom>
-        Text
+        TODO: Add presentation information about Customer
       </Typography>
+    </>
+  );
+}
+
+export function ParticipantsRideProvider() {
+  return (
+    <>
       <Typography variant="h5" id="anchor-ride-provider" gutterBottom>
         <ParticipantRideProviderIcon fontSize="small" /> Ride Provider
       </Typography>
       <Typography variant="body1" gutterBottom>
-        Text
+        TODO: Add presentation information about Ride Provider
       </Typography>
     </>
   );

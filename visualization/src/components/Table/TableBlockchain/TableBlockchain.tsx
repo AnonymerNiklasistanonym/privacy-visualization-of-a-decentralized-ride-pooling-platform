@@ -11,28 +11,29 @@ import {simulationEndpoints} from '@globals/defaults/endpoints';
 import type {
   GlobalPropsFetch,
   GlobalPropsShowError,
-  GlobalPropsUserInput,
-  GlobalPropsUserInputSet,
-} from '@misc/globalProps';
+  GlobalPropsSpectatorSelectedElements,
+  GlobalPropsSpectatorSelectedElementsSet,
+} from '@misc/props/global';
 import type {
   SimulationEndpointSmartContractInformation,
   SimulationEndpointSmartContracts,
 } from '@globals/types/simulation';
-import type {SettingsBlockchainPropsStates} from '@misc/settings';
+import type {SettingsBlockchainProps} from '@misc/props/settings';
 
 export interface TableBlockchainProps
-  extends SettingsBlockchainPropsStates,
+  extends SettingsBlockchainProps,
     GlobalPropsFetch,
     GlobalPropsShowError,
-    GlobalPropsUserInput,
-    GlobalPropsUserInputSet {}
+    GlobalPropsSpectatorSelectedElements,
+    GlobalPropsSpectatorSelectedElementsSet {}
 
-export default function TableBlockchain({
-  stateSettingsBlockchainUpdateRateInMs,
-  showError: stateShowError,
-  setStateSelectedParticipant,
-  fetchJsonSimulation,
-}: TableBlockchainProps) {
+export default function TableBlockchain(props: TableBlockchainProps) {
+  const {
+    stateSettingsBlockchainUpdateRateInMs,
+    showError: stateShowError,
+    fetchJsonSimulation,
+  } = props;
+
   // React: States
   const [stateSmartContracts, setStateSmartContracts] = useState<
     Array<SimulationEndpointSmartContractInformation>
@@ -75,9 +76,9 @@ export default function TableBlockchain({
       >
         {stateSmartContracts.map(smartContract => (
           <TableBlockchainElement
+            {...props}
             key={smartContract.walletId}
             stateSmartContract={smartContract}
-            setStateSelectedParticipant={setStateSelectedParticipant}
           />
         ))}
       </List>

@@ -1,7 +1,7 @@
 'use client';
 
 // Package imports
-import * as React from 'react';
+import {useState} from 'react';
 // > Components
 import {Paper, SpeedDial, SpeedDialAction, SpeedDialIcon} from '@mui/material';
 // > Icons
@@ -20,7 +20,7 @@ const actions = [
 ];
 
 export default function SpeedDialTooltipOpen() {
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 

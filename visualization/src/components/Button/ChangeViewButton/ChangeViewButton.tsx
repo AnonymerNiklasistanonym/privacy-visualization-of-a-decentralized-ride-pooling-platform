@@ -10,16 +10,16 @@ import {simulationEndpoints} from '@globals/defaults/endpoints';
 import type {
   GlobalPropsFetch,
   GlobalPropsShowError,
-  GlobalPropsUserInput,
-  GlobalPropsUserInputSetSpectator,
-} from '@misc/globalProps';
+  GlobalPropsSpectatorSelectedElements,
+  GlobalPropsSpectatorSelectedElementsSet,
+} from '@misc/props/global';
 import type {ReactNode} from 'react';
 import type {SimulationEndpointParticipantIdFromPseudonym} from '@globals/types/simulation';
 
 /** Props necessary to render the 'Change View Button' */
 export interface ChangeViewButtonProps
-  extends GlobalPropsUserInput,
-    GlobalPropsUserInputSetSpectator,
+  extends GlobalPropsSpectatorSelectedElements,
+    GlobalPropsSpectatorSelectedElementsSet,
     GlobalPropsShowError,
     GlobalPropsFetch {}
 

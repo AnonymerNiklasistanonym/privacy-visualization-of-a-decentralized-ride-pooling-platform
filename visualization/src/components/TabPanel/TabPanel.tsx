@@ -22,10 +22,20 @@ import TabPanelContainer from './TabPanelContainer';
 import TabPanelHeader from './TabPanelHeader';
 import TabSettings from '@components/Tab/TabSettings';
 // Type imports
-import type {ErrorModalContentElement} from '@components/Modal/ErrorModal';
+import type {
+  ErrorModalContentElement,
+  ErrorModalProps,
+} from '@components/Modal/ErrorModal';
+import type {
+  GlobalPropsFetch,
+  GlobalPropsShowError,
+  GlobalPropsSpectatorSelectedElements,
+  GlobalPropsSpectatorSelectedElementsSet,
+} from '@misc/props/global';
 import type {FetchOptions} from '@globals/lib/fetch';
 import type {PropsWithChildren} from 'react';
 import type {ReactPropsI18n} from '@misc/react';
+import type {SettingsProps} from '@misc/props/settings';
 
 interface CustomTabPanelProps {
   index: number;
@@ -105,11 +115,11 @@ export default function TabPanel({
     setStateSettingsMapOpenPopupOnHover,
   ] = useState(false);
   const [stateSettingsMapUpdateRateInMs, setStateSettingsMapUpdateRateInMs] =
-    useState(1000 / 4);
+    useState(1000 / 5);
   const [
     stateSettingsBlockchainUpdateRateInMs,
     setStateSettingsBlockchainUpdateRateInMs,
-  ] = useState(1000 / 4);
+  ] = useState(1000 / 5);
   const [stateSettingsGlobalDebug, setStateSettingsGlobalDebug] = useState(
     params.get(UrlParameters.DEBUG) === 'true'
   );
@@ -134,6 +144,18 @@ export default function TabPanel({
   const [stateSelectedRideRequest, setStateSelectedRideRequest] = useState<
     string | undefined
   >(undefined);
+  // > Spectator List
+  // TODO Experiment with fixing the autocomplete select
+  const [stateSpectators, setStateSpectators] = useState<Map<string, {}>>(
+    new Map()
+  );
+  const updateMap = (spectators: Array<[string, {}]>) => {
+    for (const [spectatorId, spectatorInformation] of spectators) {
+      setStateSpectators(
+        prevState => new Map(prevState.set(spectatorId, spectatorInformation))
+      );
+    }
+  };
 
   // React: State change listeners
   // > Snackbar change listeners (only being run when a dependency changes)
@@ -149,7 +171,7 @@ export default function TabPanel({
     console.log('Selected ride request changed:', stateSelectedRideRequest);
     setStateSnackbarSelectedRideRequestOpen(true);
   }, [stateSelectedRideRequest, setStateSnackbarSelectedRideRequestOpen]);
-  // > URL parameters based on states
+  // > Update URL parameters
   useEffect(() => {
     console.log('Debug changed:', stateSettingsGlobalDebug);
     if (stateSettingsGlobalDebug) {
@@ -169,7 +191,6 @@ export default function TabPanel({
     params.set(UrlParameters.SPECTATOR, stateSpectator);
     updateRouter();
   }, [stateSpectator, updateRouter, pathname, params]);
-  // TODO Add URL Parameters for spectator, etc.
 
   // Functions: With global state context
   const fetchJsonSimulation = async <T,>(
@@ -181,10 +202,16 @@ export default function TabPanel({
     setStateErrorModalContent,
     setStateErrorModalOpen,
     stateErrorModalContent,
+    stateErrorModalOpen,
   });
 
   // Group all available props together for easy forwarding
-  const props = {
+  const props: GlobalPropsShowError &
+    GlobalPropsFetch &
+    GlobalPropsSpectatorSelectedElements &
+    GlobalPropsSpectatorSelectedElementsSet &
+    SettingsProps &
+    ErrorModalProps = {
     fetchJsonSimulation,
     setStateErrorModalContent,
     setStateErrorModalOpen,
@@ -225,7 +252,7 @@ export default function TabPanel({
           />
         </Box>
         <CustomTabPanel value={stateTabIndex} index={0}>
-          <TabOverview stateSettingsGlobalDebug={stateSettingsGlobalDebug} />
+          <TabOverview {...props} />
         </CustomTabPanel>
         <CustomTabPanel value={stateTabIndex} index={1}>
           <TabMap {...props} />

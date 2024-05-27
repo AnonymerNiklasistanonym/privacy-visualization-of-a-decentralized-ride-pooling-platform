@@ -7,6 +7,12 @@ import {Box, ButtonGroup, Chip, Divider} from '@mui/material';
 // Local imports
 import {fetchJsonEndpoint, fetchTextEndpoint} from '@misc/fetch';
 // > Components
+import {
+  ServiceAuthenticationIcon,
+  ServiceMatchingIcon,
+  SpectatorEverythingIcon,
+  SpectatorPublicIcon,
+} from '@components/Icons';
 import GenericButton from '@components/Button/GenericButton';
 import Map from '@components/Map';
 import TabContainer from '@components/Tab/TabContainer';
@@ -24,9 +30,9 @@ import styles from '@styles/Map.module.scss';
 import type {
   GlobalPropsFetch,
   GlobalPropsShowError,
-  GlobalPropsUserInput,
-  GlobalPropsUserInputSet,
-} from '@misc/globalProps';
+  GlobalPropsSpectatorSelectedElements,
+  GlobalPropsSpectatorSelectedElementsSet,
+} from '@misc/props/global';
 import type {
   SimulationEndpointGraphInformation,
   SimulationEndpointParticipantCoordinates,
@@ -38,14 +44,16 @@ import type {
   SimulationEndpointSmartContracts,
 } from '@globals/types/simulation';
 import type {DebugData} from '@components/Table/DebugData';
+import type {MapProps} from '@components/Map';
 import type {PathfinderEndpointGraphInformation} from '@globals/types/pathfinder';
-import type {SettingsMapPropsStates} from '@misc/settings';
-import type {TextInputSpectatorOptionStateType} from '@components/TextInput/TextInputSpectator/TextInputSpectator';
+import type {SettingsMapProps} from '@misc/props/settings';
+import type {TextInputSpectatorOptionStateType} from '@components/TextInput/TextInputSpectator';
 
 export interface TabMapProps
-  extends SettingsMapPropsStates,
-    GlobalPropsUserInput,
-    GlobalPropsUserInputSet,
+  extends SettingsMapProps,
+    MapProps,
+    GlobalPropsSpectatorSelectedElements,
+    GlobalPropsSpectatorSelectedElementsSet,
     GlobalPropsShowError,
     GlobalPropsFetch {}
 
@@ -54,7 +62,6 @@ export default function TabMap(props: TabMapProps) {
     fetchJsonSimulation,
     setStateSelectedParticipant,
     setStateSelectedRideRequest,
-    setStateSpectator,
     showError,
     stateSelectedParticipant,
     stateSelectedRideRequest,
@@ -247,13 +254,9 @@ export default function TabMap(props: TabMapProps) {
       clearInterval(interval);
     };
   });
-  const switchSpectator = (newSpectator: string) => {
-    setStateSpectator(newSpectator);
-  };
-  //React.useMemo(
-  //  () => allValues.filter((v) => v.selected),
-  //  [allValues],
-  //)
+
+  // TODO Fix Text input spectator
+
   return (
     <TabContainer>
       <Box component="section" className={styles['tab-map']}>
@@ -311,23 +314,7 @@ export default function TabMap(props: TabMapProps) {
             </GenericButton>
           </ButtonGroup>
 
-          <Divider>
-            <Chip label="Change Spectator" size="small" />
-          </Divider>
-          <ButtonGroup variant="contained" aria-label="Basic button group">
-            <GenericButton onClick={() => switchSpectator('everything')}>
-              Everything
-            </GenericButton>
-            <GenericButton onClick={() => switchSpectator('public')}>
-              Public
-            </GenericButton>
-            <GenericButton onClick={() => switchSpectator('auth')}>
-              AuthService
-            </GenericButton>
-            <GenericButton onClick={() => switchSpectator('match')}>
-              MatchService
-            </GenericButton>
-          </ButtonGroup>
+          <SectionChangeSpectator {...props} />
           {stateSettingsGlobalDebug ? (
             <>
               <Divider>
@@ -399,5 +386,52 @@ export default function TabMap(props: TabMapProps) {
         </Box>
       </Box>
     </TabContainer>
+  );
+}
+
+export interface SectionChangeSpectatorProps
+  extends GlobalPropsSpectatorSelectedElements,
+    GlobalPropsSpectatorSelectedElementsSet {}
+
+export function SectionChangeSpectator({
+  stateSpectator,
+  setStateSpectator,
+}: SectionChangeSpectatorProps) {
+  return (
+    <>
+      <Divider>
+        <Chip label="Change Spectator" size="small" />
+      </Divider>
+      <ButtonGroup variant="contained" aria-label="Basic button group">
+        <GenericButton
+          disabled={stateSpectator === 'everything'}
+          icon={<SpectatorEverythingIcon />}
+          onClick={() => setStateSpectator('everything')}
+        >
+          Everything
+        </GenericButton>
+        <GenericButton
+          disabled={stateSpectator === 'public'}
+          icon={<SpectatorPublicIcon />}
+          onClick={() => setStateSpectator('public')}
+        >
+          Public
+        </GenericButton>
+        <GenericButton
+          disabled={stateSpectator === 'auth'}
+          icon={<ServiceAuthenticationIcon />}
+          onClick={() => setStateSpectator('auth')}
+        >
+          AuthService
+        </GenericButton>
+        <GenericButton
+          disabled={stateSpectator === 'match'}
+          icon={<ServiceMatchingIcon />}
+          onClick={() => setStateSpectator('match')}
+        >
+          MatchService
+        </GenericButton>
+      </ButtonGroup>
+    </>
   );
 }
