@@ -21,7 +21,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@datastructures-js/priority-queue": "^6.3.1",
     "ajv": "^8.13.0",
     "cors": "^2.8.5",
     "express": "^4.19.2",
