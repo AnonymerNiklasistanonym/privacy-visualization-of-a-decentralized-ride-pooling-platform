@@ -33,6 +33,7 @@ import type {
   SimulationEndpointGraphInformation,
   SimulationEndpointParticipantCoordinates,
 } from '@globals/types/simulation';
+import type {GlobalSetPopupContent} from '@components/Map/MapObject/ParticipantMarker';
 import type {PathfinderEndpointGraphInformation} from '@globals/types/pathfinder';
 import type {ReactState} from '@misc/react';
 import type {SettingsMapProps} from '@misc/props/settings';
@@ -50,18 +51,18 @@ export interface MapProps
     GlobalPropsSpectatorSelectedElements,
     GlobalPropsSpectatorSelectedElementsSet {}
 
-export interface MapPropsInput extends MapProps {
+export interface MapPropsInput extends MapProps, GlobalSetPopupContent {
   stateGraph: ReactState<SimulationEndpointGraphInformation>;
   stateGraphPathfinder: ReactState<PathfinderEndpointGraphInformation>;
   startPos: StatPos;
-  stateParticipants: ReactState<SimulationEndpointParticipantCoordinates>;
+  stateParticipantCoordinatesList: ReactState<SimulationEndpointParticipantCoordinates>;
 }
 
 export default function Map(props: MapPropsInput) {
   const {
     stateGraph,
     stateGraphPathfinder,
-    stateParticipants,
+    stateParticipantCoordinatesList,
     startPos,
     stateSettingsGlobalDebug,
   } = props;
@@ -84,7 +85,7 @@ export default function Map(props: MapPropsInput) {
         <LayersControl position="topright">
           <LayersControl.Overlay checked={true} name="Customers">
             <LayerGroup>
-              {stateParticipants.customers.map(customer => (
+              {stateParticipantCoordinatesList.customers.map(customer => (
                 <ParticipantMarker
                   {...props}
                   key={`customer_marker_${customer.id}`}
@@ -96,14 +97,16 @@ export default function Map(props: MapPropsInput) {
           </LayersControl.Overlay>
           <LayersControl.Overlay checked={true} name="Ride Providers">
             <LayerGroup>
-              {stateParticipants.rideProviders.map(rideProvider => (
-                <ParticipantMarker
-                  {...props}
-                  key={`ride_provider_marker_${rideProvider.id}`}
-                  stateParticipantCoordinates={rideProvider}
-                  participantType="ride_provider"
-                />
-              ))}
+              {stateParticipantCoordinatesList.rideProviders.map(
+                rideProvider => (
+                  <ParticipantMarker
+                    {...props}
+                    key={`ride_provider_marker_${rideProvider.id}`}
+                    stateParticipantCoordinates={rideProvider}
+                    participantType="ride_provider"
+                  />
+                )
+              )}
             </LayerGroup>
           </LayersControl.Overlay>
           {stateSettingsGlobalDebug ? (

@@ -2,7 +2,7 @@
 // > Components
 import {Button, Chip, Divider, List, Typography} from '@mui/material';
 // Local imports
-import {RenderDataElement} from './PopupContentGeneric';
+import {dataModalInformationPersonalData} from './PopupContentGeneric';
 // > Components
 import {
   ParticipantCustomerIcon,
@@ -12,6 +12,7 @@ import {
 } from '@components/Icons';
 import ChangeViewButton from '@components/Button/ChangeViewButton';
 import {ParticipantsRideProvider} from '@components/Tab/TabOverview/Elements';
+import {RenderDataElement} from './PopupContentGeneric';
 // Type imports
 import type {ChangeViewButtonProps} from '@components/Button/ChangeViewButton';
 import type {DataElement} from './PopupContentGeneric';
@@ -37,11 +38,13 @@ export default function PopupContentRideProvider(
   const carData: DataElement[] = [
     {
       content: rideProvider.vehicleIdentificationNumber,
+      dataAccessInformation: [...dataModalInformationPersonalData],
       label: 'VIN (Vehicle Identification Number)',
       showContentSpectator: [...showContentSpectatorContactDetails],
     },
     {
       content: rideProvider.vehicleNumberPlate,
+      dataAccessInformation: [...dataModalInformationPersonalData],
       label: 'Vehicle Number Plate',
       showContentSpectator: [...showContentSpectatorContactDetails],
     },
@@ -50,6 +53,7 @@ export default function PopupContentRideProvider(
   if ('company' in rideProvider) {
     personalData.push({
       content: rideProvider.company,
+      dataAccessInformation: [...dataModalInformationPersonalData],
       label: 'Company',
       showContentSpectator: [...showContentSpectatorContactDetails],
     });
@@ -58,31 +62,37 @@ export default function PopupContentRideProvider(
       ...[
         {
           content: rideProvider.dateOfBirth,
+          dataAccessInformation: [...dataModalInformationPersonalData],
           label: 'Date of birth',
           showContentSpectator: [...showContentSpectatorContactDetails],
         },
         {
           content: rideProvider.emailAddress,
+          dataAccessInformation: [...dataModalInformationPersonalData],
           label: 'Email Address',
           showContentSpectator: [...showContentSpectatorContactDetails],
         },
         {
           content: rideProvider.fullName,
+          dataAccessInformation: [...dataModalInformationPersonalData],
           label: 'Full Name',
           showContentSpectator: [...showContentSpectatorContactDetails],
         },
         {
           content: rideProvider.gender,
+          dataAccessInformation: [...dataModalInformationPersonalData],
           label: 'Gender',
           showContentSpectator: [...showContentSpectatorContactDetails],
         },
         {
           content: rideProvider.homeAddress,
+          dataAccessInformation: [...dataModalInformationPersonalData],
           label: 'Home Address',
           showContentSpectator: [...showContentSpectatorContactDetails],
         },
         {
           content: rideProvider.phoneNumber,
+          dataAccessInformation: [...dataModalInformationPersonalData],
           label: 'Phone Number',
           showContentSpectator: [...showContentSpectatorContactDetails],
         },
@@ -109,6 +119,7 @@ export default function PopupContentRideProvider(
             dataOriginIcon={<ParticipantRideProviderIcon />}
             dataOriginName={`Ride Provider (${rideProvider.id})`}
             dataOriginInformation={<ParticipantsRideProvider />}
+            dataAccessInformation={a.dataAccessInformation}
           />
         ))}
       </List>
@@ -130,6 +141,7 @@ export default function PopupContentRideProvider(
             dataOriginIcon={<ParticipantRideProviderIcon />}
             dataOriginName={`Ride Provider (${rideProvider.id})`}
             dataOriginInformation={<ParticipantsRideProvider />}
+            dataAccessInformation={a.dataAccessInformation}
           />
         ))}
       </List>

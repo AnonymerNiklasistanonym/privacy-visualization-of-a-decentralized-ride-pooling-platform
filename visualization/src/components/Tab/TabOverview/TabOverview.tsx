@@ -6,8 +6,8 @@ import {Divider, Typography} from '@mui/material';
 // Local imports
 // > Components
 import {Blockchain, Participants, Services, Stakeholders} from './Elements';
+import PaperContainer from '@components/Container/PaperContainer';
 import TabContainer from '@components/Tab/TabContainer';
-import TabElementContainer from '@components/Tab/TabElementContainer';
 // Type imports
 import type {SettingsOverviewProps} from '@misc/props/settings';
 
@@ -18,7 +18,7 @@ export interface TabOverviewProps extends SettingsOverviewProps {}
 export default function TabOverview({}: TabOverviewProps) {
   return (
     <TabContainer>
-      <TabElementContainer
+      <PaperContainer
         elevation={2}
         style={
           {
@@ -80,7 +80,7 @@ export default function TabOverview({}: TabOverviewProps) {
           consectetur, neque doloribus, cupiditate numquam dignissimos laborum
           fugiat deleniti? Eum quasi quidem quibusdam.
         </Typography>
-      </TabElementContainer>
+      </PaperContainer>
     </TabContainer>
   );
 }

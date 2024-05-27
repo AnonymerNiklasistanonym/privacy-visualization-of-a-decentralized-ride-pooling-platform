@@ -166,17 +166,33 @@ export function Services() {
       <Typography variant="h4" id="anchor-services" gutterBottom>
         Services
       </Typography>
+      <ServiceAuthentication />
+      <ServiceMatching />
+    </>
+  );
+}
+
+export function ServiceAuthentication() {
+  return (
+    <>
       <Typography variant="h5" id="anchor-as" gutterBottom>
         <ServiceAuthenticationIcon fontSize="small" /> Authentication Service
       </Typography>
       <Typography variant="body1" gutterBottom>
-        Text
+        TODO: Add presentation information about Authentication Service
       </Typography>
+    </>
+  );
+}
+
+export function ServiceMatching() {
+  return (
+    <>
       <Typography variant="h5" id="anchor-ms" gutterBottom>
         <ServiceMatchingIcon fontSize="small" /> Matching Service
       </Typography>
       <Typography variant="body1" gutterBottom>
-        Text
+        TODO: Add presentation information about Matching Service
       </Typography>
     </>
   );

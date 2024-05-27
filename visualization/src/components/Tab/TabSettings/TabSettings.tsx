@@ -16,8 +16,8 @@ import {NumericFormat, NumericFormatProps} from 'react-number-format';
 import {forwardRef} from 'react';
 // Local imports
 // > Components
+import PaperContainer from '@components/Container/PaperContainer';
 import TabContainer from '@components/Tab/TabContainer';
-import TabElementContainer from '@components/Tab/TabElementContainer';
 // Type imports
 import type {ReactSetState, ReactState} from '@misc/react';
 import type {ReactNode} from 'react';
@@ -136,7 +136,7 @@ export const renderSettings = (
 ): ReactNode => {
   return (
     <Grid item xs={12} md={6}>
-      <TabElementContainer>
+      <PaperContainer>
         <List
           sx={{
             '& ul': {padding: 0},
@@ -157,7 +157,7 @@ export const renderSettings = (
               </ListItem>
             ))}
         </List>
-      </TabElementContainer>
+      </PaperContainer>
     </Grid>
   );
 };

@@ -4,12 +4,20 @@ import {useState} from 'react';
 import {Box, ListItem, Tooltip, Typography} from '@mui/material';
 // Local imports
 // > Components
+import {
+  ServiceAuthentication,
+  ServiceMatching,
+} from '@components/Tab/TabOverview/Elements';
+import {
+  ServiceAuthenticationIcon,
+  ServiceMatchingIcon,
+  SpectatorPublicIcon,
+} from '@components/Icons';
 import DataModal from '@components/Modal/DataModal';
 // Type imports
 import type {ReactElement, ReactNode} from 'react';
 import type {ChangeViewButtonProps} from '@components/Button/ChangeViewButton';
 import type {DataModalInformation} from '@components/Modal/DataModal';
-import {SpectatorPublicIcon} from '@components/Icons';
 
 export interface ShowContentSpectatorElement {
   spectator: string;
@@ -21,6 +29,8 @@ export interface DataElement {
   content: ReactNode;
   /** Show content only for the specified spectators. */
   showContentSpectator: ShowContentSpectatorElement[];
+  /** Information about who can see this data besides the owner */
+  dataAccessInformation: DataModalInformation[];
 }
 
 export interface RenderDataElementProps extends ChangeViewButtonProps {
@@ -57,13 +67,6 @@ export function RenderDataElement(props: RenderDataElementProps) {
       spectatorInformation: dataOriginInformation,
     },
     ...dataAccessInformation,
-    {
-      accessType: 'none',
-      description: 'This data is not publicly available',
-      icon: <SpectatorPublicIcon />,
-      name: 'Public',
-      spectatorId: 'public',
-    },
   ];
 
   let content = element.content;
@@ -118,3 +121,31 @@ export function RenderDataElement(props: RenderDataElementProps) {
     </ListItem>
   );
 }
+
+export const dataModalInformationPersonalData: DataModalInformation[] = [
+  {
+    accessType: 'local_storage',
+    description:
+      'Stores it locally to prevent multiple accounts and to contact this participant',
+    icon: <ServiceAuthenticationIcon />,
+    name: 'Authentication Service',
+    spectatorId: 'auth',
+    spectatorInformation: <ServiceAuthentication />,
+  },
+  {
+    accessType: 'none',
+    description:
+      'Only knows the participants pseudonym but no personal information',
+    icon: <ServiceMatchingIcon />,
+    name: 'Matching Service',
+    spectatorId: 'match',
+    spectatorInformation: <ServiceMatching />,
+  },
+  {
+    accessType: 'none',
+    description: 'This data is not publicly available',
+    icon: <SpectatorPublicIcon />,
+    name: 'Public',
+    spectatorId: 'public',
+  },
+];

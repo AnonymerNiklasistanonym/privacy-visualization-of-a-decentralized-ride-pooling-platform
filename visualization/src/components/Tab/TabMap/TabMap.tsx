@@ -15,6 +15,8 @@ import {
 } from '@components/Icons';
 import GenericButton from '@components/Button/GenericButton';
 import Map from '@components/Map';
+import PaperContainer from '@components/Container/PaperContainer';
+import PopupContentParticipant from '@components/Map/MapObject/PopupContent/PopupContentParticipant';
 import TabContainer from '@components/Tab/TabContainer';
 import TableDebugData from '@components/Table/TableDebugData';
 import TextInputSpectator from '@components/TextInput/TextInputSpectator';
@@ -36,8 +38,10 @@ import type {
 import type {
   SimulationEndpointGraphInformation,
   SimulationEndpointParticipantCoordinates,
+  SimulationEndpointParticipantCoordinatesParticipant,
   SimulationEndpointParticipantInformationCustomer,
   SimulationEndpointParticipantInformationRideProvider,
+  SimulationEndpointParticipantTypes,
   SimulationEndpointRideRequestInformation,
   SimulationEndpointRideRequests,
   SimulationEndpointSmartContractInformation,
@@ -101,7 +105,7 @@ export default function TabMap(props: TabMapProps) {
     rideRequests: [],
     smartContracts: [],
   });
-  const [stateParticipants, setParticipantsState] =
+  const [stateParticipantCoordinatesList, setStateParticipantCoordinatesList] =
     useState<SimulationEndpointParticipantCoordinates>({
       customers: [],
       rideProviders: [],
@@ -117,6 +121,24 @@ export default function TabMap(props: TabMapProps) {
       edges: [],
       vertices: [],
     });
+  // TODO
+  const [stateParticipantTypeGlobal, setStateParticipantTypeGlobal] = useState<
+    SimulationEndpointParticipantTypes | undefined
+  >(undefined);
+  const [
+    stateParticipantCoordinatesGlobal,
+    setStateParticipantCoordinatesGlobal,
+  ] = useState<SimulationEndpointParticipantCoordinatesParticipant | undefined>(
+    undefined
+  );
+  const [stateCustomerInformationGlobal, setStateCustomerInformationGlobal] =
+    useState<null | SimulationEndpointParticipantInformationCustomer>(null);
+  const [
+    stateRideProviderInformationGlobal,
+    setStateRideProviderInformationGlobal,
+  ] = useState<null | SimulationEndpointParticipantInformationRideProvider>(
+    null
+  );
 
   const fetchGraphs = (clear = false) => {
     if (clear === true) {
@@ -215,11 +237,15 @@ export default function TabMap(props: TabMapProps) {
   // TODO: Start Position
 
   const propsTabMap = {
+    setStateCustomerInformationGlobal,
+    setStateParticipantCoordinatesGlobal,
+    setStateParticipantTypeGlobal,
+    setStateRideProviderInformationGlobal,
     setStateSelectedParticipant,
     setStateSelectedRideRequest,
     stateGraph,
     stateGraphPathfinder,
-    stateParticipants,
+    stateParticipantCoordinatesList,
     stateSelectedParticipant,
     stateSelectedRideRequest,
   };
@@ -231,15 +257,15 @@ export default function TabMap(props: TabMapProps) {
         simulationEndpoints.apiV1.participantCoordinates
       )
         .then(data => {
-          setParticipantsState(data);
+          setStateParticipantCoordinatesList(data);
           setStateOptions([
             ...defaultOptions,
-            ...(stateParticipants.customers.map(a => ({
+            ...(stateParticipantCoordinatesList.customers.map(a => ({
               label: `${a.id}`,
               translationId: 'getacar.spectator.participant.customerid',
               type: 'customer',
             })) as TextInputSpectatorOptionStateType),
-            ...(stateParticipants.rideProviders.map(a => ({
+            ...(stateParticipantCoordinatesList.rideProviders.map(a => ({
               label: `${a.id}`,
               translationId: 'getacar.spectator.participant.rideProviderid',
               type: 'rideProvider',
@@ -276,6 +302,21 @@ export default function TabMap(props: TabMapProps) {
             marginTop: '1vh',
           }}
         >
+          {stateParticipantTypeGlobal !== undefined &&
+          stateParticipantCoordinatesGlobal !== undefined ? (
+            <PaperContainer>
+              <PopupContentParticipant
+                {...props}
+                {...propsTabMap}
+                participantType={stateParticipantTypeGlobal}
+                stateCustomerInformation={stateCustomerInformationGlobal}
+                stateRideProviderInformation={
+                  stateRideProviderInformationGlobal
+                }
+                stateParticipantCoordinates={stateParticipantCoordinatesGlobal}
+              />
+            </PaperContainer>
+          ) : undefined}
           <Divider>
             <Chip label="Control Simulation" size="small" />
           </Divider>

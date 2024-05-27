@@ -18,6 +18,7 @@ import {
 // Local imports
 // > Components
 import ChangeViewButton from '@components/Button/ChangeViewButton';
+import PaperContainer from '@components/Container/PaperContainer';
 // Type imports
 import type {ChangeViewButtonProps} from '@components/Button/ChangeViewButton';
 import type {DataModalInformation} from './DataModal';
@@ -26,13 +27,6 @@ import type {ReactState} from '@misc/react';
 export interface DataModalPropsElement extends ChangeViewButtonProps {
   stateDataModalContentElement: ReactState<DataModalInformation>;
 }
-
-import {Paper, styled} from '@mui/material';
-
-const ElementContainer = styled(Paper)(({theme}) => ({
-  padding: theme.spacing(2),
-  ...theme.typography.body1,
-}));
 
 export default function DataModelListElement(props: DataModalPropsElement) {
   const {stateDataModalContentElement} = props;
@@ -63,7 +57,7 @@ export default function DataModelListElement(props: DataModalPropsElement) {
             width: '100%',
           }}
         >
-          <ElementContainer>
+          <PaperContainer>
             {stateDataModalContentElement.spectatorInformation}
             {stateDataModalContentElement.spectatorInformation !== undefined ? (
               <Divider sx={{marginBottom: '1rem', marginTop: '1rem'}} />
@@ -76,7 +70,7 @@ export default function DataModelListElement(props: DataModalPropsElement) {
               label={stateDataModalContentElement.name}
               isPseudonym={stateDataModalContentElement.isPseudonym ?? false}
             />
-          </ElementContainer>
+          </PaperContainer>
         </Box>
       </Collapse>
     </>
