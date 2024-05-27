@@ -5,7 +5,6 @@ import {ReactNode, useEffect, useState} from 'react';
 // > Components
 import {Circle, Marker, Polygon, Polyline, Popup, Tooltip} from 'react-leaflet';
 // Local imports
-//import {participantIconSize} from './LIcons/ParticipantIcons';
 // > Components
 import {
   iconCustomer,
@@ -13,7 +12,7 @@ import {
   iconRideProvider,
   iconRideProviderGray,
 } from './LIcons/ParticipantIcons';
-import PopupContentParticipant from './PopupContent/PopupContentParticipant';
+import CardParticipant from '@components/Card/CardParticipant';
 // > Globals
 import {getH3Polygon} from '@globals/lib/h3';
 import {simulationEndpoints} from '@globals/defaults/endpoints';
@@ -281,7 +280,7 @@ export function ParticipantMarkerElement(props: ParticipantMarkerElementProps) {
         <></>
       )}
       <Popup>
-        <PopupContentParticipant {...props} />
+        <CardParticipant {...props} />
       </Popup>
     </Marker>
   );

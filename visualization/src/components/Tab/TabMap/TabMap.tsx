@@ -13,10 +13,10 @@ import {
   SpectatorEverythingIcon,
   SpectatorPublicIcon,
 } from '@components/Icons';
+import CardParticipant from '@components/Card/CardParticipant';
 import GenericButton from '@components/Button/GenericButton';
 import Map from '@components/Map';
 import PaperContainer from '@components/Container/PaperContainer';
-import PopupContentParticipant from '@components/Map/MapObject/PopupContent/PopupContentParticipant';
 import TabContainer from '@components/Tab/TabContainer';
 import TableDebugData from '@components/Table/TableDebugData';
 import TextInputSpectator from '@components/TextInput/TextInputSpectator';
@@ -305,7 +305,7 @@ export default function TabMap(props: TabMapProps) {
           {stateParticipantTypeGlobal !== undefined &&
           stateParticipantCoordinatesGlobal !== undefined ? (
             <PaperContainer>
-              <PopupContentParticipant
+              <CardParticipant
                 {...props}
                 {...propsTabMap}
                 participantType={stateParticipantTypeGlobal}

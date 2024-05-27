@@ -53,6 +53,7 @@ export interface DataModalProps
 
 export default function DataModal(props: DataModalProps) {
   const {
+    stateSpectator,
     stateDataModalOpen,
     stateDataModalContent,
     setStateDataModalOpen,
@@ -109,7 +110,9 @@ export default function DataModal(props: DataModalProps) {
             sx={{marginLeft: '1rem', marginRight: '1rem'}}
             icon={dataValueHidden ? <LockIcon /> : <LockOpenIcon />}
             color={dataValueHidden ? 'error' : 'success'}
-            label={dataValueHidden ? 'Hidden' : 'Visible'}
+            label={`${
+              dataValueHidden ? 'Hidden' : 'Visible'
+            } for ${stateSpectator}`}
           />
           <Divider sx={{paddingTop: '1rem'}} />
           {listInformation.map(([title, accessType]) => {

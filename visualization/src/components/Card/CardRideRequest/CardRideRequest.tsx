@@ -20,16 +20,14 @@ import type {
 import type {ChangeViewButtonProps} from '@components/Button/ChangeViewButton';
 import type {ReactState} from '@misc/react';
 
-export interface PopupContentParticipantProps extends ChangeViewButtonProps {
+export interface CardParticipantProps extends ChangeViewButtonProps {
   stateParticipantCoordinates: ReactState<SimulationEndpointParticipantCoordinatesParticipant>;
   stateCustomerInformation: ReactState<null | SimulationEndpointParticipantInformationCustomer>;
   stateRideProviderInformation: ReactState<null | SimulationEndpointParticipantInformationRideProvider>;
   participantType: SimulationEndpointParticipantTypes;
 }
 
-export default function PopupContentParticipant(
-  props: PopupContentParticipantProps
-) {
+export default function CardParticipant(props: CardParticipantProps) {
   const {
     stateParticipantCoordinates,
     stateCustomerInformation,
