@@ -28,10 +28,18 @@ import type {
 } from '@components/Modal/ErrorModal';
 import type {
   GlobalPropsFetch,
+  GlobalPropsParticipantSelectedElements,
+  GlobalPropsParticipantSelectedElementsSet,
   GlobalPropsShowError,
   GlobalPropsSpectatorSelectedElements,
   GlobalPropsSpectatorSelectedElementsSet,
 } from '@misc/props/global';
+import type {
+  SimulationEndpointParticipantInformationCustomer,
+  SimulationEndpointParticipantInformationRideProvider,
+  SimulationEndpointParticipantTypes,
+  SimulationEndpointRideRequestInformation,
+} from '@globals/types/simulation';
 import type {FetchOptions} from '@globals/lib/fetch';
 import type {PropsWithChildren} from 'react';
 import type {ReactPropsI18n} from '@misc/react';
@@ -134,16 +142,39 @@ export default function TabPanel({
     stateSnackbarSelectedRideRequestOpen,
     setStateSnackbarSelectedRideRequestOpen,
   ] = useState(false);
-  // > Global States
+  // > Global States: Spectator
   const [stateSpectator, setStateSpectator] = useState(
     searchParams.get(UrlParameters.SPECTATOR) ?? 'everything'
   );
+  // > Global States: Selected Elements
   const [stateSelectedParticipant, setStateSelectedParticipant] = useState<
     string | undefined
   >(undefined);
   const [stateSelectedRideRequest, setStateSelectedRideRequest] = useState<
     string | undefined
   >(undefined);
+  // TODO Use them
+  // > Global States: Selected Element Information
+  const [
+    stateSelectedParticipantTypeGlobal,
+    setStateSelectedParticipantTypeGlobal,
+  ] = useState<SimulationEndpointParticipantTypes | undefined>(undefined);
+  const [
+    stateSelectedParticipantCustomerInformationGlobal,
+    setStateSelectedParticipantCustomerInformationGlobal,
+  ] = useState<undefined | SimulationEndpointParticipantInformationCustomer>(
+    undefined
+  );
+  const [
+    stateSelectedParticipantRideProviderInformationGlobal,
+    setStateSelectedParticipantRideProviderInformationGlobal,
+  ] = useState<
+    undefined | SimulationEndpointParticipantInformationRideProvider
+  >(undefined);
+  const [
+    stateSelectedParticipantRideRequestInformationGlobal,
+    setStateSelectedParticipantRideRequestInformationGlobal,
+  ] = useState<undefined | SimulationEndpointRideRequestInformation>(undefined);
   // > Spectator List
   // TODO Experiment with fixing the autocomplete select
   const [stateSpectators, setStateSpectators] = useState<Map<string, {}>>(
@@ -212,11 +243,17 @@ export default function TabPanel({
     GlobalPropsSpectatorSelectedElements &
     GlobalPropsSpectatorSelectedElementsSet &
     SettingsProps &
-    ErrorModalProps = {
+    ErrorModalProps &
+    GlobalPropsParticipantSelectedElements &
+    GlobalPropsParticipantSelectedElementsSet = {
     fetchJsonSimulation,
     setStateErrorModalContent,
     setStateErrorModalOpen,
     setStateSelectedParticipant,
+    setStateSelectedParticipantCustomerInformationGlobal,
+    setStateSelectedParticipantRideProviderInformationGlobal,
+    setStateSelectedParticipantRideRequestInformationGlobal,
+    setStateSelectedParticipantTypeGlobal,
     setStateSelectedRideRequest,
     setStateSettingsBlockchainUpdateRateInMs,
     setStateSettingsGlobalDebug,
@@ -230,6 +267,10 @@ export default function TabPanel({
     stateErrorModalContent,
     stateErrorModalOpen,
     stateSelectedParticipant,
+    stateSelectedParticipantCustomerInformationGlobal,
+    stateSelectedParticipantRideProviderInformationGlobal,
+    stateSelectedParticipantRideRequestInformationGlobal,
+    stateSelectedParticipantTypeGlobal,
     stateSelectedRideRequest,
     stateSettingsBlockchainUpdateRateInMs,
     stateSettingsGlobalDebug,

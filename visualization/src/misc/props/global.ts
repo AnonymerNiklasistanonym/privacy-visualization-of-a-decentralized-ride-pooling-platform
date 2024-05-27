@@ -1,5 +1,11 @@
 // Type imports
 import type {ReactSetState, ReactState} from '../react';
+import type {
+  SimulationEndpointParticipantInformationCustomer,
+  SimulationEndpointParticipantInformationRideProvider,
+  SimulationEndpointParticipantTypes,
+  SimulationEndpointRideRequestInformation,
+} from '@globals/types/simulation';
 import type {FetchOptions} from '@globals/lib/fetch';
 import type {ShowError} from '@components/Modal/ErrorModal';
 
@@ -21,6 +27,46 @@ export interface GlobalPropsSpectatorSelectedElementsSet {
   setStateSelectedParticipant: ReactSetState<string | undefined>;
   /** Set the currently selected ride request */
   setStateSelectedRideRequest: ReactSetState<string | undefined>;
+}
+
+/** Props to get the last selected participants */
+export interface GlobalPropsParticipantSelectedElements {
+  /** The last selected participant type */
+  stateSelectedParticipantTypeGlobal: ReactState<
+    SimulationEndpointParticipantTypes | undefined
+  >;
+  /** The last selected participant Customer information */
+  stateSelectedParticipantCustomerInformationGlobal: ReactState<
+    SimulationEndpointParticipantInformationCustomer | undefined
+  >;
+  /** The last selected participant Ride Provider information */
+  stateSelectedParticipantRideProviderInformationGlobal: ReactState<
+    SimulationEndpointParticipantInformationRideProvider | undefined
+  >;
+  /** The last selected participant Ride Request information */
+  stateSelectedParticipantRideRequestInformationGlobal: ReactState<
+    SimulationEndpointRideRequestInformation | undefined
+  >;
+}
+
+/** Props to set the last selected participants */
+export interface GlobalPropsParticipantSelectedElementsSet {
+  /** Update the last selected participant type */
+  setStateSelectedParticipantTypeGlobal: ReactSetState<
+    SimulationEndpointParticipantTypes | undefined
+  >;
+  /** Update the last selected participant Customer information */
+  setStateSelectedParticipantCustomerInformationGlobal: ReactSetState<
+    SimulationEndpointParticipantInformationCustomer | undefined
+  >;
+  /** Update the last selected participant Ride Provider information */
+  setStateSelectedParticipantRideProviderInformationGlobal: ReactSetState<
+    SimulationEndpointParticipantInformationRideProvider | undefined
+  >;
+  /** Update the last selected participant Ride Request information */
+  setStateSelectedParticipantRideRequestInformationGlobal: ReactSetState<
+    SimulationEndpointRideRequestInformation | undefined
+  >;
 }
 
 /** Props to fetch requests for actor data */
