@@ -317,45 +317,53 @@ export default function TabMap(props: TabMapProps) {
               />
             </PaperContainer>
           ) : undefined}
-          <Divider>
-            <Chip label="Control Simulation" size="small" />
-          </Divider>
-          <ButtonGroup variant="contained" aria-label="Basic button group">
-            <GenericButton
-              onClick={() =>
-                fetchTextEndpoint(
-                  stateSettingsMapBaseUrlSimulation,
-                  simulationEndpoints.simulation.state
-                )
-                  .then(a => alert(`Simulation state: ${a}`))
-                  .catch(err => showError('Fetch simulation state', err))
-              }
-            >
-              State
-            </GenericButton>
-            <GenericButton
-              onClick={() =>
-                fetchTextEndpoint(
-                  stateSettingsMapBaseUrlSimulation,
-                  simulationEndpoints.simulation.pause
-                ).catch(err => showError('Fetch simulation state pause', err))
-              }
-            >
-              Pause
-            </GenericButton>
-            <GenericButton
-              onClick={() =>
-                fetchTextEndpoint(
-                  stateSettingsMapBaseUrlSimulation,
-                  simulationEndpoints.simulation.run
-                ).catch(err => showError('Fetch simulation state run', err))
-              }
-            >
-              Run
-            </GenericButton>
-          </ButtonGroup>
 
           <SectionChangeSpectator {...props} />
+
+          {stateSettingsGlobalDebug ? (
+            <>
+              <Divider>
+                <Chip label="Control Simulation" size="small" />
+              </Divider>
+              <ButtonGroup variant="contained" aria-label="Basic button group">
+                <GenericButton
+                  onClick={() =>
+                    fetchTextEndpoint(
+                      stateSettingsMapBaseUrlSimulation,
+                      simulationEndpoints.simulation.state
+                    )
+                      .then(a => alert(`Simulation state: ${a}`))
+                      .catch(err => showError('Fetch simulation state', err))
+                  }
+                >
+                  State
+                </GenericButton>
+                <GenericButton
+                  onClick={() =>
+                    fetchTextEndpoint(
+                      stateSettingsMapBaseUrlSimulation,
+                      simulationEndpoints.simulation.pause
+                    ).catch(err =>
+                      showError('Fetch simulation state pause', err)
+                    )
+                  }
+                >
+                  Pause
+                </GenericButton>
+                <GenericButton
+                  onClick={() =>
+                    fetchTextEndpoint(
+                      stateSettingsMapBaseUrlSimulation,
+                      simulationEndpoints.simulation.run
+                    ).catch(err => showError('Fetch simulation state run', err))
+                  }
+                >
+                  Run
+                </GenericButton>
+              </ButtonGroup>{' '}
+            </>
+          ) : undefined}
+
           {stateSettingsGlobalDebug ? (
             <>
               <Divider>
@@ -370,9 +378,7 @@ export default function TabMap(props: TabMapProps) {
                 </GenericButton>
               </ButtonGroup>
             </>
-          ) : (
-            <></>
-          )}
+          ) : undefined}
           {stateSettingsGlobalDebug ? (
             <>
               <Divider>
@@ -387,9 +393,7 @@ export default function TabMap(props: TabMapProps) {
                 </GenericButton>
               </ButtonGroup>
             </>
-          ) : (
-            <></>
-          )}
+          ) : undefined}
           {stateSettingsGlobalDebug ? (
             <>
               <Divider>
@@ -421,9 +425,7 @@ export default function TabMap(props: TabMapProps) {
                 debugDataType="smart_contract"
               />
             </>
-          ) : (
-            <></>
-          )}
+          ) : undefined}
         </Box>
       </Box>
     </TabContainer>
