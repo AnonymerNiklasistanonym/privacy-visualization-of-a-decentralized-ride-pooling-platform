@@ -20,5 +20,5 @@ export interface ReactPropsI18nHome {
   };
 }
 
-export type ReactSetState<T> = (newValue: T) => void;
+export type ReactSetState<T> = (newValue: T | ((prevValue: T) => T)) => void;
 export type ReactState<T> = T;

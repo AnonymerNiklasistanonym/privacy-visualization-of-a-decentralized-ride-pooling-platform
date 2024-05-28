@@ -7,6 +7,7 @@ import type {
   SimulationEndpointRideRequestInformation,
 } from '@globals/types/simulation';
 import type {FetchOptions} from '@globals/lib/fetch';
+import type {ReactElement} from 'react';
 import type {ShowError} from '@components/Modal/ErrorModal';
 
 /** Props to get the current spectators/selected elements */
@@ -82,4 +83,60 @@ export interface GlobalPropsFetch {
 export interface GlobalPropsShowError {
   /** Show an error in the global error modal. */
   showError: ShowError;
+}
+
+export interface GlobalPropsSpectatorElement {
+  name: string;
+  callback: () => void;
+  keywords: Array<string>;
+  icon: ReactElement;
+}
+
+/** Props to set global spectators */
+export interface GlobalPropsSpectatorsSet {
+  /** Update elements that should appear in the global search */
+  updateGlobalSearch: (
+    newSpectators: Array<
+      [
+        string,
+        () =>
+          | Promise<GlobalPropsSpectatorElement>
+          | GlobalPropsSpectatorElement,
+      ]
+    >,
+    newTabs: Array<
+      [
+        string,
+        () =>
+          | Promise<GlobalPropsSpectatorElement>
+          | GlobalPropsSpectatorElement,
+      ]
+    >,
+    newada: Array<
+      [
+        string,
+        () =>
+          | Promise<GlobalPropsSpectatorElement>
+          | GlobalPropsSpectatorElement,
+      ]
+    >
+  ) => void;
+}
+
+export interface GlobalSearchElement {
+  icon: ReactElement;
+  name: string;
+  onClick: () => void;
+  keywords: Array<string>;
+}
+
+/** Props for global search */
+export interface GlobalPropsSearch {
+  globalSearch: Array<GlobalSearchElement>;
+}
+
+/** Props for global search */
+export interface GlobalPropsTheming {
+  stateThemeMode: ReactState<'light' | 'dark'>;
+  setStateThemeMode: ReactSetState<'light' | 'dark'>;
 }

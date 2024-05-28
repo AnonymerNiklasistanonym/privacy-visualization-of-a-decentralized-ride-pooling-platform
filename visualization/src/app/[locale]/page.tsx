@@ -1,13 +1,11 @@
 // Local imports
 import {getIntl} from '../../services/intl';
 // > Components
-import SearchAppBar from '@components/SearchAppBar';
-import SpeedDialTooltipOpen from '@components/Sort/SpeedDial';
-import TabPanel from '@components/TabPanel';
+import CollectionHome from '@components/Collections/CollectionHome';
+import ThemeContainer from '@components/ThemeContainer';
+import TranslationWrapper from '@components/TranslationWrapper';
 // > Logging
 import {createLoggerSection} from '@services/logging';
-// > Styles
-import styles from '@styles/page.module.css';
 // Type imports
 import type {ReactI18nMessages, ReactPropsI18nHome} from '@misc/react';
 import type {Metadata} from 'next';
@@ -25,15 +23,9 @@ export default async function Home({params: {locale}}: ReactPropsI18nHome) {
   ) as ReactI18nMessages;
 
   return (
-    <>
-      <SearchAppBar locale={locale} messages={messages} />
-      <div className={styles.container}>
-        <main className={styles.main}>
-          <TabPanel locale={locale} messages={messages} />
-          <SpeedDialTooltipOpen />
-        </main>
-      </div>
-    </>
+    <TranslationWrapper locale={locale} messages={messages}>
+      <CollectionHome />
+    </TranslationWrapper>
   );
 }
 

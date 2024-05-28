@@ -1,7 +1,6 @@
 'use client';
 
 // Package imports
-import {alpha, styled} from '@mui/material/styles';
 import {usePathname, useSearchParams} from 'next/navigation';
 import {useIntl} from 'react-intl';
 import {useState} from 'react';
@@ -11,7 +10,6 @@ import {
   Box,
   Drawer,
   IconButton,
-  InputBase,
   List,
   ListItem,
   ListItemButton,
@@ -23,65 +21,46 @@ import {
 import Link from 'next/link';
 // > Icons
 import {
+  Brightness7 as DarkModeIcon,
   Info as InfoIcon,
   Language as LanguageIcon,
+  Brightness4 as LightModeIcon,
   Menu as MenuIcon,
-  Search as SearchIcon,
 } from '@mui/icons-material';
 // Local imports
 import {i18n, i18nGetLanguageName} from '../../../i18n-config';
 // > Components
-import SearchAppBarContainer from './SearchAppBarContainer';
+import SearchBar from '@components/TextInput/SearchBar';
 // Type imports
-import type {ReactPropsI18n} from '@misc/react';
+import type {
+  GlobalPropsParticipantSelectedElements,
+  GlobalPropsSearch,
+  GlobalPropsTheming,
+} from '@misc/props/global';
+import type {ReactElement} from 'react';
+import type {SearchBarProps} from '@components/TextInput/SearchBar';
 
-const Search = styled('div')(({theme}) => ({
-  '&:hover': {
-    backgroundColor: alpha(theme.palette.common.white, 0.25),
-  },
-  backgroundColor: alpha(theme.palette.common.white, 0.15),
-  borderRadius: theme.shape.borderRadius,
-  marginLeft: 0,
-  position: 'relative',
-  width: '100%',
-  [theme.breakpoints.up('sm')]: {
-    marginLeft: theme.spacing(1),
-    width: 'auto',
-  },
-}));
+export interface SearchAppBarProps
+  extends GlobalPropsParticipantSelectedElements,
+    GlobalPropsSearch,
+    GlobalPropsTheming,
+    SearchBarProps {}
 
-const SearchIconWrapper = styled('div')(({theme}) => ({
-  alignItems: 'center',
-  display: 'flex',
-  height: '100%',
-  justifyContent: 'center',
-  padding: theme.spacing(0, 2),
-  pointerEvents: 'none',
-  position: 'absolute',
-}));
-
-const StyledInputBase = styled(InputBase)(({theme}) => ({
-  '& .MuiInputBase-input': {
-    padding: theme.spacing(1, 1, 1, 0),
-    // vertical padding + font size from searchIcon
-    paddingLeft: `calc(1em + ${theme.spacing(4)})`,
-    transition: theme.transitions.create('width'),
-    [theme.breakpoints.up('sm')]: {
-      '&:focus': {width: '20ch'},
-      width: '12ch',
-    },
-  },
-  color: 'inherit',
-  width: '100%',
-}));
-
-export interface SearchAppBarElementProps {
+export interface SearchAppBarPropsInput extends SearchAppBarProps {
   toggleDrawer: (newOpen: boolean) => void;
+}
+
+export interface SearchAppBarDrawerListElement {
+  icon: ReactElement;
+  id: string;
+  link: string;
 }
 
 export function SearchAppBarDrawerList({
   toggleDrawer,
-}: SearchAppBarElementProps) {
+  stateThemeMode,
+  setStateThemeMode,
+}: SearchAppBarPropsInput) {
   const {locales, defaultLocale} = i18n;
   const pathname = usePathname()
     .split('/')
@@ -93,7 +72,7 @@ export function SearchAppBarDrawerList({
   const params = new URLSearchParams(searchParams);
   const intl = useIntl();
 
-  const links = [
+  const links: Array<SearchAppBarDrawerListElement> = [
     {
       icon: <InfoIcon />,
       id: intl.formatMessage({id: 'page.about.title'}),
@@ -109,7 +88,7 @@ export function SearchAppBarDrawerList({
   ];
   return (
     <Box
-      sx={{width: 250}}
+      sx={{width: {sm: 250, xs: '80vw'}}}
       role="presentation"
       onClick={() => toggleDrawer(false)}
     >
@@ -124,12 +103,38 @@ export function SearchAppBarDrawerList({
             </ListItem>
           </Link>
         ))}
+        <ListItem
+          onClick={() =>
+            setStateThemeMode(prevThemeMode =>
+              prevThemeMode === 'dark' ? 'light' : 'dark'
+            )
+          }
+          disablePadding
+        >
+          <ListItemButton>
+            <ListItemIcon>
+              {stateThemeMode === 'dark' ? <DarkModeIcon /> : <LightModeIcon />}
+            </ListItemIcon>
+            <ListItemText
+              primary={intl.formatMessage(
+                {id: 'page.home.search.switchTheme'},
+                {
+                  name: intl.formatMessage({
+                    id:
+                      stateThemeMode === 'dark' ? 'theme.light' : 'theme.dark',
+                  }),
+                }
+              )}
+            />
+          </ListItemButton>
+        </ListItem>
       </List>
     </Box>
   );
 }
 
-export function SearchAppBarToolbar({toggleDrawer}: SearchAppBarElementProps) {
+export function SearchAppBarToolbar(props: SearchAppBarPropsInput) {
+  const {toggleDrawer} = props;
   const intl = useIntl();
   return (
     <Toolbar>
@@ -155,36 +160,33 @@ export function SearchAppBarToolbar({toggleDrawer}: SearchAppBarElementProps) {
       >
         {intl.formatMessage({id: 'page.home.title'})}
       </Typography>
-      <Search>
-        <SearchIconWrapper>
-          <SearchIcon />
-        </SearchIconWrapper>
-        <StyledInputBase
-          placeholder="Search…"
-          inputProps={{'aria-label': 'search'}}
-        />
-      </Search>
+
+      <SearchBar {...props} />
     </Toolbar>
   );
 }
 
-export default function SearchAppBar({locale, messages}: ReactPropsI18n) {
+export default function SearchAppBar(props: SearchAppBarProps) {
   const [open, setOpen] = useState(false);
 
   const toggleDrawer = (newOpen: boolean) => {
     setOpen(newOpen);
   };
 
+  const propsNew = {
+    toggleDrawer,
+  };
+
   return (
-    <SearchAppBarContainer locale={locale} messages={messages}>
+    <>
       <Box sx={{flexGrow: 1}}>
         <AppBar position="static">
-          <SearchAppBarToolbar toggleDrawer={toggleDrawer} />
+          <SearchAppBarToolbar {...props} {...propsNew} />
         </AppBar>
       </Box>
       <Drawer open={open} onClose={() => toggleDrawer(false)}>
-        <SearchAppBarDrawerList toggleDrawer={toggleDrawer} />
+        <SearchAppBarDrawerList {...props} {...propsNew} />
       </Drawer>
-    </SearchAppBarContainer>
+    </>
   );
 }

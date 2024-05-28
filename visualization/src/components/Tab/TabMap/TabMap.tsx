@@ -16,6 +16,8 @@ import {
 import {fetchJsonEndpoint, fetchTextEndpoint} from '@misc/fetch';
 // > Components
 import {
+  ParticipantCustomerIcon,
+  ParticipantRideProviderIcon,
   ServiceAuthenticationIcon,
   ServiceMatchingIcon,
   SpectatorEverythingIcon,
@@ -25,9 +27,10 @@ import CardParticipant from '@components/Card/CardParticipant';
 import CardRideRequest from '@components/Card/CardRideRequest';
 import GenericButton from '@components/Button/GenericButton';
 import Map from '@components/Map';
+import SearchBar from '@components/TextInput/SearchBar';
 import TabContainer from '@components/Tab/TabContainer';
 import TableDebugData from '@components/Table/TableDebugData';
-import TextInputSpectator from '@components/TextInput/TextInputSpectator';
+//import TextInputSpectator from '@components/TextInput/TextInputSpectator';
 // > Globals
 import {
   pathfinderEndpoints,
@@ -41,9 +44,11 @@ import type {
   GlobalPropsFetch,
   GlobalPropsParticipantSelectedElements,
   GlobalPropsParticipantSelectedElementsSet,
+  GlobalPropsSearch,
   GlobalPropsShowError,
   GlobalPropsSpectatorSelectedElements,
   GlobalPropsSpectatorSelectedElementsSet,
+  GlobalPropsSpectatorsSet,
 } from '@misc/props/global';
 import type {
   SimulationEndpointGraphInformation,
@@ -60,15 +65,16 @@ import type {MapProps} from '@components/Map';
 import type {PathfinderEndpointGraphInformation} from '@globals/types/pathfinder';
 import type {ReactNode} from 'react';
 import type {SettingsMapProps} from '@misc/props/settings';
-import type {TextInputSpectatorOptionStateType} from '@components/TextInput/TextInputSpectator';
 
 export interface TabMapProps
   extends SettingsMapProps,
     MapProps,
+    GlobalPropsSpectatorsSet,
     GlobalPropsSpectatorSelectedElements,
     GlobalPropsSpectatorSelectedElementsSet,
     GlobalPropsParticipantSelectedElements,
     GlobalPropsParticipantSelectedElementsSet,
+    GlobalPropsSearch,
     GlobalPropsShowError,
     GlobalPropsFetch {}
 
@@ -92,32 +98,10 @@ export default function TabMap(props: TabMapProps) {
     setStateSelectedParticipantCustomerInformationGlobal,
     setStateSelectedParticipantRideRequestInformationGlobal,
     setStateSelectedParticipantRideProviderInformationGlobal,
+    updateGlobalSearch,
   } = props;
 
   // React states
-  const defaultOptions: TextInputSpectatorOptionStateType = [
-    {
-      label: 'everything',
-      translationId: 'getacar.spectator.everything',
-      type: 'everything',
-    },
-    {
-      label: 'public',
-      translationId: 'getacar.spectator.public',
-      type: 'public',
-    },
-    {
-      label: 'auth',
-      translationId: 'getacar.spectator.service.authentication',
-      type: 'auth',
-    },
-    {
-      label: 'match',
-      translationId: 'getacar.spectator.service.matching',
-      type: 'match',
-    },
-  ];
-  const [stateOptions, setStateOptions] = useState(defaultOptions);
   const [stateDebugData, setStateDebugData] = useState<DebugData>({
     customers: [],
     rideProviders: [],
@@ -224,14 +208,14 @@ export default function TabMap(props: TabMapProps) {
             ),
           ])
       )
-      .then(([customers, rideProviders, rideRequests, smartContracts]) =>
+      .then(([customers, rideProviders, rideRequests, smartContracts]) => {
         setStateDebugData({
           customers,
           rideProviders,
           rideRequests,
           smartContracts,
-        })
-      )
+        });
+      })
       .catch(err => showError('Fetch debug data', err));
   };
 
@@ -255,19 +239,62 @@ export default function TabMap(props: TabMapProps) {
       )
         .then(data => {
           setStateParticipantCoordinatesList(data);
-          setStateOptions([
-            ...defaultOptions,
-            ...(stateParticipantCoordinatesList.customers.map(a => ({
-              label: `${a.id}`,
-              translationId: 'getacar.spectator.participant.customerid',
-              type: 'customer',
-            })) as TextInputSpectatorOptionStateType),
-            ...(stateParticipantCoordinatesList.rideProviders.map(a => ({
-              label: `${a.id}`,
-              translationId: 'getacar.spectator.participant.rideProviderid',
-              type: 'rideProvider',
-            })) as TextInputSpectatorOptionStateType),
-          ]);
+          updateGlobalSearch(
+            data.customers.map(a => [
+              a.id,
+              async () => {
+                const customerInformation =
+                  await fetchJsonSimulation<SimulationEndpointParticipantInformationCustomer>(
+                    simulationEndpoints.apiV1.participantInformationCustomer(
+                      a.id
+                    )
+                  );
+                return {
+                  callback: () => {
+                    console.log(`Selected Customer ${a.id}`);
+                  },
+                  icon: <ParticipantCustomerIcon />,
+                  keywords: ['Customer', a.id, customerInformation.fullName],
+                  name: `Customer ${customerInformation.fullName}`,
+                };
+              },
+            ]),
+            [],
+            []
+          );
+          updateGlobalSearch(
+            data.rideProviders.map(a => [
+              a.id,
+              async () => {
+                const rideProviderInformation =
+                  await fetchJsonSimulation<SimulationEndpointParticipantInformationRideProvider>(
+                    simulationEndpoints.apiV1.participantInformationRideProvider(
+                      a.id
+                    )
+                  );
+                return {
+                  callback: () => {
+                    console.log(`Selected Ride Provider ${a.id}`);
+                  },
+                  icon: <ParticipantRideProviderIcon />,
+                  keywords: [
+                    'Ride Provider',
+                    a.id,
+                    'company' in rideProviderInformation
+                      ? rideProviderInformation.company
+                      : rideProviderInformation.fullName,
+                  ],
+                  name: `Ride Provider ${
+                    'company' in rideProviderInformation
+                      ? rideProviderInformation.company
+                      : rideProviderInformation.fullName
+                  }`,
+                };
+              },
+            ]),
+            [],
+            []
+          );
         })
         .catch(err =>
           showError('Fetch simulation participant coordinates', err)
@@ -384,11 +411,10 @@ export default function TabMap(props: TabMapProps) {
       />
     );
   }
-
+  //<TextInputSpectator {...props} stateOptions={stateOptions} />
   return (
     <TabContainer fullPage={true}>
       <Box component="section" className={styles['tab-map']}>
-        <TextInputSpectator {...props} stateOptions={stateOptions} />
         <Grid container spacing={2} justifyContent="left" alignItems="stretch">
           <Grid
             item
@@ -428,7 +454,7 @@ export default function TabMap(props: TabMapProps) {
                   item
                   xs={12}
                   sm={6}
-                  md={6}
+                  md={12}
                   xl={selectedElements.length === 1 ? 12 : 6}
                   key={index}
                 >
