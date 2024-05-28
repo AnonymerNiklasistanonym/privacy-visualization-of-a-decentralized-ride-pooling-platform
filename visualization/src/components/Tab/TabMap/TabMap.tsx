@@ -88,6 +88,10 @@ export default function TabMap(props: TabMapProps) {
     stateSelectedParticipantCustomerInformationGlobal,
     stateSelectedParticipantRideProviderInformationGlobal,
     stateSelectedParticipantRideRequestInformationGlobal,
+    setStateSelectedParticipantTypeGlobal,
+    setStateSelectedParticipantCustomerInformationGlobal,
+    setStateSelectedParticipantRideRequestInformationGlobal,
+    setStateSelectedParticipantRideProviderInformationGlobal,
   } = props;
 
   // React states
@@ -276,6 +280,13 @@ export default function TabMap(props: TabMapProps) {
 
   // TODO Fix Text input spectator
 
+  const onDelete = () => {
+    setStateSelectedParticipantTypeGlobal(undefined);
+    setStateSelectedParticipantCustomerInformationGlobal(undefined);
+    setStateSelectedParticipantRideRequestInformationGlobal(undefined);
+    setStateSelectedParticipantRideProviderInformationGlobal(undefined);
+  };
+
   const selectedElements: Array<ReactNode> = [];
   if (
     stateSelectedParticipantTypeGlobal === 'customer' &&
@@ -294,6 +305,7 @@ export default function TabMap(props: TabMapProps) {
           stateSelectedParticipantCustomerInformationGlobal.id
         }
         label="Last selected Participant"
+        onDelete={onDelete}
       />
     );
   }
@@ -314,6 +326,7 @@ export default function TabMap(props: TabMapProps) {
           stateSelectedParticipantRideProviderInformationGlobal.id
         }
         label="Last selected Participant"
+        onDelete={onDelete}
       />
     );
   }
@@ -325,7 +338,49 @@ export default function TabMap(props: TabMapProps) {
         stateRideRequestInformation={
           stateSelectedParticipantRideRequestInformationGlobal
         }
-        label="Ride Request of last selected Participant"
+        label="Connected Ride Request"
+      />
+    );
+  }
+  if (
+    stateSelectedParticipantTypeGlobal !== 'ride_provider' &&
+    stateSelectedParticipantRideProviderInformationGlobal !== undefined
+  ) {
+    selectedElements.push(
+      <CardParticipant
+        {...props}
+        {...propsTabMap}
+        participantType={
+          stateSelectedParticipantRideProviderInformationGlobal.type
+        }
+        stateCustomerInformation={null}
+        stateRideProviderInformation={
+          stateSelectedParticipantRideProviderInformationGlobal
+        }
+        stateParticipantId={
+          stateSelectedParticipantRideProviderInformationGlobal.id
+        }
+        label="Driver"
+      />
+    );
+  }
+  if (
+    stateSelectedParticipantTypeGlobal !== 'customer' &&
+    stateSelectedParticipantCustomerInformationGlobal !== undefined
+  ) {
+    selectedElements.push(
+      <CardParticipant
+        {...props}
+        {...propsTabMap}
+        participantType={stateSelectedParticipantCustomerInformationGlobal.type}
+        stateCustomerInformation={
+          stateSelectedParticipantCustomerInformationGlobal
+        }
+        stateRideProviderInformation={null}
+        stateParticipantId={
+          stateSelectedParticipantCustomerInformationGlobal.id
+        }
+        label="Passenger"
       />
     );
   }
@@ -339,7 +394,14 @@ export default function TabMap(props: TabMapProps) {
             item
             xs={12}
             sm={12}
-            md={selectedElements.length === 0 ? 12 : 8}
+            md={selectedElements.length === 0 ? 12 : 6}
+            xl={
+              selectedElements.length === 0
+                ? 12
+                : selectedElements.length === 1
+                  ? 9
+                  : 6
+            }
           >
             <Map
               {...props}
@@ -347,15 +409,29 @@ export default function TabMap(props: TabMapProps) {
               startPos={{lat: 48.7784485, long: 9.1800132, zoom: 11}}
             />
           </Grid>
-          <Grid item xs={12} sm={12} md={selectedElements.length === 0 ? 0 : 4}>
-            <Grid
-              container
-              spacing={2}
-              justifyContent="space-around"
-              alignItems="stretch"
-            >
+          <Grid
+            item
+            xs={12}
+            sm={12}
+            md={selectedElements.length === 0 ? 0 : 6}
+            xl={
+              selectedElements.length === 0
+                ? 0
+                : selectedElements.length === 1
+                  ? 3
+                  : 6
+            }
+          >
+            <Grid container spacing={2} justifyContent="left">
               {selectedElements.map((a, index) => (
-                <Grid item xs={12} sm={6} md={12} key={index}>
+                <Grid
+                  item
+                  xs={12}
+                  sm={6}
+                  md={6}
+                  xl={selectedElements.length === 1 ? 12 : 6}
+                  key={index}
+                >
                   <Card>
                     <CardContent>{a}</CardContent>
                   </Card>

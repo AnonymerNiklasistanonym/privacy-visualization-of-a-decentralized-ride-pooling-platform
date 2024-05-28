@@ -14,20 +14,21 @@ import type {
   SimulationEndpointParticipantInformationRideProvider,
   SimulationEndpointParticipantTypes,
 } from '@globals/types/simulation';
+import type {CardGenericProps} from '@components/Card/CardGeneric';
 import type {ChangeViewButtonProps} from '@components/Button/ChangeViewButton';
 import type {ReactState} from '@misc/react';
 
-export interface CardParticipantProps extends ChangeViewButtonProps {
+export interface CardParticipantProps
+  extends ChangeViewButtonProps,
+    CardGenericProps {
   stateParticipantId: ReactState<string>;
   stateCustomerInformation: ReactState<null | SimulationEndpointParticipantInformationCustomer>;
   stateRideProviderInformation: ReactState<null | SimulationEndpointParticipantInformationRideProvider>;
   participantType: SimulationEndpointParticipantTypes;
-  label?: string;
 }
 
 export default function CardParticipant(props: CardParticipantProps) {
   const {
-    label,
     stateParticipantId,
     stateCustomerInformation,
     stateRideProviderInformation,
@@ -35,7 +36,7 @@ export default function CardParticipant(props: CardParticipantProps) {
   } = props;
   return (
     <CardGeneric
-      label={label}
+      {...props}
       icon={
         participantType === 'customer' ? (
           <ParticipantCustomerIcon />

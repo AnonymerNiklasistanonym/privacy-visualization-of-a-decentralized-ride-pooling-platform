@@ -4,6 +4,7 @@ import {useState} from 'react';
 import {
   Box,
   Card,
+  CardActions,
   CardContent,
   Collapse,
   Divider,
@@ -58,13 +59,11 @@ export default function DataModelListElement(props: DataModalPropsElement) {
             width: '100%',
           }}
         >
-          <Card>
+          <Card variant="outlined">
             <CardContent>
               {stateDataModalContentElement.spectatorInformation}
-              {stateDataModalContentElement.spectatorInformation !==
-              undefined ? (
-                <Divider sx={{marginBottom: '1rem', marginTop: '1rem'}} />
-              ) : undefined}
+            </CardContent>
+            <CardActions>
               <ChangeViewButton
                 {...props}
                 key={`modal_${stateDataModalContentElement.name}`}
@@ -73,7 +72,7 @@ export default function DataModelListElement(props: DataModalPropsElement) {
                 label={stateDataModalContentElement.name}
                 isPseudonym={stateDataModalContentElement.isPseudonym ?? false}
               />
-            </CardContent>
+            </CardActions>
           </Card>
         </Box>
       </Collapse>

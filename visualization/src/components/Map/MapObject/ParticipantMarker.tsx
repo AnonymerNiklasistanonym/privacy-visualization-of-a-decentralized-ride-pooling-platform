@@ -108,6 +108,7 @@ export default function ParticipantMarker(props: ParticipantMarkerProps) {
         );
       setStateCustomerInformation(customerInformation);
       setStateSelectedParticipantCustomerInformationGlobal(customerInformation);
+      setStateSelectedParticipantRideProviderInformationGlobal(undefined);
       setStateSelectedParticipantRideRequestInformationGlobal(undefined);
       rideRequestId = customerInformation.rideRequest;
     }
@@ -122,6 +123,7 @@ export default function ParticipantMarker(props: ParticipantMarkerProps) {
       setStateSelectedParticipantRideProviderInformationGlobal(
         rideProviderInformation
       );
+      setStateSelectedParticipantCustomerInformationGlobal(undefined);
       setStateSelectedParticipantRideRequestInformationGlobal(undefined);
       rideRequestId = rideProviderInformation.rideRequest;
     }
@@ -140,6 +142,18 @@ export default function ParticipantMarker(props: ParticipantMarkerProps) {
             )
           );
         setStateRideRequestAuctionRideProviderId(rideRequestAuctionWinnerId.id);
+        if (participantType === 'customer') {
+          // Get connected ride provider information for global state:
+          const rideProviderInformation =
+            await fetchJsonSimulation<SimulationEndpointParticipantInformationRideProvider>(
+              simulationEndpoints.apiV1.participantInformationRideProvider(
+                rideRequestAuctionWinnerId.id
+              )
+            );
+          setStateSelectedParticipantRideProviderInformationGlobal(
+            rideProviderInformation
+          );
+        }
       }
       const rideRequestUserId =
         await fetchJsonSimulation<SimulationEndpointParticipantIdFromPseudonym>(
@@ -148,6 +162,18 @@ export default function ParticipantMarker(props: ParticipantMarkerProps) {
           )
         );
       setStateRideRequestAuctionCustomerId(rideRequestUserId.id);
+      if (participantType === 'ride_provider') {
+        // Get connected customer information for global state:
+        const customerInformation =
+          await fetchJsonSimulation<SimulationEndpointParticipantInformationCustomer>(
+            simulationEndpoints.apiV1.participantInformationCustomer(
+              rideRequestUserId.id
+            )
+          );
+        setStateSelectedParticipantCustomerInformationGlobal(
+          customerInformation
+        );
+      }
     }
   };
 

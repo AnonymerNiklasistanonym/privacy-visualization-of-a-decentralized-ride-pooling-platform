@@ -23,10 +23,10 @@ export default function TabOverview({}: TabOverviewProps) {
             GETACAR Platform
           </Typography>
           <Divider style={{marginBottom: '1rem'}} />
-          <Stakeholders />
-          <Participants />
-          <Services />
-          <Blockchain />
+          <Stakeholders showTitle={true} />
+          <Participants showTitle={true} />
+          <Services showTitle={true} />
+          <Blockchain showTitle={true} />
           <Typography variant="subtitle1" gutterBottom>
             subtitle1. Lorem ipsum dolor sit amet, consectetur adipisicing elit.
             Quos blanditiis tenetur

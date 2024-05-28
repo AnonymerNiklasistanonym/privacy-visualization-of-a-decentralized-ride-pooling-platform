@@ -6,20 +6,22 @@ import {Typography} from '@mui/material';
 import CardGeneric from '@components/Card/CardGeneric';
 import {ParticipantRideRequestIcon} from '@components/Icons';
 // Type imports
+import type {CardGenericProps} from '@components/Card/CardGeneric';
 import type {ChangeViewButtonProps} from '@components/Button/ChangeViewButton';
 import type {ReactState} from '@misc/react';
 import type {SimulationEndpointRideRequestInformation} from '@globals/types/simulation';
 
-export interface CardRideRequestProps extends ChangeViewButtonProps {
+export interface CardRideRequestProps
+  extends ChangeViewButtonProps,
+    CardGenericProps {
   stateRideRequestInformation: ReactState<SimulationEndpointRideRequestInformation>;
-  label?: string;
 }
 
 export default function CardRideRequest(props: CardRideRequestProps) {
-  const {label, stateRideRequestInformation} = props;
+  const {stateRideRequestInformation} = props;
   return (
     <CardGeneric
-      label={label}
+      {...props}
       icon={<ParticipantRideRequestIcon />}
       name={'Ride Request'}
       id={stateRideRequestInformation.id}

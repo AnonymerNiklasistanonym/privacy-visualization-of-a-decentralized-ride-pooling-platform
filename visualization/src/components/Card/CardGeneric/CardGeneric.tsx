@@ -23,10 +23,14 @@ export interface CardGenericPropsContentElement {
   /** The actual content or null in case it is not ready yet */
   content: ReactNode | null;
 }
-
 export interface CardGenericProps {
   /** A label that should be displayed above all content */
   label?: string;
+  /** A label that should be displayed above all content */
+  onDelete?: () => void;
+}
+
+export interface CardGenericPropsInput extends CardGenericProps {
   /** Icon that describes the element to be rendered */
   icon: ReactElement;
   /** Name that describes the element to be rendered */
@@ -39,8 +43,8 @@ export interface CardGenericProps {
   content: Array<CardGenericPropsContentElement>;
 }
 
-export default function CardGeneric(props: CardGenericProps) {
-  const {label, icon, name, status, id, content} = props;
+export default function CardGeneric(props: CardGenericPropsInput) {
+  const {label, icon, name, status, id, content, onDelete} = props;
   return (
     <Box display="flex" justifyContent="left">
       <Box
@@ -56,6 +60,7 @@ export default function CardGeneric(props: CardGenericProps) {
             size="small"
             color="warning"
             icon={<InfoIcon />}
+            onDelete={onDelete}
           />
         ) : undefined}
         <Stack alignItems="center" direction="row" gap={2}>

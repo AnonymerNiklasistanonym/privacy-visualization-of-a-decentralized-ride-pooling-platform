@@ -147,5 +147,10 @@ export const dataModalInformationPersonalData: DataModalInformation[] = [
     icon: <SpectatorPublicIcon />,
     name: 'Public',
     spectatorId: 'public',
+    spectatorInformation: (
+      <Typography variant="body1" gutterBottom>
+        TODO Add spectator section to overview
+      </Typography>
+    ),
   },
 ];

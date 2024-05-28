@@ -15,6 +15,10 @@ import {
 // Type imports
 import type {ReactElement} from 'react';
 
+export interface OverviewElementProps {
+  showTitle?: boolean;
+}
+
 export interface ChipListProps {
   elements: ReadonlyArray<{
     description?: string;
@@ -46,12 +50,14 @@ export function ChipList({elements}: ChipListProps) {
   );
 }
 
-export function Stakeholders() {
+export function Stakeholders(props: OverviewElementProps) {
   return (
     <>
-      <Typography variant="h4" id="anchor-stackeholders" gutterBottom>
-        Stakeholders
-      </Typography>
+      <OverviewElementSectionTitle
+        {...props}
+        title="Stakeholders"
+        id="anchor-stackeholders"
+      />
       <Typography variant="body1" gutterBottom>
         Platform Participants:
       </Typography>
@@ -122,24 +128,29 @@ export function Stakeholders() {
   );
 }
 
-export function Participants() {
+export function Participants(props: OverviewElementProps) {
   return (
     <>
-      <Typography variant="h4" id="anchor-participants" gutterBottom>
-        Participants
-      </Typography>
-      <ParticipantsCustomer />
-      <ParticipantsRideProvider />
+      <OverviewElementSectionTitle
+        {...props}
+        title="Participants"
+        id="anchor-participants"
+      />
+      <ParticipantsCustomer {...props} />
+      <ParticipantsRideProvider {...props} />
     </>
   );
 }
 
-export function ParticipantsCustomer() {
+export function ParticipantsCustomer(props: OverviewElementProps) {
   return (
     <>
-      <Typography variant="h5" id="anchor-customer" gutterBottom>
-        <ParticipantCustomerIcon fontSize="small" /> Customer
-      </Typography>
+      <OverviewElementSectionHeadingTitle
+        {...props}
+        title="Customer"
+        icon={<ParticipantCustomerIcon fontSize="small" />}
+        id="anchor-customer"
+      />
       <Typography variant="body1" gutterBottom>
         TODO: Add presentation information about Customer
       </Typography>
@@ -147,12 +158,15 @@ export function ParticipantsCustomer() {
   );
 }
 
-export function ParticipantsRideProvider() {
+export function ParticipantsRideProvider(props: OverviewElementProps) {
   return (
     <>
-      <Typography variant="h5" id="anchor-ride-provider" gutterBottom>
-        <ParticipantRideProviderIcon fontSize="small" /> Ride Provider
-      </Typography>
+      <OverviewElementSectionHeadingTitle
+        {...props}
+        title="Ride Provider"
+        icon={<ParticipantRideProviderIcon fontSize="small" />}
+        id="anchor-ride-provider"
+      />
       <Typography variant="body1" gutterBottom>
         TODO: Add presentation information about Ride Provider
       </Typography>
@@ -160,24 +174,29 @@ export function ParticipantsRideProvider() {
   );
 }
 
-export function Services() {
+export function Services(props: OverviewElementProps) {
   return (
     <>
-      <Typography variant="h4" id="anchor-services" gutterBottom>
-        Services
-      </Typography>
-      <ServiceAuthentication />
-      <ServiceMatching />
+      <OverviewElementSectionTitle
+        {...props}
+        title="Services"
+        id="anchor-services"
+      />
+      <ServiceAuthentication {...props} />
+      <ServiceMatching {...props} />
     </>
   );
 }
 
-export function ServiceAuthentication() {
+export function ServiceAuthentication(props: OverviewElementProps) {
   return (
     <>
-      <Typography variant="h5" id="anchor-as" gutterBottom>
-        <ServiceAuthenticationIcon fontSize="small" /> Authentication Service
-      </Typography>
+      <OverviewElementSectionHeadingTitle
+        {...props}
+        title="Authentication Service"
+        icon={<ServiceAuthenticationIcon fontSize="small" />}
+        id="anchor-as"
+      />
       <Typography variant="body1" gutterBottom>
         TODO: Add presentation information about Authentication Service
       </Typography>
@@ -185,12 +204,15 @@ export function ServiceAuthentication() {
   );
 }
 
-export function ServiceMatching() {
+export function ServiceMatching(props: OverviewElementProps) {
   return (
     <>
-      <Typography variant="h5" id="anchor-ms" gutterBottom>
-        <ServiceMatchingIcon fontSize="small" /> Matching Service
-      </Typography>
+      <OverviewElementSectionHeadingTitle
+        {...props}
+        title="Matching Service"
+        icon={<ServiceMatchingIcon fontSize="small" />}
+        id="anchor-ms"
+      />
       <Typography variant="body1" gutterBottom>
         TODO: Add presentation information about Matching Service
       </Typography>
@@ -198,21 +220,61 @@ export function ServiceMatching() {
   );
 }
 
-export function Blockchain() {
+export interface OverviewElementTitleProps extends OverviewElementProps {
+  title: string;
+  icon?: ReactElement;
+  id: string;
+}
+
+export function OverviewElementSectionTitle({
+  icon,
+  id,
+  showTitle,
+  title,
+}: OverviewElementTitleProps) {
+  return showTitle ? (
+    <Typography variant="h4" id={id} gutterBottom>
+      {icon} {title}
+    </Typography>
+  ) : undefined;
+}
+
+export function OverviewElementSectionHeadingTitle({
+  icon,
+  id,
+  showTitle,
+  title,
+}: OverviewElementTitleProps) {
+  return showTitle ? (
+    <Typography variant="h5" id={id} gutterBottom>
+      {icon} {title}
+    </Typography>
+  ) : undefined;
+}
+
+export function Blockchain(props: OverviewElementProps) {
   return (
     <>
-      <Typography variant="h4" id="anchor-blockchain" gutterBottom>
-        Blockchain
-      </Typography>
-      <Typography variant="h5" id="anchor-crypto-exchange" gutterBottom>
-        <MiscCryptoExchangeIcon fontSize="small" /> Crypto Exchange
-      </Typography>
+      <OverviewElementSectionTitle
+        {...props}
+        title="Blockchain"
+        id="anchor-blockchain"
+      />
+      <OverviewElementSectionHeadingTitle
+        {...props}
+        title="Crypto Exchange"
+        icon={<MiscCryptoExchangeIcon fontSize="small" />}
+        id="anchor-crypto-exchange"
+      />
       <Typography variant="body1" gutterBottom>
         Text
       </Typography>
-      <Typography variant="h5" id="anchor-ride-contract-service" gutterBottom>
-        <MiscRideContractServiceIcon fontSize="small" /> Ride Contract Service
-      </Typography>
+      <OverviewElementSectionHeadingTitle
+        {...props}
+        title="Ride Contract Service"
+        icon={<MiscRideContractServiceIcon fontSize="small" />}
+        id="anchor-ride-contract-service"
+      />
       <Typography variant="body1" gutterBottom>
         Text
       </Typography>
