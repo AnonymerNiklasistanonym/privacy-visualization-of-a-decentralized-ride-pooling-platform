@@ -14,7 +14,6 @@ import {
 } from '@mui/icons-material';
 // Type imports
 import type {ReactElement, ReactNode} from 'react';
-import {ParticipantRideProviderIcon} from '@components/Icons';
 
 export interface CardGenericPropsContentElement {
   /** Label of the content element */
@@ -52,11 +51,12 @@ export default function CardGeneric(props: CardGenericProps) {
         }}
       >
         {label !== undefined ? (
-          <Stack alignItems="center" direction="row" gap={2}>
-            <Typography variant="h5" gutterBottom>
-              {label}
-            </Typography>
-          </Stack>
+          <Chip
+            label={label}
+            size="small"
+            color="warning"
+            icon={<InfoIcon />}
+          />
         ) : undefined}
         <Stack alignItems="center" direction="row" gap={2}>
           {icon}

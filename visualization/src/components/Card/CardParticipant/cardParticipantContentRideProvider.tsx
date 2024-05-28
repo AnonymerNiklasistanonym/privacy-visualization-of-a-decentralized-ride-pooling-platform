@@ -10,10 +10,7 @@ import {
   ParticipantRideProviderIcon,
   ParticipantRideRequestIcon,
 } from '@components/Icons';
-import {
-  ParticipantsCustomer,
-  ParticipantsRideProvider,
-} from '@components/Tab/TabOverview/Elements';
+import {ParticipantsRideProvider} from '@components/Tab/TabOverview/Elements';
 import {RenderDataElement} from './PopupContentGeneric';
 // > Components
 import ChangeViewButton from '@components/Button/ChangeViewButton';

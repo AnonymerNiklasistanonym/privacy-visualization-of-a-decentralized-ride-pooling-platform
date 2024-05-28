@@ -2,13 +2,14 @@
 import {useIntl} from 'react-intl';
 // > Components
 import {Tab, Tabs} from '@mui/material';
-// > Icons
+// Local imports
+// > Components
 import {
-  Article as ArticleIcon,
-  Map as MapIcon,
-  Settings as SettingsIcon,
-  TableRows as TableRowsIcon,
-} from '@mui/icons-material';
+  TabBlockchainIcon,
+  TabMapIcon,
+  TabOverviewIcon,
+  TabSettingsIcon,
+} from '@components/Icons';
 // Type imports
 import type {ReactElement} from 'react';
 import type {ReactState} from '@misc/react';
@@ -21,22 +22,22 @@ interface TabPanelInformation {
 
 const tabPanelInformation: ReadonlyArray<TabPanelInformation> = [
   {
-    icon: <ArticleIcon />,
+    icon: <TabOverviewIcon />,
     index: 0,
     labelIdI18n: 'page.home.tab.overview.title',
   },
   {
-    icon: <MapIcon />,
+    icon: <TabMapIcon />,
     index: 1,
     labelIdI18n: 'page.home.tab.map.title',
   },
   {
-    icon: <TableRowsIcon />,
+    icon: <TabBlockchainIcon />,
     index: 2,
     labelIdI18n: 'page.home.tab.blockchain.title',
   },
   {
-    icon: <SettingsIcon />,
+    icon: <TabSettingsIcon />,
     index: 3,
     labelIdI18n: 'page.home.tab.settings.title',
   },

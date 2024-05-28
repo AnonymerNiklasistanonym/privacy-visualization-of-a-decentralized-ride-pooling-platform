@@ -25,6 +25,8 @@ import '@styles/Map.module.scss';
 // Type imports
 import type {
   GlobalPropsFetch,
+  GlobalPropsParticipantSelectedElements,
+  GlobalPropsParticipantSelectedElementsSet,
   GlobalPropsShowError,
   GlobalPropsSpectatorSelectedElements,
   GlobalPropsSpectatorSelectedElementsSet,
@@ -33,7 +35,6 @@ import type {
   SimulationEndpointGraphInformation,
   SimulationEndpointParticipantCoordinates,
 } from '@globals/types/simulation';
-import type {GlobalSetPopupContent} from '@components/Map/MapObject/ParticipantMarker';
 import type {PathfinderEndpointGraphInformation} from '@globals/types/pathfinder';
 import type {ReactState} from '@misc/react';
 import type {SettingsMapProps} from '@misc/props/settings';
@@ -48,10 +49,12 @@ export interface MapProps
   extends SettingsMapProps,
     GlobalPropsFetch,
     GlobalPropsShowError,
+    GlobalPropsParticipantSelectedElements,
+    GlobalPropsParticipantSelectedElementsSet,
     GlobalPropsSpectatorSelectedElements,
     GlobalPropsSpectatorSelectedElementsSet {}
 
-export interface MapPropsInput extends MapProps, GlobalSetPopupContent {
+export interface MapPropsInput extends MapProps {
   stateGraph: ReactState<SimulationEndpointGraphInformation>;
   stateGraphPathfinder: ReactState<PathfinderEndpointGraphInformation>;
   startPos: StatPos;

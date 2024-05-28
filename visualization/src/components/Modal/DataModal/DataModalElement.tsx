@@ -3,6 +3,8 @@ import {useState} from 'react';
 // > Components
 import {
   Box,
+  Card,
+  CardContent,
   Collapse,
   Divider,
   ListItemButton,
@@ -18,7 +20,6 @@ import {
 // Local imports
 // > Components
 import ChangeViewButton from '@components/Button/ChangeViewButton';
-import PaperContainer from '@components/Container/PaperContainer';
 // Type imports
 import type {ChangeViewButtonProps} from '@components/Button/ChangeViewButton';
 import type {DataModalInformation} from './DataModal';
@@ -57,20 +58,23 @@ export default function DataModelListElement(props: DataModalPropsElement) {
             width: '100%',
           }}
         >
-          <PaperContainer>
-            {stateDataModalContentElement.spectatorInformation}
-            {stateDataModalContentElement.spectatorInformation !== undefined ? (
-              <Divider sx={{marginBottom: '1rem', marginTop: '1rem'}} />
-            ) : undefined}
-            <ChangeViewButton
-              {...props}
-              key={`modal_${stateDataModalContentElement.name}`}
-              actorId={stateDataModalContentElement.spectatorId}
-              icon={stateDataModalContentElement.icon ?? <QuestionMarkIcon />}
-              label={stateDataModalContentElement.name}
-              isPseudonym={stateDataModalContentElement.isPseudonym ?? false}
-            />
-          </PaperContainer>
+          <Card>
+            <CardContent>
+              {stateDataModalContentElement.spectatorInformation}
+              {stateDataModalContentElement.spectatorInformation !==
+              undefined ? (
+                <Divider sx={{marginBottom: '1rem', marginTop: '1rem'}} />
+              ) : undefined}
+              <ChangeViewButton
+                {...props}
+                key={`modal_${stateDataModalContentElement.name}`}
+                actorId={stateDataModalContentElement.spectatorId}
+                icon={stateDataModalContentElement.icon ?? <QuestionMarkIcon />}
+                label={stateDataModalContentElement.name}
+                isPseudonym={stateDataModalContentElement.isPseudonym ?? false}
+              />
+            </CardContent>
+          </Card>
         </Box>
       </Collapse>
     </>

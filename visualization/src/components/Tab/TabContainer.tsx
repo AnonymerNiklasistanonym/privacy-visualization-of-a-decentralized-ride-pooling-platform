@@ -7,9 +7,16 @@ import styles from '@styles/Tab.module.scss';
 // Type imports
 import type {PropsWithChildren} from 'react';
 
-export default function TabContainer({children}: PropsWithChildren) {
+export interface TabContainerProps {
+  fullPage?: boolean;
+}
+
+export default function TabContainer({
+  children,
+  fullPage,
+}: PropsWithChildren<TabContainerProps>) {
   return (
-    <Container maxWidth="lg">
+    <Container maxWidth={fullPage ? 'xl' : 'lg'}>
       <Box display="flex" justifyContent="center">
         <Box
           component="section"

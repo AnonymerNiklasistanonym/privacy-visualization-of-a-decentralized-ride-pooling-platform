@@ -8,7 +8,6 @@ import '@fontsource/roboto/700.css';
 // Local imports
 // > Components
 import Footer from '../../components/Footer';
-import Header from '../../components/Header';
 // > Middleware
 import {getDirection, getIntl} from '../../services/intl';
 // > Styles
@@ -32,7 +31,6 @@ export default async function PageLayout({
   return (
     <html lang={locale} dir={dir}>
       <body>
-        <Header />
         {children}
         <Footer locale={locale} messages={messages} />
       </body>

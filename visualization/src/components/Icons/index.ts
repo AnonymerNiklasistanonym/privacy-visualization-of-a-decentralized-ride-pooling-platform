@@ -1,3 +1,4 @@
+/* eslint-disable sort-imports */
 import {
   // Misc
   CurrencyExchange as MiscCryptoExchangeIcon,
@@ -15,12 +16,22 @@ import {
   // Spectators
   LockOpen as SpectatorEverythingIcon,
   Public as SpectatorPublicIcon,
+  // Pages
+  Info as PageAboutIcon,
+  Home as PageHomeIcon,
+  // Tabs
+  TableRows as TabBlockchainIcon,
+  Map as TabMapIcon,
+  Article as TabOverviewIcon,
+  Settings as TabSettingsIcon,
 } from '@mui/icons-material';
 export {
   MiscCryptoExchangeIcon,
   MiscGetACarFoundationIcon,
   MiscRideContractServiceIcon,
   MiscRideContractSmartContractIcon,
+  PageAboutIcon,
+  PageHomeIcon,
   ParticipantCustomerIcon,
   ParticipantPersonalDataIcon,
   ParticipantRideProviderIcon,
@@ -29,4 +40,8 @@ export {
   ServiceMatchingIcon,
   SpectatorEverythingIcon,
   SpectatorPublicIcon,
+  TabBlockchainIcon,
+  TabMapIcon,
+  TabOverviewIcon,
+  TabSettingsIcon,
 };

@@ -11,14 +11,12 @@ export interface SettingsGlobalPropsSet {
 export interface SettingsMapProps extends SettingsGlobalProps {
   stateSettingsMapUpdateRateInMs: ReactState<number>;
   stateSettingsMapShowTooltips: ReactState<boolean>;
-  stateSettingsMapOpenPopupOnHover: ReactState<boolean>;
   stateSettingsMapBaseUrlPathfinder: ReactState<string>;
   stateSettingsMapBaseUrlSimulation: ReactState<string>;
 }
 export interface SettingsMapPropsSet extends SettingsGlobalPropsSet {
   setStateSettingsMapUpdateRateInMs: ReactSetState<number>;
   setStateSettingsMapShowTooltips: ReactSetState<boolean>;
-  setStateSettingsMapOpenPopupOnHover: ReactSetState<boolean>;
   setStateSettingsMapBaseUrlPathfinder: ReactSetState<string>;
   setStateSettingsMapBaseUrlSimulation: ReactSetState<string>;
 }

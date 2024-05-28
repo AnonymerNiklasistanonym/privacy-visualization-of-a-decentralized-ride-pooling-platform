@@ -3,7 +3,15 @@
 // Package imports
 import {useEffect, useState} from 'react';
 // > Components
-import {Box, ButtonGroup, Chip, Divider} from '@mui/material';
+import {
+  Box,
+  ButtonGroup,
+  Card,
+  CardContent,
+  Chip,
+  Divider,
+  Grid,
+} from '@mui/material';
 // Local imports
 import {fetchJsonEndpoint, fetchTextEndpoint} from '@misc/fetch';
 // > Components
@@ -14,9 +22,9 @@ import {
   SpectatorPublicIcon,
 } from '@components/Icons';
 import CardParticipant from '@components/Card/CardParticipant';
+import CardRideRequest from '@components/Card/CardRideRequest';
 import GenericButton from '@components/Button/GenericButton';
 import Map from '@components/Map';
-import PaperContainer from '@components/Container/PaperContainer';
 import TabContainer from '@components/Tab/TabContainer';
 import TableDebugData from '@components/Table/TableDebugData';
 import TextInputSpectator from '@components/TextInput/TextInputSpectator';
@@ -31,6 +39,8 @@ import styles from '@styles/Map.module.scss';
 // Type imports
 import type {
   GlobalPropsFetch,
+  GlobalPropsParticipantSelectedElements,
+  GlobalPropsParticipantSelectedElementsSet,
   GlobalPropsShowError,
   GlobalPropsSpectatorSelectedElements,
   GlobalPropsSpectatorSelectedElementsSet,
@@ -38,10 +48,8 @@ import type {
 import type {
   SimulationEndpointGraphInformation,
   SimulationEndpointParticipantCoordinates,
-  SimulationEndpointParticipantCoordinatesParticipant,
   SimulationEndpointParticipantInformationCustomer,
   SimulationEndpointParticipantInformationRideProvider,
-  SimulationEndpointParticipantTypes,
   SimulationEndpointRideRequestInformation,
   SimulationEndpointRideRequests,
   SimulationEndpointSmartContractInformation,
@@ -50,6 +58,7 @@ import type {
 import type {DebugData} from '@components/Table/DebugData';
 import type {MapProps} from '@components/Map';
 import type {PathfinderEndpointGraphInformation} from '@globals/types/pathfinder';
+import type {ReactNode} from 'react';
 import type {SettingsMapProps} from '@misc/props/settings';
 import type {TextInputSpectatorOptionStateType} from '@components/TextInput/TextInputSpectator';
 
@@ -58,6 +67,8 @@ export interface TabMapProps
     MapProps,
     GlobalPropsSpectatorSelectedElements,
     GlobalPropsSpectatorSelectedElementsSet,
+    GlobalPropsParticipantSelectedElements,
+    GlobalPropsParticipantSelectedElementsSet,
     GlobalPropsShowError,
     GlobalPropsFetch {}
 
@@ -73,6 +84,10 @@ export default function TabMap(props: TabMapProps) {
     stateSettingsMapBaseUrlPathfinder,
     stateSettingsMapBaseUrlSimulation,
     stateSettingsMapUpdateRateInMs,
+    stateSelectedParticipantTypeGlobal,
+    stateSelectedParticipantCustomerInformationGlobal,
+    stateSelectedParticipantRideProviderInformationGlobal,
+    stateSelectedParticipantRideRequestInformationGlobal,
   } = props;
 
   // React states
@@ -121,24 +136,6 @@ export default function TabMap(props: TabMapProps) {
       edges: [],
       vertices: [],
     });
-  // TODO
-  const [stateParticipantTypeGlobal, setStateParticipantTypeGlobal] = useState<
-    SimulationEndpointParticipantTypes | undefined
-  >(undefined);
-  const [
-    stateParticipantCoordinatesGlobal,
-    setStateParticipantCoordinatesGlobal,
-  ] = useState<SimulationEndpointParticipantCoordinatesParticipant | undefined>(
-    undefined
-  );
-  const [stateCustomerInformationGlobal, setStateCustomerInformationGlobal] =
-    useState<null | SimulationEndpointParticipantInformationCustomer>(null);
-  const [
-    stateRideProviderInformationGlobal,
-    setStateRideProviderInformationGlobal,
-  ] = useState<null | SimulationEndpointParticipantInformationRideProvider>(
-    null
-  );
 
   const fetchGraphs = (clear = false) => {
     if (clear === true) {
@@ -237,10 +234,6 @@ export default function TabMap(props: TabMapProps) {
   // TODO: Start Position
 
   const propsTabMap = {
-    setStateCustomerInformationGlobal,
-    setStateParticipantCoordinatesGlobal,
-    setStateParticipantTypeGlobal,
-    setStateRideProviderInformationGlobal,
     setStateSelectedParticipant,
     setStateSelectedRideRequest,
     stateGraph,
@@ -283,15 +276,94 @@ export default function TabMap(props: TabMapProps) {
 
   // TODO Fix Text input spectator
 
+  const selectedElements: Array<ReactNode> = [];
+  if (
+    stateSelectedParticipantTypeGlobal === 'customer' &&
+    stateSelectedParticipantCustomerInformationGlobal !== undefined
+  ) {
+    selectedElements.push(
+      <CardParticipant
+        {...props}
+        {...propsTabMap}
+        participantType={stateSelectedParticipantTypeGlobal}
+        stateCustomerInformation={
+          stateSelectedParticipantCustomerInformationGlobal
+        }
+        stateRideProviderInformation={null}
+        stateParticipantId={
+          stateSelectedParticipantCustomerInformationGlobal.id
+        }
+        label="Last selected Participant"
+      />
+    );
+  }
+  if (
+    stateSelectedParticipantTypeGlobal === 'ride_provider' &&
+    stateSelectedParticipantRideProviderInformationGlobal !== undefined
+  ) {
+    selectedElements.push(
+      <CardParticipant
+        {...props}
+        {...propsTabMap}
+        participantType={stateSelectedParticipantTypeGlobal}
+        stateCustomerInformation={null}
+        stateRideProviderInformation={
+          stateSelectedParticipantRideProviderInformationGlobal
+        }
+        stateParticipantId={
+          stateSelectedParticipantRideProviderInformationGlobal.id
+        }
+        label="Last selected Participant"
+      />
+    );
+  }
+  if (stateSelectedParticipantRideRequestInformationGlobal !== undefined) {
+    selectedElements.push(
+      <CardRideRequest
+        {...props}
+        {...propsTabMap}
+        stateRideRequestInformation={
+          stateSelectedParticipantRideRequestInformationGlobal
+        }
+        label="Ride Request of last selected Participant"
+      />
+    );
+  }
+
   return (
-    <TabContainer>
+    <TabContainer fullPage={true}>
       <Box component="section" className={styles['tab-map']}>
         <TextInputSpectator {...props} stateOptions={stateOptions} />
-        <Map
-          {...props}
-          {...propsTabMap}
-          startPos={{lat: 48.7784485, long: 9.1800132, zoom: 11}}
-        />
+        <Grid container spacing={2} justifyContent="left" alignItems="stretch">
+          <Grid
+            item
+            xs={12}
+            sm={12}
+            md={selectedElements.length === 0 ? 12 : 8}
+          >
+            <Map
+              {...props}
+              {...propsTabMap}
+              startPos={{lat: 48.7784485, long: 9.1800132, zoom: 11}}
+            />
+          </Grid>
+          <Grid item xs={12} sm={12} md={selectedElements.length === 0 ? 0 : 4}>
+            <Grid
+              container
+              spacing={2}
+              justifyContent="space-around"
+              alignItems="stretch"
+            >
+              {selectedElements.map((a, index) => (
+                <Grid item xs={12} sm={6} md={12} key={index}>
+                  <Card>
+                    <CardContent>{a}</CardContent>
+                  </Card>
+                </Grid>
+              ))}
+            </Grid>
+          </Grid>
+        </Grid>
 
         <Box
           sx={{
@@ -302,22 +374,6 @@ export default function TabMap(props: TabMapProps) {
             marginTop: '1vh',
           }}
         >
-          {stateParticipantTypeGlobal !== undefined &&
-          stateParticipantCoordinatesGlobal !== undefined ? (
-            <PaperContainer>
-              <CardParticipant
-                {...props}
-                {...propsTabMap}
-                participantType={stateParticipantTypeGlobal}
-                stateCustomerInformation={stateCustomerInformationGlobal}
-                stateRideProviderInformation={
-                  stateRideProviderInformationGlobal
-                }
-                stateParticipantCoordinates={stateParticipantCoordinatesGlobal}
-              />
-            </PaperContainer>
-          ) : undefined}
-
           <SectionChangeSpectator {...props} />
 
           {stateSettingsGlobalDebug ? (

@@ -3,6 +3,8 @@
 // Package imports
 // > Components
 import {
+  Card,
+  CardContent,
   Divider,
   FormControlLabel,
   FormGroup,
@@ -16,12 +18,12 @@ import {NumericFormat, NumericFormatProps} from 'react-number-format';
 import {forwardRef} from 'react';
 // Local imports
 // > Components
-import PaperContainer from '@components/Container/PaperContainer';
 import TabContainer from '@components/Tab/TabContainer';
 // Type imports
 import type {ReactSetState, ReactState} from '@misc/react';
 import type {ReactNode} from 'react';
 import type {SettingsProps} from '@misc/props/settings';
+import {useIntl} from 'react-intl';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface TabSettingsProps extends SettingsProps {}
@@ -135,29 +137,31 @@ export const renderSettings = (
   elements: Array<SettingsElement>
 ): ReactNode => {
   return (
-    <Grid item xs={12} md={6}>
-      <PaperContainer>
-        <List
-          sx={{
-            '& ul': {padding: 0},
-            bgcolor: 'background.paper',
-            overflow: 'auto',
-            width: '100%',
-          }}
-          subheader={<li />}
-        >
-          <ListItem>
-            <Divider textAlign="left">{title}</Divider>
-          </ListItem>
-          {elements
-            .sort((a, b) => stringComparator(a.label, b.label))
-            .map(a => (
-              <ListItem key={`${title}-${a.label}`}>
-                {renderSettingsElement(a)}
-              </ListItem>
-            ))}
-        </List>
-      </PaperContainer>
+    <Grid item xs={12} sm={6} md={4} xl={3}>
+      <Card>
+        <CardContent>
+          <List
+            sx={{
+              '& ul': {padding: 0},
+              bgcolor: 'background.paper',
+              overflow: 'auto',
+              width: '100%',
+            }}
+            subheader={<li />}
+          >
+            <ListItem>
+              <Divider textAlign="left">{title}</Divider>
+            </ListItem>
+            {elements
+              .sort((a, b) => stringComparator(a.label, b.label))
+              .map(a => (
+                <ListItem key={`${title}-${a.label}`}>
+                  {renderSettingsElement(a)}
+                </ListItem>
+              ))}
+          </List>
+        </CardContent>
+      </Card>
     </Grid>
   );
 };
@@ -167,66 +171,94 @@ export default function TabSettings({
   setStateSettingsGlobalDebug,
   setStateSettingsMapBaseUrlPathfinder,
   setStateSettingsMapBaseUrlSimulation,
-  setStateSettingsMapOpenPopupOnHover,
   setStateSettingsMapShowTooltips,
   setStateSettingsMapUpdateRateInMs,
   stateSettingsBlockchainUpdateRateInMs,
   stateSettingsGlobalDebug,
   stateSettingsMapBaseUrlPathfinder,
   stateSettingsMapBaseUrlSimulation,
-  stateSettingsMapOpenPopupOnHover,
   stateSettingsMapShowTooltips,
   stateSettingsMapUpdateRateInMs,
 }: TabSettingsProps) {
+  const intl = useIntl();
   // Settings cards
-  const settingsBlockchain = renderSettings('BLOCKCHAIN', [
-    {
-      label: 'Blockchain update rate',
-      setStateValue: setStateSettingsBlockchainUpdateRateInMs,
-      stateValue: stateSettingsBlockchainUpdateRateInMs,
-      type: 'ms',
-    },
-  ]);
-  const settingsDebug = renderSettings('DEBUG', [
-    {
-      label: 'Enable debugging',
-      setStateValue: setStateSettingsGlobalDebug,
-      stateValue: stateSettingsGlobalDebug,
-      type: 'toggle',
-    },
-  ]);
-  const settingsMap = renderSettings('MAP', [
-    {
-      label: 'Show Tooltips',
-      setStateValue: setStateSettingsMapShowTooltips,
-      stateValue: stateSettingsMapShowTooltips,
-      type: 'toggle',
-    },
-    {
-      label: 'Open Popup on hover',
-      setStateValue: setStateSettingsMapOpenPopupOnHover,
-      stateValue: stateSettingsMapOpenPopupOnHover,
-      type: 'toggle',
-    },
-    {
-      label: 'Base URL Pathfinder',
-      setStateValue: setStateSettingsMapBaseUrlPathfinder,
-      stateValue: stateSettingsMapBaseUrlPathfinder,
-      type: 'text',
-    },
-    {
-      label: 'Base URL Simulation',
-      setStateValue: setStateSettingsMapBaseUrlSimulation,
-      stateValue: stateSettingsMapBaseUrlSimulation,
-      type: 'text',
-    },
-    {
-      label: 'Map update rate',
-      setStateValue: setStateSettingsMapUpdateRateInMs,
-      stateValue: stateSettingsMapUpdateRateInMs,
-      type: 'ms',
-    },
-  ]);
+  const settingsBlockchain = renderSettings(
+    intl.formatMessage({id: 'page.home.tab.settings.card.blockchain.title'}),
+    [
+      {
+        label: intl.formatMessage({
+          id: 'page.home.tab.settings.card.generic.updateRate',
+        }),
+        setStateValue: setStateSettingsBlockchainUpdateRateInMs,
+        stateValue: stateSettingsBlockchainUpdateRateInMs,
+        type: 'ms',
+      },
+    ]
+  );
+  const settingsDebug = renderSettings(
+    intl.formatMessage({id: 'page.home.tab.settings.card.debug.title'}),
+    [
+      {
+        label: intl.formatMessage({
+          id: 'page.home.tab.settings.card.debug.enableDebug',
+        }),
+        setStateValue: setStateSettingsGlobalDebug,
+        stateValue: stateSettingsGlobalDebug,
+        type: 'toggle',
+      },
+    ]
+  );
+  const settingsMap = renderSettings(
+    intl.formatMessage({id: 'page.home.tab.settings.card.map.title'}),
+    [
+      {
+        label: intl.formatMessage({
+          id: 'page.home.tab.settings.card.map.showTooltips',
+        }),
+        setStateValue: setStateSettingsMapShowTooltips,
+        stateValue: stateSettingsMapShowTooltips,
+        type: 'toggle',
+      },
+      {
+        label: intl.formatMessage(
+          {
+            id: 'page.home.tab.settings.card.generic.baseUrl',
+          },
+          {
+            name: intl.formatMessage({
+              id: 'pathfinder',
+            }),
+          }
+        ),
+        setStateValue: setStateSettingsMapBaseUrlPathfinder,
+        stateValue: stateSettingsMapBaseUrlPathfinder,
+        type: 'text',
+      },
+      {
+        label: intl.formatMessage(
+          {
+            id: 'page.home.tab.settings.card.generic.baseUrl',
+          },
+          {
+            name: intl.formatMessage({
+              id: 'simulation',
+            }),
+          }
+        ),
+        setStateValue: setStateSettingsMapBaseUrlSimulation,
+        stateValue: stateSettingsMapBaseUrlSimulation,
+        type: 'text',
+      },
+      {
+        label: intl.formatMessage({
+          id: 'page.home.tab.settings.card.generic.updateRate',
+        }),
+        setStateValue: setStateSettingsMapUpdateRateInMs,
+        stateValue: stateSettingsMapUpdateRateInMs,
+        type: 'ms',
+      },
+    ]
+  );
   return (
     <TabContainer>
       <FormGroup>

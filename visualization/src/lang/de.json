@@ -19,6 +19,15 @@
   "page.home.title": "Visualisierung der GETACAR Platform",
   "page.nested.title": "Verschachtelte Route Beispiel",
   "project.description": "Visualization of a privacy focused ride pooling platform concept description [TODO]",
-  "project.name": "Visualization of a privacy focused ride pooling platform concept",
-  "project.name.short": "GETACAR Visualization [TODO]"
+  "project.name": "Visualization of a privacy focused ride pooling platform concept [TODO]",
+  "project.name.short": "GETACAR Visualization [TODO]",
+  "page.home.tab.settings.card.blockchain.title": "BLOCKCHAIN",
+"page.home.tab.settings.card.map.title": "KARTE",
+"page.home.tab.settings.card.generic.updateRate": "Datenaktualisierungsinterval",
+"page.home.tab.settings.card.generic.baseUrl": "Basis-URL ({name})",
+"page.home.tab.settings.card.debug.title": "DEBUGGING",
+"simulation": "Simulation",
+"pathfinder": "Pfadfinder",
+"page.home.tab.settings.card.map.showTooltips": "Zeige Tooltips",
+"page.home.tab.settings.card.debug.enableDebug": "Debugging aktivieren"
 }

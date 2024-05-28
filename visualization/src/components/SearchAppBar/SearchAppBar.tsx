@@ -2,6 +2,7 @@
 
 // Package imports
 import {alpha, styled} from '@mui/material/styles';
+import {usePathname, useSearchParams} from 'next/navigation';
 import {useIntl} from 'react-intl';
 import {useState} from 'react';
 // > Components
@@ -23,10 +24,12 @@ import Link from 'next/link';
 // > Icons
 import {
   Info as InfoIcon,
+  Language as LanguageIcon,
   Menu as MenuIcon,
   Search as SearchIcon,
 } from '@mui/icons-material';
 // Local imports
+import {i18n, i18nGetLanguageName} from '../../../i18n-config';
 // > Components
 import SearchAppBarContainer from './SearchAppBarContainer';
 // Type imports
@@ -79,12 +82,30 @@ export interface SearchAppBarElementProps {
 export function SearchAppBarDrawerList({
   toggleDrawer,
 }: SearchAppBarElementProps) {
+  const {locales, defaultLocale} = i18n;
+  const pathname = usePathname()
+    .split('/')
+    .filter(a => a.length > 0);
+  if (pathname.length > 0 && locales.some(a => pathname[0].includes(a))) {
+    pathname.shift();
+  }
+  const searchParams = useSearchParams();
+  const params = new URLSearchParams(searchParams);
+  const intl = useIntl();
+
   const links = [
     {
       icon: <InfoIcon />,
-      id: 'About',
+      id: intl.formatMessage({id: 'page.about.title'}),
       link: '/about',
     },
+    ...[...locales].sort().map(locale => ({
+      icon: <LanguageIcon />,
+      id: i18nGetLanguageName(locale),
+      link: `${locale === defaultLocale ? '/' : `/${locale}/`}${pathname.join(
+        '/'
+      )}?${params.toString()}`,
+    })),
   ];
   return (
     <Box

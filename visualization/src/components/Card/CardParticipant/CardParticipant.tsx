@@ -1,4 +1,3 @@
-// Package imports
 // Local imports
 import cardParticipantContentCustomer from './cardParticipantContentCustomer';
 import cardParticipantContentRideProvider from './cardParticipantContentRideProvider';
@@ -11,7 +10,6 @@ import CardGeneric from '@components/Card/CardGeneric';
 import ChangeViewButton from '@components/Button/ChangeViewButton';
 // Type imports
 import type {
-  SimulationEndpointParticipantCoordinatesParticipant,
   SimulationEndpointParticipantInformationCustomer,
   SimulationEndpointParticipantInformationRideProvider,
   SimulationEndpointParticipantTypes,
@@ -20,21 +18,24 @@ import type {ChangeViewButtonProps} from '@components/Button/ChangeViewButton';
 import type {ReactState} from '@misc/react';
 
 export interface CardParticipantProps extends ChangeViewButtonProps {
-  stateParticipantCoordinates: ReactState<SimulationEndpointParticipantCoordinatesParticipant>;
+  stateParticipantId: ReactState<string>;
   stateCustomerInformation: ReactState<null | SimulationEndpointParticipantInformationCustomer>;
   stateRideProviderInformation: ReactState<null | SimulationEndpointParticipantInformationRideProvider>;
   participantType: SimulationEndpointParticipantTypes;
+  label?: string;
 }
 
 export default function CardParticipant(props: CardParticipantProps) {
   const {
-    stateParticipantCoordinates,
+    label,
+    stateParticipantId,
     stateCustomerInformation,
     stateRideProviderInformation,
     participantType,
   } = props;
   return (
     <CardGeneric
+      label={label}
       icon={
         participantType === 'customer' ? (
           <ParticipantCustomerIcon />
@@ -43,7 +44,7 @@ export default function CardParticipant(props: CardParticipantProps) {
         )
       }
       name={participantType === 'customer' ? 'Customer' : 'Ride Provider'}
-      id={stateParticipantCoordinates.id}
+      id={stateParticipantId}
       status={
         participantType === 'customer'
           ? stateCustomerInformation?.simulationStatus
@@ -66,7 +67,7 @@ export default function CardParticipant(props: CardParticipantProps) {
           content: (
             <ChangeViewButton
               {...props}
-              actorId={stateParticipantCoordinates.id}
+              actorId={stateParticipantId}
               icon={
                 participantType === 'customer' ? (
                   <ParticipantCustomerIcon />

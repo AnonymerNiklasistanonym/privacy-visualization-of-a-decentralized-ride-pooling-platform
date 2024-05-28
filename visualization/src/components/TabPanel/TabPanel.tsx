@@ -5,6 +5,7 @@ import {useCallback, useEffect, useMemo, useState} from 'react';
 import {usePathname, useRouter, useSearchParams} from 'next/navigation';
 // > Components
 import {Box, ButtonGroup, Chip, Divider} from '@mui/material';
+import {Language as LanguageIcon} from '@mui/icons-material';
 import Link from 'next/link';
 // > Globals
 import {baseUrlPathfinder, baseUrlSimulation} from '@globals/defaults/urls';
@@ -12,6 +13,14 @@ import {baseUrlPathfinder, baseUrlSimulation} from '@globals/defaults/urls';
 import {fetchJson} from '@globals/lib/fetch';
 import {showErrorBuilder} from '@components/Modal/ErrorModal';
 // > Components
+import {
+  PageAboutIcon,
+  PageHomeIcon,
+  TabBlockchainIcon,
+  TabMapIcon,
+  TabOverviewIcon,
+  TabSettingsIcon,
+} from '@components/Icons';
 import ErrorModal from '@components/Modal/ErrorModal';
 import GenericButton from '@components/Button/GenericButton';
 import SnackbarContentChange from '@components/Snackbar/SnackbarContentChange';
@@ -34,6 +43,7 @@ import type {
   GlobalPropsSpectatorSelectedElements,
   GlobalPropsSpectatorSelectedElementsSet,
 } from '@misc/props/global';
+import type {PropsWithChildren, ReactElement} from 'react';
 import type {
   SimulationEndpointParticipantInformationCustomer,
   SimulationEndpointParticipantInformationRideProvider,
@@ -41,7 +51,6 @@ import type {
   SimulationEndpointRideRequestInformation,
 } from '@globals/types/simulation';
 import type {FetchOptions} from '@globals/lib/fetch';
-import type {PropsWithChildren} from 'react';
 import type {ReactPropsI18n} from '@misc/react';
 import type {SettingsProps} from '@misc/props/settings';
 
@@ -118,10 +127,6 @@ export default function TabPanel({
     stateSettingsMapBaseUrlSimulation,
     setStateSettingsMapBaseUrlSimulation,
   ] = useState(baseUrlSimulation);
-  const [
-    stateSettingsMapOpenPopupOnHover,
-    setStateSettingsMapOpenPopupOnHover,
-  ] = useState(false);
   const [stateSettingsMapUpdateRateInMs, setStateSettingsMapUpdateRateInMs] =
     useState(1000 / 5);
   const [
@@ -177,10 +182,12 @@ export default function TabPanel({
   ] = useState<undefined | SimulationEndpointRideRequestInformation>(undefined);
   // > Spectator List
   // TODO Experiment with fixing the autocomplete select
-  const [stateSpectators, setStateSpectators] = useState<Map<string, {}>>(
-    new Map()
-  );
-  const updateMap = (spectators: Array<[string, {}]>) => {
+  const [stateSpectators, setStateSpectators] = useState<
+    Map<string, {name: string; id: ReactElement}>
+  >(new Map());
+  const updateMap = (
+    spectators: Array<[string, {name: string; id: ReactElement}]>
+  ) => {
     for (const [spectatorId, spectatorInformation] of spectators) {
       setStateSpectators(
         prevState => new Map(prevState.set(spectatorId, spectatorInformation))
@@ -188,6 +195,71 @@ export default function TabPanel({
     }
   };
   // TODO Use the global map to resolve additional information about an ID like a name (to resolve Customer/Matching Service instead of dfhsdhfdsfj and match)
+
+  // TODO Global search bar
+  interface GlobalSearchElement {
+    icon: ReactElement;
+    name: string;
+    onClick: () => void;
+    keywords: Array<string>;
+  }
+  const globalSearch: Array<GlobalSearchElement> = [];
+  const tabs: Array<[string, number, ReactElement]> = [
+    ['Overview', 0, <TabOverviewIcon key="overview" />],
+    ['Map', 1, <TabMapIcon key="map" />],
+    ['Blockchain', 2, <TabBlockchainIcon key="blockchain" />],
+    ['Settings', 3, <TabSettingsIcon key="settings" />],
+  ];
+  for (const [tabTitle, tabIndex, tabIcon] of tabs) {
+    globalSearch.push({
+      icon: tabIcon,
+      keywords: ['tab', 'switch', tabTitle, `${tabIndex}`],
+      name: `Switch to tab ${tabTitle}`,
+      onClick: () => {
+        console.log('TODO Switch to tab', tabIndex);
+      },
+    });
+  }
+  const pages: Array<[string, string, ReactElement]> = [
+    ['Home', '/', <PageHomeIcon key="home" />],
+    ['About', '/about', <PageAboutIcon key="info" />],
+  ];
+  for (const [pageTitle, pagePath, pageIcon] of pages) {
+    globalSearch.push({
+      icon: pageIcon,
+      keywords: ['page', 'switch', pageTitle, pagePath],
+      name: `Switch to page ${pageTitle}`,
+      onClick: () => {
+        console.log('TODO Switch to page', pagePath);
+      },
+    });
+  }
+  const languages: Array<[string, string]> = [
+    ['German', 'de'],
+    ['English', 'en'],
+  ];
+  for (const [languageName, languageCode] of languages) {
+    globalSearch.push({
+      icon: <LanguageIcon />,
+      keywords: ['language', 'switch', languageName, languageCode],
+      name: `Switch to language ${languageName}`,
+      onClick: () => {
+        console.log('TODO Switch to language', languageCode);
+      },
+    });
+  }
+  for (const [actorId, actorInformation] of Array.from(
+    stateSpectators.entries()
+  )) {
+    globalSearch.push({
+      icon: actorInformation.id,
+      keywords: ['language', 'switch', actorId, actorInformation.name],
+      name: `Spectate as ${actorInformation.name} (${actorId})`,
+      onClick: () => {
+        console.log('TODO Spectate as', actorId);
+      },
+    });
+  }
 
   // React: State change listeners
   // > Snackbar change listeners (only being run when a dependency changes)
@@ -259,7 +331,6 @@ export default function TabPanel({
     setStateSettingsGlobalDebug,
     setStateSettingsMapBaseUrlPathfinder,
     setStateSettingsMapBaseUrlSimulation,
-    setStateSettingsMapOpenPopupOnHover,
     setStateSettingsMapShowTooltips,
     setStateSettingsMapUpdateRateInMs,
     setStateSpectator,
@@ -276,7 +347,6 @@ export default function TabPanel({
     stateSettingsGlobalDebug,
     stateSettingsMapBaseUrlPathfinder,
     stateSettingsMapBaseUrlSimulation,
-    stateSettingsMapOpenPopupOnHover,
     stateSettingsMapShowTooltips,
     stateSettingsMapUpdateRateInMs,
     stateSpectator,
