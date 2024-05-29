@@ -4,7 +4,15 @@
   }
 
   .leaflet-container {
-      background: #303030;
+      background: #1f1f1f;
+      color: #fbfbfb;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  div.leaflet-popup-content-wrapper {
+      background: #1f1f1f;
+      color: #fbfbfb;
   }
 }
 

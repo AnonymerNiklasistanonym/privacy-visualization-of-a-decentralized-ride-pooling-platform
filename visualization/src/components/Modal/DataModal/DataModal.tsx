@@ -8,6 +8,7 @@ import {
   ListSubheader,
   Modal,
   Typography,
+  useTheme,
 } from '@mui/material';
 import {Lock as LockIcon, LockOpen as LockOpenIcon} from '@mui/icons-material';
 // Local imports
@@ -70,6 +71,7 @@ export default function DataModal(props: DataModalProps) {
     ['Can request this data', 'transitive'],
     ['Has no access', 'none'],
   ];
+  const theme = useTheme();
   // TODO: Add what data and from whom is inspected!
   // TODO: Make this better
   const dataValueHidden = dataValueSpectator === '******';
@@ -95,7 +97,11 @@ export default function DataModal(props: DataModalProps) {
             transform: 'translate(-50%, -50%)',
           }}
         >
-          <Typography variant="h5" gutterBottom>
+          <Typography
+            variant="h5"
+            sx={{color: theme.palette.mode === 'dark' ? 'white' : undefined}}
+            gutterBottom
+          >
             Who can see {dataLabel} from{' '}
             <Chip
               icon={dataOriginIcon}
@@ -105,9 +111,15 @@ export default function DataModal(props: DataModalProps) {
             />
             ?
           </Typography>
-          {dataValueSpectator}
+          <Box
+            sx={{
+              color: theme.palette.mode === 'dark' ? 'white' : undefined,
+              margin: '1rem',
+            }}
+          >
+            {dataValueSpectator}
+          </Box>
           <Chip
-            sx={{marginLeft: '1rem', marginRight: '1rem'}}
             icon={dataValueHidden ? <LockIcon /> : <LockOpenIcon />}
             color={dataValueHidden ? 'error' : 'success'}
             label={`${

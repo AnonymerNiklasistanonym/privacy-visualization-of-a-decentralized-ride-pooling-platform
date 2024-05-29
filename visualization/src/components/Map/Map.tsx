@@ -17,6 +17,7 @@ import {FullscreenControl} from 'react-leaflet-fullscreen';
 import 'leaflet/dist/leaflet.css';
 import 'react-leaflet-fullscreen/styles.css';
 // Local imports
+import '@styles/leaflet.module.css';
 import styles from '@styles/Map.module.scss';
 // > Components
 import ParticipantMarker from '@components/Map/MapObject/ParticipantMarker';

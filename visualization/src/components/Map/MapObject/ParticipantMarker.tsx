@@ -5,6 +5,7 @@ import {ReactNode, useEffect, useState} from 'react';
 // > Components
 import {Circle, Marker, Polygon, Polyline, Popup, Tooltip} from 'react-leaflet';
 // Local imports
+import styles from '@styles/Map.module.scss';
 // > Components
 import {
   iconCustomer,
@@ -294,7 +295,7 @@ export function ParticipantMarkerElement(props: ParticipantMarkerElementProps) {
       ) : (
         <></>
       )}
-      <Popup>
+      <Popup className={styles['leaflet-popup-content-wrapper']}>
         <CardParticipant
           {...props}
           stateParticipantId={stateParticipantCoordinates.id}

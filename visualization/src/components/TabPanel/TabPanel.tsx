@@ -53,7 +53,9 @@ function CustomTabPanel(props: PropsWithChildren<CustomTabPanelProps>) {
       aria-labelledby={`simple-tab-${index}`}
       {...other}
     >
-      {value === index && <Box sx={{p: 3}}>{children}</Box>}
+      {value === index && (
+        <Box sx={{p: 3, padding: {sm: '1rem', xs: 0}}}>{children}</Box>
+      )}
     </div>
   );
 }
@@ -158,7 +160,11 @@ export default function TabPanel(props: TabPanelProps) {
 
   return (
     <>
-      <Box sx={{width: '100%'}}>
+      <Box
+        sx={{
+          width: '100%',
+        }}
+      >
         <Box sx={{borderBottom: 1, borderColor: 'divider'}}>
           <TabPanelHeader
             stateTabIndex={stateTabIndex}

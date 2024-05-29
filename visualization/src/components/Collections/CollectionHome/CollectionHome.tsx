@@ -20,8 +20,6 @@ import SnackbarContentChange from '@components/Snackbar/SnackbarContentChange';
 import TabPanel from '@components/TabPanel';
 // > Globals
 import {baseUrlPathfinder, baseUrlSimulation} from '@globals/defaults/urls';
-// > Styles
-import styles from '@styles/page.module.css';
 // Type imports
 import type {
   ErrorModalContentElement,
@@ -395,7 +393,7 @@ export default function CollectionHome() {
   return (
     <ThemeContainer {...props}>
       <SearchAppBar {...props} />
-      <main className={styles.main}>
+      <main className={[`mui-theme-${stateThemeMode}`].join(' ')}>
         <TabPanel {...props} />
       </main>
       <ErrorModal {...props} />

@@ -2,7 +2,6 @@
 import {getIntl} from '../../services/intl';
 // > Components
 import CollectionHome from '@components/Collections/CollectionHome';
-import ThemeContainer from '@components/ThemeContainer';
 import TranslationWrapper from '@components/TranslationWrapper';
 // > Logging
 import {createLoggerSection} from '@services/logging';

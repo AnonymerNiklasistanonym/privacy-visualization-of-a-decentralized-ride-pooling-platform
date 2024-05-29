@@ -11,6 +11,7 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
+  useTheme,
 } from '@mui/material';
 // > Icons
 import {
@@ -39,6 +40,8 @@ export default function DataModelListElement(props: DataModalPropsElement) {
     setOpen(!open);
   };
 
+  const theme = useTheme();
+
   return (
     <>
       <ListItemButton onClick={handleClick}>
@@ -46,6 +49,10 @@ export default function DataModelListElement(props: DataModalPropsElement) {
           {stateDataModalContentElement.icon ?? <QuestionMarkIcon />}
         </ListItemIcon>
         <ListItemText
+          sx={{
+            color: theme.palette.mode === 'dark' ? 'white' : undefined,
+            margin: '1rem',
+          }}
           primary={`${stateDataModalContentElement.name}`}
           secondary={stateDataModalContentElement.description}
         />

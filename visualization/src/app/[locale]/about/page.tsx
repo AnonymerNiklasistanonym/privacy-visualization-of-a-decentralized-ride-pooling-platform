@@ -2,9 +2,10 @@
 
 // Local imports
 import {getIntl} from '@services/intl';
-import styles from '@styles/page.module.css';
 // > Logging
 import {createLoggerSection} from '@services/logging';
+// > Styles
+import styles from '@styles/page.about.module.css';
 // Type imports
 import type {Metadata} from 'next/types';
 import type {ReactPropsI18nHome} from '@misc/react';

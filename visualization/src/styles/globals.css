@@ -41,3 +41,28 @@ a:hover {
 .footer > div {
   margin: 0 4px;
 }
+
+/** Leaflet modifications (dark mode) */
+
+main.mui-theme-dark div.leaflet-popup-content-wrapper {
+  background: #1f1f1f;
+  color: #fbfbfb;
+}
+
+
+main.mui-theme-dark .leaflet-tile {
+  filter: brightness(0.6) invert(1) contrast(3) hue-rotate(200deg) saturate(0.3) brightness(0.7);
+}
+
+main.mui-theme-dark .leaflet-container {
+  background: #1f1f1f;
+  color: #fbfbfb;
+}
+
+main.mui-theme-dark .leaflet-marker-icon > svg {
+  color: white
+}
+
+main.mui-theme-dark .leaflet-marker-icon > svg.gray-participant {
+  color: rgb(180, 180, 180)
+}

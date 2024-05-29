@@ -21,10 +21,10 @@ const iconRideProviderHTML = ReactDOMServer.renderToString(
   <ParticipantRideProviderIcon />
 );
 const iconCustomerHTMLGray = ReactDOMServer.renderToString(
-  <ParticipantCustomerIcon fill="gray" />
+  <ParticipantCustomerIcon className="gray-participant" fill="gray" />
 );
 const iconRideProviderHTMLGray = ReactDOMServer.renderToString(
-  <ParticipantRideProviderIcon fill="gray" />
+  <ParticipantRideProviderIcon className="gray-participant" fill="gray" />
 );
 
 export const iconCustomer = L.divIcon({
