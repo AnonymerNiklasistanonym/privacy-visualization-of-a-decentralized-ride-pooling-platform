@@ -14,7 +14,7 @@ export default function TranslationWrapper({
   children,
 }: PropsWithChildren<ReactPropsI18n>) {
   return (
-    <IntlProvider locale={locale} defaultLocale={'en'} messages={messages}>
+    <IntlProvider locale={locale} messages={messages}>
       {children}
     </IntlProvider>
   );

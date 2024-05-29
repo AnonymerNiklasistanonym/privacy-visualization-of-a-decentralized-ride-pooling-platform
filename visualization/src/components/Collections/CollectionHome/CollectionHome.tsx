@@ -72,16 +72,6 @@ export default function CollectionHome() {
   const [stateThemeMode, setStateThemeMode] = useState<'light' | 'dark'>(
     prefersDarkMode ? 'dark' : 'light'
   );
-  const colorMode = useMemo(
-    () => ({
-      toggleColorMode: () => {
-        setStateThemeMode(prevMode =>
-          prevMode === 'light' ? 'dark' : 'light'
-        );
-      },
-    }),
-    []
-  );
 
   // React: States
   // > Error Modal
@@ -405,11 +395,9 @@ export default function CollectionHome() {
   return (
     <ThemeContainer {...props}>
       <SearchAppBar {...props} />
-      <div className={styles.container}>
-        <main className={styles.main}>
-          <TabPanel {...props} />
-        </main>
-      </div>
+      <main className={styles.main}>
+        <TabPanel {...props} />
+      </main>
       <ErrorModal {...props} />
       <SnackbarContentChange
         stateOpen={stateSnackbarSpectatorOpen}

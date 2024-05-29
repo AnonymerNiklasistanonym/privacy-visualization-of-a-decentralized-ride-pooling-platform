@@ -16,7 +16,7 @@ export default function TabContainer({
   fullPage,
 }: PropsWithChildren<TabContainerProps>) {
   return (
-    <Container maxWidth={fullPage ? 'xl' : 'lg'}>
+    <Container sx={{maxWidth: fullPage ? 'xl' : 'lg'}}>
       <Box display="flex" justifyContent="center">
         <Box
           component="section"

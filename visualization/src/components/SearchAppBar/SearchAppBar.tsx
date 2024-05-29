@@ -93,6 +93,13 @@ export function SearchAppBarDrawerList({
       onClick={() => toggleDrawer(false)}
     >
       <List>
+        <ListItem
+          sx={{
+            display: {sm: 'none', xs: 'block'},
+          }}
+        >
+          <ListItemText primary={intl.formatMessage({id: 'page.home.title'})} />
+        </ListItem>
         {links.map(a => (
           <Link key={a.link} href={a.link}>
             <ListItem key={a.id} disablePadding>
@@ -156,7 +163,6 @@ export function SearchAppBarToolbar(props: SearchAppBarPropsInput) {
           display: {sm: 'block', xs: 'none'},
           flexGrow: 1,
         }}
-        suppressHydrationWarning
       >
         {intl.formatMessage({id: 'page.home.title'})}
       </Typography>
