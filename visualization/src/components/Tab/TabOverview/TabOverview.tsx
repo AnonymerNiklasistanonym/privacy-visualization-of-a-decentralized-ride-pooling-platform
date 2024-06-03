@@ -1,11 +1,26 @@
 'use client';
 
 // Package imports
+import {useIntl} from 'react-intl';
+import {useState} from 'react';
 // > Components
-import {Card, CardContent, Divider, Typography} from '@mui/material';
+import {
+  Box,
+  Card,
+  CardContent,
+  Divider,
+  Fade,
+  Modal,
+  Typography,
+} from '@mui/material';
 // Local imports
 // > Components
 import {Blockchain, Participants, Services, Stakeholders} from './Elements';
+import {
+  OverviewElementSectionContent,
+  OverviewElementSectionTitle,
+} from './TabOverviewElements';
+import Link from 'next/link';
 import TabContainer from '@components/Tab/TabContainer';
 // Type imports
 import type {SettingsOverviewProps} from '@misc/props/settings';
@@ -14,15 +29,73 @@ import type {SettingsOverviewProps} from '@misc/props/settings';
 export interface TabOverviewProps extends SettingsOverviewProps {}
 
 // eslint-disable-next-line no-empty-pattern
-export default function TabOverview({}: TabOverviewProps) {
+export default function TabOverview(propsInput: TabOverviewProps) {
+  const intl = useIntl();
+  const [stateOpenImgModal, setStateOpenImgModal] = useState(false);
+  const [stateImgUrl, setStateImgUrl] = useState<string | undefined>(undefined);
+  const [stateImgBg, setStateImgBg] = useState<string | undefined>(undefined);
+  const onImgModalClose = () => {
+    setStateOpenImgModal(false);
+    setStateImgBg(undefined);
+    setStateImgUrl(undefined);
+  };
+  const props = {
+    ...propsInput,
+    showTitle: true,
+  };
+  const intlValues = {
+    GETACAR: <Link href="http://dx.doi.org/10.18419/opus-13788">GETACAR</Link>,
+  };
   return (
     <TabContainer>
-      <Card>
+      <Card sx={{marginTop: {md: '1rem', sm: 0}}}>
         <CardContent>
           <Typography variant="h3" gutterBottom>
-            GETACAR Platform
+            {intl.formatMessage({id: 'project.name'}, intlValues)}
+          </Typography>
+          <Typography variant="subtitle1" gutterBottom>
+            {intl.formatMessage({id: 'project.description'}, intlValues)}
           </Typography>
           <Divider style={{marginBottom: '1rem'}} />
+
+          <OverviewElementSectionTitle {...props} id="anchor-summary">
+            {intl.formatMessage(
+              {
+                id: 'page.home.tab.overview.section.summary.title',
+              },
+              intlValues
+            )}
+          </OverviewElementSectionTitle>
+          <OverviewElementSectionContent>
+            {intl.formatMessage(
+              {
+                id: 'page.home.tab.overview.section.summary.content',
+              },
+              intlValues
+            )}
+          </OverviewElementSectionContent>
+          <Box
+            component="img"
+            sx={{
+              backgroundColor: theme =>
+                theme.palette.mode === 'light' ? undefined : '#fff',
+              borderRadius: '1rem',
+              maxHeight: 400,
+              padding: '1rem',
+              width: '100%',
+            }}
+            alt="TODO"
+            src="./res/ride_pooling_platform_overview.svg"
+            onClick={() => {
+              setStateImgUrl('./res/ride_pooling_platform_overview.svg');
+              setStateOpenImgModal(true);
+              setStateImgBg('#fff');
+            }}
+          />
+          <Typography variant="body1" gutterBottom>
+            Platform Participants:
+          </Typography>
+
           <Stakeholders showTitle={true} />
           <Participants showTitle={true} />
           <Services showTitle={true} />
@@ -75,6 +148,42 @@ export default function TabOverview({}: TabOverviewProps) {
           </Typography>
         </CardContent>
       </Card>
+      <Modal
+        open={stateOpenImgModal}
+        onClose={onImgModalClose}
+        style={{
+          alignItems: 'center',
+          display: 'flex',
+          justifyContent: 'center',
+        }}
+        slotProps={{
+          backdrop: {
+            sx: {
+              backgroundColor: theme =>
+                theme.palette.mode === 'light'
+                  ? 'rgba(120,120,120,0.7)'
+                  : 'rgba(0,0,0,0.8)',
+            },
+          },
+        }}
+        closeAfterTransition
+      >
+        <Fade in={stateOpenImgModal} timeout={500}>
+          <Box
+            component="img"
+            sx={{
+              backgroundColor: stateImgBg,
+              borderRadius: '1rem',
+              maxHeight: '100%',
+              maxWidth: '100%',
+              padding: '1rem',
+            }}
+            alt="TODO"
+            src={stateImgUrl}
+            onClick={onImgModalClose}
+          />
+        </Fade>
+      </Modal>
     </TabContainer>
   );
 }

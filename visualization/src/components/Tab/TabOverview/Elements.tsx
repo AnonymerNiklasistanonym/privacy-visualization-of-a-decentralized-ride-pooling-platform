@@ -1,7 +1,12 @@
 // Package imports
 // > Components
-import {Box, Chip, Typography} from '@mui/material';
+import {Typography} from '@mui/material';
 // Local imports
+import {
+  ChipList,
+  OverviewElementSectionHeadingTitle,
+  OverviewElementSectionTitle,
+} from './TabOverviewElements';
 // > Icons
 import {
   MiscCryptoExchangeIcon,
@@ -13,51 +18,14 @@ import {
   ServiceMatchingIcon,
 } from '@components/Icons';
 // Type imports
-import type {ReactElement} from 'react';
-
-export interface OverviewElementProps {
-  showTitle?: boolean;
-}
-
-export interface ChipListProps {
-  elements: ReadonlyArray<{
-    description?: string;
-    link: string;
-    label: string;
-    icon: ReactElement;
-  }>;
-}
-
-export function ChipList({elements}: ChipListProps) {
-  return (
-    <ul>
-      {elements.map(a => (
-        <li style={{margin: '0.2rem'}} key={a.label}>
-          <a href={a.link}>
-            <Chip
-              icon={a.icon}
-              label={a.label}
-              color="primary"
-              onClick={() => {}}
-            />
-            <Box display={'inline'} sx={{fontStyle: 'italic'}}>
-              {a.description ? ` ${a.description}` : undefined}
-            </Box>
-          </a>
-        </li>
-      ))}
-    </ul>
-  );
-}
+import {OverviewElementProps} from './TabOverviewElements';
 
 export function Stakeholders(props: OverviewElementProps) {
   return (
     <>
-      <OverviewElementSectionTitle
-        {...props}
-        title="Stakeholders"
-        id="anchor-stackeholders"
-      />
+      <OverviewElementSectionTitle {...props} id="anchor-stackeholders">
+        Stakeholders
+      </OverviewElementSectionTitle>
       <Typography variant="body1" gutterBottom>
         Platform Participants:
       </Typography>
@@ -131,11 +99,9 @@ export function Stakeholders(props: OverviewElementProps) {
 export function Participants(props: OverviewElementProps) {
   return (
     <>
-      <OverviewElementSectionTitle
-        {...props}
-        title="Participants"
-        id="anchor-participants"
-      />
+      <OverviewElementSectionTitle {...props} id="anchor-participants">
+        Participants
+      </OverviewElementSectionTitle>
       <ParticipantsCustomer {...props} />
       <ParticipantsRideProvider {...props} />
     </>
@@ -147,10 +113,11 @@ export function ParticipantsCustomer(props: OverviewElementProps) {
     <>
       <OverviewElementSectionHeadingTitle
         {...props}
-        title="Customer"
         icon={<ParticipantCustomerIcon fontSize="small" />}
         id="anchor-customer"
-      />
+      >
+        Customer
+      </OverviewElementSectionHeadingTitle>
       <Typography variant="body1" gutterBottom>
         TODO: Add presentation information about Customer
       </Typography>
@@ -163,10 +130,11 @@ export function ParticipantsRideProvider(props: OverviewElementProps) {
     <>
       <OverviewElementSectionHeadingTitle
         {...props}
-        title="Ride Provider"
         icon={<ParticipantRideProviderIcon fontSize="small" />}
         id="anchor-ride-provider"
-      />
+      >
+        Ride Provider
+      </OverviewElementSectionHeadingTitle>
       <Typography variant="body1" gutterBottom>
         TODO: Add presentation information about Ride Provider
       </Typography>
@@ -177,11 +145,9 @@ export function ParticipantsRideProvider(props: OverviewElementProps) {
 export function Services(props: OverviewElementProps) {
   return (
     <>
-      <OverviewElementSectionTitle
-        {...props}
-        title="Services"
-        id="anchor-services"
-      />
+      <OverviewElementSectionTitle {...props} id="anchor-services">
+        Services
+      </OverviewElementSectionTitle>
       <ServiceAuthentication {...props} />
       <ServiceMatching {...props} />
     </>
@@ -193,10 +159,11 @@ export function ServiceAuthentication(props: OverviewElementProps) {
     <>
       <OverviewElementSectionHeadingTitle
         {...props}
-        title="Authentication Service"
         icon={<ServiceAuthenticationIcon fontSize="small" />}
         id="anchor-as"
-      />
+      >
+        Authentication Service
+      </OverviewElementSectionHeadingTitle>
       <Typography variant="body1" gutterBottom>
         TODO: Add presentation information about Authentication Service
       </Typography>
@@ -209,10 +176,11 @@ export function ServiceMatching(props: OverviewElementProps) {
     <>
       <OverviewElementSectionHeadingTitle
         {...props}
-        title="Matching Service"
         icon={<ServiceMatchingIcon fontSize="small" />}
         id="anchor-ms"
-      />
+      >
+        Matching Service
+      </OverviewElementSectionHeadingTitle>
       <Typography variant="body1" gutterBottom>
         TODO: Add presentation information about Matching Service
       </Typography>
@@ -220,61 +188,29 @@ export function ServiceMatching(props: OverviewElementProps) {
   );
 }
 
-export interface OverviewElementTitleProps extends OverviewElementProps {
-  title: string;
-  icon?: ReactElement;
-  id: string;
-}
-
-export function OverviewElementSectionTitle({
-  icon,
-  id,
-  showTitle,
-  title,
-}: OverviewElementTitleProps) {
-  return showTitle ? (
-    <Typography variant="h4" id={id} gutterBottom>
-      {icon} {title}
-    </Typography>
-  ) : undefined;
-}
-
-export function OverviewElementSectionHeadingTitle({
-  icon,
-  id,
-  showTitle,
-  title,
-}: OverviewElementTitleProps) {
-  return showTitle ? (
-    <Typography variant="h5" id={id} gutterBottom>
-      {icon} {title}
-    </Typography>
-  ) : undefined;
-}
-
 export function Blockchain(props: OverviewElementProps) {
   return (
     <>
-      <OverviewElementSectionTitle
-        {...props}
-        title="Blockchain"
-        id="anchor-blockchain"
-      />
+      <OverviewElementSectionTitle {...props} id="anchor-blockchain">
+        Blockchain
+      </OverviewElementSectionTitle>
       <OverviewElementSectionHeadingTitle
         {...props}
-        title="Crypto Exchange"
         icon={<MiscCryptoExchangeIcon fontSize="small" />}
         id="anchor-crypto-exchange"
-      />
+      >
+        Crypto Exchange
+      </OverviewElementSectionHeadingTitle>
       <Typography variant="body1" gutterBottom>
         Text
       </Typography>
       <OverviewElementSectionHeadingTitle
         {...props}
-        title="Ride Contract Service"
         icon={<MiscRideContractServiceIcon fontSize="small" />}
         id="anchor-ride-contract-service"
-      />
+      >
+        Ride Contract Service
+      </OverviewElementSectionHeadingTitle>
       <Typography variant="body1" gutterBottom>
         Text
       </Typography>

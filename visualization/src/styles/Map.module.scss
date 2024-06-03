@@ -1,7 +1,8 @@
 /* Specify the size of the map */
 .map {
+  /* Use MUI styles to change the map size responsively */
   width: 100%;
-  height: 70vh;
+  height: 100%;
 }
 
 /* Clean the default background and border radius from the connected participant markers */

@@ -20,8 +20,8 @@ export default function SearchBar({globalSearch}: SearchBarProps) {
   return (
     <Box
       sx={{
-        maxWidth: {sm: '50vw', xs: '80vw'},
-        width: {sm: 800, xs: '100%'},
+        maxWidth: {md: '50vw', sm: '80vw', xs: '80vw'},
+        width: {md: 800, sm: '100%', xs: '100%'},
       }}
       margin={2}
     >

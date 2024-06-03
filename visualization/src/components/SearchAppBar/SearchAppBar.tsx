@@ -88,14 +88,14 @@ export function SearchAppBarDrawerList({
   ];
   return (
     <Box
-      sx={{width: {sm: 250, xs: '80vw'}}}
+      sx={{width: {md: 250, sm: '80vw'}}}
       role="presentation"
       onClick={() => toggleDrawer(false)}
     >
       <List>
         <ListItem
           sx={{
-            display: {sm: 'none', xs: 'block'},
+            display: {md: 'none', sm: 'block'},
           }}
         >
           <ListItemText primary={intl.formatMessage({id: 'page.home.title'})} />
@@ -160,7 +160,7 @@ export function SearchAppBarToolbar(props: SearchAppBarPropsInput) {
         noWrap
         component="div"
         sx={{
-          display: {sm: 'block', xs: 'none'},
+          display: {md: 'block', sm: 'none', xs: 'none'},
           flexGrow: 1,
         }}
       >

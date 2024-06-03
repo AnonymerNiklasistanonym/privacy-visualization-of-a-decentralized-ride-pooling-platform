@@ -414,6 +414,17 @@ export default function TabMap(props: TabMapProps) {
   //<TextInputSpectator {...props} stateOptions={stateOptions} />
   return (
     <TabContainer fullPage={true}>
+      <Box
+        sx={{
+          '& > *': {m: 1},
+          alignItems: 'center',
+          display: 'flex',
+          flexDirection: 'column',
+          marginTop: '1vh',
+        }}
+      >
+        <SectionChangeSpectator {...props} />
+      </Box>
       <Box component="section" className={styles['tab-map']}>
         <Grid container spacing={2} justifyContent="left" alignItems="stretch">
           <Grid
@@ -476,8 +487,6 @@ export default function TabMap(props: TabMapProps) {
             marginTop: '1vh',
           }}
         >
-          <SectionChangeSpectator {...props} />
-
           {stateSettingsGlobalDebug ? (
             <>
               <Divider>
@@ -603,7 +612,57 @@ export function SectionChangeSpectator({
       <Divider>
         <Chip label="Change Spectator" size="small" />
       </Divider>
-      <ButtonGroup variant="contained" aria-label="Basic button group">
+      <ButtonGroup
+        variant="contained"
+        aria-label="Basic button group"
+        sx={{
+          display: {sm: 'none', xs: 'block'},
+        }}
+      >
+        <GenericButton
+          disabled={stateSpectator === 'everything'}
+          icon={<SpectatorEverythingIcon />}
+          onClick={() => setStateSpectator('everything')}
+        >
+          Everything
+        </GenericButton>
+        <GenericButton
+          disabled={stateSpectator === 'public'}
+          icon={<SpectatorPublicIcon />}
+          onClick={() => setStateSpectator('public')}
+        >
+          Public
+        </GenericButton>
+      </ButtonGroup>
+      <ButtonGroup
+        variant="contained"
+        aria-label="Basic button group"
+        sx={{
+          display: {sm: 'none', xs: 'block'},
+        }}
+      >
+        <GenericButton
+          disabled={stateSpectator === 'auth'}
+          icon={<ServiceAuthenticationIcon />}
+          onClick={() => setStateSpectator('auth')}
+        >
+          AuthService
+        </GenericButton>
+        <GenericButton
+          disabled={stateSpectator === 'match'}
+          icon={<ServiceMatchingIcon />}
+          onClick={() => setStateSpectator('match')}
+        >
+          MatchService
+        </GenericButton>
+      </ButtonGroup>
+      <ButtonGroup
+        variant="contained"
+        aria-label="Basic button group"
+        sx={{
+          display: {sm: 'block', xs: 'none'},
+        }}
+      >
         <GenericButton
           disabled={stateSpectator === 'everything'}
           icon={<SpectatorEverythingIcon />}
