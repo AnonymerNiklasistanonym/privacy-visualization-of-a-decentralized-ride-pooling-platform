@@ -135,8 +135,13 @@ export interface GlobalPropsSearch {
   globalSearch: Array<GlobalSearchElement>;
 }
 
-/** Props for global search */
+/** Props for global theming */
 export interface GlobalPropsTheming {
   stateThemeMode: ReactState<'light' | 'dark'>;
   setStateThemeMode: ReactSetState<'light' | 'dark'>;
+}
+
+/** Props for global spectator map */
+export interface GlobalPropsSpectatorMap {
+  stateSpectators: Map<string, GlobalPropsSpectatorElement>;
 }

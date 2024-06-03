@@ -3,18 +3,27 @@
 import {
   Badge,
   Box,
+  Collapse,
   IconButton,
   List,
   ListItem,
+  ListItemButton,
   ListItemIcon,
   ListItemText,
   ListSubheader,
   Modal,
+  Typography,
 } from '@mui/material';
 // > Icons
-import {Delete as DeleteIcon, Error as ErrorIcon} from '@mui/icons-material';
+import {
+  Delete as DeleteIcon,
+  Error as ErrorIcon,
+  ExpandLess as ExpandLessIcon,
+  ExpandMore as ExpandMoreIcon,
+} from '@mui/icons-material';
 // Type imports
 import type {ReactSetState, ReactState} from '@misc/react';
+import {useState} from 'react';
 
 export interface ErrorModalContentElement {
   title: string;
@@ -88,12 +97,10 @@ export function showErrorBuilder(
   };
 }
 
-export default function ErrorModal({
-  stateErrorModalOpen,
-  stateErrorModalContent,
-  setStateErrorModalOpen,
-  setStateErrorModalContent,
-}: ErrorModalProps) {
+export default function ErrorModal(props: ErrorModalProps) {
+  const {stateErrorModalOpen, stateErrorModalContent, setStateErrorModalOpen} =
+    props;
+
   // Close the modal when there is no content any more
   if (stateErrorModalContent.length === 0) {
     setStateErrorModalOpen(false);
@@ -132,49 +139,83 @@ export default function ErrorModal({
               </ListSubheader>
             }
           >
-            {stateErrorModalContent.map((a, index) => {
-              return (
-                <ListItem
-                  key={`content-${index}`}
-                  secondaryAction={
-                    <IconButton
-                      edge="end"
-                      aria-label="delete"
-                      onClick={() => {
-                        setStateErrorModalContent(
-                          stateErrorModalContent.filter(
-                            b => !compareErrorModalContent(b.title, b.error, a)
-                          )
-                        );
-                      }}
-                    >
-                      <DeleteIcon />
-                    </IconButton>
-                  }
-                >
-                  <ListItemIcon>
-                    <Badge
-                      color="secondary"
-                      badgeContent={a.count <= 1 ? 0 : a.count}
-                      max={999}
-                    >
-                      <ErrorIcon />
-                    </Badge>
-                  </ListItemIcon>
-                  <ListItemText
-                    primary={`${a.title} (${a.error.name})`}
-                    secondary={
-                      a.error.message +
-                      (a.error.stack ? ` [Stack: ${a.error.stack}]` : '') +
-                      (a.error.cause ? ` [Cause:\n\n${a.error.cause}]` : '')
-                    }
-                  />
-                </ListItem>
-              );
-            })}
+            {stateErrorModalContent.map(a => (
+              <ErrorModalListElement key={a.title} {...props} element={a} />
+            ))}
           </List>
         </Box>
       </Modal>
     </div>
+  );
+}
+
+export interface ErrorModalListElementProps extends ErrorModalProps {
+  element: ErrorModalContentElement;
+}
+
+export function ErrorModalListElement({
+  element,
+  stateErrorModalContent,
+  setStateErrorModalContent,
+}: ErrorModalListElementProps) {
+  const [open, setOpen] = useState(false);
+
+  const handleClick = () => {
+    setOpen(!open);
+  };
+  return (
+    <>
+      <ListItem>
+        <ListItemButton onClick={handleClick}>
+          <ListItemIcon>
+            <Badge
+              color="secondary"
+              badgeContent={element.count <= 1 ? 0 : element.count}
+              max={999}
+            >
+              <ErrorIcon />
+            </Badge>
+          </ListItemIcon>
+          <ListItemText
+            primary={`${element.title} (${element.error.name}${
+              element.error.cause ? ` / ${element.error.cause}` : ''
+            })`}
+          />
+          {open ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+        </ListItemButton>
+        <ListItemButton onClick={handleClick}>
+          <IconButton
+            edge="end"
+            aria-label="delete"
+            onClick={() => {
+              setStateErrorModalContent(
+                stateErrorModalContent.filter(
+                  b => !compareErrorModalContent(b.title, b.error, element)
+                )
+              );
+            }}
+          >
+            <DeleteIcon />
+          </IconButton>
+        </ListItemButton>
+      </ListItem>
+      <Collapse in={open} timeout="auto" unmountOnExit>
+        <Box
+          component="section"
+          sx={{
+            maxWidth: 800,
+            width: '100%',
+          }}
+        >
+          <Typography variant="body1" gutterBottom>
+            {element.error.message +
+              (element.error.stack ? ` [Stack: ${element.error.stack}]` : '') +
+              (element.error.cause
+                ? ` [Cause:\n\n${element.error.cause}]`
+                : '')}
+          </Typography>
+        </Box>
+      </Collapse>
+    </>
   );
 }

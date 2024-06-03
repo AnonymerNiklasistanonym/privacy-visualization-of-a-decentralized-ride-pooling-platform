@@ -1,5 +1,6 @@
 {
   "common.footer": "Service Computing Department > Institute of Architecture of Application Systems > University of Stuttgart",
+  "getacar.spectator.change": "Change Spectator",
   "getacar.spectator.everything": "Everything",
   "getacar.spectator.participant.customerid": "Customer ({id})",
   "getacar.spectator.participant.rideProviderid": "Ride Provider ({id})",

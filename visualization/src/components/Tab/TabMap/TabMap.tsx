@@ -18,16 +18,12 @@ import {fetchJsonEndpoint, fetchTextEndpoint} from '@misc/fetch';
 import {
   ParticipantCustomerIcon,
   ParticipantRideProviderIcon,
-  ServiceAuthenticationIcon,
-  ServiceMatchingIcon,
-  SpectatorEverythingIcon,
-  SpectatorPublicIcon,
 } from '@components/Icons';
 import CardParticipant from '@components/Card/CardParticipant';
 import CardRideRequest from '@components/Card/CardRideRequest';
 import GenericButton from '@components/Button/GenericButton';
 import Map from '@components/Map';
-import SearchBar from '@components/TextInput/SearchBar';
+import SectionChangeSpectator from './SectionChangeSpectator';
 import TabContainer from '@components/Tab/TabContainer';
 import TableDebugData from '@components/Table/TableDebugData';
 //import TextInputSpectator from '@components/TextInput/TextInputSpectator';
@@ -46,6 +42,7 @@ import type {
   GlobalPropsParticipantSelectedElementsSet,
   GlobalPropsSearch,
   GlobalPropsShowError,
+  GlobalPropsSpectatorMap,
   GlobalPropsSpectatorSelectedElements,
   GlobalPropsSpectatorSelectedElementsSet,
   GlobalPropsSpectatorsSet,
@@ -65,11 +62,11 @@ import type {MapProps} from '@components/Map';
 import type {PathfinderEndpointGraphInformation} from '@globals/types/pathfinder';
 import type {ReactNode} from 'react';
 import type {SettingsMapProps} from '@misc/props/settings';
-
 export interface TabMapProps
   extends SettingsMapProps,
     MapProps,
     GlobalPropsSpectatorsSet,
+    GlobalPropsSpectatorMap,
     GlobalPropsSpectatorSelectedElements,
     GlobalPropsSpectatorSelectedElementsSet,
     GlobalPropsParticipantSelectedElements,
@@ -596,102 +593,5 @@ export default function TabMap(props: TabMapProps) {
         </Box>
       </Box>
     </TabContainer>
-  );
-}
-
-export interface SectionChangeSpectatorProps
-  extends GlobalPropsSpectatorSelectedElements,
-    GlobalPropsSpectatorSelectedElementsSet {}
-
-export function SectionChangeSpectator({
-  stateSpectator,
-  setStateSpectator,
-}: SectionChangeSpectatorProps) {
-  return (
-    <>
-      <Divider>
-        <Chip label="Change Spectator" size="small" />
-      </Divider>
-      <ButtonGroup
-        variant="contained"
-        aria-label="Basic button group"
-        sx={{
-          display: {sm: 'none', xs: 'block'},
-        }}
-      >
-        <GenericButton
-          disabled={stateSpectator === 'everything'}
-          icon={<SpectatorEverythingIcon />}
-          onClick={() => setStateSpectator('everything')}
-        >
-          Everything
-        </GenericButton>
-        <GenericButton
-          disabled={stateSpectator === 'public'}
-          icon={<SpectatorPublicIcon />}
-          onClick={() => setStateSpectator('public')}
-        >
-          Public
-        </GenericButton>
-      </ButtonGroup>
-      <ButtonGroup
-        variant="contained"
-        aria-label="Basic button group"
-        sx={{
-          display: {sm: 'none', xs: 'block'},
-        }}
-      >
-        <GenericButton
-          disabled={stateSpectator === 'auth'}
-          icon={<ServiceAuthenticationIcon />}
-          onClick={() => setStateSpectator('auth')}
-        >
-          AuthService
-        </GenericButton>
-        <GenericButton
-          disabled={stateSpectator === 'match'}
-          icon={<ServiceMatchingIcon />}
-          onClick={() => setStateSpectator('match')}
-        >
-          MatchService
-        </GenericButton>
-      </ButtonGroup>
-      <ButtonGroup
-        variant="contained"
-        aria-label="Basic button group"
-        sx={{
-          display: {sm: 'block', xs: 'none'},
-        }}
-      >
-        <GenericButton
-          disabled={stateSpectator === 'everything'}
-          icon={<SpectatorEverythingIcon />}
-          onClick={() => setStateSpectator('everything')}
-        >
-          Everything
-        </GenericButton>
-        <GenericButton
-          disabled={stateSpectator === 'public'}
-          icon={<SpectatorPublicIcon />}
-          onClick={() => setStateSpectator('public')}
-        >
-          Public
-        </GenericButton>
-        <GenericButton
-          disabled={stateSpectator === 'auth'}
-          icon={<ServiceAuthenticationIcon />}
-          onClick={() => setStateSpectator('auth')}
-        >
-          AuthService
-        </GenericButton>
-        <GenericButton
-          disabled={stateSpectator === 'match'}
-          icon={<ServiceMatchingIcon />}
-          onClick={() => setStateSpectator('match')}
-        >
-          MatchService
-        </GenericButton>
-      </ButtonGroup>
-    </>
   );
 }

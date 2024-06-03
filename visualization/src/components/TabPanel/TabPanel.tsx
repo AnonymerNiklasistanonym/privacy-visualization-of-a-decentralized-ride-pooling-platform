@@ -29,6 +29,7 @@ import type {
   GlobalPropsParticipantSelectedElementsSet,
   GlobalPropsSearch,
   GlobalPropsShowError,
+  GlobalPropsSpectatorMap,
   GlobalPropsSpectatorSelectedElements,
   GlobalPropsSpectatorSelectedElementsSet,
   GlobalPropsSpectatorsSet,
@@ -79,6 +80,7 @@ export interface TabPanelProps
     GlobalPropsSpectatorSelectedElements,
     GlobalPropsSpectatorSelectedElementsSet,
     SettingsProps,
+    GlobalPropsSpectatorMap,
     ErrorModalProps,
     GlobalPropsSpectatorsSet,
     GlobalPropsSearch,
@@ -88,6 +90,8 @@ export interface TabPanelProps
 // eslint-disable-next-line no-empty-pattern
 export default function TabPanel(props: TabPanelProps) {
   const {
+    showError,
+    stateErrorModalContent,
     stateSettingsGlobalDebug,
     setStateErrorModalOpen,
     stateSettingsMapBaseUrlSimulation,
@@ -214,7 +218,14 @@ export default function TabPanel(props: TabPanelProps) {
               <Chip label="Debugging" size="small" />
             </Divider>
             <ButtonGroup variant="contained" aria-label="Basic button group">
-              <GenericButton onClick={() => setStateErrorModalOpen(true)}>
+              <GenericButton
+                onClick={() => {
+                  setStateErrorModalOpen(true);
+                  if (stateErrorModalContent.length === 0) {
+                    showError('Dummy', Error('Dummy', {cause: 'Dummy'}));
+                  }
+                }}
+              >
                 Open Error Modal
               </GenericButton>
               <Link target="_blank" href={stateSettingsMapBaseUrlSimulation}>

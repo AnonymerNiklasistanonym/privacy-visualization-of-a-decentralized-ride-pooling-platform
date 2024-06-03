@@ -13,7 +13,14 @@ import {UrlParameters} from '@misc/urlParameter';
 import {fetchJson} from '@globals/lib/fetch';
 import {showErrorBuilder} from '@components/Modal/ErrorModal';
 // > Components
-import {PageAboutIcon, PageHomeIcon} from '@components/Icons';
+import {
+  PageAboutIcon,
+  PageHomeIcon,
+  ServiceAuthenticationIcon,
+  ServiceMatchingIcon,
+  SpectatorEverythingIcon,
+  SpectatorPublicIcon,
+} from '@components/Icons';
 import ErrorModal from '@components/Modal/ErrorModal';
 import SearchAppBar from '@components/SearchAppBar';
 import SnackbarContentChange from '@components/Snackbar/SnackbarContentChange';
@@ -32,6 +39,7 @@ import type {
   GlobalPropsSearch,
   GlobalPropsShowError,
   GlobalPropsSpectatorElement,
+  GlobalPropsSpectatorMap,
   GlobalPropsSpectatorSelectedElements,
   GlobalPropsSpectatorSelectedElementsSet,
   GlobalPropsSpectatorsSet,
@@ -49,7 +57,11 @@ import type {SettingsProps} from '@misc/props/settings';
 import ThemeContainer from '@components/ThemeContainer';
 
 /** The Home page collection */
-export default function CollectionHome() {
+export default function CollectionHome(
+  propsError: GlobalPropsShowError & ErrorModalProps
+) {
+  const {showError} = propsError;
+
   // NextJs: Routing
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -72,11 +84,6 @@ export default function CollectionHome() {
   );
 
   // React: States
-  // > Error Modal
-  const [stateErrorModalOpen, setStateErrorModalOpen] = useState(false);
-  const [stateErrorModalContent, setStateErrorModalContent] = useState<
-    ErrorModalContentElement[]
-  >([]);
   // > Settings
   const [stateSettingsMapShowTooltips, setStateSettingsMapShowTooltips] =
     useState(false);
@@ -147,17 +154,45 @@ export default function CollectionHome() {
     options?: Readonly<FetchOptions>
   ): Promise<T> =>
     fetchJson<T>(`${stateSettingsMapBaseUrlSimulation}${endpoint}`, options);
-  const showError = showErrorBuilder({
-    setStateErrorModalContent,
-    setStateErrorModalOpen,
-    stateErrorModalContent,
-    stateErrorModalOpen,
-  });
 
   // > Spectator List
   const [stateSpectators, setStateSpectators] = useState<
     Map<string, GlobalPropsSpectatorElement>
-  >(new Map());
+  >(
+    new Map(
+      [
+        {
+          icon: <SpectatorPublicIcon />,
+          id: 'public',
+          nameId: 'getacar.spectator.public',
+        },
+        {
+          icon: <SpectatorEverythingIcon />,
+          id: 'everything',
+          nameId: 'getacar.spectator.everything',
+        },
+        {
+          icon: <ServiceAuthenticationIcon />,
+          id: 'auth',
+          nameId: 'getacar.spectator.service.authentication',
+        },
+        {
+          icon: <ServiceMatchingIcon />,
+          id: 'match',
+          nameId: 'getacar.spectator.service.matching',
+        },
+      ].map(a => [
+        a.id,
+        {
+          callback: () => {
+            setStateSpectator(a.id);
+          },
+          icon: a.icon,
+          name: intl.formatMessage({id: a.nameId}),
+        } as GlobalPropsSpectatorElement,
+      ])
+    )
+  );
   const [stateTabs, setStateTabs] = useState<
     Map<string, GlobalPropsSpectatorElement>
   >(new Map());
@@ -189,6 +224,9 @@ export default function CollectionHome() {
             prevState => new Map(prevState.set(spectatorId, data))
           )
         )
+        .then(() => {
+          console.debug('stateSpectators was updated', spectatorId);
+        })
         .catch(err =>
           showError(`Error getting spectator information ${spectatorId}`, err)
         );
@@ -350,12 +388,12 @@ export default function CollectionHome() {
     GlobalPropsTheming &
     GlobalPropsSpectatorsSet &
     GlobalPropsSearch &
+    GlobalPropsSpectatorMap &
     GlobalPropsParticipantSelectedElements &
     GlobalPropsParticipantSelectedElementsSet = {
+    ...propsError,
     fetchJsonSimulation,
     globalSearch,
-    setStateErrorModalContent,
-    setStateErrorModalOpen,
     setStateSelectedParticipant,
     setStateSelectedParticipantCustomerInformationGlobal,
     setStateSelectedParticipantRideProviderInformationGlobal,
@@ -370,9 +408,6 @@ export default function CollectionHome() {
     setStateSettingsMapUpdateRateInMs,
     setStateSpectator,
     setStateThemeMode,
-    showError,
-    stateErrorModalContent,
-    stateErrorModalOpen,
     stateSelectedParticipant,
     stateSelectedParticipantCustomerInformationGlobal,
     stateSelectedParticipantRideProviderInformationGlobal,
@@ -386,6 +421,7 @@ export default function CollectionHome() {
     stateSettingsMapShowTooltips,
     stateSettingsMapUpdateRateInMs,
     stateSpectator,
+    stateSpectators,
     stateThemeMode,
     updateGlobalSearch,
   };
@@ -396,7 +432,6 @@ export default function CollectionHome() {
       <main className={[`mui-theme-${stateThemeMode}`].join(' ')}>
         <TabPanel {...props} />
       </main>
-      <ErrorModal {...props} />
       <SnackbarContentChange
         stateOpen={stateSnackbarSpectatorOpen}
         stateContent={stateSpectator}
