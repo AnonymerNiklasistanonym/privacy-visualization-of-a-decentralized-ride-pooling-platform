@@ -130,12 +130,16 @@ export default function SectionChangeSpectator(
 }
 
 export function ButtonCurrentSpectator({
+  setStateSelectedSpectator,
   stateSpectator,
   stateSpectators,
 }: SectionChangeSpectatorProps) {
   const currentSpectator = stateSpectators.get(stateSpectator);
   return (
-    <GenericButton icon={currentSpectator?.icon}>
+    <GenericButton
+      icon={currentSpectator?.icon}
+      onClick={() => setStateSelectedSpectator(stateSpectator)}
+    >
       {currentSpectator?.name} ({stateSpectator})
     </GenericButton>
   );

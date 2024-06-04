@@ -120,6 +120,9 @@ export default function CollectionHome(
     searchParams.get(UrlParameters.SPECTATOR) ?? 'everything'
   );
   // > Selected Elements
+  const [stateSelectedSpectator, setStateSelectedSpectator] = useState<
+    string | undefined
+  >(searchParams.get(UrlParameters.SPECTATOR) ?? undefined);
   const [stateSelectedParticipant, setStateSelectedParticipant] = useState<
     string | undefined
   >(undefined);
@@ -400,6 +403,7 @@ export default function CollectionHome(
     setStateSelectedParticipantRideRequestInformationGlobal,
     setStateSelectedParticipantTypeGlobal,
     setStateSelectedRideRequest,
+    setStateSelectedSpectator,
     setStateSettingsBlockchainUpdateRateInMs,
     setStateSettingsGlobalDebug,
     setStateSettingsMapBaseUrlPathfinder,
@@ -414,6 +418,7 @@ export default function CollectionHome(
     stateSelectedParticipantRideRequestInformationGlobal,
     stateSelectedParticipantTypeGlobal,
     stateSelectedRideRequest,
+    stateSelectedSpectator,
     stateSettingsBlockchainUpdateRateInMs,
     stateSettingsGlobalDebug,
     stateSettingsMapBaseUrlPathfinder,

@@ -24,6 +24,7 @@ import {
 // Type imports
 import type {ReactSetState, ReactState} from '@misc/react';
 import {useState} from 'react';
+import { useIntl } from 'react-intl';
 
 export interface ErrorModalContentElement {
   title: string;
@@ -100,6 +101,7 @@ export function showErrorBuilder(
 export default function ErrorModal(props: ErrorModalProps) {
   const {stateErrorModalOpen, stateErrorModalContent, setStateErrorModalOpen} =
     props;
+  const intl = useIntl();
 
   // Close the modal when there is no content any more
   if (stateErrorModalContent.length === 0) {
@@ -135,7 +137,7 @@ export default function ErrorModal(props: ErrorModalProps) {
             aria-labelledby="nested-list-subheader"
             subheader={
               <ListSubheader component="div" id="nested-list-subheader">
-                Errors
+                {intl.formatMessage({id: 'errors'})}
               </ListSubheader>
             }
           >
@@ -208,11 +210,7 @@ export function ErrorModalListElement({
           }}
         >
           <Typography variant="body1" gutterBottom>
-            {element.error.message +
-              (element.error.stack ? ` [Stack: ${element.error.stack}]` : '') +
-              (element.error.cause
-                ? ` [Cause:\n\n${element.error.cause}]`
-                : '')}
+            {element.error.stack ?? 'No stack found'}
           </Typography>
         </Box>
       </Collapse>

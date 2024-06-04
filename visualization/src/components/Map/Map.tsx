@@ -10,6 +10,7 @@ import {
   Polyline,
   TileLayer,
   Tooltip,
+  useMap,
 } from 'react-leaflet';
 import {Box} from '@mui/material';
 import {FullscreenControl} from 'react-leaflet-fullscreen';
@@ -39,6 +40,7 @@ import type {
 import type {PathfinderEndpointGraphInformation} from '@globals/types/pathfinder';
 import type {ReactState} from '@misc/react';
 import type {SettingsMapProps} from '@misc/props/settings';
+import {useRef, useState} from 'react';
 
 export interface StatPos {
   lat: number;
@@ -70,6 +72,7 @@ export default function Map(props: MapPropsInput) {
     startPos,
     stateSettingsGlobalDebug,
   } = props;
+  const [flyOnce, setFlyOnce] = useState(true);
 
   return (
     <Box sx={{height: {sm: '73vh', xs: '67vh'}, width: 1}}>
@@ -211,7 +214,34 @@ export default function Map(props: MapPropsInput) {
             <></>
           )}
         </LayersControl>
+        <FlyToMapCenter
+          lat={startPos.lat + 1}
+          long={startPos.long + 1}
+          flyOnce={flyOnce}
+          setFlyOnce={setFlyOnce}
+        />
       </MapContainer>
     </Box>
   );
+}
+
+export interface FlyToMapCenterProps {
+  lat: number;
+  long: number;
+  flyOnce: boolean;
+  setFlyOnce: (newValue: boolean) => void;
+}
+
+export function FlyToMapCenter({flyOnce, setFlyOnce}: FlyToMapCenterProps) {
+  const map = useMap();
+
+  if (flyOnce === true) {
+    map.locate({setView: true}).on('locationerror', e => {
+      console.log(e);
+      alert('Location access has been denied.');
+    });
+    setFlyOnce(false);
+  }
+
+  return undefined;
 }

@@ -1,9 +1,17 @@
 'use client';
 
 // Package imports
-import {ReactNode, useEffect, useState} from 'react';
+import {ReactNode, useEffect, useRef, useState} from 'react';
 // > Components
-import {Circle, Marker, Polygon, Polyline, Popup, Tooltip} from 'react-leaflet';
+import {
+  Circle,
+  Marker,
+  Polygon,
+  Polyline,
+  Popup,
+  Tooltip,
+  useMap,
+} from 'react-leaflet';
 // Local imports
 import styles from '@styles/Map.module.scss';
 // > Components
@@ -35,6 +43,7 @@ import type {
   SimulationEndpointParticipantTypes,
   SimulationEndpointRideRequestInformation,
 } from '@globals/types/simulation';
+import type {Marker as LMarker} from 'leaflet';
 import type {SettingsMapProps} from '@misc/props/settings';
 import type {SimulationEndpointParticipantCoordinatesParticipant} from '@globals/types/simulation';
 
@@ -250,14 +259,54 @@ export function ParticipantMarkerElement(props: ParticipantMarkerElementProps) {
     stateRideProviderInformation,
     stateRideRequestInformation,
     setStateSelectedParticipantTypeGlobal,
+    stateSelectedSpectator,
+    setStateSelectedSpectator,
   } = props;
-
   const elementsToRender: Array<ReactNode> = [];
+
+  const map = useMap();
+  const markerRef = useRef<LMarker>(null);
+
+  useEffect(() => {
+    // In case the spectator of this marker is freshly selected open the popup
+    if (stateSelectedSpectator === stateParticipantCoordinates.id) {
+      // Select this participant
+      setStateSelectedParticipant(stateParticipantCoordinates.id);
+      setStateSelectedParticipantTypeGlobal(participantType);
+      // Fly to marker
+      map.panTo(
+        [stateParticipantCoordinates.lat, stateParticipantCoordinates.long],
+        {
+          duration: 2,
+        }
+      );
+      // Open marker popup
+      const marker = markerRef.current;
+      if (marker) {
+        if (marker.isPopupOpen() === true) {
+          marker.closePopup();
+        }
+        marker.openPopup();
+      }
+      // Reset selected spectator
+      setStateSelectedSpectator(undefined);
+    }
+  }, [
+    stateSelectedSpectator,
+    setStateSelectedSpectator,
+    setStatePopupOpen,
+    stateParticipantCoordinates,
+    map,
+    participantType,
+    setStateSelectedParticipant,
+    setStateSelectedParticipantTypeGlobal,
+  ]);
 
   // Icon that shows the current position of the participant
   elementsToRender.push(
     <Marker
       key={`customer_${stateParticipantCoordinates.id}`}
+      ref={markerRef}
       position={[
         stateParticipantCoordinates.lat,
         stateParticipantCoordinates.long,

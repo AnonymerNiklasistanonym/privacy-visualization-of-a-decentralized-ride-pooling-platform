@@ -12,8 +12,10 @@ import type {ShowError} from '@components/Modal/ErrorModal';
 
 /** Props to get the current spectators/selected elements */
 export interface GlobalPropsSpectatorSelectedElements {
-  /** The currently selected spectator from which POV everything should be shown */
+  /** The current spectator from which POV everything should be shown */
   stateSpectator: ReactState<string>;
+  /** The currently selected spectator */
+  stateSelectedSpectator: ReactState<string | undefined>;
   /** The currently selected participant */
   stateSelectedParticipant: ReactState<string | undefined>;
   /** The currently selected ride request */
@@ -24,6 +26,8 @@ export interface GlobalPropsSpectatorSelectedElements {
 export interface GlobalPropsSpectatorSelectedElementsSet {
   /** Set the spectator from which POV everything should be shown */
   setStateSpectator: ReactSetState<string>;
+  /** Set the currently selected spectator */
+  setStateSelectedSpectator: ReactSetState<string | undefined>;
   /** Set the currently selected participant */
   setStateSelectedParticipant: ReactSetState<string | undefined>;
   /** Set the currently selected ride request */
@@ -124,24 +128,32 @@ export interface GlobalPropsSpectatorsSet {
 }
 
 export interface GlobalSearchElement {
+  /** The icon with which it should be rendered */
   icon: ReactElement;
+  /** The name with which it should be rendered */
   name: string;
+  /** The action that should be called when selected */
   onClick: () => void;
+  /** The additional keywords to find this entry besides the name */
   keywords: Array<string>;
 }
 
 /** Props for global search */
 export interface GlobalPropsSearch {
+  /** A list of all searches with actions that can be done */
   globalSearch: Array<GlobalSearchElement>;
 }
 
 /** Props for global theming */
 export interface GlobalPropsTheming {
+  /** Indicator if the current theme mode is light or dark */
   stateThemeMode: ReactState<'light' | 'dark'>;
+  /** Update the current theme mode */
   setStateThemeMode: ReactSetState<'light' | 'dark'>;
 }
 
 /** Props for global spectator map */
 export interface GlobalPropsSpectatorMap {
-  stateSpectators: Map<string, GlobalPropsSpectatorElement>;
+  /** A map that contains all current spectators */
+  stateSpectators: ReactState<Map<string, GlobalPropsSpectatorElement>>;
 }

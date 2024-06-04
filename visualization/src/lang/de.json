@@ -1,5 +1,6 @@
 {
   "common.footer": "Abteilung Service Computing > Institut für Architektur von Anwendungssystemen > Universität Stuttgart",
+  "errors": "Fehlermeldungen",
   "getacar.spectator.change": "Ändere Betrachter",
   "getacar.spectator.everything": "Alles",
   "getacar.spectator.participant.customerid": "Customer ({id})",
