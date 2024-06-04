@@ -11,12 +11,34 @@ export interface OverviewElementProps {
 }
 
 export interface ChipListProps {
-  elements: ReadonlyArray<{
-    description?: string;
-    link: string;
-    label: string;
-    icon: ReactElement;
-  }>;
+  elements: ReadonlyArray<ChipListElementProps>;
+}
+
+export interface ChipListElementProps {
+  description?: string;
+  link: string;
+  label: string;
+  icon: ReactElement;
+  noDescription?: boolean;
+}
+
+export function ChipListElement({
+  link,
+  icon,
+  label,
+  description,
+  noDescription,
+}: ChipListElementProps) {
+  return (
+    <a href={link}>
+      <Chip icon={icon} label={label} color="primary" onClick={() => {}} />
+      {noDescription !== true ? (
+        <Box display={'inline'} sx={{fontStyle: 'italic'}}>
+          {description ? ` ${description}` : undefined}
+        </Box>
+      ) : undefined}
+    </a>
+  );
 }
 
 export function ChipList({elements}: ChipListProps) {
@@ -24,17 +46,7 @@ export function ChipList({elements}: ChipListProps) {
     <ul>
       {elements.map(a => (
         <li style={{margin: '0.2rem'}} key={a.label}>
-          <a href={a.link}>
-            <Chip
-              icon={a.icon}
-              label={a.label}
-              color="primary"
-              onClick={() => {}}
-            />
-            <Box display={'inline'} sx={{fontStyle: 'italic'}}>
-              {a.description ? ` ${a.description}` : undefined}
-            </Box>
-          </a>
+          <ChipListElement {...a} />
         </li>
       ))}
     </ul>
@@ -60,7 +72,7 @@ export function OverviewElementSectionTitle({
 
 export function OverviewElementSectionContent({children}: PropsWithChildren) {
   return (
-    <Typography variant="body1" gutterBottom>
+    <Typography variant="body1" component={'span'} gutterBottom>
       {children}
     </Typography>
   );

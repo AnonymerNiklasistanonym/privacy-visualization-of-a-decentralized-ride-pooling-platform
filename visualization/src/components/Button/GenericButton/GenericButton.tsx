@@ -12,6 +12,8 @@ export interface ButtonProps {
   icon?: ReactElement;
   /** Disable button usage */
   disabled?: boolean;
+  /** Use secondary color */
+  secondaryColor?: boolean;
 }
 
 export default function Button({
@@ -19,11 +21,13 @@ export default function Button({
   disabled,
   icon,
   onClick,
+  secondaryColor,
 }: PropsWithChildren<ButtonProps>) {
   return (
     <MuiButton
       startIcon={icon}
       variant="contained"
+      color={secondaryColor === true ? 'secondary' : 'primary'}
       disabled={disabled ?? false}
       onClick={onClick ?? (() => {})}
     >

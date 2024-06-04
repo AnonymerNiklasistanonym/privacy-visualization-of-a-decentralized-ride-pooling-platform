@@ -1,6 +1,7 @@
 'use client';
 
 // Package imports
+import {useState} from 'react';
 // > Components
 import {
   Circle,
@@ -40,7 +41,6 @@ import type {
 import type {PathfinderEndpointGraphInformation} from '@globals/types/pathfinder';
 import type {ReactState} from '@misc/react';
 import type {SettingsMapProps} from '@misc/props/settings';
-import {useRef, useState} from 'react';
 
 export interface StatPos {
   lat: number;
@@ -71,8 +71,10 @@ export default function Map(props: MapPropsInput) {
     stateParticipantCoordinatesList,
     startPos,
     stateSettingsGlobalDebug,
+    stateSelectedSpectator,
   } = props;
-  const [flyOnce, setFlyOnce] = useState(true);
+  // Only fly to current location if there is no spectator selected
+  const [flyOnce, setFlyOnce] = useState(stateSelectedSpectator === undefined);
 
   return (
     <Box sx={{height: {sm: '73vh', xs: '67vh'}, width: 1}}>

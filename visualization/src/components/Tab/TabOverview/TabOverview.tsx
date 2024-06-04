@@ -17,11 +17,19 @@ import {
 // > Components
 import {Blockchain, Participants, Services, Stakeholders} from './Elements';
 import {
+  ChipListElement,
+  ChipListElementProps,
   OverviewElementSectionContent,
   OverviewElementSectionTitle,
 } from './TabOverviewElements';
+import {
+  ParticipantCustomerIcon,
+  ParticipantRideProviderIcon,
+  ServiceAuthenticationIcon,
+  ServiceMatchingIcon,
+} from '@components/Icons';
 import Link from 'next/link';
-import TabContainer from '@components/Tab/TabContainer';
+import TabContainer from '../TabContainer';
 // Type imports
 import type {SettingsOverviewProps} from '@misc/props/settings';
 
@@ -43,8 +51,51 @@ export default function TabOverview(propsInput: TabOverviewProps) {
     ...propsInput,
     showTitle: true,
   };
+  const customerChip: ChipListElementProps = {
+    description: 'requests rides (human)',
+    icon: <ParticipantCustomerIcon />,
+    label: intl.formatMessage({id: 'getacar.participant.customer'}),
+    link: '#anchor-customer',
+  };
+  const customersChip: ChipListElementProps = {
+    ...customerChip,
+    label: intl.formatMessage({id: 'getacar.participant.customers'}),
+  };
+  const rideProviderChip: ChipListElementProps = {
+    description: 'provides rides (human/autonomous vehicle)',
+    icon: <ParticipantRideProviderIcon />,
+    label: intl.formatMessage({id: 'getacar.participant.rideProvider'}),
+    link: '#anchor-ride-provider',
+  };
+  const rideProvidersChip: ChipListElementProps = {
+    ...customerChip,
+    label: intl.formatMessage({id: 'getacar.participant.rideProviders'}),
+  };
+  const authServiceChip: ChipListElementProps = {
+    icon: <ServiceAuthenticationIcon />,
+    label: intl.formatMessage({id: 'getacar.service.auth'}),
+    link: '#anchor-as',
+  };
+  const matchServiceChip: ChipListElementProps = {
+    icon: <ServiceMatchingIcon />,
+    label: intl.formatMessage({id: 'getacar.service.match'}),
+    link: '#anchor-ms',
+  };
+
   const intlValues = {
+    AUTH_SERVICE: <ChipListElement {...authServiceChip} noDescription={true} />,
+    CUSTOMER: <ChipListElement {...customerChip} noDescription={true} />,
+    CUSTOMERS: <ChipListElement {...customersChip} noDescription={true} />,
     GETACAR: <Link href="http://dx.doi.org/10.18419/opus-13788">GETACAR</Link>,
+    MATCHING_SERVICE: (
+      <ChipListElement {...matchServiceChip} noDescription={true} />
+    ),
+    RIDE_PROVIDER: (
+      <ChipListElement {...rideProviderChip} noDescription={true} />
+    ),
+    RIDE_PROVIDERS: (
+      <ChipListElement {...rideProvidersChip} noDescription={true} />
+    ),
   };
   return (
     <TabContainer>

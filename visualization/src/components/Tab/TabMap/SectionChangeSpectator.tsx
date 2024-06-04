@@ -139,6 +139,7 @@ export function ButtonCurrentSpectator({
     <GenericButton
       icon={currentSpectator?.icon}
       onClick={() => setStateSelectedSpectator(stateSpectator)}
+      secondaryColor={true}
     >
       {currentSpectator?.name} ({stateSpectator})
     </GenericButton>
