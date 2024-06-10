@@ -32,6 +32,10 @@ export default function TabBlockchain(props: TabBlockchainProps) {
               id: 'page.home.tab.blockchain.section.smartContracts.content',
             })}
           </Typography>
+          <Typography variant="body1" gutterBottom>
+            TODO: Include real ID/Names in the table or is it enough in the
+            modal (if available to spectator?)
+          </Typography>
           <TableBlockchain {...props} />
         </CardContent>
       </Card>

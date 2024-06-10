@@ -70,6 +70,8 @@ export interface MatchingServiceAuction {
     | 'closed';
   auctionWinner: null | string;
   helperRideProviderArrived?: boolean;
+  /** Hmmmm */
+  rideContractAddress?: string;
 }
 
 export interface MatchingServiceRequest {
@@ -438,6 +440,7 @@ export class MatchingService extends Service<SimulationTypeMatchingService> {
     if (rideRequestAuction === undefined) {
       throw new Error('Ride request does not exist.');
     }
+    rideRequestAuction.rideContractAddress = contractAddress;
     rideRequestAuction.auctionStatus = 'closed';
     this.logger.debug('Ride request auction was closed', {
       contractAddress,

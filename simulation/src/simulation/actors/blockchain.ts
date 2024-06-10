@@ -6,6 +6,7 @@ import {Actor} from './actor';
 import {getRandomId} from '../../misc/helpers';
 // Type imports
 import type {Simulation} from '../simulation';
+import {randomInt} from 'crypto';
 
 export interface SimulationTypeBlockchain {
   id: string;
@@ -48,6 +49,31 @@ export class Blockchain extends Actor<SimulationTypeBlockchain> {
       rideProviderPseudonym,
     });
     return rideContractId;
+  }
+
+  rateParticipantRideContract(
+    rideContractId: string,
+    participantPseudonym: string,
+    rating: number
+  ) {
+    this.logger.debug('Rate', participantPseudonym, rating);
+    const rideContract = this.rideContracts.find(
+      a => a.walletId === rideContractId
+    );
+    if (rideContract === undefined) {
+      throw Error(`Ride contract '${rideContractId}' does not exist!`);
+    }
+    if (rideContract.customerPseudonym === participantPseudonym) {
+      rideContract.rideProviderRating = rating;
+    }
+    if (rideContract.rideProviderPseudonym === participantPseudonym) {
+      rideContract.customerRating = rating;
+      rideContract.rideProviderRating = Math.max(
+        randomInt(3),
+        randomInt(4),
+        randomInt(5)
+      );
+    }
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars, class-methods-use-this

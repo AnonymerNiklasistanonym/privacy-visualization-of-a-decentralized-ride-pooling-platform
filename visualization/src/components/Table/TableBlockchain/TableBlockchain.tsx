@@ -49,26 +49,32 @@ export default function TableBlockchain(props: TableBlockchainProps) {
     useState(false);
   const [stateRideRequestModalContent, setStateRideRequestModalContent] =
     useState<RideRequestModalInformation | undefined>(undefined);
-  // React: Effects
-  useEffect(() => {
-    const interval = setInterval(() => {
-      fetchJsonSimulation<SimulationEndpointSmartContracts>(
-        simulationEndpoints.apiV1.smartContracts
-      )
-        .then(data =>
-          Promise.all(
-            data.smartContracts.map(smartContractId =>
-              fetchJsonSimulation<SimulationEndpointSmartContractInformation>(
-                simulationEndpoints.apiV1.smartContract(smartContractId)
-              )
+
+  const fetchSmartContracts = () =>
+    fetchJsonSimulation<SimulationEndpointSmartContracts>(
+      simulationEndpoints.apiV1.smartContracts
+    )
+      .then(data =>
+        Promise.all(
+          data.smartContracts.map(smartContractId =>
+            fetchJsonSimulation<SimulationEndpointSmartContractInformation>(
+              simulationEndpoints.apiV1.smartContract(smartContractId)
             )
           )
         )
-        .then(data => {
-          setStateSmartContracts(data);
-        })
-        .catch(err => stateShowError('Fetch simulation smart contracts', err));
-    }, stateSettingsBlockchainUpdateRateInMs);
+      )
+      .then(data => {
+        console.log(data);
+        setStateSmartContracts(data);
+      })
+      .catch(err => stateShowError('Fetch simulation smart contracts', err));
+
+  // React: Effects
+  useEffect(() => {
+    const interval = setInterval(
+      () => fetchSmartContracts(),
+      stateSettingsBlockchainUpdateRateInMs
+    );
     return () => {
       clearInterval(interval);
     };

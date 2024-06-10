@@ -2,6 +2,7 @@
 
 // Package imports
 import {latLngToCell} from 'h3-js';
+import {randomInt} from 'node:crypto';
 // Local imports
 import {ParticipantPerson} from './participant';
 // > Globals
@@ -159,6 +160,12 @@ export class Customer extends ParticipantPerson<SimulationTypeCustomer> {
       this.passenger = rideRequestInfo.auctionWinner;
       this.status = 'ride with ride provider to dropoff location';
       await this.moveToLocation(simulation, dropoffLocation, true);
+      // > Rate the driver
+      simulation.blockchain.rateParticipantRideContract(
+        contractAddress,
+        pseudonym,
+        Math.max(randomInt(3), randomInt(4), randomInt(5))
+      );
       // 6. Stay idle for a random duration
       this.status = 'idle';
       await wait(getRandomIntFromInterval(1, 20) * 1000);

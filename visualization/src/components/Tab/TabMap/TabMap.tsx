@@ -197,7 +197,7 @@ export default function TabMap(props: TabMapProps) {
       .catch(err => showError('Fetch debug data', err));
   };
 
-  const fetchParticipantCoordinates = async () =>
+  const fetchParticipantCoordinates = () =>
     fetchJsonSimulation<SimulationEndpointParticipantCoordinates>(
       simulationEndpoints.apiV1.participantCoordinates
     )

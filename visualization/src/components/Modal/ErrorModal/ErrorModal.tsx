@@ -1,4 +1,5 @@
 // Package imports
+import {useIntl} from 'react-intl';
 // > Components
 import {
   Badge,
@@ -24,7 +25,6 @@ import {
 // Type imports
 import type {ReactSetState, ReactState} from '@misc/react';
 import {useState} from 'react';
-import { useIntl } from 'react-intl';
 
 export interface ErrorModalContentElement {
   title: string;

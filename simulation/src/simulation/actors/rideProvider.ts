@@ -157,6 +157,7 @@ export abstract class RideProvider<
         closedRideRequest.request.dropoffLocationReal
       );
       this.passengerList.pop();
+      // TODO: Rate the passenger
       this.rideRequest = undefined;
       // 5. Stay idle for a random duration
       this.status = 'idle';
