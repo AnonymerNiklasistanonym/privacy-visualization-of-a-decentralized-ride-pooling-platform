@@ -137,13 +137,12 @@ export const renderSettings = (
   elements: Array<SettingsElement>
 ): ReactNode => {
   return (
-    <Grid item xs={12} sm={6} md={4}>
+    <Grid item xs={12} sm={6} md={4} sx={{marginTop: {sm: '1rem', xs: 0}}}>
       <Card>
         <CardContent>
           <List
             sx={{
               '& ul': {padding: 0},
-              bgcolor: 'background.paper',
               overflow: 'auto',
               width: '100%',
             }}

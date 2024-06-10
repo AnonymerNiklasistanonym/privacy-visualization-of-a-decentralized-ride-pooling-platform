@@ -1,6 +1,7 @@
 // Package imports
+import {useIntl} from 'react-intl';
 // > Components
-import {Box, Typography} from '@mui/material';
+import {Typography} from '@mui/material';
 // Local imports
 import {
   ChipList,
@@ -21,73 +22,116 @@ import {
 import type {OverviewElementProps} from './TabOverviewElements';
 
 export function Stakeholders(props: OverviewElementProps) {
+  const intl = useIntl();
   return (
     <>
       <OverviewElementSectionTitle {...props} id="anchor-stackeholders">
-        Stakeholders
+        {intl.formatMessage({
+          id: 'page.home.tab.overview.section.stakeholders.title',
+        })}
       </OverviewElementSectionTitle>
       <Typography variant="body1" gutterBottom>
-        Platform Participants:
+        {intl.formatMessage({
+          id: 'page.home.tab.overview.section.stakeholders.participants.title',
+        })}
       </Typography>
       <ChipList
         elements={[
           {
-            description: 'requests rides (human)',
+            description: intl.formatMessage({
+              id: 'getacar.participant.customer.description',
+            }),
             icon: <ParticipantCustomerIcon />,
-            label: 'Customer',
+            label: intl.formatMessage({
+              id: 'getacar.participant.customer',
+            }),
             link: '#anchor-customer',
           },
           {
-            description: 'provides rides (human/autonomous vehicle)',
+            description: intl.formatMessage({
+              id: 'getacar.participant.rideProvider.description',
+            }),
             icon: <ParticipantRideProviderIcon />,
-            label: 'Ride Provider',
+            label: intl.formatMessage({
+              id: 'getacar.participant.rideProvider',
+            }),
             link: '#anchor-ride-provider',
           },
         ]}
       />
       <Typography variant="body1" gutterBottom>
-        Platform (decentralized) Services:
+        {intl.formatMessage({
+          id: 'page.home.tab.overview.section.stakeholders.services.title',
+        })}
       </Typography>
       <ChipList
         elements={[
           {
+            description: intl.formatMessage({
+              id: 'getacar.service.auth.description',
+            }),
             icon: <ServiceAuthenticationIcon />,
-            label: 'Authentication Service (AS)',
+            label: intl.formatMessage({
+              id: 'getacar.service.auth',
+            }),
             link: '#anchor-as',
           },
           {
+            description: intl.formatMessage({
+              id: 'getacar.service.match.description',
+            }),
             icon: <ServiceMatchingIcon />,
-            label: 'Matching Service (MS)',
+            label: intl.formatMessage({
+              id: 'getacar.service.match',
+            }),
             link: '#anchor-ms',
           },
         ]}
       />
       <Typography variant="body1" gutterBottom>
-        Platform Blockchain Connection:
+        {intl.formatMessage({
+          id: 'page.home.tab.overview.section.stakeholders.blockchain.title',
+        })}
       </Typography>
       <ChipList
         elements={[
           {
+            description: intl.formatMessage({
+              id: 'getacar.blockchain.cryptoExchange.description',
+            }),
             icon: <MiscCryptoExchangeIcon />,
-            label: 'Crypto Exchange',
+            label: intl.formatMessage({
+              id: 'getacar.blockchain.cryptoExchange',
+            }),
             link: '#anchor-crypto-exchange',
           },
           {
+            description: intl.formatMessage({
+              id: 'getacar.blockchain.rideContractService.description',
+            }),
             icon: <MiscRideContractServiceIcon />,
-            label: 'Ride Contract Service',
+            label: intl.formatMessage({
+              id: 'getacar.blockchain.rideContractService',
+            }),
             link: '#anchor-ride-provider',
           },
         ]}
       />
       <Typography variant="body1" gutterBottom>
-        Other:
+        {intl.formatMessage({
+          id: 'page.home.tab.overview.section.stakeholders.other.title',
+        })}
       </Typography>
       <ChipList
         elements={[
           {
-            description: 'verifies Authentication Services',
+            description: intl.formatMessage({
+              id: 'getacar.foundation.description',
+            }),
             icon: <MiscGetACarFoundationIcon />,
-            label: 'GETACAR foundation',
+            label: intl.formatMessage({
+              id: 'getacar.foundation',
+            }),
             link: '#anchor-getacar-foundation',
           },
         ]}
@@ -97,10 +141,13 @@ export function Stakeholders(props: OverviewElementProps) {
 }
 
 export function Participants(props: OverviewElementProps) {
+  const intl = useIntl();
   return (
     <>
       <OverviewElementSectionTitle {...props} id="anchor-participants">
-        Participants
+        {intl.formatMessage({
+          id: 'page.home.tab.overview.section.participants.title',
+        })}
       </OverviewElementSectionTitle>
       <ParticipantsCustomer {...props} />
       <ParticipantsRideProvider {...props} />
@@ -109,6 +156,7 @@ export function Participants(props: OverviewElementProps) {
 }
 
 export function ParticipantsCustomer(props: OverviewElementProps) {
+  const intl = useIntl();
   return (
     <>
       <OverviewElementSectionHeadingTitle
@@ -116,16 +164,21 @@ export function ParticipantsCustomer(props: OverviewElementProps) {
         icon={<ParticipantCustomerIcon fontSize="small" />}
         id="anchor-customer"
       >
-        Customer
+        {intl.formatMessage({
+          id: 'getacar.participant.customer',
+        })}
       </OverviewElementSectionHeadingTitle>
       <Typography variant="body1" gutterBottom>
-        TODO: Add presentation information about Customer
+        {intl.formatMessage({
+          id: 'page.home.tab.overview.section.customer.content',
+        })}
       </Typography>
     </>
   );
 }
 
 export function ParticipantsRideProvider(props: OverviewElementProps) {
+  const intl = useIntl();
   return (
     <>
       <OverviewElementSectionHeadingTitle
@@ -133,20 +186,27 @@ export function ParticipantsRideProvider(props: OverviewElementProps) {
         icon={<ParticipantRideProviderIcon fontSize="small" />}
         id="anchor-ride-provider"
       >
-        Ride Provider
+        {intl.formatMessage({
+          id: 'getacar.participant.rideProvider',
+        })}
       </OverviewElementSectionHeadingTitle>
       <Typography variant="body1" gutterBottom>
-        TODO: Add presentation information about Ride Provider
+        {intl.formatMessage({
+          id: 'page.home.tab.overview.section.rideProvider.content',
+        })}
       </Typography>
     </>
   );
 }
 
 export function Services(props: OverviewElementProps) {
+  const intl = useIntl();
   return (
     <>
       <OverviewElementSectionTitle {...props} id="anchor-services">
-        Services
+        {intl.formatMessage({
+          id: 'page.home.tab.overview.section.services.title',
+        })}
       </OverviewElementSectionTitle>
       <ServiceAuthentication {...props} />
       <ServiceMatching {...props} />
@@ -155,6 +215,7 @@ export function Services(props: OverviewElementProps) {
 }
 
 export function ServiceAuthentication(props: OverviewElementProps) {
+  const intl = useIntl();
   return (
     <>
       <OverviewElementSectionHeadingTitle
@@ -162,16 +223,22 @@ export function ServiceAuthentication(props: OverviewElementProps) {
         icon={<ServiceAuthenticationIcon fontSize="small" />}
         id="anchor-as"
       >
+        {intl.formatMessage({
+          id: 'getacar.service.auth',
+        })}
         Authentication Service
       </OverviewElementSectionHeadingTitle>
       <Typography variant="body1" gutterBottom>
-        TODO: Add presentation information about Authentication Service
+        {intl.formatMessage({
+          id: 'page.home.tab.overview.section.as.content',
+        })}
       </Typography>
     </>
   );
 }
 
 export function ServiceMatching(props: OverviewElementProps) {
+  const intl = useIntl();
   return (
     <>
       <OverviewElementSectionHeadingTitle
@@ -179,40 +246,55 @@ export function ServiceMatching(props: OverviewElementProps) {
         icon={<ServiceMatchingIcon fontSize="small" />}
         id="anchor-ms"
       >
-        Matching Service
+        {intl.formatMessage({
+          id: 'getacar.service.match',
+        })}
       </OverviewElementSectionHeadingTitle>
       <Typography variant="body1" gutterBottom>
-        TODO: Add presentation information about Matching Service
+        {intl.formatMessage({
+          id: 'page.home.tab.overview.section.ms.content',
+        })}
       </Typography>
     </>
   );
 }
 
 export function Blockchain(props: OverviewElementProps) {
+  const intl = useIntl();
   return (
     <>
       <OverviewElementSectionTitle {...props} id="anchor-blockchain">
-        Blockchain
+        {intl.formatMessage({
+          id: 'page.home.tab.overview.section.blockchain.title',
+        })}
       </OverviewElementSectionTitle>
       <OverviewElementSectionHeadingTitle
         {...props}
         icon={<MiscCryptoExchangeIcon fontSize="small" />}
         id="anchor-crypto-exchange"
       >
-        Crypto Exchange
+        {intl.formatMessage({
+          id: 'getacar.blockchain.cryptoExchange',
+        })}
       </OverviewElementSectionHeadingTitle>
       <Typography variant="body1" gutterBottom>
-        Text
+        {intl.formatMessage({
+          id: 'page.home.tab.overview.section.cryptoExchange.content',
+        })}
       </Typography>
       <OverviewElementSectionHeadingTitle
         {...props}
         icon={<MiscRideContractServiceIcon fontSize="small" />}
         id="anchor-ride-contract-service"
       >
-        Ride Contract Service
+        {intl.formatMessage({
+          id: 'getacar.blockchain.rideContractService',
+        })}
       </OverviewElementSectionHeadingTitle>
       <Typography variant="body1" gutterBottom>
-        Text
+        {intl.formatMessage({
+          id: 'page.home.tab.overview.section.rideContractService.content',
+        })}
       </Typography>
     </>
   );

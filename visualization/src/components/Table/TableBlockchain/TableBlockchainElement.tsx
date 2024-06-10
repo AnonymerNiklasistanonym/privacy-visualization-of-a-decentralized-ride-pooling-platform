@@ -38,7 +38,7 @@ export default function TableBlockchainElement({
   stateSmartContract,
   setStateSelectedParticipant,
 }: TableBlockchainElementProps) {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(true);
 
   const handleClick = () => {
     setOpen(!open);

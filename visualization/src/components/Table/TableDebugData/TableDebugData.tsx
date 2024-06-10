@@ -37,6 +37,7 @@ export type DebugDataType =
 export interface TableDebugDataProps {
   stateDebugData: ReactState<DebugData>;
   debugDataType: DebugDataType;
+  onRowClick?: (type: DebugDataType, id: string) => void;
 }
 
 const renderTypeIcon = (type: DebugDataType) =>
@@ -55,6 +56,7 @@ const renderTypeIcon = (type: DebugDataType) =>
 export default function TableDebugData({
   stateDebugData,
   debugDataType,
+  onRowClick,
 }: TableDebugDataProps) {
   const rows: GridRowModel[] = [];
   const columns: GridColDef[] = [
@@ -240,6 +242,9 @@ export default function TableDebugData({
 
   const handleEventRowClick: GridEventListener<'rowClick'> = params => {
     console.log('rowClick', debugDataType, params.row, params);
+    if (onRowClick !== undefined) {
+      onRowClick(debugDataType, params.row.id ?? -1);
+    }
   };
 
   const handleEventCellClick: GridEventListener<'cellClick'> = params => {

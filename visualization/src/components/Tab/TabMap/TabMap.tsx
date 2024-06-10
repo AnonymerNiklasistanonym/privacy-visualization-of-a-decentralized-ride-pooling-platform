@@ -2,16 +2,9 @@
 
 // Package imports
 import {useEffect, useState} from 'react';
+import {useIntl} from 'react-intl';
 // > Components
-import {
-  Box,
-  ButtonGroup,
-  Card,
-  CardContent,
-  Chip,
-  Divider,
-  Grid,
-} from '@mui/material';
+import {Box, ButtonGroup, Chip, Divider, Grid} from '@mui/material';
 // Local imports
 import {fetchJsonEndpoint, fetchTextEndpoint} from '@misc/fetch';
 // > Components
@@ -19,14 +12,12 @@ import {
   ParticipantCustomerIcon,
   ParticipantRideProviderIcon,
 } from '@components/Icons';
-import CardParticipant from '@components/Card/CardParticipant';
-import CardRideRequest from '@components/Card/CardRideRequest';
 import GenericButton from '@components/Button/GenericButton';
+import GridConnectedElements from '@components/Grid/GridConnectedElements';
 import Map from '@components/Map';
 import SectionChangeSpectator from './SectionChangeSpectator';
 import TabContainer from '@components/Tab/TabContainer';
 import TableDebugData from '@components/Table/TableDebugData';
-//import TextInputSpectator from '@components/TextInput/TextInputSpectator';
 // > Globals
 import {
   pathfinderEndpoints,
@@ -60,7 +51,6 @@ import type {
 import type {DebugData} from '@components/Table/DebugData';
 import type {MapProps} from '@components/Map';
 import type {PathfinderEndpointGraphInformation} from '@globals/types/pathfinder';
-import type {ReactNode} from 'react';
 import type {SettingsMapProps} from '@misc/props/settings';
 export interface TabMapProps
   extends SettingsMapProps,
@@ -76,6 +66,7 @@ export interface TabMapProps
     GlobalPropsFetch {}
 
 export default function TabMap(props: TabMapProps) {
+  const intl = useIntl();
   const {
     fetchJsonSimulation,
     setStateSelectedParticipant,
@@ -87,14 +78,6 @@ export default function TabMap(props: TabMapProps) {
     stateSettingsMapBaseUrlPathfinder,
     stateSettingsMapBaseUrlSimulation,
     stateSettingsMapUpdateRateInMs,
-    stateSelectedParticipantTypeGlobal,
-    stateSelectedParticipantCustomerInformationGlobal,
-    stateSelectedParticipantRideProviderInformationGlobal,
-    stateSelectedParticipantRideRequestInformationGlobal,
-    setStateSelectedParticipantTypeGlobal,
-    setStateSelectedParticipantCustomerInformationGlobal,
-    setStateSelectedParticipantRideRequestInformationGlobal,
-    setStateSelectedParticipantRideProviderInformationGlobal,
     updateGlobalSearch,
   } = props;
 
@@ -121,6 +104,8 @@ export default function TabMap(props: TabMapProps) {
       edges: [],
       vertices: [],
     });
+
+  const [stateSelectedElementCount, setStateSelectedElementCount] = useState(0);
 
   const fetchGraphs = (clear = false) => {
     if (clear === true) {
@@ -219,6 +204,7 @@ export default function TabMap(props: TabMapProps) {
   // TODO: Start Position
 
   const propsTabMap = {
+    setStateSelectedElementCount,
     setStateSelectedParticipant,
     setStateSelectedRideRequest,
     stateGraph,
@@ -246,13 +232,16 @@ export default function TabMap(props: TabMapProps) {
                       a.id
                     )
                   );
+                const customer = intl.formatMessage({
+                  id: 'getacar.participant.customer',
+                });
                 return {
                   callback: () => {
                     console.log(`Selected Customer ${a.id}`);
                   },
                   icon: <ParticipantCustomerIcon />,
-                  keywords: ['Customer', a.id, customerInformation.fullName],
-                  name: `Customer ${customerInformation.fullName}`,
+                  keywords: [customer, a.id, customerInformation.fullName],
+                  name: `${customer} ${customerInformation.fullName}`,
                 };
               },
             ]),
@@ -269,19 +258,22 @@ export default function TabMap(props: TabMapProps) {
                       a.id
                     )
                   );
+                const rideProvider = intl.formatMessage({
+                  id: 'getacar.participant.rideProvider',
+                });
                 return {
                   callback: () => {
                     console.log(`Selected Ride Provider ${a.id}`);
                   },
                   icon: <ParticipantRideProviderIcon />,
                   keywords: [
-                    'Ride Provider',
+                    rideProvider,
                     a.id,
                     'company' in rideProviderInformation
                       ? rideProviderInformation.company
                       : rideProviderInformation.fullName,
                   ],
-                  name: `Ride Provider ${
+                  name: `${rideProvider} ${
                     'company' in rideProviderInformation
                       ? rideProviderInformation.company
                       : rideProviderInformation.fullName
@@ -302,113 +294,6 @@ export default function TabMap(props: TabMapProps) {
     };
   });
 
-  // TODO Fix Text input spectator
-
-  const onDelete = () => {
-    setStateSelectedParticipantTypeGlobal(undefined);
-    setStateSelectedParticipantCustomerInformationGlobal(undefined);
-    setStateSelectedParticipantRideRequestInformationGlobal(undefined);
-    setStateSelectedParticipantRideProviderInformationGlobal(undefined);
-  };
-
-  const selectedElements: Array<ReactNode> = [];
-  if (
-    stateSelectedParticipantTypeGlobal === 'customer' &&
-    stateSelectedParticipantCustomerInformationGlobal !== undefined
-  ) {
-    selectedElements.push(
-      <CardParticipant
-        {...props}
-        {...propsTabMap}
-        participantType={stateSelectedParticipantTypeGlobal}
-        stateCustomerInformation={
-          stateSelectedParticipantCustomerInformationGlobal
-        }
-        stateRideProviderInformation={null}
-        stateParticipantId={
-          stateSelectedParticipantCustomerInformationGlobal.id
-        }
-        label="Last selected Participant"
-        onDelete={onDelete}
-      />
-    );
-  }
-  if (
-    stateSelectedParticipantTypeGlobal === 'ride_provider' &&
-    stateSelectedParticipantRideProviderInformationGlobal !== undefined
-  ) {
-    selectedElements.push(
-      <CardParticipant
-        {...props}
-        {...propsTabMap}
-        participantType={stateSelectedParticipantTypeGlobal}
-        stateCustomerInformation={null}
-        stateRideProviderInformation={
-          stateSelectedParticipantRideProviderInformationGlobal
-        }
-        stateParticipantId={
-          stateSelectedParticipantRideProviderInformationGlobal.id
-        }
-        label="Last selected Participant"
-        onDelete={onDelete}
-      />
-    );
-  }
-  if (stateSelectedParticipantRideRequestInformationGlobal !== undefined) {
-    selectedElements.push(
-      <CardRideRequest
-        {...props}
-        {...propsTabMap}
-        stateRideRequestInformation={
-          stateSelectedParticipantRideRequestInformationGlobal
-        }
-        label="Connected Ride Request"
-      />
-    );
-  }
-  if (
-    stateSelectedParticipantTypeGlobal !== 'ride_provider' &&
-    stateSelectedParticipantRideProviderInformationGlobal !== undefined
-  ) {
-    selectedElements.push(
-      <CardParticipant
-        {...props}
-        {...propsTabMap}
-        participantType={
-          stateSelectedParticipantRideProviderInformationGlobal.type
-        }
-        stateCustomerInformation={null}
-        stateRideProviderInformation={
-          stateSelectedParticipantRideProviderInformationGlobal
-        }
-        stateParticipantId={
-          stateSelectedParticipantRideProviderInformationGlobal.id
-        }
-        label="Driver"
-      />
-    );
-  }
-  if (
-    stateSelectedParticipantTypeGlobal !== 'customer' &&
-    stateSelectedParticipantCustomerInformationGlobal !== undefined
-  ) {
-    selectedElements.push(
-      <CardParticipant
-        {...props}
-        {...propsTabMap}
-        participantType={stateSelectedParticipantCustomerInformationGlobal.type}
-        stateCustomerInformation={
-          stateSelectedParticipantCustomerInformationGlobal
-        }
-        stateRideProviderInformation={null}
-        stateParticipantId={
-          stateSelectedParticipantCustomerInformationGlobal.id
-        }
-        label="Passenger"
-      />
-    );
-  }
-  //<TextInputSpectator {...props} stateOptions={stateOptions} />
   return (
     <TabContainer fullPage={true}>
       <Box
@@ -428,11 +313,11 @@ export default function TabMap(props: TabMapProps) {
             item
             xs={12}
             sm={12}
-            md={selectedElements.length === 0 ? 12 : 6}
+            md={stateSelectedElementCount === 0 ? 12 : 6}
             xl={
-              selectedElements.length === 0
+              stateSelectedElementCount === 0
                 ? 12
-                : selectedElements.length === 1
+                : stateSelectedElementCount === 1
                   ? 9
                   : 6
             }
@@ -443,36 +328,7 @@ export default function TabMap(props: TabMapProps) {
               startPos={{lat: 48.7784485, long: 9.1800132, zoom: 11}}
             />
           </Grid>
-          <Grid
-            item
-            xs={12}
-            sm={12}
-            md={selectedElements.length === 0 ? 0 : 6}
-            xl={
-              selectedElements.length === 0
-                ? 0
-                : selectedElements.length === 1
-                  ? 3
-                  : 6
-            }
-          >
-            <Grid container spacing={2} justifyContent="left">
-              {selectedElements.map((a, index) => (
-                <Grid
-                  item
-                  xs={12}
-                  sm={6}
-                  md={12}
-                  xl={selectedElements.length === 1 ? 12 : 6}
-                  key={index}
-                >
-                  <Card>
-                    <CardContent>{a}</CardContent>
-                  </Card>
-                </Grid>
-              ))}
-            </Grid>
-          </Grid>
+          <GridConnectedElements {...props} {...propsTabMap} />
         </Grid>
 
         <Box

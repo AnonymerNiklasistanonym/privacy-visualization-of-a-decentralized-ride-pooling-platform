@@ -1,10 +1,11 @@
 // Package imports
 import {useEffect, useState} from 'react';
 // > Components
-import {Box, List} from '@mui/material';
+import {Box} from '@mui/material';
 // Local imports
 // > Components
-import TableBlockchainElement from './TableBlockchainElement';
+import RideRequestModal from '@components/Modal/RideRequestModal';
+import TableDebugData from '../TableDebugData';
 // > Globals
 import {simulationEndpoints} from '@globals/defaults/endpoints';
 // Type imports
@@ -14,6 +15,10 @@ import type {
   GlobalPropsSpectatorSelectedElements,
   GlobalPropsSpectatorSelectedElementsSet,
 } from '@misc/props/global';
+import type {
+  RideRequestModalInformation,
+  RideRequestModalProps,
+} from '@components/Modal/RideRequestModal';
 import type {
   SimulationEndpointSmartContractInformation,
   SimulationEndpointSmartContracts,
@@ -30,6 +35,7 @@ export interface TableBlockchainProps
 export default function TableBlockchain(props: TableBlockchainProps) {
   const {
     stateSettingsBlockchainUpdateRateInMs,
+    stateSettingsGlobalDebug,
     showError: stateShowError,
     fetchJsonSimulation,
   } = props;
@@ -38,6 +44,10 @@ export default function TableBlockchain(props: TableBlockchainProps) {
   const [stateSmartContracts, setStateSmartContracts] = useState<
     Array<SimulationEndpointSmartContractInformation>
   >([]);
+  const [stateRideRequestModalOpen, setStateRideRequestModalOpen] =
+    useState(false);
+  const [stateRideRequestModalContent, setStateRideRequestModalContent] =
+    useState<RideRequestModalInformation | undefined>(undefined);
   // React: Effects
   useEffect(() => {
     const interval = setInterval(() => {
@@ -63,15 +73,41 @@ export default function TableBlockchain(props: TableBlockchainProps) {
     };
   });
 
+  const propsInput: RideRequestModalProps = {
+    ...props,
+    setStateRideRequestModalOpen,
+    stateRideRequestModalContent,
+    stateRideRequestModalOpen,
+  };
+
   return (
     <Box
       sx={{
-        height: 400,
         width: '100%',
       }}
     >
-      <List
-        sx={{bgcolor: 'background.paper', maxWidth: 800, width: '100%'}}
+      <TableDebugData
+        stateDebugData={{
+          customers: [],
+          rideProviders: [],
+          rideRequests: [],
+          smartContracts: stateSmartContracts,
+        }}
+        debugDataType="smart_contract"
+        onRowClick={(type, id) => {
+          console.log(type, id);
+          const smartContract = stateSmartContracts.find(
+            a => a.walletId === id
+          );
+          if (smartContract) {
+            setStateRideRequestModalContent({smartContract});
+            setStateRideRequestModalOpen(true);
+          }
+        }}
+      />
+      <RideRequestModal {...propsInput} />
+      {/*<List
+        sx={{bgcolor: 'transparent', maxWidth: 800, width: '100%'}}
         component="nav"
       >
         {stateSmartContracts.map(smartContract => (
@@ -81,7 +117,7 @@ export default function TableBlockchain(props: TableBlockchainProps) {
             stateSmartContract={smartContract}
           />
         ))}
-      </List>
+      </List>*/}
     </Box>
   );
 }

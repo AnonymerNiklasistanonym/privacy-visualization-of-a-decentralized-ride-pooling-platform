@@ -8,7 +8,6 @@ import {
   ListSubheader,
   Modal,
   Typography,
-  useTheme,
 } from '@mui/material';
 import {Lock as LockIcon, LockOpen as LockOpenIcon} from '@mui/icons-material';
 // Local imports
@@ -71,7 +70,6 @@ export default function DataModal(props: DataModalProps) {
     ['Can request this data', 'transitive'],
     ['Has no access', 'none'],
   ];
-  const theme = useTheme();
   // TODO: Add what data and from whom is inspected!
   // TODO: Make this better
   const dataValueHidden = dataValueSpectator === '******';
@@ -99,7 +97,10 @@ export default function DataModal(props: DataModalProps) {
         >
           <Typography
             variant="h5"
-            sx={{color: theme.palette.mode === 'dark' ? 'white' : undefined}}
+            sx={{
+              color: theme =>
+                theme.palette.mode === 'dark' ? 'white' : undefined,
+            }}
             gutterBottom
           >
             Who can see {dataLabel} from{' '}
@@ -113,7 +114,8 @@ export default function DataModal(props: DataModalProps) {
           </Typography>
           <Box
             sx={{
-              color: theme.palette.mode === 'dark' ? 'white' : undefined,
+              color: theme =>
+                theme.palette.mode === 'dark' ? 'white' : undefined,
               margin: '1rem',
             }}
           >
