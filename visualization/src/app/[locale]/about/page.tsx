@@ -4,6 +4,8 @@
 import {getIntl} from '@services/intl';
 // > Logging
 import {createLoggerSection} from '@services/logging';
+// > Globals
+import {confidenceVisualizer, getacar} from '@globals/defaults/urls';
 // > Styles
 import styles from '@styles/page.about.module.css';
 // Type imports
@@ -30,14 +32,12 @@ export default async function About({params: {locale}}: AboutProps) {
             {id: 'page.about.content'},
             {
               CONFIDENTIALITY_VISUALIZER: (
-                <a href="https://kastel-mobilitylab.github.io/TES-SS22-VisualizingConfidentialityInMobilitySystems">
+                <a href={confidenceVisualizer}>
                   {intl.formatMessage({id: 'confidentialityVisualizer.name'})}
                 </a>
               ),
               GETACAR: (
-                <a href="http://dx.doi.org/10.18419/opus-13788">
-                  {intl.formatMessage({id: 'getacar.name'})}
-                </a>
+                <a href={getacar}>{intl.formatMessage({id: 'getacar.name'})}</a>
               ),
             }
           )}

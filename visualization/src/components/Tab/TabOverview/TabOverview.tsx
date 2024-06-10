@@ -26,6 +26,8 @@ import {
 import ImageModal from '@components/Modal/ImageModal';
 import Link from 'next/link';
 import TabContainer from '../TabContainer';
+// > Globals
+import {getacar} from '@globals/defaults/urls';
 // Type imports
 import type {ImageModalProps} from '@components/Modal/ImageModal';
 import type {SettingsOverviewProps} from '@misc/props/settings';
@@ -91,9 +93,7 @@ export default function TabOverview(propsInput: TabOverviewProps) {
     CUSTOMER: <ChipListElement {...customerChip} noDescription={true} />,
     CUSTOMERS: <ChipListElement {...customersChip} noDescription={true} />,
     GETACAR: (
-      <Link href="http://dx.doi.org/10.18419/opus-13788">
-        {intl.formatMessage({id: 'getacar.name'})}
-      </Link>
+      <Link href={getacar}>{intl.formatMessage({id: 'getacar.name'})}</Link>
     ),
     MATCHING_SERVICE: (
       <ChipListElement {...matchServiceChip} noDescription={true} />

@@ -108,10 +108,7 @@ export interface SimulationEndpointParticipantCoordinates {
 
 export interface SimulationEndpointGraphInformation {
   vertices: Array<{id: number} & Coordinates>;
-  geometry: Array<{
-    id: string;
-    geometry: Array<Coordinates>;
-  }>;
+  geometry: Array<{id: string; geometry: Array<Coordinates>}>;
   edges: Array<{id: string; geometry: Array<Coordinates>}>;
 }
 
