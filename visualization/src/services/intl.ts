@@ -13,26 +13,19 @@ export async function getMessages(locale: Locale) {
 }
 
 export async function getIntl(locale: Locale) {
-  // TODO: Throw 404 if the user is requesting an unsupported locale/route
   const {defaultLocale} = i18n;
   const messagesLocale = await getMessages(locale);
   const messagesDefaultLocale = await getMessages(defaultLocale);
   // Include default locale in development for less errors
   for (const [key, value] of Object.entries(messagesDefaultLocale)) {
-    if (
-      messagesLocale[key] === undefined &&
-      process.env.NODE_ENV === 'development'
-    ) {
+    if (messagesLocale[key] === undefined) {
       console.warn(
         `The key '${key}' (${value}) was not found in messages of locale '${locale}'`
       );
     }
   }
   for (const [key, value] of Object.entries(messagesLocale)) {
-    if (
-      messagesDefaultLocale[key] === undefined &&
-      process.env.NODE_ENV === 'development'
-    ) {
+    if (messagesDefaultLocale[key] === undefined) {
       console.warn(
         `The key '${key}' (${value}) does not exist in the default locale '${defaultLocale}'`
       );
@@ -46,11 +39,12 @@ export async function getIntl(locale: Locale) {
 
 export function getDirection(locale: Locale) {
   switch (locale) {
-    case 'ar':
-      return 'rtl';
+    // Use this path for languages that are being read right to left
+    //case 'ar':
+    //  return 'rtl';
+    case 'de':
     case 'en':
-    case 'fr':
-    case 'nl-NL':
+    default:
       return 'ltr';
   }
 }

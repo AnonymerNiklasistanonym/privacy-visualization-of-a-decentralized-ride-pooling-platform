@@ -1,6 +1,7 @@
 {
   "common.footer": "Service Computing Department > Institute of Architecture of Application Systems > University of Stuttgart",
   "errors": "Errors",
+  "getacar.name": "GETACAR: a privacy-preserving platform for ride-pooling",
   "getacar.participant.customer": "Customer",
   "getacar.participant.customers": "Customers",
   "getacar.participant.rideProvider": "Ride Provider",
@@ -15,8 +16,10 @@
   "getacar.spectator.service.authentication": "Authentication Service",
   "getacar.spectator.service.matching": "Matching Service",
   "getacar.spectator.title": "Spectator",
+  "confidentialityVisualizer.name": "Confidentiality Visualizer",
   "page.about.description": "About this webapp",
   "page.about.title": "About",
+  "page.about.content": "Based on the master thesis {GETACAR} and inspired by {CONFIDENTIALITY_VISUALIZER}",
   "page.home.description": "Visualization of the GETACAR Platform description [TODO]",
   "page.home.head.meta.description": "Next.js i18n example - English",
   "page.home.head.title": "Visualization GETACAR Platform",

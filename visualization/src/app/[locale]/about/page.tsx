@@ -25,6 +25,23 @@ export default async function About({params: {locale}}: AboutProps) {
         <h1 className={styles.title}>
           {intl.formatMessage({id: 'page.about.title'})}
         </h1>
+        <p>
+          {intl.formatMessage(
+            {id: 'page.about.content'},
+            {
+              CONFIDENTIALITY_VISUALIZER: (
+                <a href="https://kastel-mobilitylab.github.io/TES-SS22-VisualizingConfidentialityInMobilitySystems">
+                  {intl.formatMessage({id: 'confidentialityVisualizer.name'})}
+                </a>
+              ),
+              GETACAR: (
+                <a href="http://dx.doi.org/10.18419/opus-13788">
+                  {intl.formatMessage({id: 'getacar.name'})}
+                </a>
+              ),
+            }
+          )}
+        </p>
       </main>
     </div>
   );

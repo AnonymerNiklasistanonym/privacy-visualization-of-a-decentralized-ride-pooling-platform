@@ -13,7 +13,11 @@ import type {ReactPropsI18n} from '@misc/react';
 export function FooterBreadcrumbs() {
   const intl = useIntl();
   return (
-    <Breadcrumbs sx={{marginTop: '15rem'}}>
+    <Breadcrumbs
+      sx={{
+        marginTop: '15rem',
+      }}
+    >
       {intl
         .formatMessage({id: 'common.footer'})
         .split(' > ')

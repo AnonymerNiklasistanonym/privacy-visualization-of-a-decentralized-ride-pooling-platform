@@ -3,12 +3,11 @@
 import {Chip, styled} from '@mui/material';
 
 const StyledBreadcrumb = styled(Chip)(({theme}) => {
-  const backgroundColor =
-    theme.palette.mode === 'light'
-      ? theme.palette.grey[100]
-      : theme.palette.grey[800];
   return {
-    backgroundColor,
+    backgroundColor:
+      theme.palette.mode === 'light'
+        ? theme.palette.grey[100]
+        : theme.palette.grey[800],
     color: theme.palette.text.primary,
     fontWeight: theme.typography.fontWeightRegular,
     height: theme.spacing(3),

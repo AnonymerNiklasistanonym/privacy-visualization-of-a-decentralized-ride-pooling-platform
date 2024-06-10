@@ -1,6 +1,6 @@
 // Package imports
 // > Components
-import {Typography} from '@mui/material';
+import {Box, Typography} from '@mui/material';
 // Local imports
 import {
   ChipList,
@@ -18,7 +18,7 @@ import {
   ServiceMatchingIcon,
 } from '@components/Icons';
 // Type imports
-import {OverviewElementProps} from './TabOverviewElements';
+import type {OverviewElementProps} from './TabOverviewElements';
 
 export function Stakeholders(props: OverviewElementProps) {
   return (

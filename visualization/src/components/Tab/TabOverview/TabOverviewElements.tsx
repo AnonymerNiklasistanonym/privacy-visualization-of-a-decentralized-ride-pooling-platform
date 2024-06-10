@@ -5,6 +5,51 @@
 import {Box, Chip, Typography} from '@mui/material';
 // Type imports
 import type {PropsWithChildren, ReactElement} from 'react';
+import type {ReactSetState} from '@misc/react';
+
+export interface OverviewElementImageProps {
+  setStateImgUrl: ReactSetState<string | undefined>;
+  setStateImgModalOpen: ReactSetState<boolean>;
+  setStateImgBg: ReactSetState<string | undefined>;
+  setStateImgAlt: ReactSetState<string | undefined>;
+}
+
+export interface OverviewElementImagePropsInput
+  extends OverviewElementImageProps {
+  alt: string;
+  url: string;
+}
+
+export function ImageBox({
+  alt,
+  setStateImgAlt,
+  setStateImgBg,
+  setStateImgUrl,
+  setStateImgModalOpen,
+  url,
+}: OverviewElementImagePropsInput) {
+  return (
+    <Box
+      component="img"
+      sx={{
+        backgroundColor: theme =>
+          theme.palette.mode === 'light' ? undefined : '#fff',
+        borderRadius: '1rem',
+        maxHeight: 400,
+        padding: '1rem',
+        width: '100%',
+      }}
+      alt={alt}
+      src={url}
+      onClick={() => {
+        setStateImgUrl(url);
+        setStateImgAlt(alt);
+        setStateImgBg('#fff');
+        setStateImgModalOpen(true);
+      }}
+    />
+  );
+}
 
 export interface OverviewElementProps {
   showTitle?: boolean;

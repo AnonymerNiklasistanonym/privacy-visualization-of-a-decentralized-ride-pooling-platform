@@ -4,21 +4,16 @@
 import {useIntl} from 'react-intl';
 import {useState} from 'react';
 // > Components
-import {
-  Box,
-  Card,
-  CardContent,
-  Divider,
-  Fade,
-  Modal,
-  Typography,
-} from '@mui/material';
+import {Card, CardContent, Divider, Typography} from '@mui/material';
 // Local imports
 // > Components
 import {Blockchain, Participants, Services, Stakeholders} from './Elements';
 import {
   ChipListElement,
   ChipListElementProps,
+  ImageBox,
+  OverviewElementImageProps,
+  OverviewElementProps,
   OverviewElementSectionContent,
   OverviewElementSectionTitle,
 } from './TabOverviewElements';
@@ -28,9 +23,11 @@ import {
   ServiceAuthenticationIcon,
   ServiceMatchingIcon,
 } from '@components/Icons';
+import ImageModal from '@components/Modal/ImageModal';
 import Link from 'next/link';
 import TabContainer from '../TabContainer';
 // Type imports
+import type {ImageModalProps} from '@components/Modal/ImageModal';
 import type {SettingsOverviewProps} from '@misc/props/settings';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
@@ -39,17 +36,24 @@ export interface TabOverviewProps extends SettingsOverviewProps {}
 // eslint-disable-next-line no-empty-pattern
 export default function TabOverview(propsInput: TabOverviewProps) {
   const intl = useIntl();
-  const [stateOpenImgModal, setStateOpenImgModal] = useState(false);
+  const [stateImgModalOpen, setStateImgModalOpen] = useState(false);
   const [stateImgUrl, setStateImgUrl] = useState<string | undefined>(undefined);
   const [stateImgBg, setStateImgBg] = useState<string | undefined>(undefined);
-  const onImgModalClose = () => {
-    setStateOpenImgModal(false);
-    setStateImgBg(undefined);
-    setStateImgUrl(undefined);
-  };
-  const props = {
+  const [stateImgAlt, setStateImgAlt] = useState<string | undefined>(undefined);
+  const props: TabOverviewProps &
+    OverviewElementImageProps &
+    OverviewElementProps &
+    ImageModalProps = {
     ...propsInput,
+    setStateImgAlt,
+    setStateImgBg,
+    setStateImgModalOpen,
+    setStateImgUrl,
     showTitle: true,
+    stateImgAlt,
+    stateImgBg,
+    stateImgModalOpen,
+    stateImgUrl,
   };
   const customerChip: ChipListElementProps = {
     description: 'requests rides (human)',
@@ -86,7 +90,11 @@ export default function TabOverview(propsInput: TabOverviewProps) {
     AUTH_SERVICE: <ChipListElement {...authServiceChip} noDescription={true} />,
     CUSTOMER: <ChipListElement {...customerChip} noDescription={true} />,
     CUSTOMERS: <ChipListElement {...customersChip} noDescription={true} />,
-    GETACAR: <Link href="http://dx.doi.org/10.18419/opus-13788">GETACAR</Link>,
+    GETACAR: (
+      <Link href="http://dx.doi.org/10.18419/opus-13788">
+        {intl.formatMessage({id: 'getacar.name'})}
+      </Link>
+    ),
     MATCHING_SERVICE: (
       <ChipListElement {...matchServiceChip} noDescription={true} />
     ),
@@ -125,23 +133,10 @@ export default function TabOverview(propsInput: TabOverviewProps) {
               intlValues
             )}
           </OverviewElementSectionContent>
-          <Box
-            component="img"
-            sx={{
-              backgroundColor: theme =>
-                theme.palette.mode === 'light' ? undefined : '#fff',
-              borderRadius: '1rem',
-              maxHeight: 400,
-              padding: '1rem',
-              width: '100%',
-            }}
+          <ImageBox
             alt="TODO"
-            src="./res/ride_pooling_platform_overview.svg"
-            onClick={() => {
-              setStateImgUrl('./res/ride_pooling_platform_overview.svg');
-              setStateOpenImgModal(true);
-              setStateImgBg('#fff');
-            }}
+            url="./res/ride_pooling_platform_overview.svg"
+            {...props}
           />
           <Typography variant="body1" gutterBottom>
             Platform Participants:
@@ -199,42 +194,7 @@ export default function TabOverview(propsInput: TabOverviewProps) {
           </Typography>
         </CardContent>
       </Card>
-      <Modal
-        open={stateOpenImgModal}
-        onClose={onImgModalClose}
-        style={{
-          alignItems: 'center',
-          display: 'flex',
-          justifyContent: 'center',
-        }}
-        slotProps={{
-          backdrop: {
-            sx: {
-              backgroundColor: theme =>
-                theme.palette.mode === 'light'
-                  ? 'rgba(120,120,120,0.7)'
-                  : 'rgba(0,0,0,0.8)',
-            },
-          },
-        }}
-        closeAfterTransition
-      >
-        <Fade in={stateOpenImgModal} timeout={500}>
-          <Box
-            component="img"
-            sx={{
-              backgroundColor: stateImgBg,
-              borderRadius: '1rem',
-              maxHeight: '100%',
-              maxWidth: '100%',
-              padding: '1rem',
-            }}
-            alt="TODO"
-            src={stateImgUrl}
-            onClick={onImgModalClose}
-          />
-        </Fade>
-      </Modal>
+      <ImageModal {...props} />
     </TabContainer>
   );
 }
