@@ -1,4 +1,5 @@
 // Package imports
+import {useIntl} from 'react-intl';
 // > Components
 import {Box, Rating} from '@mui/material';
 import {DataGrid, GridToolbar} from '@mui/x-data-grid';
@@ -53,15 +54,27 @@ const renderTypeIcon = (type: DebugDataType) =>
     <ErrorIcon />
   );
 
+const ID_LENGTH = 150;
+
 export default function TableDebugData({
   stateDebugData,
   debugDataType,
   onRowClick,
 }: TableDebugDataProps) {
+  const intl = useIntl();
   const rows: GridRowModel[] = [];
   const columns: GridColDef[] = [
-    {field: 'id', renderHeader: () => 'ID', width: 200},
-    {field: 'type', renderCell: a => renderTypeIcon(a.value), width: 40},
+    {
+      field: 'id',
+      headerName: intl.formatMessage({id: 'data.id'}),
+      width: ID_LENGTH,
+    },
+    {
+      field: 'type',
+      headerName: intl.formatMessage({id: 'data.type'}),
+      renderCell: a => renderTypeIcon(a.value),
+      width: 40,
+    },
   ];
 
   if (debugDataType === 'customer') {
@@ -207,10 +220,28 @@ export default function TableDebugData({
       )
     );
     columns.push(
-      {field: 'customerId', width: 120},
-      {field: 'rideProviderId', width: 120},
+      {
+        field: 'customerId',
+        headerName:
+          intl.formatMessage({id: 'getacar.participant.customer'}) +
+          ' ' +
+          intl.formatMessage({id: 'data.id'}),
+        width: ID_LENGTH,
+      },
+      {
+        field: 'rideProviderId',
+        headerName:
+          intl.formatMessage({id: 'getacar.participant.rideProvider'}) +
+          ' ' +
+          intl.formatMessage({id: 'data.id'}),
+        width: ID_LENGTH,
+      },
       {
         field: 'customerRating',
+        headerName:
+          intl.formatMessage({id: 'getacar.participant.customer'}) +
+          ' ' +
+          intl.formatMessage({id: 'data.rating'}),
         renderCell: a => (
           <Box sx={{alignItems: 'center', display: 'flex', pr: 2}}>
             <Rating
@@ -225,6 +256,10 @@ export default function TableDebugData({
       },
       {
         field: 'rideProviderRating',
+        headerName:
+          intl.formatMessage({id: 'getacar.participant.rideProvider'}) +
+          ' ' +
+          intl.formatMessage({id: 'data.rating'}),
         renderCell: a => (
           <Box sx={{alignItems: 'center', display: 'flex', pr: 2}}>
             <Rating

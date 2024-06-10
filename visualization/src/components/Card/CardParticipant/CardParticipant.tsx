@@ -25,6 +25,7 @@ export interface CardParticipantProps
   stateCustomerInformation: ReactState<null | SimulationEndpointParticipantInformationCustomer>;
   stateRideProviderInformation: ReactState<null | SimulationEndpointParticipantInformationRideProvider>;
   participantType: SimulationEndpointParticipantTypes;
+  showRideRequest?: boolean;
 }
 
 export default function CardParticipant(props: CardParticipantProps) {

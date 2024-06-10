@@ -35,7 +35,8 @@ export interface GridConnectedElementsProps
     GlobalPropsSearch,
     GlobalPropsShowError,
     GlobalPropsFetch {
-  setStateSelectedElementCount: ReactSetState<number>;
+  setStateSelectedElementCount?: ReactSetState<number>;
+  showRideRequest?: boolean;
 }
 
 export default function GridConnectedElements(
@@ -51,6 +52,7 @@ export default function GridConnectedElements(
     stateSelectedParticipantRideProviderInformationGlobal,
     stateSelectedParticipantRideRequestInformationGlobal,
     setStateSelectedElementCount,
+    showRideRequest,
   } = props;
   const intl = useIntl();
 
@@ -120,7 +122,10 @@ export default function GridConnectedElements(
       />
     );
   }
-  if (stateSelectedParticipantRideRequestInformationGlobal !== undefined) {
+  if (
+    stateSelectedParticipantRideRequestInformationGlobal !== undefined &&
+    showRideRequest === true
+  ) {
     selectedElements.push(
       <CardRideRequest
         {...props}
@@ -184,7 +189,9 @@ export default function GridConnectedElements(
       />
     );
   }
-  setStateSelectedElementCount(selectedElements.length);
+  if (setStateSelectedElementCount) {
+    setStateSelectedElementCount(selectedElements.length);
+  }
 
   return (
     <Grid

@@ -45,7 +45,7 @@
   "page.home.search.switchTab": "Switch to tab {name}",
   "page.home.search.switchTheme": "Switch to {name} mode",
   "page.home.search.title": "Search or change the spectator",
-  "page.home.tab.blockchain.section.smartContracts.content": "TODO: Also add pagination and don`t fetch all of them at once",
+  "page.home.tab.blockchain.section.smartContracts.content": "These smart contracts are all public. Click a smart contract to learn if the current spectator can resolve the pseudonymized data.",
   "page.home.tab.blockchain.section.smartContracts.title": "Public Smart Contracts",
   "page.home.tab.blockchain.title": "Blockchain",
   "page.home.tab.map.title": "Map",
@@ -84,5 +84,8 @@
   "project.name": "Visualization of a privacy focused ride pooling platform concept ({GETACAR})",
   "simulation": "Simulation",
   "theme.dark": "dark",
+  "data.id": "ID",
+  "data.rating": "Rating",
+  "data.type": "Type",
   "theme.light": "light"
 }

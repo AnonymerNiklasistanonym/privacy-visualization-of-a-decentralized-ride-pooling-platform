@@ -69,11 +69,7 @@ export default function TabMap(props: TabMapProps) {
   const intl = useIntl();
   const {
     fetchJsonSimulation,
-    setStateSelectedParticipant,
-    setStateSelectedRideRequest,
     showError,
-    stateSelectedParticipant,
-    stateSelectedRideRequest,
     stateSettingsGlobalDebug,
     stateSettingsMapBaseUrlPathfinder,
     stateSettingsMapBaseUrlSimulation,
@@ -201,94 +197,92 @@ export default function TabMap(props: TabMapProps) {
       .catch(err => showError('Fetch debug data', err));
   };
 
+  const fetchParticipantCoordinates = async () =>
+    fetchJsonSimulation<SimulationEndpointParticipantCoordinates>(
+      simulationEndpoints.apiV1.participantCoordinates
+    )
+      .then(data => {
+        setStateParticipantCoordinatesList(data);
+        updateGlobalSearch(
+          data.customers.map(a => [
+            a.id,
+            async () => {
+              const customerInformation =
+                await fetchJsonSimulation<SimulationEndpointParticipantInformationCustomer>(
+                  simulationEndpoints.apiV1.participantInformationCustomer(a.id)
+                );
+              const customer = intl.formatMessage({
+                id: 'getacar.participant.customer',
+              });
+              return {
+                callback: () => {
+                  console.log(`Selected Customer ${a.id}`);
+                },
+                icon: <ParticipantCustomerIcon />,
+                keywords: [customer, a.id, customerInformation.fullName],
+                name: `${customer} ${customerInformation.fullName}`,
+              };
+            },
+          ]),
+          [],
+          []
+        );
+        updateGlobalSearch(
+          data.rideProviders.map(a => [
+            a.id,
+            async () => {
+              const rideProviderInformation =
+                await fetchJsonSimulation<SimulationEndpointParticipantInformationRideProvider>(
+                  simulationEndpoints.apiV1.participantInformationRideProvider(
+                    a.id
+                  )
+                );
+              const rideProvider = intl.formatMessage({
+                id: 'getacar.participant.rideProvider',
+              });
+              return {
+                callback: () => {
+                  console.log(`Selected Ride Provider ${a.id}`);
+                },
+                icon: <ParticipantRideProviderIcon />,
+                keywords: [
+                  rideProvider,
+                  a.id,
+                  'company' in rideProviderInformation
+                    ? rideProviderInformation.company
+                    : rideProviderInformation.fullName,
+                ],
+                name: `${rideProvider} ${
+                  'company' in rideProviderInformation
+                    ? rideProviderInformation.company
+                    : rideProviderInformation.fullName
+                }`,
+              };
+            },
+          ]),
+          [],
+          []
+        );
+      })
+      .catch(err => showError('Fetch simulation participant coordinates', err));
+
   // TODO: Start Position
 
   const propsTabMap = {
+    ...props,
     setStateSelectedElementCount,
-    setStateSelectedParticipant,
-    setStateSelectedRideRequest,
+    showRideRequest: true,
     stateGraph,
     stateGraphPathfinder,
     stateParticipantCoordinatesList,
-    stateSelectedParticipant,
-    stateSelectedRideRequest,
   };
 
   // React: Effects
   useEffect(() => {
-    const interval = setInterval(() => {
-      fetchJsonSimulation<SimulationEndpointParticipantCoordinates>(
-        simulationEndpoints.apiV1.participantCoordinates
-      )
-        .then(data => {
-          setStateParticipantCoordinatesList(data);
-          updateGlobalSearch(
-            data.customers.map(a => [
-              a.id,
-              async () => {
-                const customerInformation =
-                  await fetchJsonSimulation<SimulationEndpointParticipantInformationCustomer>(
-                    simulationEndpoints.apiV1.participantInformationCustomer(
-                      a.id
-                    )
-                  );
-                const customer = intl.formatMessage({
-                  id: 'getacar.participant.customer',
-                });
-                return {
-                  callback: () => {
-                    console.log(`Selected Customer ${a.id}`);
-                  },
-                  icon: <ParticipantCustomerIcon />,
-                  keywords: [customer, a.id, customerInformation.fullName],
-                  name: `${customer} ${customerInformation.fullName}`,
-                };
-              },
-            ]),
-            [],
-            []
-          );
-          updateGlobalSearch(
-            data.rideProviders.map(a => [
-              a.id,
-              async () => {
-                const rideProviderInformation =
-                  await fetchJsonSimulation<SimulationEndpointParticipantInformationRideProvider>(
-                    simulationEndpoints.apiV1.participantInformationRideProvider(
-                      a.id
-                    )
-                  );
-                const rideProvider = intl.formatMessage({
-                  id: 'getacar.participant.rideProvider',
-                });
-                return {
-                  callback: () => {
-                    console.log(`Selected Ride Provider ${a.id}`);
-                  },
-                  icon: <ParticipantRideProviderIcon />,
-                  keywords: [
-                    rideProvider,
-                    a.id,
-                    'company' in rideProviderInformation
-                      ? rideProviderInformation.company
-                      : rideProviderInformation.fullName,
-                  ],
-                  name: `${rideProvider} ${
-                    'company' in rideProviderInformation
-                      ? rideProviderInformation.company
-                      : rideProviderInformation.fullName
-                  }`,
-                };
-              },
-            ]),
-            [],
-            []
-          );
-        })
-        .catch(err =>
-          showError('Fetch simulation participant coordinates', err)
-        );
-    }, stateSettingsMapUpdateRateInMs);
+    const interval = setInterval(
+      () => fetchParticipantCoordinates(),
+      stateSettingsMapUpdateRateInMs
+    );
     return () => {
       clearInterval(interval);
     };

@@ -18,6 +18,7 @@ import type {
 import type {
   RideRequestModalInformation,
   RideRequestModalProps,
+  RideRequestModalPropsInput,
 } from '@components/Modal/RideRequestModal';
 import type {
   SimulationEndpointSmartContractInformation,
@@ -30,12 +31,12 @@ export interface TableBlockchainProps
     GlobalPropsFetch,
     GlobalPropsShowError,
     GlobalPropsSpectatorSelectedElements,
-    GlobalPropsSpectatorSelectedElementsSet {}
+    GlobalPropsSpectatorSelectedElementsSet,
+    RideRequestModalProps {}
 
 export default function TableBlockchain(props: TableBlockchainProps) {
   const {
     stateSettingsBlockchainUpdateRateInMs,
-    stateSettingsGlobalDebug,
     showError: stateShowError,
     fetchJsonSimulation,
   } = props;
@@ -73,7 +74,7 @@ export default function TableBlockchain(props: TableBlockchainProps) {
     };
   });
 
-  const propsInput: RideRequestModalProps = {
+  const propsInput: RideRequestModalPropsInput = {
     ...props,
     setStateRideRequestModalOpen,
     stateRideRequestModalContent,
@@ -106,18 +107,6 @@ export default function TableBlockchain(props: TableBlockchainProps) {
         }}
       />
       <RideRequestModal {...propsInput} />
-      {/*<List
-        sx={{bgcolor: 'transparent', maxWidth: 800, width: '100%'}}
-        component="nav"
-      >
-        {stateSmartContracts.map(smartContract => (
-          <TableBlockchainElement
-            {...props}
-            key={smartContract.walletId}
-            stateSmartContract={smartContract}
-          />
-        ))}
-      </List>*/}
     </Box>
   );
 }

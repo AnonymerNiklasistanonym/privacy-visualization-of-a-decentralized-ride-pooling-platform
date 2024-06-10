@@ -24,13 +24,15 @@ import type {SimulationEndpointParticipantInformationCustomer} from '@globals/ty
 
 export interface CardParticipantContentCustomerProps
   extends GlobalPropsSpectatorSelectedElementsSet,
-    ChangeViewButtonProps {}
+    ChangeViewButtonProps {
+  showRideRequest?: boolean;
+}
 
 export default function cardParticipantContentCustomer(
   props: CardParticipantContentCustomerProps,
   customer?: SimulationEndpointParticipantInformationCustomer
 ) {
-  const {setStateSelectedRideRequest} = props;
+  const {setStateSelectedRideRequest, showRideRequest} = props;
   const result: Array<CardGenericPropsContentElement> = [];
   const showContentSpectatorContactDetails = [
     {
@@ -139,7 +141,7 @@ export default function cardParticipantContentCustomer(
       labelIcon: <ParticipantRideProviderIcon />,
     });
   }
-  if (customer?.rideRequest !== undefined) {
+  if (customer?.rideRequest !== undefined && showRideRequest) {
     result.push({
       content: (
         <Typography variant="body2" gutterBottom>

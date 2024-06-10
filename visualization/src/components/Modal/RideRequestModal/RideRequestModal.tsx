@@ -1,12 +1,17 @@
+'use client';
+
 // Package imports
+import {useEffect} from 'react';
 // > Components
 import {Box, Modal} from '@mui/material';
 // Local imports
 // > Components
+import GridConnectedElements from '@components/Grid/GridConnectedElements';
 import TableBlockchainElement from '@components/Table/TableBlockchain/TableBlockchainElement';
 // Type imports
 import type {ReactSetState, ReactState} from '@misc/react';
 import type {ChangeViewButtonProps} from '@components/Button/ChangeViewButton';
+import type {GridConnectedElementsProps} from '@components/Grid/GridConnectedElements';
 import type {SimulationEndpointSmartContractInformation} from '@globals/types/simulation';
 
 export interface RideRequestModalInformation {
@@ -18,21 +23,41 @@ export interface RideRequestModalPropsSetStates {
 }
 
 export interface RideRequestModalProps
-  extends RideRequestModalPropsSetStates,
-    ChangeViewButtonProps {
+  extends ChangeViewButtonProps,
+    GridConnectedElementsProps {}
+
+export interface RideRequestModalPropsInput
+  extends RideRequestModalProps,
+    RideRequestModalPropsSetStates {
   stateRideRequestModalOpen: ReactState<boolean>;
   stateRideRequestModalContent: ReactState<
     RideRequestModalInformation | undefined
   >;
 }
 
-export default function RideRequestModal(props: RideRequestModalProps) {
+export default function RideRequestModal(props: RideRequestModalPropsInput) {
   const {
-    stateSpectator,
     stateRideRequestModalOpen,
     stateRideRequestModalContent,
     setStateRideRequestModalOpen,
+    setStateSelectedParticipant,
   } = props;
+
+  useEffect(() => {
+    if (
+      stateRideRequestModalOpen &&
+      stateRideRequestModalContent?.smartContract
+    ) {
+      setStateSelectedParticipant(
+        stateRideRequestModalContent.smartContract.customerId
+      );
+    }
+  }, [
+    stateRideRequestModalOpen,
+    stateRideRequestModalContent,
+    setStateSelectedParticipant,
+  ]);
+
   return (
     <Modal
       open={stateRideRequestModalOpen}
@@ -60,6 +85,7 @@ export default function RideRequestModal(props: RideRequestModalProps) {
               {...props}
               stateSmartContract={stateRideRequestModalContent.smartContract}
             />
+            <GridConnectedElements {...props} />
           </>
         ) : undefined}
       </Box>
