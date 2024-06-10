@@ -29,12 +29,6 @@ export default function SectionChangeSpectator(
   const intl = useIntl();
   return (
     <>
-      <Divider>
-        <Chip
-          label={intl.formatMessage({id: 'getacar.spectator.change'})}
-          size="small"
-        />
-      </Divider>
       <ButtonGroup
         variant="contained"
         sx={{

@@ -283,7 +283,8 @@ export function ParticipantMarkerElement(props: ParticipantMarkerElementProps) {
       // Open marker popup
       const marker = markerRef.current;
       if (marker) {
-        if (marker.isPopupOpen() === true) {
+        // TODO: Fix
+        if (marker.isPopupOpen()) {
           marker.closePopup();
         }
         marker.openPopup();
