@@ -305,17 +305,8 @@ build*
 bin*
 dist*
 
-# Temp solution > Copy bibliography but ignore the copy
-student-project-description/bibliography
-
-# Ignore created PDF files
-student-project-description/*.pdf
-
 # Ignore Libre Office Lock files
 .~lock.*
 
 # Do not ignore log files of bash scripts
 !*.sh.log
-
-# Temp solution > Ignore presentation
-analysis/presentation.pdf
