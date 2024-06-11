@@ -2,11 +2,11 @@
 
 // Local imports
 import {Actor} from './actor';
+import {randomInt} from 'crypto';
 // > Misc
 import {getRandomId} from '../../misc/helpers';
 // Type imports
 import type {Simulation} from '../simulation';
-import {randomInt} from 'crypto';
 
 export interface SimulationTypeBlockchain {
   id: string;

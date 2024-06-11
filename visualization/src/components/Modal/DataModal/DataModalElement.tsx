@@ -7,7 +7,6 @@ import {
   CardActions,
   CardContent,
   Collapse,
-  Divider,
   ListItemButton,
   ListItemIcon,
   ListItemText,
@@ -24,7 +23,7 @@ import {
 import ChangeViewButton from '@components/Button/ChangeViewButton';
 // Type imports
 import type {ChangeViewButtonProps} from '@components/Button/ChangeViewButton';
-import type {DataModalInformation} from './DataModal';
+import type {DataModalInformation} from './DataModalInformation';
 import type {ReactState} from '@misc/react';
 
 export interface DataModalPropsElement extends ChangeViewButtonProps {

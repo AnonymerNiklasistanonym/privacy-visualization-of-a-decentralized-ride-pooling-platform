@@ -14,25 +14,13 @@ import {Lock as LockIcon, LockOpen as LockOpenIcon} from '@mui/icons-material';
 // > Components
 import DataModelListElement from './DataModalElement';
 // Type imports
+import type {
+  DataModalInformation,
+  DataModalInformationAccessType,
+} from './DataModalInformation';
 import type {ReactElement, ReactNode} from 'react';
 import type {ReactSetState, ReactState} from '@misc/react';
 import type {ChangeViewButtonProps} from '@components/Button/ChangeViewButton';
-
-export type DataModalInformationAccessType =
-  | 'none'
-  | 'owner'
-  | 'local_storage'
-  | 'transitive';
-
-export interface DataModalInformation {
-  icon?: ReactNode;
-  isPseudonym?: boolean;
-  accessType: DataModalInformationAccessType;
-  name: string;
-  description?: string;
-  spectatorId: string;
-  spectatorInformation?: ReactNode;
-}
 
 export interface DataModalPropsSetStates {
   setStateDataModalOpen: ReactSetState<boolean>;
