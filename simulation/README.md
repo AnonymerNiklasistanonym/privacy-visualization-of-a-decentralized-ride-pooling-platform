@@ -1,4 +1,15 @@
-# Simulation
+# Webserver: Simulation
+
+- [Run](#run)
+  - [Configuration](#configuration)
+  - [Node.js](#nodejs)
+  - [Docker](#docker)
+  - [Logs](#logs)
+- [Dev](#dev)
+  - [Commands](#commands)
+- [Profiling](#profiling)
+  - [Ticks](#ticks)
+  - [Flamegraph](#flamegraph)
 
 Simulate the following parts of the GETACAR platform:
 
@@ -35,47 +46,49 @@ Simulate the following parts of the GETACAR platform:
       - [ ] `get:/smart_contract/:id`
       - [ ] `get:/smart_contracts/`
 
-## Configuration
+## Run
+
+Per default running it will create a web server on the port `3020`.
+Open [http://localhost:3020](http://localhost:3020) with your browser to view the debug page.
+
+### Configuration
 
 Edit parameters in [`config.json`](./config.json) (use an editor that is aware of JSON schemas: [`config.schema.json`](./config.schema.json)).
 
-## Run
+### Node.js
 
-**Prerequisites**:
+1. [Install Node.js (`node` + `npm`)](https://nodejs.org/en/download)
+2. Setup:
 
-1. Install `node` and `npm` (arch linux + `pacman`: `sudo pacman -S npm`)
+   ```sh
+   # Install dependencies
+   npm install
+   # Compile TypeScript code to JavaScript in build directory and
+   # copy additional resource files and compiled files to dist directory
+   npm run build
+   # Run compiled files (default port 3020 => http://localhost:3020)
+   npm run start
+   # Optionally you can change the port of the web server from the CL
+   npm run start -- --port 3020
+   ```
 
-**Setup:**
+3. Development:
 
-```sh
-# Install dependencies
-npm install
-# Compile TypeScript code to JavaScript in build directory and
-# copy additional resource files and compiled files to dist directory
-npm run build
-# Run compiled files (default port 4321 => http://localhost:4321)
-npm run start
-# Optionally you can change the port of the web server from the CL
-npm run start -- --port 3020
-```
-
-**Development:**
-
-```sh
-# Check files (style guide, errors)
-npm run lint
-# Auto fix files (style guide, errors)
-npm run fix
-# Create documentation in docs directory
-npm run docs
-npx http-server -o docs -p 8000
-# Auto update server on change
-npm run dev -- --port 2222
-```
+   ```sh
+   # Check files (style guide, errors)
+   npm run lint
+   # Auto fix files (style guide, errors)
+   npm run fix
+   # Create documentation in docs directory
+   npm run docs
+   npx http-server -o docs -p 8000
+   # Auto update server on change
+   npm run dev -- --port 2222
+   ```
 
 ### Docker
 
-1. [Install Docker](https://docs.docker.com/get-docker/) and start the docker daemon
+1. [Install Docker (`docker` + `docker-compose`)](https://docs.docker.com/get-docker/) and start the docker daemon
    - Linux:
      1. Install (e.g. via `sudo pacman -S docker docker-compose`)
      2. Use `systemd` to start the service: `systemctl start docker`
@@ -112,10 +125,23 @@ If you are finished you can:
 
 > The `Dockerfile` was inspired by a [geeksforgeeks.org article 'How to Dockerize an ExpressJS App?'](https://www.geeksforgeeks.org/how-to-dockerize-an-expressjs-app/).
 
-#### Logs
+### Logs
 
-The server logs are stored in `$LOG_DIR=/app/logs/`.
-To copy them out of the container run: `docker cp $ID:$LOG_DIR ./app_logs`
+The server logs are stored in `logs`.
+
+To copy them out of a `docker` container run: `docker cp $ID:$LOG_DIR ./app_logs` (`$LOG_DIR=/app/logs/`).
+
+## Dev
+
+### Commands
+
+| Command | Description |
+| --- | --- |
+| `npm run check:circular` | Check for circular dependencies |
+| `npm run check:exports` | Check for unused exports |
+| `npm run fix` | Fix code style based on [`eslint` rules](.eslintrc.json) |
+| `npm run lint` | Check code style based on [`eslint` rules](.eslintrc.json) and on `next` internals |
+| `npm run test` | Run tests defined in [`src/tests`](src/tests) |
 
 ## Profiling
 

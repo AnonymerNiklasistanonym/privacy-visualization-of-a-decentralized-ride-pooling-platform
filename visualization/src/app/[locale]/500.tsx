@@ -1,10 +1,24 @@
+'use server';
+
+// TODO: Is not being used
+
 // Local imports
+// > Components
+import CollectionError from '@components/Collections/CollectionError';
 // > Logging
 import {createLoggerSection} from '@services/logging';
+// Type imports
+import type {CollectionErrorProps} from '@components/Collections/CollectionError';
 
-const logger = createLoggerSection('500');
+const code = '500';
+const logger = createLoggerSection(code);
 
-export default function Custom500() {
-  logger.debug('500');
-  return <h1>500 - Server-side error occurred</h1>;
+export default async function CustomErrorPage() {
+  logger.debug(code);
+  const props: CollectionErrorProps = {
+    code,
+    links: [{text: 'Go back home', url: '/'}],
+    message: 'Server-side error occurred',
+  };
+  return <CollectionError {...props} />;
 }

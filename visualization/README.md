@@ -1,4 +1,4 @@
-# Webapp
+# Webserver: Visualization
 
 - [Run](#run)
   - [Node.js](#nodejs)
@@ -16,7 +16,7 @@
 ## Run
 
 Per default running it will create a web server on the port `3000`.
-Open [http://localhost:3000](http://localhost:3000) with your browser to view.
+Open [http://localhost:3000](http://localhost:3000) with your browser to view the main page.
 
 ### Node.js
 
@@ -84,9 +84,9 @@ If you are finished you can:
 
 ### Logs
 
-The server logs are stored in `$LOG_DIR=/app/logs/`.
+The server logs are stored in `.next/server/logs`.
 
-To copy them out of a docker container run: `docker cp $ID:$LOG_DIR ./app_logs`
+To copy them out of a `docker` container run: `docker cp $ID:$LOG_DIR ./app_logs` (`$LOG_DIR=/app/logs/`).
 
 ## Structure
 
