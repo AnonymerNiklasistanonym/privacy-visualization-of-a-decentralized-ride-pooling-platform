@@ -5,10 +5,10 @@ import {useIntl} from 'react-intl';
 // > Components
 import {Breadcrumbs} from '@mui/material';
 // Local imports
-import FooterContainer from './FooterContainer';
 import StyledBreadcrumb from './StyledBreadcrumb';
 // Type imports
 import type {ReactPropsI18n} from '@misc/react';
+import TranslationWrapper from '@components/TranslationWrapper';
 
 export function FooterBreadcrumbs() {
   const intl = useIntl();
@@ -30,8 +30,10 @@ export function FooterBreadcrumbs() {
 
 export default function Footer({locale, messages}: ReactPropsI18n) {
   return (
-    <FooterContainer locale={locale} messages={messages}>
-      <FooterBreadcrumbs />
-    </FooterContainer>
+    <TranslationWrapper locale={locale} messages={messages}>
+      <div className="footer">
+        <FooterBreadcrumbs />
+      </div>
+    </TranslationWrapper>
   );
 }
