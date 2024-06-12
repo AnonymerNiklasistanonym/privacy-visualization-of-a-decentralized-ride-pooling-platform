@@ -2,9 +2,9 @@
 import {useEffect, useState} from 'react';
 // > Components
 import {Button} from '@mui/material';
-// > Icons
 import {Lock as LockIcon} from '@mui/icons-material';
 // Local imports
+// > Globals
 import {simulationEndpoints} from '@globals/defaults/endpoints';
 // Type imports
 import type {

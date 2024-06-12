@@ -1,5 +1,5 @@
 // Package imports
-import {useState} from 'react';
+import {memo, useState} from 'react';
 // > Components
 import {
   Box,
@@ -21,6 +21,8 @@ import {
 // Local imports
 // > Components
 import ChangeViewButton from '@components/Button/ChangeViewButton';
+// > Misc
+import {debugComponentUpdate} from '@misc/debug';
 // Type imports
 import type {ChangeViewButtonProps} from '@components/Button/ChangeViewButton';
 import type {DataModalInformation} from './DataModalInformation';
@@ -30,7 +32,11 @@ export interface DataModalPropsElement extends ChangeViewButtonProps {
   stateDataModalContentElement: ReactState<DataModalInformation>;
 }
 
-export default function DataModelListElement(props: DataModalPropsElement) {
+export default memo(DataModelListElement);
+
+export function DataModelListElement(props: DataModalPropsElement) {
+  debugComponentUpdate('DataModelListElement', true);
+
   const {stateDataModalContentElement} = props;
 
   const [open, setOpen] = useState(false);

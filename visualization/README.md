@@ -10,6 +10,8 @@
   - [Translations](#translations)
 - [Dev](#dev)
   - [Commands](#commands)
+- [Profiling](#profiling)
+  - [React](#react)
 
 ## Run
 
@@ -125,3 +127,14 @@ Furthermore:
 | `npm run fix` | Fix code style based on [`eslint` rules](.eslintrc.json) |
 | `npm run lint` | Check code style based on [`eslint` rules](.eslintrc.json) and on `next` internals |
 | `npm run test` | Run tests defined in [`src/__tests__`](src/__tests__) |
+
+## Profiling
+
+### React
+
+For popular browsers there is a [`React Developer Tools` extension](https://react.dev/learn/react-developer-tools) which supports a lot of debugging and profiling options.
+
+#### Component updates
+
+To show when a component is updated go to the components tab of the `React Developer Tools` extension and click the settings icon.
+Then enable in the `General` tab the option `Highlight updates when components render` to visually see when a components is updated by a colored border around that component.

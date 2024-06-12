@@ -1,4 +1,5 @@
 // Package imports
+import {memo} from 'react';
 // > Components
 import {
   Box,
@@ -9,10 +10,12 @@ import {
   Modal,
   Typography,
 } from '@mui/material';
-import {Lock as LockIcon, LockOpen as LockOpenIcon} from '@mui/icons-material';
 // Local imports
 // > Components
+import {DataHiddenIcon, DataVisibleIcon} from '@components/Icons';
 import DataModelListElement from './DataModalElement';
+// > Misc
+import {debugComponentUpdate} from '@misc/debug';
 // Type imports
 import type {
   DataModalInformation,
@@ -21,7 +24,6 @@ import type {
 import type {ReactElement, ReactNode} from 'react';
 import type {ReactSetState, ReactState} from '@misc/react';
 import type {ChangeViewButtonProps} from '@components/Button/ChangeViewButton';
-
 export interface DataModalPropsSetStates {
   setStateDataModalOpen: ReactSetState<boolean>;
 }
@@ -39,7 +41,10 @@ export interface DataModalProps
   dataOriginName: string;
 }
 
-export default function DataModal(props: DataModalProps) {
+export default memo(DataModal);
+
+export function DataModal(props: DataModalProps) {
+  debugComponentUpdate('DataModal', true);
   const {
     stateSpectator,
     stateDataModalOpen,
@@ -110,7 +115,7 @@ export default function DataModal(props: DataModalProps) {
             {dataValueSpectator}
           </Box>
           <Chip
-            icon={dataValueHidden ? <LockIcon /> : <LockOpenIcon />}
+            icon={dataValueHidden ? <DataHiddenIcon /> : <DataVisibleIcon />}
             color={dataValueHidden ? 'error' : 'success'}
             label={`${
               dataValueHidden ? 'Hidden' : 'Visible'
@@ -142,15 +147,13 @@ export default function DataModal(props: DataModalProps) {
                     </ListSubheader>
                   }
                 >
-                  {elements.map(a => {
-                    return (
-                      <DataModelListElement
-                        {...props}
-                        key={`data-${accessType}-${a.name}`}
-                        stateDataModalContentElement={a}
-                      />
-                    );
-                  })}
+                  {elements.map(a => (
+                    <DataModelListElement
+                      {...props}
+                      key={`data-${accessType}-${a.name}`}
+                      stateDataModalContentElement={a}
+                    />
+                  ))}
                 </List>
               </>
             );

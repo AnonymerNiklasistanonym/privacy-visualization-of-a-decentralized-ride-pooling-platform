@@ -24,6 +24,7 @@
   "page.home.tab.map.title": "Karte",
   "page.home.tab.overview.title": "Übersicht",
   "page.home.tab.settings.card.blockchain.title": "BLOCKCHAIN",
+  "page.home.tab.settings.card.brightness.mode": "{name} Modus",
   "page.home.tab.settings.card.debug.enableDebug": "Debugging aktivieren",
   "page.home.tab.settings.card.debug.title": "DEBUGGING",
   "page.home.tab.settings.card.generic.baseUrl": "Basis-URL ({name})",

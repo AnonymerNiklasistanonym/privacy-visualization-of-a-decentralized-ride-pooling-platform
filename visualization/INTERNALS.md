@@ -160,6 +160,7 @@ export function Component2() {
 ```
 
 Every time an input property is updated the component is rerendered.
+And React normally also rerenders a component whenever its parent rerenders.
 To easily do this and *react* to changes of properties react provides states:
 
 ```tsx

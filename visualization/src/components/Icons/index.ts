@@ -24,8 +24,22 @@ import {
   Map as TabMapIcon,
   Article as TabOverviewIcon,
   Settings as TabSettingsIcon,
+  // Settings
+  Terminal as SettingsDebugIcon,
+  Translate as SettingsLanguageIcon,
+  BrightnessMedium as SettingsBrightnessIcon,
+  // Light/Dark Mode
+  Brightness7 as DarkModeIcon,
+  Brightness4 as LightModeIcon,
+  // Modals
+  LockOpen as DataVisibleIcon,
+  Lock as DataHiddenIcon,
 } from '@mui/icons-material';
 export {
+  DarkModeIcon,
+  DataHiddenIcon,
+  DataVisibleIcon,
+  LightModeIcon,
   MiscCryptoExchangeIcon,
   MiscGetACarFoundationIcon,
   MiscRideContractServiceIcon,
@@ -38,6 +52,9 @@ export {
   ParticipantRideRequestIcon,
   ServiceAuthenticationIcon,
   ServiceMatchingIcon,
+  SettingsBrightnessIcon,
+  SettingsDebugIcon,
+  SettingsLanguageIcon,
   SpectatorEverythingIcon,
   SpectatorPublicIcon,
   TabBlockchainIcon,

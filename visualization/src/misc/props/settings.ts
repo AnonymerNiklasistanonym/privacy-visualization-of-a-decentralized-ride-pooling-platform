@@ -32,6 +32,10 @@ export interface SettingsBlockchainProps extends SettingsGlobalProps {
 export interface SettingsBlockchainPropsSet extends SettingsGlobalPropsSet {
   setStateSettingsBlockchainUpdateRateInMs: ReactSetState<number>;
 }
+export interface SettingsThemePropsSet extends SettingsGlobalPropsSet {
+  stateThemeMode: ReactState<'light' | 'dark'>;
+  setStateThemeMode: ReactSetState<'light' | 'dark'>;
+}
 
 export interface SettingsProps
   extends SettingsGlobalProps,
@@ -41,4 +45,5 @@ export interface SettingsProps
     SettingsOverviewProps,
     SettingsOverviewPropsSet,
     SettingsBlockchainProps,
-    SettingsBlockchainPropsSet {}
+    SettingsBlockchainPropsSet,
+    SettingsThemePropsSet {}
