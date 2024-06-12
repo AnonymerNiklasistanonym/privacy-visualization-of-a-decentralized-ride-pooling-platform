@@ -9,5 +9,6 @@ docs
 node_modules
 npm-debug.log
 README.md
+INTERNALS.md
 setup_react_nextjs.sh
 setup_react_nextjs.sh.log
