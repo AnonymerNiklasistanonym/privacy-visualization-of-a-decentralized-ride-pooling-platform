@@ -1,7 +1,6 @@
 'use client';
 
 // Package imports
-import {useState} from 'react';
 // > Components
 import {
   Circle,
@@ -14,6 +13,7 @@ import {
   useMap,
 } from 'react-leaflet';
 import {Box} from '@mui/material';
+import Control from 'react-leaflet-custom-control';
 import {FullscreenControl} from 'react-leaflet-fullscreen';
 // > Styles
 import 'leaflet/dist/leaflet.css';
@@ -22,6 +22,7 @@ import 'react-leaflet-fullscreen/styles.css';
 import '@styles/leaflet.module.css';
 import styles from '@styles/Map.module.scss';
 // > Components
+import {FindLocationIcon} from '@components/Icons';
 import ParticipantMarker from '@components/Map/MapObject/ParticipantMarker';
 // > Styles
 import '@styles/Map.module.scss';
@@ -71,10 +72,7 @@ export default function Map(props: MapPropsInput) {
     stateParticipantCoordinatesList,
     startPos,
     stateSettingsGlobalDebug,
-    stateSelectedSpectator,
   } = props;
-  // Only fly to current location if there is no spectator selected
-  const [flyOnce, setFlyOnce] = useState(stateSelectedSpectator === undefined);
 
   return (
     <Box sx={{height: {sm: '73vh', xs: '67vh'}, width: 1}}>
@@ -86,12 +84,15 @@ export default function Map(props: MapPropsInput) {
         scrollWheelZoom={true}
         className={styles.map}
       >
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
-        <FullscreenControl />
-        <LayersControl position="topright">
+        <FullscreenControl position="bottomright" />
+        <ControlFindLocation />
+        <LayersControl position="bottomleft">
+          <LayersControl.BaseLayer checked name="Map">
+            <TileLayer
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            />
+          </LayersControl.BaseLayer>
           <LayersControl.Overlay checked={true} name="Customers">
             <LayerGroup>
               {stateParticipantCoordinatesList.customers.map(customer => (
@@ -216,34 +217,27 @@ export default function Map(props: MapPropsInput) {
             <></>
           )}
         </LayersControl>
-        <FlyToMapCenter
-          lat={startPos.lat + 1}
-          long={startPos.long + 1}
-          flyOnce={flyOnce}
-          setFlyOnce={setFlyOnce}
-        />
       </MapContainer>
     </Box>
   );
 }
 
-export interface FlyToMapCenterProps {
-  lat: number;
-  long: number;
-  flyOnce: boolean;
-  setFlyOnce: (newValue: boolean) => void;
-}
-
-export function FlyToMapCenter({flyOnce, setFlyOnce}: FlyToMapCenterProps) {
+export function ControlFindLocation() {
   const map = useMap();
 
-  if (flyOnce === true) {
-    map.locate({setView: true}).on('locationerror', e => {
-      console.log(e);
-      alert('Location access has been denied.');
-    });
-    setFlyOnce(false);
-  }
-
-  return undefined;
+  return (
+    <Control prepend position="bottomright">
+      <div className="leaflet-bar ">
+        <a
+          onClick={() => {
+            map.locate({setView: true}).on('locationerror', () => {
+              alert('Location access has been denied.');
+            });
+          }}
+        >
+          <FindLocationIcon style={{marginTop: '3px'}} />
+        </a>
+      </div>
+    </Control>
+  );
 }

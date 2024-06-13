@@ -31,6 +31,8 @@ import {
   // Light/Dark Mode
   Brightness7 as DarkModeIcon,
   Brightness4 as LightModeIcon,
+  // Map
+  GpsFixed as FindLocationIcon,
   // Modals
   LockOpen as DataVisibleIcon,
   Lock as DataHiddenIcon,
@@ -39,6 +41,7 @@ export {
   DarkModeIcon,
   DataHiddenIcon,
   DataVisibleIcon,
+  FindLocationIcon,
   LightModeIcon,
   MiscCryptoExchangeIcon,
   MiscGetACarFoundationIcon,
