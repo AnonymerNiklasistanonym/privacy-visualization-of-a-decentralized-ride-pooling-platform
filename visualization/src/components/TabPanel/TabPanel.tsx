@@ -5,7 +5,17 @@ import {useCallback, useEffect, useMemo, useState} from 'react';
 import {usePathname, useRouter, useSearchParams} from 'next/navigation';
 import {useIntl} from 'react-intl';
 // > Components
-import {Box, ButtonGroup, Chip, Divider} from '@mui/material';
+import {
+  BottomNavigation,
+  BottomNavigationAction,
+  Box,
+  ButtonGroup,
+  Chip,
+  Divider,
+  Paper,
+  Tab,
+  Tabs,
+} from '@mui/material';
 import Link from 'next/link';
 // Local imports
 import {UrlParameters} from '@misc/urlParameter';
@@ -123,7 +133,7 @@ export default function TabPanel(props: TabPanelProps) {
           Math.max(0, Number(searchParams.get(UrlParameters.TAB_INDEX))),
           3
         )
-      : 1
+      : 0
   );
 
   // React: Listen for changes in created states
@@ -135,19 +145,19 @@ export default function TabPanel(props: TabPanelProps) {
 
   const tabs: ReadonlyArray<[string, number, ReactElement]> = [
     [
-      intl.formatMessage({id: 'page.home.tab.overview.title'}),
-      0,
-      <TabOverviewIcon key="overview" />,
-    ],
-    [
       intl.formatMessage({id: 'page.home.tab.map.title'}),
-      1,
+      0,
       <TabMapIcon key="map" />,
     ],
     [
       intl.formatMessage({id: 'page.home.tab.blockchain.title'}),
-      2,
+      1,
       <TabBlockchainIcon key="blockchain" />,
+    ],
+    [
+      intl.formatMessage({id: 'page.home.tab.overview.title'}),
+      2,
+      <TabOverviewIcon key="overview" />,
     ],
     [
       intl.formatMessage({id: 'page.home.tab.settings.title'}),
@@ -177,27 +187,53 @@ export default function TabPanel(props: TabPanelProps) {
 
   return (
     <>
+      <Paper
+        sx={{bottom: 0, left: 0, position: 'fixed', right: 0}}
+        elevation={3}
+      >
+        <BottomNavigation
+          showLabels
+          value={stateTabIndex}
+          onChange={(event, newValue) => {
+            setStateTabIndex(newValue);
+          }}
+        >
+          {tabs.map(([title, index, icon]) => (
+            <BottomNavigationAction
+              key={title}
+              label={title}
+              id={`${index}`}
+              icon={icon}
+            />
+          ))}
+        </BottomNavigation>
+      </Paper>
       <Box
         sx={{
           width: '100%',
         }}
       >
         <Box sx={{borderBottom: 1, borderColor: 'divider'}}>
-          <TabPanelHeader
-            stateTabIndex={stateTabIndex}
-            handleChangeTabIndex={(event, newTabIndex) => {
+          <Tabs
+            value={stateTabIndex}
+            onChange={(event, newTabIndex) => {
               setStateTabIndex(newTabIndex);
             }}
-          />
+            centered
+          >
+            {tabs.map(([tabTitle, tabIndex, tabIcon]) => (
+              <Tab key={tabIndex} label={tabTitle} icon={tabIcon} />
+            ))}
+          </Tabs>
         </Box>
         <CustomTabPanel value={stateTabIndex} index={0}>
-          <TabOverview {...props} />
-        </CustomTabPanel>
-        <CustomTabPanel value={stateTabIndex} index={1}>
           <TabMap {...props} />
         </CustomTabPanel>
-        <CustomTabPanel value={stateTabIndex} index={2}>
+        <CustomTabPanel value={stateTabIndex} index={1}>
           <TabBlockchain {...props} />
+        </CustomTabPanel>
+        <CustomTabPanel value={stateTabIndex} index={2}>
+          <TabOverview {...props} />
         </CustomTabPanel>
         <CustomTabPanel value={stateTabIndex} index={3}>
           <TabSettings {...props} />

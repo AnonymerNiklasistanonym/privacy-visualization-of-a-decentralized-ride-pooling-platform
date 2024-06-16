@@ -15,6 +15,7 @@ export function FooterBreadcrumbs() {
   return (
     <Breadcrumbs
       sx={{
+        marginBottom: '5rem',
         marginTop: '15rem',
       }}
     >

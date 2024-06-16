@@ -16,9 +16,9 @@ export default function SearchBarBetaContainer({children}: PropsWithChildren) {
       sx={{
         alignItems: 'center',
         display: 'flex',
-        marginBottom: '0.5rem',
+        margin: '0.5rem',
         p: '2px 4px',
-        width: '100%',
+        width: 'calc(100% - 1rem)',
       }}
     >
       {/*<IconButton sx={{ p: '10px' }} aria-label="menu">

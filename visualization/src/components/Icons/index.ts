@@ -28,6 +28,7 @@ import {
   Terminal as SettingsDebugIcon,
   Translate as SettingsLanguageIcon,
   BrightnessMedium as SettingsBrightnessIcon,
+  Storage as SettingsStorageIcon,
   // Light/Dark Mode
   Brightness7 as DarkModeIcon,
   Brightness4 as LightModeIcon,
@@ -58,6 +59,7 @@ export {
   SettingsBrightnessIcon,
   SettingsDebugIcon,
   SettingsLanguageIcon,
+  SettingsStorageIcon,
   SpectatorEverythingIcon,
   SpectatorPublicIcon,
   TabBlockchainIcon,

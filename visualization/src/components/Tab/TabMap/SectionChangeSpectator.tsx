@@ -135,7 +135,7 @@ export function ButtonCurrentSpectator({
       onClick={() => setStateSelectedSpectator(stateSpectator)}
       secondaryColor={true}
     >
-      {currentSpectator?.name} ({stateSpectator})
+      {currentSpectator?.name ?? stateSpectator ?? undefined}
     </GenericButton>
   );
 }

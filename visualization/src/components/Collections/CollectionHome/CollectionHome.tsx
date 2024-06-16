@@ -80,7 +80,13 @@ export default function CollectionHome(
   // MUI: Theming
   const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
   const [stateThemeMode, setStateThemeMode] = useState<'light' | 'dark'>(
-    prefersDarkMode ? 'dark' : 'light'
+    localStorage.getItem('themeMode') === 'dark'
+      ? 'dark'
+      : localStorage.getItem('themeMode') === 'light'
+        ? 'light'
+        : prefersDarkMode
+          ? 'dark'
+          : 'light'
   );
 
   // React: States
@@ -273,6 +279,10 @@ export default function CollectionHome(
     updateRouter();
   }, [stateSpectator, updateRouter, pathname, params]);
 
+  useEffect(() => {
+    localStorage.setItem('themeMode', stateThemeMode);
+  }, [stateThemeMode]);
+
   // Global search bar
   const globalSearch = useMemo(() => {
     const tempGlobalSearch: Array<GlobalSearchElement> = [];
@@ -437,7 +447,7 @@ export default function CollectionHome(
 
   return (
     <ThemeContainer {...props}>
-      <SearchAppBar {...props} />
+      {/*<SearchAppBar {...props} />*/}
       <main className={[`mui-theme-${stateThemeMode}`].join(' ')}>
         <TabPanel {...props} />
       </main>

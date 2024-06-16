@@ -62,15 +62,9 @@ export default function SearchBarAutocomplete({
           })}
           InputProps={{
             ...params.InputProps,
-            sx: {
-              '.css-1d3z3hw-MuiOutlinedInput-notchedOutline': {
-                borderColor: 'none !important',
-              },
-              '.css-i4bv87-MuiSvgIcon-root': {
-                color: 'none',
-              },
-              color: 'none',
-            },
+          }}
+          sx={{
+            '& fieldset': {border: 'none'},
           }}
         />
       )}

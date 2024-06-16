@@ -5,6 +5,7 @@ import {usePathname, useRouter, useSearchParams} from 'next/navigation';
 import {useIntl} from 'react-intl';
 // > Components
 import {
+  Button,
   Card,
   CardContent,
   FormControl,
@@ -28,6 +29,7 @@ import {
   SettingsBrightnessIcon,
   SettingsDebugIcon,
   SettingsLanguageIcon,
+  SettingsStorageIcon,
   TabBlockchainIcon,
   TabMapIcon,
 } from '@components/Icons';
@@ -74,11 +76,20 @@ export interface SettingsElementRadio<T = string>
   type: 'radio';
 }
 
+export interface SettingsElementButton extends SettingsElementGeneric {
+  onClick: () => void;
+  type: 'button';
+  // Compatibility
+  stateValue: ReactState<string>;
+  setStateValue: ReactSetState<string>;
+}
+
 export type SettingsElement =
   | SettingsElementToggle
   | SettingsElementText
   | SettingsElementMs
-  | SettingsElementRadio;
+  | SettingsElementRadio
+  | SettingsElementButton;
 
 export interface RenderSettingsElementProps {
   element: SettingsElement;
@@ -159,6 +170,13 @@ export function RenderSettingsElement({element}: RenderSettingsElementProps) {
           ))}
         </RadioGroup>
       </FormControl>
+    );
+  }
+  if (element.type === 'button') {
+    return (
+      <Button variant="contained" onClick={element.onClick}>
+        {element.label}
+      </Button>
     );
   }
   return <></>;
@@ -444,6 +462,32 @@ export function TabSettings({
                   setStateValue: setStateSettingsGlobalDebug,
                   stateValue: stateSettingsGlobalDebug,
                   type: 'toggle',
+                },
+              ]}
+            />
+            <RenderSettingsMemo
+              title={intl.formatMessage({
+                id: 'page.home.tab.settings.card.storage.title',
+              })}
+              icon={<SettingsStorageIcon />}
+              elements={[
+                {
+                  label: intl.formatMessage({
+                    id: 'page.home.tab.settings.card.storage.clearLocalStorage',
+                  }),
+                  onClick: () => localStorage.clear(),
+                  setStateValue: setStateSettingsMapBaseUrlPathfinder,
+                  stateValue: stateSettingsMapBaseUrlPathfinder,
+                  type: 'button',
+                },
+                {
+                  label: intl.formatMessage({
+                    id: 'page.home.tab.settings.card.storage.clearSessionStorage',
+                  }),
+                  onClick: () => sessionStorage.clear(),
+                  setStateValue: setStateSettingsMapBaseUrlPathfinder,
+                  stateValue: stateSettingsMapBaseUrlPathfinder,
+                  type: 'button',
                 },
               ]}
             />
