@@ -15,6 +15,7 @@ import {
 import GenericButton from '@components/Button/GenericButton';
 import GridConnectedElements from '@components/Grid/GridConnectedElements';
 import Map from '@components/Map';
+import SearchBarBeta from '../../TextInput/SearchBarBeta';
 import SectionChangeSpectator from './SectionChangeSpectator';
 import TabContainer from '@components/Tab/TabContainer';
 import TableDebugData from '@components/Table/TableDebugData';
@@ -52,6 +53,7 @@ import type {DebugData} from '@components/Table/DebugData';
 import type {MapProps} from '@components/Map';
 import type {PathfinderEndpointGraphInformation} from '@globals/types/pathfinder';
 import type {SettingsMapProps} from '@misc/props/settings';
+
 export interface TabMapProps
   extends SettingsMapProps,
     MapProps,
@@ -197,6 +199,10 @@ export default function TabMap(props: TabMapProps) {
       .catch(err => showError('Fetch debug data', err));
   };
 
+  const changeSpectatorInfo = intl.formatMessage({
+    id: 'getacar.spectator.change',
+  });
+
   const fetchParticipantCoordinates = () =>
     fetchJsonSimulation<SimulationEndpointParticipantCoordinates>(
       simulationEndpoints.apiV1.participantCoordinates
@@ -219,7 +225,12 @@ export default function TabMap(props: TabMapProps) {
                   console.log(`Selected Customer ${a.id}`);
                 },
                 icon: <ParticipantCustomerIcon />,
-                keywords: [customer, a.id, customerInformation.fullName],
+                keywords: [
+                  changeSpectatorInfo,
+                  customer,
+                  a.id,
+                  customerInformation.fullName,
+                ],
                 name: `${customer} ${customerInformation.fullName}`,
               };
             },
@@ -246,6 +257,7 @@ export default function TabMap(props: TabMapProps) {
                 },
                 icon: <ParticipantRideProviderIcon />,
                 keywords: [
+                  changeSpectatorInfo,
                   rideProvider,
                   a.id,
                   'company' in rideProviderInformation
@@ -316,6 +328,11 @@ export default function TabMap(props: TabMapProps) {
                   : 6
             }
           >
+            <SearchBarBeta
+              placeholder="TODO: Search map"
+              {...props}
+              {...propsTabMap}
+            />
             <Map
               {...props}
               {...propsTabMap}

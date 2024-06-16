@@ -355,7 +355,11 @@ export default function CollectionHome(
     )) {
       tempGlobalSearch.push({
         icon: actorInformation.icon,
-        keywords: ['language', 'switch', actorId, actorInformation.name],
+        keywords: [
+          actorId,
+          actorInformation.name,
+          ...(actorInformation.keywords ?? []),
+        ],
         name: intl.formatMessage(
           {
             id: 'page.home.search.spectateAs',
