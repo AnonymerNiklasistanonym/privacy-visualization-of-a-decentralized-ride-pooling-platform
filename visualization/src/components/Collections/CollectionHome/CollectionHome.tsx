@@ -225,35 +225,49 @@ export default function CollectionHome(
       ]
     >
   ) => {
-    for (const [spectatorId, spectatorInformation] of newSpectators) {
-      if (stateSpectators.has(spectatorId)) {
-        continue;
-      }
-      Promise.resolve(spectatorInformation())
-        .then(data =>
-          setStateSpectators(
-            prevState => new Map(prevState.set(spectatorId, data))
+    const newSpectatorsInformation = newSpectators
+      .filter(([spectatorId]) => !stateSpectators.has(spectatorId))
+      .map<Promise<[string, GlobalPropsSpectatorElement]>>(
+        ([spectatorId, spectatorInformation]) =>
+          Promise.resolve<GlobalPropsSpectatorElement>(
+            spectatorInformation()
+          ).then(spectatorInformationResolved => [
+            spectatorId,
+            spectatorInformationResolved,
+          ])
+      );
+    Promise.all(newSpectatorsInformation)
+      .then(data => {
+        if (data.length > 0) {
+          setStateSpectators(prevState => {
+            for (const [spectatorId, spectatorInformationResolved] of data) {
+              prevState.set(spectatorId, spectatorInformationResolved);
+            }
+            return new Map(prevState);
+          });
+        }
+      })
+      .catch(err => showError('Error getting spectator information', err));
+    const newTabsInformation = newTabs
+      .filter(([tabName]) => !stateTabs.has(tabName))
+      .map<Promise<[string, GlobalPropsSpectatorElement]>>(
+        ([tabName, tabInformation]) =>
+          Promise.resolve<GlobalPropsSpectatorElement>(tabInformation()).then(
+            tabInformationResolved => [tabName, tabInformationResolved]
           )
-        )
-        .then(() => {
-          console.debug('stateSpectators was updated', spectatorId);
-        })
-        .catch(err =>
-          showError(`Error getting spectator information ${spectatorId}`, err)
-        );
-    }
-    for (const [tabName, tabInformation] of newTabs) {
-      if (stateTabs.has(tabName)) {
-        continue;
-      }
-      Promise.resolve(tabInformation())
-        .then(data =>
-          setStateTabs(prevState => new Map(prevState.set(tabName, data)))
-        )
-        .catch(err =>
-          showError(`Error getting tab information ${tabName}`, err)
-        );
-    }
+      );
+    Promise.all(newTabsInformation)
+      .then(data => {
+        if (data.length > 0) {
+          setStateTabs(prevState => {
+            for (const [tabName, tabInformation] of data) {
+              prevState.set(tabName, tabInformation);
+            }
+            return new Map(prevState);
+          });
+        }
+      })
+      .catch(err => showError('Error getting tab information', err));
   };
 
   // React: Listen for changes in created states
