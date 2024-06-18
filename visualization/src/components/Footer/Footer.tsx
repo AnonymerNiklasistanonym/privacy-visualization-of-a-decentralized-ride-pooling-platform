@@ -24,20 +24,26 @@ export function FooterBreadcrumbs() {
   );
 }
 
+export function FooterDynamic() {
+  return (
+    <Box
+      sx={{
+        display: 'flex',
+        justifyContent: 'center',
+        marginBottom: '5rem',
+        marginTop: '5rem',
+        width: '100%',
+      }}
+    >
+      <FooterBreadcrumbs />
+    </Box>
+  );
+}
+
 export default function Footer({locale, messages}: ReactPropsI18n) {
   return (
     <TranslationWrapper locale={locale} messages={messages}>
-      <Box
-        sx={{
-          display: 'flex',
-          justifyContent: 'center',
-          marginBottom: '5rem',
-          marginTop: '5rem',
-          width: '100%',
-        }}
-      >
-        <FooterBreadcrumbs />
-      </Box>
+      <FooterDynamic />
     </TranslationWrapper>
   );
 }

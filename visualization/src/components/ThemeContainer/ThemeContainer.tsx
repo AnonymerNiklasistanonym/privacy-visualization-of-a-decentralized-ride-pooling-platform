@@ -4,7 +4,7 @@
 import {createTheme} from '@mui/material/styles';
 import {useMemo} from 'react';
 // > Components
-import CssBaseline from '@mui/material/CssBaseline';
+import {Box, CssBaseline} from '@mui/material';
 import {ThemeProvider} from '@mui/material/styles';
 // Type imports
 import type {PropsWithChildren} from 'react';
@@ -31,7 +31,20 @@ export default function ThemeContainer({
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      {children}
+      <Box
+        sx={{
+          backgroundColor: theme =>
+            theme.palette.mode === 'light'
+              ? 'hsla(215, 15%, 97%, 0.5)'
+              : 'rgba(29, 33, 38, 0.4)',
+          height: '100%',
+          margin: 0,
+          padding: 0,
+          width: '100%',
+        }}
+      >
+        {children}
+      </Box>
     </ThemeProvider>
   );
 }

@@ -7,15 +7,20 @@ export const debug = Object.freeze({
   useMemoHelper: true,
 });
 
+const debugComponentUpdateCounter = new Map<string, number>();
+
 export function debugComponentUpdate(name: string, date = false) {
   if (debug.componentUpdates) {
+    const count = debugComponentUpdateCounter.get(name) ?? 0;
+    debugComponentUpdateCounter.set(name, count + 1);
     console.log(
-      `Render component ${name}${
+      `Render component ${name} (${count})${
         date ? ' ' + new Date().toLocaleTimeString() : ''
       }`
     );
   }
 }
+
 
 export function debugMemoHelper<T, TYPE = Record<keyof T, unknown>>(
   /** Component name */

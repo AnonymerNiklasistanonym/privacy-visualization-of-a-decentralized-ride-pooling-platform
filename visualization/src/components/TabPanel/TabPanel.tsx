@@ -49,6 +49,8 @@ import type {PropsWithChildren, ReactElement} from 'react';
 import type {ErrorModalProps} from '@components/Modal/ErrorModal';
 import type {SettingsProps} from '@misc/props/settings';
 
+import {FooterDynamic} from '@components/Footer/Footer';
+
 interface CustomTabPanelProps {
   index: number;
   value: number;
@@ -79,6 +81,7 @@ function CustomTabPanel(props: PropsWithChildren<CustomTabPanelProps>) {
           }}
         >
           {children}
+          <FooterDynamic />
         </Box>
       )}
     </div>
