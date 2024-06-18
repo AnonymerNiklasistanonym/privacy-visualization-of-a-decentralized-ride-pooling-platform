@@ -1,7 +1,7 @@
 'use client';
 
 // Package imports
-import {ReactElement, useCallback, useEffect, useMemo, useState} from 'react';
+import {useCallback, useEffect, useMemo, useState} from 'react';
 import {usePathname, useRouter, useSearchParams} from 'next/navigation';
 import {useIntl} from 'react-intl';
 import {useMediaQuery} from '@mui/material';
@@ -9,9 +9,8 @@ import {useMediaQuery} from '@mui/material';
 import {Language as LanguageIcon} from '@mui/icons-material';
 // Local imports
 import {i18n, i18nGetLanguageName} from '../../../../i18n-config';
-import {UrlParameters} from '@misc/urlParameter';
+import {UrlParameter} from '@misc/urlParameter';
 import {fetchJson} from '@globals/lib/fetch';
-import {showErrorBuilder} from '@components/Modal/ErrorModal';
 // > Components
 import {
   PageAboutIcon,
@@ -21,17 +20,14 @@ import {
   SpectatorEverythingIcon,
   SpectatorPublicIcon,
 } from '@components/Icons';
-import ErrorModal from '@components/Modal/ErrorModal';
-import SearchAppBar from '@components/SearchAppBar';
 import SnackbarContentChange from '@components/Snackbar/SnackbarContentChange';
 import TabPanel from '@components/TabPanel';
+import ThemeContainer from '@components/ThemeContainer';
 // > Globals
 import {baseUrlPathfinder, baseUrlSimulation} from '@globals/defaults/urls';
+// > Misc
+import {LocalStorageKey} from '@misc/localStorage';
 // Type imports
-import type {
-  ErrorModalContentElement,
-  ErrorModalProps,
-} from '@components/Modal/ErrorModal';
 import type {
   GlobalPropsFetch,
   GlobalPropsParticipantSelectedElements,
@@ -46,21 +42,22 @@ import type {
   GlobalPropsTheming,
   GlobalSearchElement,
 } from '@misc/props/global';
+import type {PropsWithChildren, ReactElement} from 'react';
 import type {
   SimulationEndpointParticipantInformationCustomer,
   SimulationEndpointParticipantInformationRideProvider,
   SimulationEndpointParticipantTypes,
   SimulationEndpointRideRequestInformation,
 } from '@globals/types/simulation';
+import type {ErrorModalProps} from '@components/Modal/ErrorModal';
 import type {FetchOptions} from '@globals/lib/fetch';
 import type {SettingsProps} from '@misc/props/settings';
-import ThemeContainer from '@components/ThemeContainer';
 
 /** The Home page collection */
 export default function CollectionHome(
-  propsError: GlobalPropsShowError & ErrorModalProps
+  propsError: PropsWithChildren<GlobalPropsShowError & ErrorModalProps>
 ) {
-  const {showError} = propsError;
+  const {children, showError} = propsError;
 
   // NextJs: Routing
   const router = useRouter();
@@ -79,14 +76,16 @@ export default function CollectionHome(
 
   // MUI: Theming
   const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
+  const localStorageThemeMode =
+    localStorage !== undefined
+      ? localStorage.getItem(LocalStorageKey.THEME_MODE)
+      : null;
   const [stateThemeMode, setStateThemeMode] = useState<'light' | 'dark'>(
-    localStorage.getItem('themeMode') === 'dark'
-      ? 'dark'
-      : localStorage.getItem('themeMode') === 'light'
-        ? 'light'
-        : prefersDarkMode
-          ? 'dark'
-          : 'light'
+    localStorageThemeMode === 'dark' || localStorageThemeMode === 'light'
+      ? localStorageThemeMode
+      : prefersDarkMode
+        ? 'dark'
+        : 'light'
   );
 
   // React: States
@@ -108,7 +107,7 @@ export default function CollectionHome(
     setStateSettingsBlockchainUpdateRateInMs,
   ] = useState(1000 / 5);
   const [stateSettingsGlobalDebug, setStateSettingsGlobalDebug] = useState(
-    params.get(UrlParameters.DEBUG) === 'true'
+    params.get(UrlParameter.DEBUG) === 'true'
   );
   // > Snackbars
   const [stateSnackbarSpectatorOpen, setStateSnackbarSpectatorOpen] =
@@ -123,12 +122,12 @@ export default function CollectionHome(
   ] = useState(false);
   // > Spectator
   const [stateSpectator, setStateSpectator] = useState(
-    searchParams.get(UrlParameters.SPECTATOR) ?? 'everything'
+    searchParams.get(UrlParameter.SPECTATOR) ?? 'everything'
   );
   // > Selected Elements
   const [stateSelectedSpectator, setStateSelectedSpectator] = useState<
     string | undefined
-  >(searchParams.get(UrlParameters.SPECTATOR) ?? undefined);
+  >(searchParams.get(UrlParameter.SPECTATOR) ?? undefined);
   const [stateSelectedParticipant, setStateSelectedParticipant] = useState<
     string | undefined
   >(undefined);
@@ -156,6 +155,9 @@ export default function CollectionHome(
     stateSelectedParticipantRideRequestInformationGlobal,
     setStateSelectedParticipantRideRequestInformationGlobal,
   ] = useState<undefined | SimulationEndpointRideRequestInformation>(undefined);
+
+  const [stateSettingsUiNavBarPosition, setStateSettingsUiNavBarPosition] =
+    useState<'bottom' | 'top'>('top');
 
   // Props: Functions (depend on created states)
   const fetchJsonSimulation = async <T,>(
@@ -268,19 +270,19 @@ export default function CollectionHome(
   // > URL parameter listeners
   useEffect(() => {
     if (stateSettingsGlobalDebug) {
-      params.set(UrlParameters.DEBUG, `${stateSettingsGlobalDebug}`);
+      params.set(UrlParameter.DEBUG, `${stateSettingsGlobalDebug}`);
     } else {
-      params.delete(UrlParameters.DEBUG);
+      params.delete(UrlParameter.DEBUG);
     }
     updateRouter();
   }, [stateSettingsGlobalDebug, updateRouter, pathname, params]);
   useEffect(() => {
-    params.set(UrlParameters.SPECTATOR, stateSpectator);
+    params.set(UrlParameter.SPECTATOR, stateSpectator);
     updateRouter();
   }, [stateSpectator, updateRouter, pathname, params]);
 
   useEffect(() => {
-    localStorage.setItem('themeMode', stateThemeMode);
+    localStorage.setItem(LocalStorageKey.THEME_MODE, stateThemeMode);
   }, [stateThemeMode]);
 
   // Global search bar
@@ -424,6 +426,7 @@ export default function CollectionHome(
     setStateSettingsMapBaseUrlSimulation,
     setStateSettingsMapShowTooltips,
     setStateSettingsMapUpdateRateInMs,
+    setStateSettingsUiNavBarPosition,
     setStateSpectator,
     setStateThemeMode,
     stateSelectedParticipant,
@@ -439,6 +442,7 @@ export default function CollectionHome(
     stateSettingsMapBaseUrlSimulation,
     stateSettingsMapShowTooltips,
     stateSettingsMapUpdateRateInMs,
+    stateSettingsUiNavBarPosition,
     stateSpectator,
     stateSpectators,
     stateThemeMode,
@@ -479,6 +483,7 @@ export default function CollectionHome(
         }
         bottomOffset={120}
       />
+      {children}
     </ThemeContainer>
   );
 }

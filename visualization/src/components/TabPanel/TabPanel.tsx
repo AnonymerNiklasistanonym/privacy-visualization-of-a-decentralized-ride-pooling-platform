@@ -11,6 +11,7 @@ import {
   Box,
   ButtonGroup,
   Chip,
+  CssBaseline,
   Divider,
   Paper,
   Tab,
@@ -18,7 +19,7 @@ import {
 } from '@mui/material';
 import Link from 'next/link';
 // Local imports
-import {UrlParameters} from '@misc/urlParameter';
+import {UrlParameter} from '@misc/urlParameter';
 // > Components
 import {
   TabBlockchainIcon,
@@ -106,6 +107,7 @@ export default function TabPanel(props: TabPanelProps) {
     setStateErrorModalOpen,
     stateSettingsMapBaseUrlSimulation,
     stateSettingsMapBaseUrlPathfinder,
+    stateSettingsUiNavBarPosition,
     updateGlobalSearch,
   } = props;
 
@@ -127,19 +129,15 @@ export default function TabPanel(props: TabPanelProps) {
   // React: States
   // > Tabpanel
   const [stateTabIndex, setStateTabIndex] = useState(
-    searchParams.get(UrlParameters.TAB_INDEX)
-      ? // Never go below min index 0 or over max index 3 (needs to be updated if additional pages are added!)
-        Math.min(
-          Math.max(0, Number(searchParams.get(UrlParameters.TAB_INDEX))),
-          3
-        )
+    searchParams.get(UrlParameter.TAB_INDEX)
+      ? Number(searchParams.get(UrlParameter.TAB_INDEX))
       : 0
   );
 
   // React: Listen for changes in created states
   // > URL parameter listeners
   useEffect(() => {
-    params.set(UrlParameters.TAB_INDEX, `${stateTabIndex}`);
+    params.set(UrlParameter.TAB_INDEX, `${stateTabIndex}`);
     updateRouter();
   }, [stateTabIndex, updateRouter, pathname, params]);
 
@@ -174,7 +172,6 @@ export default function TabPanel(props: TabPanelProps) {
       tabTitle,
       () => ({
         callback: () => {
-          console.log('TODO Switch to tab', tabIndex);
           setStateTabIndex(tabIndex);
         },
         icon: tabIcon,
@@ -186,46 +183,56 @@ export default function TabPanel(props: TabPanelProps) {
   );
 
   return (
-    <>
+    <Box>
       <Paper
         sx={{bottom: 0, left: 0, position: 'fixed', right: 0}}
         elevation={3}
       >
-        <BottomNavigation
-          showLabels
-          value={stateTabIndex}
-          onChange={(event, newValue) => {
-            setStateTabIndex(newValue);
-          }}
-        >
-          {tabs.map(([title, index, icon]) => (
-            <BottomNavigationAction
-              key={title}
-              label={title}
-              id={`${index}`}
-              icon={icon}
-            />
-          ))}
-        </BottomNavigation>
+        {stateSettingsUiNavBarPosition === 'bottom' ? (
+          <BottomNavigation
+            showLabels
+            value={stateTabIndex}
+            onChange={(event, newValue) => setStateTabIndex(newValue)}
+          >
+            {tabs.map(([title, index, icon]) => (
+              <BottomNavigationAction
+                key={title}
+                label={title}
+                id={`${index}`}
+                icon={icon}
+              />
+            ))}
+          </BottomNavigation>
+        ) : undefined}
       </Paper>
       <Box
         sx={{
           width: '100%',
         }}
       >
-        <Box sx={{borderBottom: 1, borderColor: 'divider'}}>
-          <Tabs
-            value={stateTabIndex}
-            onChange={(event, newTabIndex) => {
-              setStateTabIndex(newTabIndex);
+        {stateSettingsUiNavBarPosition === 'top' ? (
+          <Box
+            sx={{
+              bgcolor: 'background.paper',
+              borderBottom: 1,
+              borderColor: 'divider',
+              display: 'flex',
+              justifyContent: 'center',
+              width: '100%',
             }}
-            centered
           >
-            {tabs.map(([tabTitle, tabIndex, tabIcon]) => (
-              <Tab key={tabIndex} label={tabTitle} icon={tabIcon} />
-            ))}
-          </Tabs>
-        </Box>
+            <Tabs
+              value={stateTabIndex}
+              onChange={(event, newTabIndex) => setStateTabIndex(newTabIndex)}
+              centered
+              variant="scrollable"
+            >
+              {tabs.map(([tabTitle, tabIndex, tabIcon]) => (
+                <Tab key={tabIndex} label={tabTitle} icon={tabIcon} />
+              ))}
+            </Tabs>
+          </Box>
+        ) : undefined}
         <CustomTabPanel value={stateTabIndex} index={0}>
           <TabMap {...props} />
         </CustomTabPanel>
@@ -276,6 +283,6 @@ export default function TabPanel(props: TabPanelProps) {
           <></>
         )}
       </Box>
-    </>
+    </Box>
   );
 }

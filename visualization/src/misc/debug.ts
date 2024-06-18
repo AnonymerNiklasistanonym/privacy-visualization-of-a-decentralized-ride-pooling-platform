@@ -18,12 +18,16 @@ export function debugComponentUpdate(name: string, date = false) {
 }
 
 export function debugMemoHelper<T, TYPE = Record<keyof T, unknown>>(
+  /** Component name */
   name: string,
+  /** Keys to check */
   keys: ReadonlyArray<
     | keyof TYPE
     | [
         keyof TYPE,
+        // Compare single element of array
         (prev: Readonly<unknown>, next: Readonly<unknown>) => boolean,
+        // Optional sorting function
         (
           | ((
               elementA: Readonly<unknown>,
@@ -33,7 +37,9 @@ export function debugMemoHelper<T, TYPE = Record<keyof T, unknown>>(
         ),
       ]
   >,
+  /** Previous version */
   prev: Readonly<TYPE>,
+  /** Next version */
   next: Readonly<TYPE>
 ) {
   if (!debug.useMemoHelper) {

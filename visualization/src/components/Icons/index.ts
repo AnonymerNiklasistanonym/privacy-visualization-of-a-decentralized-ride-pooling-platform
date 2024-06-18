@@ -25,10 +25,11 @@ import {
   Article as TabOverviewIcon,
   Settings as TabSettingsIcon,
   // Settings
+  BrightnessMedium as SettingsBrightnessIcon,
   Terminal as SettingsDebugIcon,
   Translate as SettingsLanguageIcon,
-  BrightnessMedium as SettingsBrightnessIcon,
   Storage as SettingsStorageIcon,
+  DesignServices as SettingsUiIcon,
   // Light/Dark Mode
   Brightness7 as DarkModeIcon,
   Brightness4 as LightModeIcon,
@@ -60,6 +61,7 @@ export {
   SettingsDebugIcon,
   SettingsLanguageIcon,
   SettingsStorageIcon,
+  SettingsUiIcon,
   SpectatorEverythingIcon,
   SpectatorPublicIcon,
   TabBlockchainIcon,

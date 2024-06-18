@@ -31,17 +31,6 @@ a:hover {
   margin: 0 4px;
 }
 
-.footer {
-  height: 70px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.footer > div {
-  margin: 0 4px;
-}
-
 /** Leaflet modifications (dark mode) */
 
 main.mui-theme-dark div.leaflet-popup-content-wrapper {

@@ -205,7 +205,9 @@ export function ErrorModalListElement({
         <Box
           component="section"
           sx={{
+            maxHeight: '50vh',
             maxWidth: 800,
+            overflow: 'scroll',
             width: '100%',
           }}
         >

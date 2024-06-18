@@ -3,7 +3,7 @@
 // Package imports
 import {useIntl} from 'react-intl';
 // > Components
-import {Breadcrumbs} from '@mui/material';
+import {Box, Breadcrumbs} from '@mui/material';
 // Local imports
 import StyledBreadcrumb from './StyledBreadcrumb';
 // Type imports
@@ -13,12 +13,7 @@ import TranslationWrapper from '@components/TranslationWrapper';
 export function FooterBreadcrumbs() {
   const intl = useIntl();
   return (
-    <Breadcrumbs
-      sx={{
-        marginBottom: '5rem',
-        marginTop: '15rem',
-      }}
-    >
+    <Breadcrumbs>
       {intl
         .formatMessage({id: 'common.footer'})
         .split(' > ')
@@ -32,9 +27,17 @@ export function FooterBreadcrumbs() {
 export default function Footer({locale, messages}: ReactPropsI18n) {
   return (
     <TranslationWrapper locale={locale} messages={messages}>
-      <div className="footer">
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          marginBottom: '5rem',
+          marginTop: '5rem',
+          width: '100%',
+        }}
+      >
         <FooterBreadcrumbs />
-      </div>
+      </Box>
     </TranslationWrapper>
   );
 }

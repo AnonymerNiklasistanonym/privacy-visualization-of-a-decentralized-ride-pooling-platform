@@ -5,11 +5,13 @@
   "data.rating": "Rating",
   "data.type": "Type",
   "errors": "Errors",
+  "page.home.tab.settings.card.ui.positionNavBar": "Navigation Bar Position",
   "getacar.blockchain.cryptoExchange": "Crypto Exchange",
   "getacar.blockchain.cryptoExchange.description": "TODO",
   "getacar.blockchain.rideContractService": "Ride Contract Service",
   "getacar.blockchain.rideContractService.description": "TODO",
   "getacar.foundation": "GETACAR foundation",
+  "page.home.tab.settings.card.ui.title": "User Interface",
   "getacar.foundation.description": "verifies Authentication Services",
   "getacar.name": "GETACAR: a privacy-preserving platform for ride-pooling",
   "getacar.participant.customer": "Customer",
@@ -95,5 +97,7 @@
   "project.name": "Visualization of a privacy focused ride pooling platform concept ({GETACAR})",
   "simulation": "Simulation",
   "theme.dark": "dark",
-  "theme.light": "light"
+  "theme.light": "light",
+  "position.top": "top",
+  "position.bottom": "bottom"
 }

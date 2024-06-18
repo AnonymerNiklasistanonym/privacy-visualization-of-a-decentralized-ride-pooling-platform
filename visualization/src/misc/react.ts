@@ -1,3 +1,4 @@
+import type {Dispatch} from 'react';
 import type {MessageFormatElement} from 'react-intl';
 
 export type ReactHandleChange<T> = (
@@ -20,5 +21,6 @@ export interface ReactPropsI18nHome {
   };
 }
 
-export type ReactSetState<T> = (newValue: T | ((prevValue: T) => T)) => void;
+//export type ReactSetState<T> = (newValue: T | ((prevValue: T) => T)) => void;
+export type ReactSetState<T> = Dispatch<T>;
 export type ReactState<T> = T;

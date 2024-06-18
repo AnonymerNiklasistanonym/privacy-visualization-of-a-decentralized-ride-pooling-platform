@@ -21,7 +21,7 @@ import {
   TextField,
 } from '@mui/material';
 import Masonry, {ResponsiveMasonry} from 'react-responsive-masonry';
-import {ReactElement, memo, useEffect, useState} from 'react';
+import {ReactElement, memo, useEffect, useMemo, useState} from 'react';
 // Local imports
 import {i18n, i18nGetLanguageName} from '../../../../i18n-config';
 // > Components
@@ -30,6 +30,7 @@ import {
   SettingsDebugIcon,
   SettingsLanguageIcon,
   SettingsStorageIcon,
+  SettingsUiIcon,
   TabBlockchainIcon,
   TabMapIcon,
 } from '@components/Icons';
@@ -68,7 +69,7 @@ export interface SettingsElementMs extends SettingsElementGeneric {
   type: 'ms';
 }
 
-export interface SettingsElementRadio<T = string>
+export interface SettingsElementRadio<T extends string>
   extends SettingsElementGeneric {
   stateValue: ReactState<T>;
   setStateValue: ReactSetState<T>;
@@ -88,7 +89,7 @@ export type SettingsElement =
   | SettingsElementToggle
   | SettingsElementText
   | SettingsElementMs
-  | SettingsElementRadio
+  | SettingsElementRadio<string>
   | SettingsElementButton;
 
 export interface RenderSettingsElementProps {
@@ -193,7 +194,6 @@ export const RenderSettingsMemo = memo(RenderSettings, (prev, next) =>
     `RenderSettings ${next.title}`,
     [
       'title',
-      'icon',
       [
         'elements',
         (prev2, next2) =>
@@ -201,12 +201,10 @@ export const RenderSettingsMemo = memo(RenderSettings, (prev, next) =>
             (next2 as SettingsElement).label &&
           (prev2 as SettingsElement).stateValue ===
             (next2 as SettingsElement).stateValue &&
+          (prev2 as SettingsElement).setStateValue ===
+            (next2 as SettingsElement).setStateValue &&
           (prev2 as SettingsElement).type === (next2 as SettingsElement).type,
-        (prev2, next2) =>
-          stringComparator(
-            (prev2 as SettingsElement).label,
-            (next2 as SettingsElement).label
-          ),
+        undefined,
       ],
     ],
     prev,
@@ -247,21 +245,7 @@ export function RenderSettings({title, icon, elements}: RenderSettingsProps) {
   );
 }
 
-export default memo(TabSettings, (prev, next) =>
-  debugMemoHelper<TabSettingsProps>(
-    'TabSettings',
-    [
-      'stateSettingsBlockchainUpdateRateInMs',
-      'stateSettingsGlobalDebug',
-      'stateSettingsMapBaseUrlPathfinder',
-      'stateSettingsMapBaseUrlSimulation',
-      'stateSettingsMapShowTooltips',
-      'stateSettingsMapUpdateRateInMs',
-    ],
-    prev,
-    next
-  )
-);
+export default memo(TabSettings);
 
 export function TabSettings({
   setStateSettingsBlockchainUpdateRateInMs,
@@ -276,6 +260,8 @@ export function TabSettings({
   stateSettingsMapBaseUrlSimulation,
   stateSettingsMapShowTooltips,
   stateSettingsMapUpdateRateInMs,
+  setStateSettingsUiNavBarPosition,
+  stateSettingsUiNavBarPosition,
   setStateThemeMode,
   stateThemeMode,
 }: TabSettingsProps) {
@@ -294,7 +280,7 @@ export function TabSettings({
   const searchParams = useSearchParams();
 
   const [stateSettingsLanguage, setStateSettingsLanguage] = useState(locale);
-  const [stateSettingsBrightness, setStateSettingsBrightness] =
+  const [stateSettingsBrightnessLocal, setStateSettingsBrightness] =
     useState<string>(stateThemeMode);
   useEffect(() => {
     const params = new URLSearchParams(searchParams);
@@ -306,191 +292,260 @@ export function TabSettings({
       }${pathname.join('/')}?${params.toString()}`
     );
   }, [stateSettingsLanguage, defaultLocale, searchParams, pathname, router]);
+
   useEffect(() => {
-    if (stateSettingsBrightness === 'light') {
-      setStateThemeMode('light');
+    if (
+      stateSettingsBrightnessLocal === 'light' ||
+      stateSettingsBrightnessLocal === 'dark'
+    ) {
+      setStateThemeMode(stateSettingsBrightnessLocal);
     }
-    if (stateSettingsBrightness === 'dark') {
-      setStateThemeMode('dark');
+  }, [stateSettingsBrightnessLocal, setStateThemeMode]);
+
+  const [
+    stateSettingsUiNavBarPositionLocal,
+    setStateSettingsUiNavBarPositionLocal,
+  ] = useState<string>(stateSettingsUiNavBarPosition);
+
+  useEffect(() => {
+    if (
+      stateSettingsUiNavBarPositionLocal === 'top' ||
+      stateSettingsUiNavBarPositionLocal === 'bottom'
+    ) {
+      setStateSettingsUiNavBarPosition(stateSettingsUiNavBarPositionLocal);
     }
-  }, [stateSettingsBrightness, setStateThemeMode]);
+  }, [stateSettingsUiNavBarPositionLocal, setStateSettingsUiNavBarPosition]);
+
+  const settingsCards = useMemo<RenderSettingsProps[]>(
+    () => [
+      {
+        elements: [
+          {
+            label: intl.formatMessage({
+              id: 'page.home.tab.settings.card.language.selectLanguage',
+            }),
+            options: locales.map(a => ({
+              label: i18nGetLanguageName(a),
+              value: a,
+            })),
+            setStateValue: setStateSettingsLanguage,
+            stateValue: stateSettingsLanguage,
+            type: 'radio',
+          },
+        ],
+        icon: <SettingsLanguageIcon />,
+        title: intl.formatMessage({
+          id: 'page.home.tab.settings.card.language.title',
+        }),
+      },
+      {
+        elements: [
+          {
+            label: intl.formatMessage({
+              id: 'page.home.tab.settings.card.brightness.selectMode',
+            }),
+            options: [
+              {
+                label: intl.formatMessage(
+                  {id: 'page.home.tab.settings.card.brightness.mode'},
+                  {
+                    name: intl.formatMessage({
+                      id: 'theme.dark',
+                    }),
+                  }
+                ),
+                value: 'dark',
+              },
+              {
+                label: intl.formatMessage(
+                  {id: 'page.home.tab.settings.card.brightness.mode'},
+                  {
+                    name: intl.formatMessage({
+                      id: 'theme.light',
+                    }),
+                  }
+                ),
+                value: 'light',
+              },
+            ],
+            setStateValue: setStateSettingsBrightness,
+            stateValue: stateSettingsBrightnessLocal,
+            type: 'radio',
+          },
+        ],
+        icon: <SettingsBrightnessIcon />,
+        title: intl.formatMessage({
+          id: 'page.home.tab.settings.card.brightness.title',
+        }),
+      },
+      {
+        elements: [
+          {
+            label: intl.formatMessage({
+              id: 'page.home.tab.settings.card.generic.updateRate',
+            }),
+            setStateValue: setStateSettingsBlockchainUpdateRateInMs,
+            stateValue: stateSettingsBlockchainUpdateRateInMs,
+            type: 'ms',
+          },
+        ],
+        icon: <TabBlockchainIcon />,
+        title: intl.formatMessage({
+          id: 'page.home.tab.settings.card.blockchain.title',
+        }),
+      },
+      {
+        elements: [
+          {
+            label: intl.formatMessage({
+              id: 'page.home.tab.settings.card.map.showTooltips',
+            }),
+            setStateValue: setStateSettingsMapShowTooltips,
+            stateValue: stateSettingsMapShowTooltips,
+            type: 'toggle',
+          },
+          {
+            label: intl.formatMessage(
+              {
+                id: 'page.home.tab.settings.card.generic.baseUrl',
+              },
+              {
+                name: intl.formatMessage({
+                  id: 'pathfinder',
+                }),
+              }
+            ),
+            setStateValue: setStateSettingsMapBaseUrlPathfinder,
+            stateValue: stateSettingsMapBaseUrlPathfinder,
+            type: 'text',
+          },
+          {
+            label: intl.formatMessage(
+              {
+                id: 'page.home.tab.settings.card.generic.baseUrl',
+              },
+              {
+                name: intl.formatMessage({
+                  id: 'simulation',
+                }),
+              }
+            ),
+            setStateValue: setStateSettingsMapBaseUrlSimulation,
+            stateValue: stateSettingsMapBaseUrlSimulation,
+            type: 'text',
+          },
+          {
+            label: intl.formatMessage({
+              id: 'page.home.tab.settings.card.generic.updateRate',
+            }),
+            setStateValue: setStateSettingsMapUpdateRateInMs,
+            stateValue: stateSettingsMapUpdateRateInMs,
+            type: 'ms',
+          },
+        ],
+        icon: <TabMapIcon />,
+        title: intl.formatMessage({
+          id: 'page.home.tab.settings.card.map.title',
+        }),
+      },
+      {
+        elements: [
+          {
+            label: intl.formatMessage({
+              id: 'page.home.tab.settings.card.debug.enableDebug',
+            }),
+            setStateValue: setStateSettingsGlobalDebug,
+            stateValue: stateSettingsGlobalDebug,
+            type: 'toggle',
+          },
+        ],
+        icon: <SettingsDebugIcon />,
+        title: intl.formatMessage({
+          id: 'page.home.tab.settings.card.debug.title',
+        }),
+      },
+      {
+        elements: [
+          {
+            label: intl.formatMessage({
+              id: 'page.home.tab.settings.card.ui.positionNavBar',
+            }),
+            options: [
+              {
+                label: intl.formatMessage({id: 'position.bottom'}),
+                value: 'bottom',
+              },
+              {
+                label: intl.formatMessage({id: 'position.top'}),
+                value: 'top',
+              },
+            ],
+            setStateValue: setStateSettingsUiNavBarPositionLocal,
+            stateValue: stateSettingsUiNavBarPositionLocal,
+            type: 'radio',
+          },
+        ],
+        icon: <SettingsUiIcon />,
+        title: intl.formatMessage({
+          id: 'page.home.tab.settings.card.ui.title',
+        }),
+      },
+      {
+        elements: [
+          {
+            label: intl.formatMessage({
+              id: 'page.home.tab.settings.card.storage.clearLocalStorage',
+            }),
+            onClick: () => localStorage.clear(),
+            setStateValue: setStateSettingsMapBaseUrlPathfinder,
+            stateValue: stateSettingsMapBaseUrlPathfinder,
+            type: 'button',
+          },
+          {
+            label: intl.formatMessage({
+              id: 'page.home.tab.settings.card.storage.clearSessionStorage',
+            }),
+            onClick: () => sessionStorage.clear(),
+            setStateValue: setStateSettingsMapBaseUrlPathfinder,
+            stateValue: stateSettingsMapBaseUrlPathfinder,
+            type: 'button',
+          },
+        ],
+        icon: <SettingsStorageIcon />,
+        title: intl.formatMessage({
+          id: 'page.home.tab.settings.card.storage.title',
+        }),
+      },
+    ],
+    [
+      intl,
+      locales,
+      stateSettingsLanguage,
+      stateSettingsBrightnessLocal,
+      setStateSettingsBlockchainUpdateRateInMs,
+      stateSettingsBlockchainUpdateRateInMs,
+      setStateSettingsMapShowTooltips,
+      stateSettingsMapShowTooltips,
+      setStateSettingsMapBaseUrlPathfinder,
+      stateSettingsMapBaseUrlPathfinder,
+      setStateSettingsMapBaseUrlSimulation,
+      stateSettingsMapBaseUrlSimulation,
+      setStateSettingsMapUpdateRateInMs,
+      stateSettingsMapUpdateRateInMs,
+      setStateSettingsGlobalDebug,
+      stateSettingsGlobalDebug,
+      stateSettingsUiNavBarPositionLocal,
+    ]
+  );
+
   return (
     <TabContainer>
       <FormGroup>
         <ResponsiveMasonry columnsCountBreakPoints={{350: 1, 750: 2, 900: 3}}>
           <Masonry>
-            <RenderSettingsMemo
-              title={intl.formatMessage({
-                id: 'page.home.tab.settings.card.language.title',
-              })}
-              icon={<SettingsLanguageIcon />}
-              elements={[
-                {
-                  label: intl.formatMessage({
-                    id: 'page.home.tab.settings.card.language.selectLanguage',
-                  }),
-                  options: locales.map(a => ({
-                    label: i18nGetLanguageName(a),
-                    value: a,
-                  })),
-                  setStateValue: setStateSettingsLanguage,
-                  stateValue: stateSettingsLanguage,
-                  type: 'radio',
-                },
-              ]}
-            />
-            <RenderSettingsMemo
-              title={intl.formatMessage({
-                id: 'page.home.tab.settings.card.brightness.title',
-              })}
-              icon={<SettingsBrightnessIcon />}
-              elements={[
-                {
-                  label: intl.formatMessage({
-                    id: 'page.home.tab.settings.card.brightness.selectMode',
-                  }),
-                  options: [
-                    {
-                      label: intl.formatMessage(
-                        {id: 'page.home.tab.settings.card.brightness.mode'},
-                        {
-                          name: intl.formatMessage({
-                            id: 'theme.dark',
-                          }),
-                        }
-                      ),
-                      value: 'dark',
-                    },
-                    {
-                      label: intl.formatMessage(
-                        {id: 'page.home.tab.settings.card.brightness.mode'},
-                        {
-                          name: intl.formatMessage({
-                            id: 'theme.light',
-                          }),
-                        }
-                      ),
-                      value: 'light',
-                    },
-                  ],
-                  setStateValue: setStateSettingsBrightness,
-                  stateValue: stateSettingsBrightness,
-                  type: 'radio',
-                },
-              ]}
-            />
-            <RenderSettingsMemo
-              title={intl.formatMessage({
-                id: 'page.home.tab.settings.card.blockchain.title',
-              })}
-              icon={<TabBlockchainIcon />}
-              elements={[
-                {
-                  label: intl.formatMessage({
-                    id: 'page.home.tab.settings.card.generic.updateRate',
-                  }),
-                  setStateValue: setStateSettingsBlockchainUpdateRateInMs,
-                  stateValue: stateSettingsBlockchainUpdateRateInMs,
-                  type: 'ms',
-                },
-              ]}
-            />
-            <RenderSettingsMemo
-              title={intl.formatMessage({
-                id: 'page.home.tab.settings.card.map.title',
-              })}
-              icon={<TabMapIcon />}
-              elements={[
-                {
-                  label: intl.formatMessage({
-                    id: 'page.home.tab.settings.card.map.showTooltips',
-                  }),
-                  setStateValue: setStateSettingsMapShowTooltips,
-                  stateValue: stateSettingsMapShowTooltips,
-                  type: 'toggle',
-                },
-                {
-                  label: intl.formatMessage(
-                    {
-                      id: 'page.home.tab.settings.card.generic.baseUrl',
-                    },
-                    {
-                      name: intl.formatMessage({
-                        id: 'pathfinder',
-                      }),
-                    }
-                  ),
-                  setStateValue: setStateSettingsMapBaseUrlPathfinder,
-                  stateValue: stateSettingsMapBaseUrlPathfinder,
-                  type: 'text',
-                },
-                {
-                  label: intl.formatMessage(
-                    {
-                      id: 'page.home.tab.settings.card.generic.baseUrl',
-                    },
-                    {
-                      name: intl.formatMessage({
-                        id: 'simulation',
-                      }),
-                    }
-                  ),
-                  setStateValue: setStateSettingsMapBaseUrlSimulation,
-                  stateValue: stateSettingsMapBaseUrlSimulation,
-                  type: 'text',
-                },
-                {
-                  label: intl.formatMessage({
-                    id: 'page.home.tab.settings.card.generic.updateRate',
-                  }),
-                  setStateValue: setStateSettingsMapUpdateRateInMs,
-                  stateValue: stateSettingsMapUpdateRateInMs,
-                  type: 'ms',
-                },
-              ]}
-            />
-            <RenderSettingsMemo
-              title={intl.formatMessage({
-                id: 'page.home.tab.settings.card.debug.title',
-              })}
-              icon={<SettingsDebugIcon />}
-              elements={[
-                {
-                  label: intl.formatMessage({
-                    id: 'page.home.tab.settings.card.debug.enableDebug',
-                  }),
-                  setStateValue: setStateSettingsGlobalDebug,
-                  stateValue: stateSettingsGlobalDebug,
-                  type: 'toggle',
-                },
-              ]}
-            />
-            <RenderSettingsMemo
-              title={intl.formatMessage({
-                id: 'page.home.tab.settings.card.storage.title',
-              })}
-              icon={<SettingsStorageIcon />}
-              elements={[
-                {
-                  label: intl.formatMessage({
-                    id: 'page.home.tab.settings.card.storage.clearLocalStorage',
-                  }),
-                  onClick: () => localStorage.clear(),
-                  setStateValue: setStateSettingsMapBaseUrlPathfinder,
-                  stateValue: stateSettingsMapBaseUrlPathfinder,
-                  type: 'button',
-                },
-                {
-                  label: intl.formatMessage({
-                    id: 'page.home.tab.settings.card.storage.clearSessionStorage',
-                  }),
-                  onClick: () => sessionStorage.clear(),
-                  setStateValue: setStateSettingsMapBaseUrlPathfinder,
-                  stateValue: stateSettingsMapBaseUrlPathfinder,
-                  type: 'button',
-                },
-              ]}
-            />
+            {settingsCards.map(settingsCard => (
+              <RenderSettingsMemo key={settingsCard.title} {...settingsCard} />
+            ))}
           </Masonry>
         </ResponsiveMasonry>
       </FormGroup>

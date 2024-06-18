@@ -37,6 +37,11 @@ export interface SettingsThemePropsSet extends SettingsGlobalPropsSet {
   setStateThemeMode: ReactSetState<'light' | 'dark'>;
 }
 
+export interface SettingsUiProps extends SettingsGlobalPropsSet {
+  stateSettingsUiNavBarPosition: ReactState<'bottom' | 'top'>;
+  setStateSettingsUiNavBarPosition: ReactSetState<'bottom' | 'top'>;
+}
+
 export interface SettingsProps
   extends SettingsGlobalProps,
     SettingsGlobalPropsSet,
@@ -46,4 +51,5 @@ export interface SettingsProps
     SettingsOverviewPropsSet,
     SettingsBlockchainProps,
     SettingsBlockchainPropsSet,
-    SettingsThemePropsSet {}
+    SettingsThemePropsSet,
+    SettingsUiProps {}
