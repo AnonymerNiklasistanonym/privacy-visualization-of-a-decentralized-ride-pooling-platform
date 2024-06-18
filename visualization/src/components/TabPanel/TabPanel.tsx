@@ -118,13 +118,13 @@ export default function TabPanel(props: TabPanelProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
-  const params = useMemo(
-    () => new URLSearchParams(searchParams),
-    [searchParams]
+  const updateRouter = useCallback(
+    (params: URLSearchParams) => {
+      console.info('Update router', params.toString());
+      router.replace(`${pathname}?${params.toString()}`);
+    },
+    [router, pathname]
   );
-  const updateRouter = useCallback(() => {
-    router.replace(`${pathname}?${params.toString()}`);
-  }, [router, pathname, params]);
 
   // React: States
   // > Tabpanel
@@ -137,32 +137,37 @@ export default function TabPanel(props: TabPanelProps) {
   // React: Listen for changes in created states
   // > URL parameter listeners
   useEffect(() => {
+    console.info(`Update ${UrlParameter.TAB_INDEX} to ${stateTabIndex}`);
+    const params = new URLSearchParams(searchParams);
     params.set(UrlParameter.TAB_INDEX, `${stateTabIndex}`);
-    updateRouter();
-  }, [stateTabIndex, updateRouter, pathname, params]);
+    updateRouter(params);
+  }, [stateTabIndex, updateRouter, pathname, router, searchParams]);
 
-  const tabs: ReadonlyArray<[string, number, ReactElement]> = [
-    [
-      intl.formatMessage({id: 'page.home.tab.map.title'}),
-      0,
-      <TabMapIcon key="map" />,
+  const tabs = useMemo<Array<[string, number, ReactElement]>>(
+    () => [
+      [
+        intl.formatMessage({id: 'page.home.tab.map.title'}),
+        0,
+        <TabMapIcon key="map" />,
+      ],
+      [
+        intl.formatMessage({id: 'page.home.tab.blockchain.title'}),
+        1,
+        <TabBlockchainIcon key="blockchain" />,
+      ],
+      [
+        intl.formatMessage({id: 'page.home.tab.overview.title'}),
+        2,
+        <TabOverviewIcon key="overview" />,
+      ],
+      [
+        intl.formatMessage({id: 'page.home.tab.settings.title'}),
+        3,
+        <TabSettingsIcon key="settings" />,
+      ],
     ],
-    [
-      intl.formatMessage({id: 'page.home.tab.blockchain.title'}),
-      1,
-      <TabBlockchainIcon key="blockchain" />,
-    ],
-    [
-      intl.formatMessage({id: 'page.home.tab.overview.title'}),
-      2,
-      <TabOverviewIcon key="overview" />,
-    ],
-    [
-      intl.formatMessage({id: 'page.home.tab.settings.title'}),
-      3,
-      <TabSettingsIcon key="settings" />,
-    ],
-  ];
+    [intl]
+  );
 
   // Update global search entries
   // > Tabs

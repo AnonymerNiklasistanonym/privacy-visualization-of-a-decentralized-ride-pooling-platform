@@ -11,6 +11,7 @@ import {debugComponentUpdate} from '@misc/debug';
 import type {
   GlobalPropsSearch,
   GlobalPropsSpectatorSelectedElements,
+  GlobalSearchElement,
 } from '@misc/props/global';
 
 export interface SearchBarAutocompleteProps
@@ -42,16 +43,28 @@ export default function SearchBarAutocomplete({
       }}
       filterOptions={(options, state) => {
         console.log(options, state.inputValue);
+        let tempOptions: GlobalSearchElement[];
+        let inputValue = state.inputValue.toLowerCase();
         // If special substring is found show non map related options
         if (state.inputValue.startsWith('> ')) {
-          return options.filter(
+          inputValue = inputValue.substring(2);
+          tempOptions = options.filter(
             option => !option.keywords.includes(changeSpectatorInfo)
           );
+        } else {
+          // Otherwise just show the change spectator related options
+          tempOptions = options.filter(option =>
+            option.keywords.includes(changeSpectatorInfo)
+          );
         }
-        // Otherwise just show the change spectator related options
-        return options.filter(option =>
-          option.keywords.includes(changeSpectatorInfo)
-        );
+        return tempOptions.filter(option => {
+          console.info(
+            `${state.getOptionLabel(option)} includes ${inputValue} ? => ${state
+              .getOptionLabel(option)
+              .includes(inputValue)}`
+          );
+          return state.getOptionLabel(option).toLowerCase().includes(inputValue);
+        });
       }}
       getOptionLabel={option => [option.name, ...option.keywords].join(' ')}
       renderInput={params => (

@@ -14,15 +14,13 @@ import type {
 } from '@misc/props/global';
 import SearchBarBetaAutocomplete from './SearchBarBetaAutocomplete';
 
-export default memo(SearchBarBeta);
-
 export interface SearchBarBetaProps
   extends GlobalPropsSearch,
     GlobalPropsSpectatorSelectedElements {
   placeholder: string;
 }
 
-export function SearchBarBeta(props: SearchBarBetaProps) {
+export default function SearchBarBeta(props: SearchBarBetaProps) {
   debugComponentUpdate('SearchBarBeta', true);
   const {placeholder} = props;
   return (

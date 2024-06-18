@@ -1,7 +1,8 @@
 // Package imports
+import {memo} from 'react';
 import {useIntl} from 'react-intl';
 // > Components
-import {ButtonGroup, Chip, Divider} from '@mui/material';
+import {ButtonGroup} from '@mui/material';
 // Local imports
 // > Components
 import {
@@ -17,16 +18,17 @@ import type {
   GlobalPropsSpectatorSelectedElements,
   GlobalPropsSpectatorSelectedElementsSet,
 } from '@misc/props/global';
+import {debugComponentUpdate, debugMemoHelper} from '@misc/debug';
 
 export interface SectionChangeSpectatorProps
   extends GlobalPropsSpectatorSelectedElements,
     GlobalPropsSpectatorMap,
     GlobalPropsSpectatorSelectedElementsSet {}
 
-export default function SectionChangeSpectator(
-  props: SectionChangeSpectatorProps
-) {
-  const intl = useIntl();
+export default memo(SectionChangeSpectator);
+
+export function SectionChangeSpectator(props: SectionChangeSpectatorProps) {
+  debugComponentUpdate('SectionChangeSpectator');
   return (
     <>
       <ButtonGroup
@@ -140,10 +142,20 @@ export function ButtonCurrentSpectator({
   );
 }
 
-export function ButtonEverything({
+export const ButtonEverything = memo(ButtonEverythingNormal, (prev, next) =>
+  debugMemoHelper(
+    'ButtonEverything',
+    ['stateSpectator', 'setStateSpectator'],
+    prev,
+    next
+  )
+);
+
+export function ButtonEverythingNormal({
   stateSpectator,
   setStateSpectator,
 }: SectionChangeSpectatorProps) {
+  debugComponentUpdate('ButtonEverythingNormal');
   const intl = useIntl();
   return (
     <GenericButton
@@ -156,10 +168,20 @@ export function ButtonEverything({
   );
 }
 
-export function ButtonPublic({
+export const ButtonPublic = memo(ButtonPublicNormal, (prev, next) =>
+  debugMemoHelper(
+    'ButtonPublic',
+    ['stateSpectator', 'setStateSpectator'],
+    prev,
+    next
+  )
+);
+
+export function ButtonPublicNormal({
   stateSpectator,
   setStateSpectator,
 }: SectionChangeSpectatorProps) {
+  debugComponentUpdate('ButtonPublicNormal');
   const intl = useIntl();
   return (
     <GenericButton
@@ -172,10 +194,20 @@ export function ButtonPublic({
   );
 }
 
-export function ButtonAuth({
+export const ButtonAuth = memo(ButtonAuthNormal, (prev, next) =>
+  debugMemoHelper(
+    'ButtonAuth',
+    ['stateSpectator', 'setStateSpectator'],
+    prev,
+    next
+  )
+);
+
+export function ButtonAuthNormal({
   stateSpectator,
   setStateSpectator,
 }: SectionChangeSpectatorProps) {
+  debugComponentUpdate('ButtonAuthNormal');
   const intl = useIntl();
   return (
     <GenericButton
@@ -188,10 +220,20 @@ export function ButtonAuth({
   );
 }
 
-export function ButtonMatch({
+export const ButtonMatch = memo(ButtonMatchNormal, (prev, next) =>
+  debugMemoHelper(
+    'ButtonMatch',
+    ['stateSpectator', 'setStateSpectator'],
+    prev,
+    next
+  )
+);
+
+export function ButtonMatchNormal({
   stateSpectator,
   setStateSpectator,
 }: SectionChangeSpectatorProps) {
+  debugComponentUpdate('ButtonMatchNormal');
   const intl = useIntl();
   return (
     <GenericButton

@@ -1,5 +1,5 @@
 // Package imports
-import {useEffect, useState} from 'react';
+import {memo, useCallback, useEffect, useMemo, useState} from 'react';
 // > Components
 import {Button} from '@mui/material';
 import {Lock as LockIcon} from '@mui/icons-material';
@@ -34,7 +34,9 @@ export interface ChangeViewButtonPropsInput extends ChangeViewButtonProps {
   icon?: ReactNode;
 }
 
-export default function ChangeViewButton({
+export default memo(ChangeViewButton);
+
+export function ChangeViewButton({
   actorId,
   isPseudonym,
   icon,
@@ -83,26 +85,55 @@ export default function ChangeViewButton({
     buttonLabel += ' (Already selected)';
   }
 
+  const resolvedPseudonymId = stateResolvedPseudonym?.id;
+
+  const buttonOnClick = useCallback(() => {
+    if (disabled) {
+      console.warn('Button should not be able to be pressed when disabled');
+      return;
+    }
+    // Update global spectator to the resolved actor ID from the supplied pseudonym
+    if (isPseudonym && resolvedPseudonymId !== undefined) {
+      setStateSpectator(resolvedPseudonymId);
+    }
+    // Update global spectator to the supplied actor ID
+    if (isPseudonym !== true) {
+      setStateSpectator(actorId);
+    }
+  }, [actorId, disabled, isPseudonym, setStateSpectator, resolvedPseudonymId]);
+
+  return (
+    <ButtonComponentMemo
+      disabled={disabled}
+      icon={icon}
+      buttonOnClick={buttonOnClick}
+      buttonLabel={buttonLabel}
+    />
+  );
+}
+
+export const ButtonComponentMemo = memo(ButtonComponent);
+
+export interface ButtonComponentProps {
+  disabled: boolean | undefined;
+  icon: ReactNode | undefined;
+  buttonOnClick: () => void;
+  buttonLabel: string;
+}
+
+export function ButtonComponent({
+  disabled,
+  icon,
+  buttonOnClick,
+  buttonLabel,
+}: ButtonComponentProps) {
   return (
     <Button
       variant="contained"
       // Use custom icon if supplied
       startIcon={disabled ? <LockIcon /> : icon}
       disabled={disabled}
-      onClick={() => {
-        if (disabled) {
-          console.warn('Button should not be able to be pressed when disabled');
-          return;
-        }
-        // Update global spectator to the resolved actor ID from the supplied pseudonym
-        if (isPseudonym && stateResolvedPseudonym !== undefined) {
-          setStateSpectator(stateResolvedPseudonym.id);
-        }
-        // Update global spectator to the supplied actor ID
-        if (isPseudonym !== true) {
-          setStateSpectator(actorId);
-        }
-      }}
+      onClick={buttonOnClick}
     >
       {buttonLabel}
     </Button>

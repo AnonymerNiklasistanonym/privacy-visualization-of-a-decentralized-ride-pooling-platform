@@ -4,6 +4,7 @@
 // > Components
 import {
   Circle,
+  CircleMarker,
   LayerGroup,
   LayersControl,
   MapContainer,
@@ -12,9 +13,11 @@ import {
   Tooltip,
   useMap,
 } from 'react-leaflet';
+import {memo, useState} from 'react';
 import {Box} from '@mui/material';
 import Control from 'react-leaflet-custom-control';
 import {FullscreenControl} from 'react-leaflet-fullscreen';
+import {useIntl} from 'react-intl';
 // > Styles
 import 'leaflet/dist/leaflet.css';
 import 'react-leaflet-fullscreen/styles.css';
@@ -24,6 +27,8 @@ import styles from '@styles/Map.module.scss';
 // > Components
 import {FindLocationIcon} from '@components/Icons';
 import ParticipantMarker from '@components/Map/MapObject/ParticipantMarker';
+// > Misc
+import {debugComponentUpdate} from '@misc/debug';
 // > Styles
 import '@styles/Map.module.scss';
 // Type imports
@@ -39,6 +44,7 @@ import type {
   SimulationEndpointGraphInformation,
   SimulationEndpointParticipantCoordinates,
 } from '@globals/types/simulation';
+import type {Dispatch} from 'react';
 import type {PathfinderEndpointGraphInformation} from '@globals/types/pathfinder';
 import type {ReactState} from '@misc/react';
 import type {SettingsMapProps} from '@misc/props/settings';
@@ -74,6 +80,15 @@ export default function Map(props: MapPropsInput) {
     stateSettingsGlobalDebug,
   } = props;
 
+  const intl = useIntl();
+
+  const [stateCurrentPosLat, setStateCurrentPosLat] = useState<
+    undefined | number
+  >(undefined);
+  const [stateCurrentPosLong, setStateCurrentPosLong] = useState<
+    undefined | number
+  >(undefined);
+
   return (
     <Box sx={{height: {sm: '73vh', xs: '67vh'}, width: 1}}>
       <MapContainer
@@ -85,7 +100,10 @@ export default function Map(props: MapPropsInput) {
         className={styles.map}
       >
         <FullscreenControl position="bottomright" />
-        <ControlFindLocation />
+        <ControlFindLocationMemo
+          setStateCurrentPosLat={setStateCurrentPosLat}
+          setStateCurrentPosLong={setStateCurrentPosLong}
+        />
         <LayersControl position="bottomleft">
           <LayersControl.BaseLayer checked name="Map">
             <TileLayer
@@ -93,7 +111,27 @@ export default function Map(props: MapPropsInput) {
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
           </LayersControl.BaseLayer>
-          <LayersControl.Overlay checked={true} name="Customers">
+          <LayersControl.Overlay
+            checked={true}
+            name={intl.formatMessage({
+              id: 'page.home.tab.map.layer.currentPosition',
+            })}
+          >
+            <LayerGroup>
+              {stateCurrentPosLat !== undefined &&
+              stateCurrentPosLong !== undefined ? (
+                <CircleMarker
+                  center={[stateCurrentPosLat, stateCurrentPosLong]}
+                  radius={10}
+                  color="blue"
+                />
+              ) : undefined}
+            </LayerGroup>
+          </LayersControl.Overlay>
+          <LayersControl.Overlay
+            checked={true}
+            name={intl.formatMessage({id: 'getacar.participant.customers'})}
+          >
             <LayerGroup>
               {stateParticipantCoordinatesList.customers.map(customer => (
                 <ParticipantMarker
@@ -105,7 +143,10 @@ export default function Map(props: MapPropsInput) {
               ))}
             </LayerGroup>
           </LayersControl.Overlay>
-          <LayersControl.Overlay checked={true} name="Ride Providers">
+          <LayersControl.Overlay
+            checked={true}
+            name={intl.formatMessage({id: 'getacar.participant.rideProviders'})}
+          >
             <LayerGroup>
               {stateParticipantCoordinatesList.rideProviders.map(
                 rideProvider => (
@@ -120,7 +161,12 @@ export default function Map(props: MapPropsInput) {
             </LayerGroup>
           </LayersControl.Overlay>
           {stateSettingsGlobalDebug ? (
-            <LayersControl.Overlay checked={false} name="Debug: Dijkstra Graph">
+            <LayersControl.Overlay
+              checked={false}
+              name={intl.formatMessage({
+                id: 'page.home.tab.map.layer.debugGraphDijkstra',
+              })}
+            >
               <LayerGroup>
                 {stateGraph.edges.map(a => (
                   <Polyline
@@ -152,7 +198,9 @@ export default function Map(props: MapPropsInput) {
           {stateSettingsGlobalDebug ? (
             <LayersControl.Overlay
               checked={false}
-              name="Debug: Dijkstra Graph (geometry)"
+              name={intl.formatMessage({
+                id: 'page.home.tab.map.layer.debugGraphDijkstraGeometry',
+              })}
             >
               <LayerGroup>
                 {stateGraph.geometry.map(a => (
@@ -186,7 +234,9 @@ export default function Map(props: MapPropsInput) {
           {stateSettingsGlobalDebug ? (
             <LayersControl.Overlay
               checked={false}
-              name="Debug: Pathfinder Graph"
+              name={intl.formatMessage({
+                id: 'page.home.tab.map.layer.debugGraphDijkstraPathfinder',
+              })}
             >
               <LayerGroup>
                 {stateGraphPathfinder.edges.map((a, index) => (
@@ -222,7 +272,19 @@ export default function Map(props: MapPropsInput) {
   );
 }
 
-export function ControlFindLocation() {
+export const ControlFindLocationMemo = memo(ControlFindLocation);
+
+export interface ControlFindLocationProps {
+  setStateCurrentPosLat: Dispatch<undefined | number>;
+  setStateCurrentPosLong: Dispatch<undefined | number>;
+}
+
+export function ControlFindLocation({
+  setStateCurrentPosLat,
+  setStateCurrentPosLong,
+}: ControlFindLocationProps) {
+  debugComponentUpdate('ControlFindLocation');
+
   const map = useMap();
 
   return (
@@ -230,9 +292,15 @@ export function ControlFindLocation() {
       <div className="leaflet-bar ">
         <a
           onClick={() => {
-            map.locate({setView: true}).on('locationerror', () => {
-              alert('Location access has been denied.');
-            });
+            map
+              .locate({setView: true})
+              .on('locationerror', () => {
+                alert('Location access has been denied.');
+              })
+              .on('locationfound', a => {
+                setStateCurrentPosLat(a.latlng.lat);
+                setStateCurrentPosLong(a.latlng.lng);
+              });
           }}
         >
           <FindLocationIcon style={{marginTop: '3px'}} />
