@@ -230,7 +230,6 @@ export default function TabPanel(props: TabPanelProps) {
               value={stateTabIndex}
               onChange={(event, newTabIndex) => setStateTabIndex(newTabIndex)}
               centered
-              variant="scrollable"
             >
               {tabs.map(([tabTitle, tabIndex, tabIcon]) => (
                 <Tab key={tabIndex} label={tabTitle} icon={tabIcon} />
