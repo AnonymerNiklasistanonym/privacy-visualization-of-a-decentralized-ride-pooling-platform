@@ -4,23 +4,22 @@ import {memo} from 'react';
 import {InputBase} from '@mui/material';
 // Local imports
 // > Components
+import SearchBarBetaAutocomplete from './SearchBarBetaAutocomplete';
 import SearchBarBetaContainer from './SearchBarBetaContainer';
 // > Misc
-import {debugComponentUpdate} from '@misc/debug';
+import {debugComponentUpdate, debugMemoHelper} from '@misc/debug';
 // Type imports
-import type {
-  GlobalPropsSearch,
-  GlobalPropsSpectatorSelectedElements,
-} from '@misc/props/global';
-import SearchBarBetaAutocomplete from './SearchBarBetaAutocomplete';
+import type {SearchBarBetaAutocompleteProps} from './SearchBarBetaAutocomplete';
 
-export interface SearchBarBetaProps
-  extends GlobalPropsSearch,
-    GlobalPropsSpectatorSelectedElements {
+export interface SearchBarBetaProps extends SearchBarBetaAutocompleteProps {
   placeholder: string;
 }
 
-export default function SearchBarBeta(props: SearchBarBetaProps) {
+export default memo(SearchBarBeta, (prev, next) =>
+  debugMemoHelper('SearchBarBeta', ['globalSearch', 'placeholder'], prev, next)
+);
+
+export function SearchBarBeta(props: SearchBarBetaProps) {
   debugComponentUpdate('SearchBarBeta', true);
   const {placeholder} = props;
   return (

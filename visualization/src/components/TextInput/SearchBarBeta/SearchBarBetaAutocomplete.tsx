@@ -1,27 +1,26 @@
 'use client';
 
 // Package imports
+import {memo} from 'react';
 import {useIntl} from 'react-intl';
 // > Components
 import {Autocomplete, Box, TextField} from '@mui/material';
 // Local imports
 // > Misc
-import {debugComponentUpdate} from '@misc/debug';
+import {debugComponentUpdate, debugMemoHelper} from '@misc/debug';
 // Type imports
-import type {
-  GlobalPropsSearch,
-  GlobalPropsSpectatorSelectedElements,
-  GlobalSearchElement,
-} from '@misc/props/global';
+import type {GlobalPropsSearch, GlobalSearchElement} from '@misc/props/global';
 
-export interface SearchBarAutocompleteProps
-  extends GlobalPropsSearch,
-    GlobalPropsSpectatorSelectedElements {}
+export type SearchBarBetaAutocompleteProps = GlobalPropsSearch;
 
-export default function SearchBarAutocomplete({
+export default memo(SearchBarBetaAutocomplete, (prev, next) =>
+  debugMemoHelper('SearchBarBetaAutocomplete', ['globalSearch'], prev, next)
+);
+
+export function SearchBarBetaAutocomplete({
   globalSearch,
-}: SearchBarAutocompleteProps) {
-  debugComponentUpdate('SearchBarAutocomplete');
+}: SearchBarBetaAutocompleteProps) {
+  debugComponentUpdate('SearchBarBetaAutocomplete');
   const intl = useIntl();
 
   const changeSpectatorInfo = intl.formatMessage({
@@ -37,34 +36,30 @@ export default function SearchBarAutocomplete({
       blurOnSelect={true}
       autoHighlight={true}
       onChange={(e, value) => {
+        // If one element is selected call the onClick function
         if (value !== null) {
           value.onClick();
         }
       }}
       filterOptions={(options, state) => {
-        console.log(options, state.inputValue);
-        let tempOptions: GlobalSearchElement[];
-        let inputValue = state.inputValue.toLowerCase();
-        // If special substring is found show non map related options
+        // Per default search for the whole input
+        let searchString: string = state.inputValue.toLowerCase();
+        // Per default just show the change spectator related options
+        let optionsFilter: (
+          option: Readonly<GlobalSearchElement>
+        ) => boolean = option => option.keywords.includes(changeSpectatorInfo);
+
+        // If a special substring is found show non map related options a update the search query
         if (state.inputValue.startsWith('> ')) {
-          inputValue = inputValue.substring(2);
-          tempOptions = options.filter(
-            option => !option.keywords.includes(changeSpectatorInfo)
-          );
-        } else {
-          // Otherwise just show the change spectator related options
-          tempOptions = options.filter(option =>
-            option.keywords.includes(changeSpectatorInfo)
-          );
+          searchString = searchString.substring(2);
+          optionsFilter = option =>
+            !option.keywords.includes(changeSpectatorInfo);
         }
-        return tempOptions.filter(option => {
-          console.info(
-            `${state.getOptionLabel(option)} includes ${inputValue} ? => ${state
-              .getOptionLabel(option)
-              .includes(inputValue)}`
+        return options
+          .filter(optionsFilter)
+          .filter(option =>
+            state.getOptionLabel(option).toLowerCase().includes(searchString)
           );
-          return state.getOptionLabel(option).toLowerCase().includes(inputValue);
-        });
       }}
       getOptionLabel={option => [option.name, ...option.keywords].join(' ')}
       renderInput={params => (

@@ -77,8 +77,8 @@ export default function CollectionHome(
   // MUI: Theming
   const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
   const localStorageThemeMode =
-    localStorage !== undefined
-      ? localStorage.getItem(LocalStorageKey.THEME_MODE)
+    typeof window !== 'undefined' && window.localStorage !== undefined
+      ? window.localStorage.getItem(LocalStorageKey.THEME_MODE)
       : null;
   const [stateThemeMode, setStateThemeMode] = useState<'light' | 'dark'>(
     localStorageThemeMode === 'dark' || localStorageThemeMode === 'light'

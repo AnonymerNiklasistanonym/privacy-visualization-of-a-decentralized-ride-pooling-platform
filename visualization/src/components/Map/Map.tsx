@@ -90,7 +90,12 @@ export default function Map(props: MapPropsInput) {
   >(undefined);
 
   return (
-    <Box sx={{height: {sm: '73vh', xs: '67vh'}, width: 1}}>
+    <Box
+      sx={{
+        height: {sm: '73vh', xs: '67vh'},
+        width: '100%',
+      }}
+    >
       <MapContainer
         center={[startPos.lat, startPos.long]}
         zoom={12}
