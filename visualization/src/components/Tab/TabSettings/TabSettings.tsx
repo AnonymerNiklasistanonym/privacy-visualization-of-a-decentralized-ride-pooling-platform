@@ -5,6 +5,7 @@ import {usePathname, useRouter, useSearchParams} from 'next/navigation';
 import {useIntl} from 'react-intl';
 // > Components
 import {
+  Box,
   Button,
   Card,
   CardContent,
@@ -34,6 +35,7 @@ import {
   TabBlockchainIcon,
   TabMapIcon,
 } from '@components/Icons';
+import NumericFormatGeneric from '@components/Input/NumericFormatGeneric';
 import NumericFormatMs from '@components/Input/NumericFormatMs';
 import TabContainer from '@components/Tab/TabContainer';
 // > Misc
@@ -63,6 +65,12 @@ export interface SettingsElementText extends SettingsElementGeneric {
   type: 'text';
 }
 
+export interface SettingsElementNumber extends SettingsElementGeneric {
+  stateValue: ReactState<number>;
+  setStateValue: ReactSetState<number>;
+  type: 'number';
+}
+
 export interface SettingsElementMs extends SettingsElementGeneric {
   stateValue: ReactState<number>;
   setStateValue: ReactSetState<number>;
@@ -88,6 +96,7 @@ export interface SettingsElementButton extends SettingsElementGeneric {
 export type SettingsElement =
   | SettingsElementToggle
   | SettingsElementText
+  | SettingsElementNumber
   | SettingsElementMs
   | SettingsElementRadio<string>
   | SettingsElementButton;
@@ -132,6 +141,20 @@ export function RenderSettingsElement({element}: RenderSettingsElementProps) {
         variant="outlined"
         value={element.stateValue}
         onChange={event => element.setStateValue(event.target.value)}
+      />
+    );
+  }
+  if (element.type === 'number') {
+    return (
+      <TextField
+        label={element.label}
+        value={element.stateValue}
+        onChange={event => element.setStateValue(Number(event.target.value))}
+        InputProps={{
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          inputComponent: NumericFormatGeneric as any,
+        }}
+        variant="standard"
       />
     );
   }
@@ -215,7 +238,7 @@ export const RenderSettingsMemo = memo(RenderSettings, (prev, next) =>
 export function RenderSettings({title, icon, elements}: RenderSettingsProps) {
   debugComponentUpdate(`RenderSettings ${title}`, true);
   return (
-    <Grid item xs={12} sm={6} md={4} sx={{margin: {sm: '1rem', xs: 0}}}>
+    <Grid item xs={12} sm={6} md={4}>
       <Card>
         <CardContent>
           <List
@@ -262,6 +285,8 @@ export function TabSettings({
   stateSettingsMapUpdateRateInMs,
   setStateSettingsUiNavBarPosition,
   stateSettingsUiNavBarPosition,
+  setStateSettingsUiGridSpacing,
+  stateSettingsUiGridSpacing,
   setStateThemeMode,
   stateThemeMode,
 }: TabSettingsProps) {
@@ -391,7 +416,7 @@ export function TabSettings({
         ],
         icon: <TabBlockchainIcon />,
         title: intl.formatMessage({
-          id: 'page.home.tab.settings.card.blockchain.title',
+          id: 'page.home.tab.blockchain.title',
         }),
       },
       {
@@ -445,7 +470,7 @@ export function TabSettings({
         ],
         icon: <TabMapIcon />,
         title: intl.formatMessage({
-          id: 'page.home.tab.settings.card.map.title',
+          id: 'page.home.tab.map.title',
         }),
       },
       {
@@ -483,6 +508,14 @@ export function TabSettings({
             setStateValue: setStateSettingsUiNavBarPositionLocal,
             stateValue: stateSettingsUiNavBarPositionLocal,
             type: 'radio',
+          },
+          {
+            label: intl.formatMessage({
+              id: 'page.home.tab.settings.card.ui.gridSpacing',
+            }),
+            setStateValue: setStateSettingsUiGridSpacing,
+            stateValue: stateSettingsUiGridSpacing,
+            type: 'number',
           },
         ],
         icon: <SettingsUiIcon />,
@@ -535,19 +568,31 @@ export function TabSettings({
       setStateSettingsGlobalDebug,
       stateSettingsGlobalDebug,
       stateSettingsUiNavBarPositionLocal,
+      setStateSettingsUiGridSpacing,
+      stateSettingsUiGridSpacing,
     ]
   );
 
   return (
     <TabContainer>
       <FormGroup>
-        <ResponsiveMasonry columnsCountBreakPoints={{350: 1, 750: 2, 900: 3}}>
-          <Masonry>
-            {settingsCards.map(settingsCard => (
-              <RenderSettingsMemo key={settingsCard.title} {...settingsCard} />
-            ))}
-          </Masonry>
-        </ResponsiveMasonry>
+        <Box
+          sx={{
+            marginBottom: `${stateSettingsUiGridSpacing / 2}rem`,
+            marginTop: `${stateSettingsUiGridSpacing / 2}rem`,
+          }}
+        >
+          <ResponsiveMasonry columnsCountBreakPoints={{350: 1, 750: 2, 900: 3}}>
+            <Masonry gutter={`${stateSettingsUiGridSpacing / 2}rem`}>
+              {settingsCards.map(settingsCard => (
+                <RenderSettingsMemo
+                  key={settingsCard.title}
+                  {...settingsCard}
+                />
+              ))}
+            </Masonry>
+          </ResponsiveMasonry>
+        </Box>
       </FormGroup>
     </TabContainer>
   );

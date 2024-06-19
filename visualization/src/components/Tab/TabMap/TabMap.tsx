@@ -4,7 +4,7 @@
 import {useEffect, useMemo, useState} from 'react';
 import {useIntl} from 'react-intl';
 // > Components
-import {Box, ButtonGroup, Chip, Divider} from '@mui/material';
+import {Box, ButtonGroup, Chip, Divider, Grid} from '@mui/material';
 // Local imports
 import {fetchJsonEndpoint, fetchTextEndpoint} from '@misc/fetch';
 // > Components
@@ -46,6 +46,7 @@ import type {
   GlobalPropsSpectatorSelectedElementsSet,
   GlobalPropsSpectatorsSet,
 } from '@misc/props/global';
+import type {SettingsMapProps, SettingsUiProps} from '@misc/props/settings';
 import type {
   SimulationEndpointGraphInformation,
   SimulationEndpointParticipantCoordinates,
@@ -60,10 +61,10 @@ import type {DebugData} from '@components/Table/DebugData';
 import type {MapProps} from '@components/Map';
 import type {PathfinderEndpointGraphInformation} from '@globals/types/pathfinder';
 import type {ReactElement} from 'react';
-import type {SettingsMapProps} from '@misc/props/settings';
 
 export interface TabMapProps
   extends SettingsMapProps,
+    SettingsUiProps,
     MapProps,
     GlobalPropsSpectatorsSet,
     GlobalPropsSpectatorMap,
@@ -84,6 +85,8 @@ export default function TabMap(props: TabMapProps) {
     stateSettingsMapBaseUrlPathfinder,
     stateSettingsMapBaseUrlSimulation,
     stateSettingsMapUpdateRateInMs,
+    stateSettingsUiGridSpacing,
+    setStateSettingsUiGridSpacing,
     updateGlobalSearch,
   } = props;
 
@@ -453,34 +456,43 @@ export default function TabMap(props: TabMapProps) {
           alignItems: 'center',
           display: 'flex',
           flexDirection: 'column',
-          marginTop: '1vh',
+          marginBottom: `${stateSettingsUiGridSpacing / 2}rem`,
+          marginTop: `${stateSettingsUiGridSpacing / 2}rem`,
         }}
       >
         <SectionChangeSpectator {...props} />
       </Box>
       <Box component="section" className={styles['tab-map']}>
         <GridConnectedElementsLayout
+          stateSettingsUiGridSpacing={stateSettingsUiGridSpacing}
           stateConnectedElements={stateConnectedElements}
           stateDismissibleElements={stateDismissibleElements}
         >
-          <SearchBar
-            placeholder="TODO: Search map"
-            {...props}
-            {...propsTabMap}
-          />
-          <Box
-            sx={{
-              height: 'calc(100vh - 14.25rem)',
-            }}
-          >
-            <Map
-              {...props}
-              {...propsTabMap}
-              startPos={{lat: 48.7784485, long: 9.1800132, zoom: 11}}
-            />
-          </Box>
+          <Grid container spacing={stateSettingsUiGridSpacing}>
+            <Grid item xs={12}>
+              <SearchBar
+                placeholder="TODO: Search map"
+                {...props}
+                {...propsTabMap}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <Box
+                sx={{
+                  height: `calc(100vh - 13rem - ${
+                    (stateSettingsUiGridSpacing / 2) * 3
+                  }rem)`,
+                }}
+              >
+                <Map
+                  {...props}
+                  {...propsTabMap}
+                  startPos={{lat: 48.7784485, long: 9.1800132, zoom: 11}}
+                />
+              </Box>
+            </Grid>
+          </Grid>
         </GridConnectedElementsLayout>
-
         <Box
           sx={{
             '& > *': {m: 1},

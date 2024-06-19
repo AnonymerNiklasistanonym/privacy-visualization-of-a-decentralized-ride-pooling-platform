@@ -4,7 +4,7 @@
 import {useIntl} from 'react-intl';
 import {useMemo} from 'react';
 // > Components
-import {Box} from '@mui/material';
+import {Box, Grid} from '@mui/material';
 // Local imports
 // > Components
 import CardParticipant from '@components/Card/CardParticipant';
@@ -21,13 +21,17 @@ import type {
   DismissibleElement,
 } from '@components/Grid/GridConnectedElementsLayout';
 import type {ReactElement} from 'react';
+import type {SettingsUiProps} from '@misc/props/settings';
 import type {TableBlockchainProps} from '@components/Table/TableBlockchain';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface TabBlockchainProps extends TableBlockchainProps {}
+export interface TabBlockchainProps
+  extends TableBlockchainProps,
+    SettingsUiProps {}
 
 // eslint-disable-next-line no-empty-pattern
 export default function TabBlockchain(props: TabBlockchainProps) {
+  const {stateSettingsUiGridSpacing} = props;
   const intl = useIntl();
 
   const stateConnectedElements = useMemo<Array<ConnectedElementSection>>(() => {
@@ -192,23 +196,33 @@ export default function TabBlockchain(props: TabBlockchainProps) {
           alignItems: 'center',
           display: 'flex',
           flexDirection: 'column',
-          marginTop: '1vh',
+          marginBottom: `${stateSettingsUiGridSpacing / 2}rem`,
+          marginTop: `${stateSettingsUiGridSpacing / 2}rem`,
         }}
       >
         <SectionChangeSpectator {...props} />
       </Box>
       <GridConnectedElementsLayout
+        stateSettingsUiGridSpacing={stateSettingsUiGridSpacing}
         stateConnectedElements={stateConnectedElements}
         stateDismissibleElements={stateDismissibleElements}
       >
-        <SearchBar placeholder="TODO: Search map" {...props} />
-        <Box
-          sx={{
-            height: 'calc(100vh - 14.25rem)',
-          }}
-        >
-          <TableBlockchain {...props} />
-        </Box>
+        <Grid container spacing={stateSettingsUiGridSpacing}>
+          <Grid item xs={12}>
+            <SearchBar placeholder="TODO: Search map" {...props} />
+          </Grid>
+          <Grid item xs={12}>
+            <Box
+              sx={{
+                height: `calc(100vh - 13rem - ${
+                  (stateSettingsUiGridSpacing / 2) * 3
+                }rem)`,
+              }}
+            >
+              <TableBlockchain {...props} />
+            </Box>
+          </Grid>
+        </Grid>
       </GridConnectedElementsLayout>
     </TabContainer>
   );

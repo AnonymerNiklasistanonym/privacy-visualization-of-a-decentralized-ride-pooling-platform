@@ -12,8 +12,8 @@ import {
   Stack,
   Typography,
 } from '@mui/material';
+import {Clear as DismissIcon, Info as InfoIcon} from '@mui/icons-material';
 import Masonry, {ResponsiveMasonry} from 'react-responsive-masonry';
-import {Clear as DismissIcon} from '@mui/icons-material';
 // Type imports
 import {PropsWithChildren, ReactElement} from 'react';
 
@@ -27,6 +27,7 @@ export interface ConnectedElementSection {
 
 export interface DismissibleElement {
   title: string;
+  icon?: ReactElement;
   description: string;
 }
 
@@ -35,22 +36,36 @@ export interface GridConnectedElementsLayoutProps {
   stateConnectedElements: Array<ConnectedElementSection>;
   /** Content related temporary elements that can be dismissed */
   stateDismissibleElements: Array<DismissibleElement>;
+  /** The spacing between elements */
+  stateSettingsUiGridSpacing: number;
 }
 
 export default function GridConnectedElementsLayout({
   children,
   stateConnectedElements,
   stateDismissibleElements,
+  stateSettingsUiGridSpacing,
 }: PropsWithChildren<GridConnectedElementsLayoutProps>) {
+  console.log('stateSettingsUiGridSpacing', stateSettingsUiGridSpacing);
   return (
-    <Grid container spacing={1} justifyContent="left" alignItems="stretch">
+    <Grid
+      container
+      spacing={stateSettingsUiGridSpacing}
+      justifyContent="left"
+      alignItems="stretch"
+    >
       {/* Content */}
       <Grid item xs={12} md={6} xl={7}>
         {children}
       </Grid>
       {/* Temporary and Connected elements */}
       <Grid item xs={12} md={6} xl={5}>
-        <Grid container spacing={1} justifyContent="left" alignItems="stretch">
+        <Grid
+          container
+          spacing={stateSettingsUiGridSpacing}
+          justifyContent="left"
+          alignItems="stretch"
+        >
           {/* Temporary elements */}
           {stateDismissibleElements.length > 0 ? (
             <Grid item xs={12} md={12} xl={12}>
@@ -62,13 +77,16 @@ export default function GridConnectedElementsLayout({
                   1200: 2,
                 }}
               >
-                <Masonry gutter="1rem">
+                <Masonry gutter={`${stateSettingsUiGridSpacing / 2}rem`}>
                   {stateDismissibleElements.map((element, index) => (
                     <Card key={index}>
                       <CardContent>
-                        <Typography gutterBottom variant="h5" component="div">
-                          {element.title}
-                        </Typography>
+                        <Stack direction="row" alignItems="center" gap={1}>
+                          {element.icon ?? <InfoIcon />}
+                          <Typography gutterBottom variant="h5" component="div">
+                            {element.title}
+                          </Typography>
+                        </Stack>
                         <Typography variant="body2">
                           {element.description}
                         </Typography>
@@ -91,12 +109,11 @@ export default function GridConnectedElementsLayout({
                 alignItems: 'center',
                 display: 'flex',
                 flexDirection: 'column',
-                margin: {
-                  md: '0.25rem',
-                  xs: '0',
-                },
+                margin: 0,
                 minHeight: {
-                  md: 'calc(100vh - 10rem)',
+                  md: `calc(100vh - 9.25rem - ${
+                    (stateSettingsUiGridSpacing / 2) * 2
+                  }rem)`,
                   xs: '100%',
                 },
                 overflow: {
@@ -110,7 +127,11 @@ export default function GridConnectedElementsLayout({
             >
               {stateConnectedElements.map(stateConnectedElement => (
                 <>
-                  <Grid key={stateConnectedElement.title} container spacing={2}>
+                  <Grid
+                    key={stateConnectedElement.title}
+                    container
+                    spacing={stateSettingsUiGridSpacing}
+                  >
                     <Grid item xs={12}>
                       <Badge
                         color="secondary"
@@ -136,7 +157,9 @@ export default function GridConnectedElementsLayout({
                           1200: 2,
                         }}
                       >
-                        <Masonry gutter="1rem">
+                        <Masonry
+                          gutter={`${stateSettingsUiGridSpacing / 2}rem`}
+                        >
                           {stateConnectedElement.elements.map(
                             (element, index) => (
                               <Card key={index}>

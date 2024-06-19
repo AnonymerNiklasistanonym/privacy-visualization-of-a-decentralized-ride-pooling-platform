@@ -16,10 +16,8 @@ export default function SearchBarContainer({children}: PropsWithChildren) {
       sx={{
         alignItems: 'center',
         display: 'flex',
-        marginBottom: '0.5rem',
-        marginTop: '0.25rem',
         p: '2px 4px',
-        width: 'calc(100% - 0rem)',
+        width: '100%',
       }}
     >
       {children}

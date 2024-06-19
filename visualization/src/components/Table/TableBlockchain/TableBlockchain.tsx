@@ -94,6 +94,7 @@ export default function TableBlockchain(props: TableBlockchainProps) {
       }}
     >
       <TableDebugData
+        height={'calc(100vh - 14rem)'}
         stateDebugData={{
           customers: [],
           rideProviders: [],

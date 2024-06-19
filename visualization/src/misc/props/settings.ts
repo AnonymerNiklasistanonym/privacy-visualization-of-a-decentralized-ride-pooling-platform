@@ -1,5 +1,6 @@
-// Local imports
+// Type imports
 import type {ReactSetState, ReactState} from '../react';
+import type {Dispatch} from 'react';
 
 export interface SettingsGlobalProps {
   stateSettingsGlobalDebug: ReactState<boolean>;
@@ -38,8 +39,10 @@ export interface SettingsThemePropsSet extends SettingsGlobalPropsSet {
 }
 
 export interface SettingsUiProps extends SettingsGlobalPropsSet {
-  stateSettingsUiNavBarPosition: ReactState<'bottom' | 'top'>;
-  setStateSettingsUiNavBarPosition: ReactSetState<'bottom' | 'top'>;
+  stateSettingsUiNavBarPosition: 'bottom' | 'top';
+  setStateSettingsUiNavBarPosition: Dispatch<'bottom' | 'top'>;
+  stateSettingsUiGridSpacing: number;
+  setStateSettingsUiGridSpacing: Dispatch<number>;
 }
 
 export interface SettingsProps

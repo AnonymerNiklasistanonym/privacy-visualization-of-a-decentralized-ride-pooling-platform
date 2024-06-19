@@ -29,14 +29,20 @@ import TabContainer from '../TabContainer';
 // > Globals
 import {getacar} from '@globals/defaults/urls';
 // Type imports
+import type {
+  SettingsOverviewProps,
+  SettingsUiProps,
+} from '@misc/props/settings';
 import type {ImageModalProps} from '@components/Modal/ImageModal';
-import type {SettingsOverviewProps} from '@misc/props/settings';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface TabOverviewProps extends SettingsOverviewProps {}
+export interface TabOverviewProps
+  extends SettingsOverviewProps,
+    SettingsUiProps {}
 
 // eslint-disable-next-line no-empty-pattern
 export default function TabOverview(propsInput: TabOverviewProps) {
+  const {stateSettingsUiGridSpacing} = propsInput;
   const intl = useIntl();
   const [stateImgModalOpen, setStateImgModalOpen] = useState(false);
   const [stateImgUrl, setStateImgUrl] = useState<string | undefined>(undefined);
@@ -107,7 +113,12 @@ export default function TabOverview(propsInput: TabOverviewProps) {
   };
   return (
     <TabContainer>
-      <Card sx={{marginTop: {md: '1rem', sm: 0}}}>
+      <Card
+        sx={{
+          marginBottom: `${stateSettingsUiGridSpacing / 2}rem`,
+          marginTop: `${stateSettingsUiGridSpacing / 2}rem`,
+        }}
+      >
         <CardContent>
           <Typography variant="h3" gutterBottom>
             {intl.formatMessage({id: 'project.name'}, intlValues)}

@@ -158,6 +158,8 @@ export default function CollectionHome(
 
   const [stateSettingsUiNavBarPosition, setStateSettingsUiNavBarPosition] =
     useState<'bottom' | 'top'>('top');
+  const [stateSettingsUiGridSpacing, setStateSettingsUiGridSpacing] =
+    useState<number>(2);
 
   // Props: Functions (depend on created states)
   const fetchJsonSimulation = async <T,>(
@@ -440,6 +442,7 @@ export default function CollectionHome(
     setStateSettingsMapBaseUrlSimulation,
     setStateSettingsMapShowTooltips,
     setStateSettingsMapUpdateRateInMs,
+    setStateSettingsUiGridSpacing,
     setStateSettingsUiNavBarPosition,
     setStateSpectator,
     setStateThemeMode,
@@ -456,6 +459,7 @@ export default function CollectionHome(
     stateSettingsMapBaseUrlSimulation,
     stateSettingsMapShowTooltips,
     stateSettingsMapUpdateRateInMs,
+    stateSettingsUiGridSpacing,
     stateSettingsUiNavBarPosition,
     stateSpectator,
     stateSpectators,

@@ -39,6 +39,7 @@ export interface TableDebugDataProps {
   stateDebugData: ReactState<DebugData>;
   debugDataType: DebugDataType;
   onRowClick?: (type: DebugDataType, id: string) => void;
+  height?: string;
 }
 
 const renderTypeIcon = (type: DebugDataType) =>
@@ -59,6 +60,7 @@ const ID_LENGTH = 150;
 export default function TableDebugData({
   stateDebugData,
   debugDataType,
+  height,
   onRowClick,
 }: TableDebugDataProps) {
   const intl = useIntl();
@@ -289,7 +291,7 @@ export default function TableDebugData({
   return (
     <Box
       sx={{
-        height: 400,
+        height: height ?? '20rem',
         width: '100%',
       }}
     >
