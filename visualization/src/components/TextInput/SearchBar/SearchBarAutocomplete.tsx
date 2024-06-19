@@ -1,28 +1,32 @@
 'use client';
 
 // Package imports
+import {memo} from 'react';
 import {useIntl} from 'react-intl';
 // > Components
-import {Autocomplete, Box, InputAdornment, TextField} from '@mui/material';
-import {Search as SearchIcon} from '@mui/icons-material';
+import {Autocomplete, Box, TextField} from '@mui/material';
 // Local imports
 // > Misc
-import {debugComponentUpdate} from '@misc/debug';
+import {debugComponentUpdate, debugMemoHelper} from '@misc/debug';
 // Type imports
-import type {
-  GlobalPropsSearch,
-  GlobalPropsSpectatorSelectedElements,
-} from '@misc/props/global';
+import type {GlobalPropsSearch, GlobalSearchElement} from '@misc/props/global';
 
-export interface SearchBarAutocompleteProps
-  extends GlobalPropsSearch,
-    GlobalPropsSpectatorSelectedElements {}
+export type SearchBarAutocompleteProps = GlobalPropsSearch;
 
-export default function SearchBarAutocomplete({
+export default memo(SearchBarAutocomplete, (prev, next) =>
+  debugMemoHelper('SearchBarAutocomplete', ['globalSearch'], prev, next)
+);
+
+export function SearchBarAutocomplete({
   globalSearch,
 }: SearchBarAutocompleteProps) {
   debugComponentUpdate('SearchBarAutocomplete');
   const intl = useIntl();
+
+  const changeSpectatorInfo = intl.formatMessage({
+    id: 'getacar.spectator.change',
+  });
+
   return (
     <Autocomplete
       id="combo-box-demo"
@@ -32,9 +36,30 @@ export default function SearchBarAutocomplete({
       blurOnSelect={true}
       autoHighlight={true}
       onChange={(e, value) => {
+        // If one element is selected call the onClick function
         if (value !== null) {
           value.onClick();
         }
+      }}
+      filterOptions={(options, state) => {
+        // Per default search for the whole input
+        let searchString: string = state.inputValue.toLowerCase();
+        // Per default just show the change spectator related options
+        let optionsFilter: (
+          option: Readonly<GlobalSearchElement>
+        ) => boolean = option => option.keywords.includes(changeSpectatorInfo);
+
+        // If a special substring is found show non map related options a update the search query
+        if (state.inputValue.startsWith('> ')) {
+          searchString = searchString.substring(2);
+          optionsFilter = option =>
+            !option.keywords.includes(changeSpectatorInfo);
+        }
+        return options
+          .filter(optionsFilter)
+          .filter(option =>
+            state.getOptionLabel(option).toLowerCase().includes(searchString)
+          );
       }}
       getOptionLabel={option => [option.name, ...option.keywords].join(' ')}
       renderInput={params => (
@@ -45,20 +70,9 @@ export default function SearchBarAutocomplete({
           })}
           InputProps={{
             ...params.InputProps,
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchIcon htmlColor="white" />
-              </InputAdornment>
-            ),
-            sx: {
-              '.css-1d3z3hw-MuiOutlinedInput-notchedOutline': {
-                borderColor: 'white !important',
-              },
-              '.css-i4bv87-MuiSvgIcon-root': {
-                color: 'white',
-              },
-              color: 'white',
-            },
+          }}
+          sx={{
+            '& fieldset': {border: 'none'},
           }}
         />
       )}

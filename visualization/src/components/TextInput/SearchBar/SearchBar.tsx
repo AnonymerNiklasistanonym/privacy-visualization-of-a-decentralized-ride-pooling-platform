@@ -1,35 +1,35 @@
-'use client';
-
 // Package imports
-import {useIntl} from 'react-intl';
-// > Components
-import {Autocomplete, Box, InputAdornment, TextField} from '@mui/material';
-import {Search as SearchIcon} from '@mui/icons-material';
+import {memo} from 'react';
+// Components
+import {InputBase} from '@mui/material';
 // Local imports
-// > Misc
-import {debugComponentUpdate} from '@misc/debug';
-// Type imports
-import type {
-  GlobalPropsSearch,
-  GlobalPropsSpectatorSelectedElements,
-} from '@misc/props/global';
+// > Components
 import SearchBarAutocomplete from './SearchBarAutocomplete';
+import SearchBarBetaContainer from './SearchBarContainer';
+// > Misc
+import {debugComponentUpdate, debugMemoHelper} from '@misc/debug';
+// Type imports
+import type {SearchBarAutocompleteProps} from './SearchBarAutocomplete';
 
-export interface SearchBarProps
-  extends GlobalPropsSearch,
-    GlobalPropsSpectatorSelectedElements {}
+export interface SearchBarProps extends SearchBarAutocompleteProps {
+  placeholder: string;
+}
 
-export default function SearchBar(props: SearchBarProps) {
-  debugComponentUpdate('SearchBar');
+export default memo(SearchBar, (prev, next) =>
+  debugMemoHelper('SearchBar', ['globalSearch', 'placeholder'], prev, next)
+);
+
+export function SearchBar(props: SearchBarProps) {
+  debugComponentUpdate('SearchBar', true);
+  const {placeholder} = props;
   return (
-    <Box
-      sx={{
-        maxWidth: {md: '50vw', sm: '80vw', xs: '80vw'},
-        width: {md: 800, sm: '100%', xs: '100%'},
-      }}
-      margin={2}
-    >
+    <SearchBarBetaContainer {...props}>
+      <InputBase
+        sx={{flex: 1, ml: 1}}
+        placeholder={placeholder}
+        inputProps={{'aria-label': placeholder}}
+      />
       <SearchBarAutocomplete {...props} />
-    </Box>
+    </SearchBarBetaContainer>
   );
 }

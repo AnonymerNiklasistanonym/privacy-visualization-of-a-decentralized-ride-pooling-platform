@@ -38,8 +38,11 @@ import {
   // Modals
   LockOpen as DataVisibleIcon,
   Lock as DataHiddenIcon,
+  // Other
+  Link as ConnectedElementsIcon,
 } from '@mui/icons-material';
 export {
+  ConnectedElementsIcon,
   DarkModeIcon,
   DataHiddenIcon,
   DataVisibleIcon,

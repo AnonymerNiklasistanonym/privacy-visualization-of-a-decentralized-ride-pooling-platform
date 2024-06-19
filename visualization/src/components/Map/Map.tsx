@@ -1,6 +1,8 @@
 'use client';
 
 // Package imports
+import {memo, useState} from 'react';
+import {useIntl} from 'react-intl';
 // > Components
 import {
   Circle,
@@ -13,11 +15,9 @@ import {
   Tooltip,
   useMap,
 } from 'react-leaflet';
-import {memo, useState} from 'react';
-import {Box} from '@mui/material';
 import Control from 'react-leaflet-custom-control';
 import {FullscreenControl} from 'react-leaflet-fullscreen';
-import {useIntl} from 'react-intl';
+import {Paper} from '@mui/material';
 // > Styles
 import 'leaflet/dist/leaflet.css';
 import 'react-leaflet-fullscreen/styles.css';
@@ -90,11 +90,12 @@ export default function Map(props: MapPropsInput) {
   >(undefined);
 
   return (
-    <Box
+    <Paper
       sx={{
-        height: {sm: '73vh', xs: '67vh'},
+        height: '100%',
         width: '100%',
       }}
+      elevation={2}
     >
       <MapContainer
         center={[startPos.lat, startPos.long]}
@@ -273,7 +274,7 @@ export default function Map(props: MapPropsInput) {
           )}
         </LayersControl>
       </MapContainer>
-    </Box>
+    </Paper>
   );
 }
 

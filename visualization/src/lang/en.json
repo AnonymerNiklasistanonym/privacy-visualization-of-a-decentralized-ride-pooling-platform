@@ -92,7 +92,7 @@
   "page.home.tab.settings.card.generic.updateRate": "Data update interval",
   "page.home.tab.settings.card.language.selectLanguage": "Select language",
   "page.home.tab.settings.card.language.title": "Language",
-  "page.home.tab.settings.card.map.showTooltips": "Show Tooltips",
+  "page.home.tab.settings.card.map.showTooltips": "Show tooltips",
   "page.home.tab.settings.card.map.title": "MAP",
   "page.home.tab.settings.title": "Settings",
   "page.home.title": "Visualization of the GETACAR Platform",
@@ -100,8 +100,8 @@
   "project.description": "Visualization of the privacy aspects of the decentralized, privacy-preserving ride-pooling platform concept {GETACAR}",
   "project.name": "Visualization of a privacy focused ride pooling platform concept ({GETACAR})",
   "simulation": "Simulation",
-  "theme.dark": "dark",
-  "theme.light": "light",
-  "position.top": "top",
-  "position.bottom": "bottom"
+  "theme.dark": "Dark",
+  "theme.light": "Light",
+  "position.top": "Top",
+  "position.bottom": "Bottom"
 }

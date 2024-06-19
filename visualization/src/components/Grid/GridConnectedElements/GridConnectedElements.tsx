@@ -194,35 +194,21 @@ export default function GridConnectedElements(
   }
 
   return (
-    <Grid
-      item
-      xs={12}
-      sm={12}
-      md={selectedElements.length === 0 ? 0 : 6}
-      xl={
-        selectedElements.length === 0
-          ? 0
-          : selectedElements.length === 1
-            ? 3
-            : 6
-      }
-    >
-      <Grid container spacing={2} justifyContent="left">
-        {selectedElements.map((a, index) => (
-          <Grid
-            item
-            xs={12}
-            sm={6}
-            md={12}
-            xl={selectedElements.length === 1 ? 12 : 6}
-            key={index}
-          >
-            <Card>
-              <CardContent>{a}</CardContent>
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
+    <Grid container spacing={2} justifyContent="left">
+      {selectedElements.map((a, index) => (
+        <Grid
+          item
+          xs={12}
+          sm={6}
+          md={12}
+          xl={selectedElements.length === 1 ? 12 : 6}
+          key={index}
+        >
+          <Card>
+            <CardContent>{a}</CardContent>
+          </Card>
+        </Grid>
+      ))}
     </Grid>
   );
 }

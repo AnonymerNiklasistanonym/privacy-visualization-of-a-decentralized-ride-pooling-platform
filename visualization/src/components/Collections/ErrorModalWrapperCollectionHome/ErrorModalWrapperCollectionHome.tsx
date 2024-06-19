@@ -41,8 +41,9 @@ export default function ErrorModalWrapperCollectionHome() {
   };
 
   return (
-    <CollectionHome {...props}>
+    <>
       <ErrorModal {...props} />
-    </CollectionHome>
+      <CollectionHome {...props} />
+    </>
   );
 }

@@ -11,7 +11,6 @@ import {
   Box,
   ButtonGroup,
   Chip,
-  CssBaseline,
   Divider,
   Paper,
   Tab,
@@ -27,11 +26,11 @@ import {
   TabOverviewIcon,
   TabSettingsIcon,
 } from '@components/Icons';
+import Footer from '@components/Footer';
 import GenericButton from '@components/Button/GenericButton';
 import TabBlockchain from '@components/Tab/TabBlockchain';
 import TabMap from '@components/Tab/TabMap';
 import TabOverview from '@components/Tab/TabOverview';
-import TabPanelHeader from './TabPanelHeader';
 import TabSettings from '@components/Tab/TabSettings';
 // Type imports
 import type {
@@ -48,8 +47,6 @@ import type {
 import type {PropsWithChildren, ReactElement} from 'react';
 import type {ErrorModalProps} from '@components/Modal/ErrorModal';
 import type {SettingsProps} from '@misc/props/settings';
-
-import {FooterDynamic} from '@components/Footer/Footer';
 
 interface CustomTabPanelProps {
   index: number;
@@ -81,7 +78,7 @@ function CustomTabPanel(props: PropsWithChildren<CustomTabPanelProps>) {
           }}
         >
           {children}
-          <FooterDynamic />
+          <Footer />
         </Box>
       )}
     </div>
@@ -205,7 +202,7 @@ export default function TabPanel(props: TabPanelProps) {
             {tabs.map(([title, index, icon]) => (
               <BottomNavigationAction
                 key={title}
-                label={title}
+                label={title.toUpperCase()}
                 id={`${index}`}
                 icon={icon}
               />
@@ -235,7 +232,11 @@ export default function TabPanel(props: TabPanelProps) {
               centered
             >
               {tabs.map(([tabTitle, tabIndex, tabIcon]) => (
-                <Tab key={tabIndex} label={tabTitle} icon={tabIcon} />
+                <Tab
+                  key={tabIndex}
+                  label={tabTitle.toUpperCase()}
+                  icon={tabIcon}
+                />
               ))}
             </Tabs>
           </Box>

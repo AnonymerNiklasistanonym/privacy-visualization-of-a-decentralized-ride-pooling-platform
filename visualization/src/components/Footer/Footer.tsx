@@ -6,9 +6,6 @@ import {useIntl} from 'react-intl';
 import {Box, Breadcrumbs} from '@mui/material';
 // Local imports
 import StyledBreadcrumb from './StyledBreadcrumb';
-// Type imports
-import type {ReactPropsI18n} from '@misc/react';
-import TranslationWrapper from '@components/TranslationWrapper';
 
 export function FooterBreadcrumbs() {
   const intl = useIntl();
@@ -24,7 +21,7 @@ export function FooterBreadcrumbs() {
   );
 }
 
-export function FooterDynamic() {
+export default function Footer() {
   return (
     <Box
       sx={{
@@ -37,13 +34,5 @@ export function FooterDynamic() {
     >
       <FooterBreadcrumbs />
     </Box>
-  );
-}
-
-export default function Footer({locale, messages}: ReactPropsI18n) {
-  return (
-    <TranslationWrapper locale={locale} messages={messages}>
-      <FooterDynamic />
-    </TranslationWrapper>
   );
 }

@@ -229,7 +229,7 @@ export function RenderSettings({title, icon, elements}: RenderSettingsProps) {
             <ListItem>
               {icon}
               <div style={{width: '1rem'}} />
-              {title}
+              {title.toUpperCase()}
             </ListItem>
             {elements
               .sort((a, b) => stringComparator(a.label, b.label))

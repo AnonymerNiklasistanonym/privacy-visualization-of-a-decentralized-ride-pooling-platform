@@ -1,21 +1,24 @@
 'use client';
 
 // Package imports
-import {useEffect, useState} from 'react';
+import {useEffect, useMemo, useState} from 'react';
 import {useIntl} from 'react-intl';
 // > Components
-import {Box, ButtonGroup, Chip, Divider, Grid} from '@mui/material';
+import {Box, ButtonGroup, Chip, Divider} from '@mui/material';
 // Local imports
 import {fetchJsonEndpoint, fetchTextEndpoint} from '@misc/fetch';
 // > Components
 import {
+  ConnectedElementsIcon,
   ParticipantCustomerIcon,
   ParticipantRideProviderIcon,
 } from '@components/Icons';
+import CardParticipant from '@components/Card/CardParticipant';
+import CardRideRequest from '@components/Card/CardRideRequest';
 import GenericButton from '@components/Button/GenericButton';
-import GridConnectedElements from '@components/Grid/GridConnectedElements';
+import GridConnectedElementsLayout from '@components/Grid/GridConnectedElementsLayout';
 import Map from '@components/Map';
-import SearchBarBeta from '../../TextInput/SearchBarBeta';
+import SearchBar from '@components/TextInput/SearchBar';
 import SectionChangeSpectator from './SectionChangeSpectator';
 import TabContainer from '@components/Tab/TabContainer';
 import TableDebugData from '@components/Table/TableDebugData';
@@ -28,6 +31,10 @@ import {
 import '@styles/Map.module.scss';
 import styles from '@styles/Map.module.scss';
 // Type imports
+import type {
+  ConnectedElementSection,
+  DismissibleElement,
+} from '@components/Grid/GridConnectedElementsLayout';
 import type {
   GlobalPropsFetch,
   GlobalPropsParticipantSelectedElements,
@@ -52,6 +59,7 @@ import type {
 import type {DebugData} from '@components/Table/DebugData';
 import type {MapProps} from '@components/Map';
 import type {PathfinderEndpointGraphInformation} from '@globals/types/pathfinder';
+import type {ReactElement} from 'react';
 import type {SettingsMapProps} from '@misc/props/settings';
 
 export interface TabMapProps
@@ -102,8 +110,6 @@ export default function TabMap(props: TabMapProps) {
       edges: [],
       vertices: [],
     });
-
-  const [stateSelectedElementCount, setStateSelectedElementCount] = useState(0);
 
   const fetchGraphs = (clear = false) => {
     if (clear === true) {
@@ -282,7 +288,6 @@ export default function TabMap(props: TabMapProps) {
 
   const propsTabMap = {
     ...props,
-    setStateSelectedElementCount,
     showRideRequest: true,
     stateGraph,
     stateGraphPathfinder,
@@ -300,6 +305,146 @@ export default function TabMap(props: TabMapProps) {
     };
   });
 
+  const stateDismissibleElements = useMemo<Array<DismissibleElement>>(
+    () => [],
+    []
+  );
+
+  const stateConnectedElements = useMemo<Array<ConnectedElementSection>>(() => {
+    const selectedElements: Array<ReactElement> = [];
+    if (
+      props.stateSelectedParticipantTypeGlobal === 'customer' &&
+      props.stateSelectedParticipantCustomerInformationGlobal !== undefined
+    ) {
+      selectedElements.push(
+        <CardParticipant
+          {...props}
+          participantType={props.stateSelectedParticipantTypeGlobal}
+          stateCustomerInformation={
+            props.stateSelectedParticipantCustomerInformationGlobal
+          }
+          stateRideProviderInformation={null}
+          stateParticipantId={
+            props.stateSelectedParticipantCustomerInformationGlobal.id
+          }
+          label={intl.formatMessage(
+            {
+              id: 'getacar.spectator.message.lastSelected',
+            },
+            {
+              name: intl.formatMessage({
+                id: 'getacar.participant.customer',
+              }),
+            }
+          )}
+        />
+      );
+    }
+    if (
+      props.stateSelectedParticipantTypeGlobal === 'ride_provider' &&
+      props.stateSelectedParticipantRideProviderInformationGlobal !== undefined
+    ) {
+      selectedElements.push(
+        <CardParticipant
+          {...props}
+          participantType={props.stateSelectedParticipantTypeGlobal}
+          stateCustomerInformation={null}
+          stateRideProviderInformation={
+            props.stateSelectedParticipantRideProviderInformationGlobal
+          }
+          stateParticipantId={
+            props.stateSelectedParticipantRideProviderInformationGlobal.id
+          }
+          label={intl.formatMessage(
+            {
+              id: 'getacar.spectator.message.lastSelected',
+            },
+            {
+              name: intl.formatMessage({
+                id: 'getacar.participant.rideProvider',
+              }),
+            }
+          )}
+        />
+      );
+    }
+    if (
+      props.stateSelectedParticipantRideRequestInformationGlobal !== undefined
+    ) {
+      selectedElements.push(
+        <CardRideRequest
+          {...props}
+          stateRideRequestInformation={
+            props.stateSelectedParticipantRideRequestInformationGlobal
+          }
+          label={intl.formatMessage(
+            {
+              id: 'getacar.spectator.message.connected',
+            },
+            {
+              name: intl.formatMessage({
+                id: 'getacar.rideRequest',
+              }),
+            }
+          )}
+        />
+      );
+    }
+    if (
+      props.stateSelectedParticipantTypeGlobal !== 'ride_provider' &&
+      props.stateSelectedParticipantRideProviderInformationGlobal !== undefined
+    ) {
+      selectedElements.push(
+        <CardParticipant
+          {...props}
+          participantType={
+            props.stateSelectedParticipantRideProviderInformationGlobal.type
+          }
+          stateCustomerInformation={null}
+          stateRideProviderInformation={
+            props.stateSelectedParticipantRideProviderInformationGlobal
+          }
+          stateParticipantId={
+            props.stateSelectedParticipantRideProviderInformationGlobal.id
+          }
+          label={intl.formatMessage({
+            id: 'getacar.spectator.message.driver',
+          })}
+        />
+      );
+    }
+    if (
+      props.stateSelectedParticipantTypeGlobal !== 'customer' &&
+      props.stateSelectedParticipantCustomerInformationGlobal !== undefined
+    ) {
+      selectedElements.push(
+        <CardParticipant
+          {...props}
+          participantType={
+            props.stateSelectedParticipantCustomerInformationGlobal.type
+          }
+          stateCustomerInformation={
+            props.stateSelectedParticipantCustomerInformationGlobal
+          }
+          stateRideProviderInformation={null}
+          stateParticipantId={
+            props.stateSelectedParticipantCustomerInformationGlobal.id
+          }
+          label={intl.formatMessage({
+            id: 'getacar.spectator.message.passenger',
+          })}
+        />
+      );
+    }
+    return [
+      {
+        elements: selectedElements,
+        icon: <ConnectedElementsIcon fontSize="large" />,
+        title: 'Connected Elements',
+      },
+    ];
+  }, [intl, props]);
+
   return (
     <TabContainer fullPage={true}>
       <Box
@@ -314,33 +459,27 @@ export default function TabMap(props: TabMapProps) {
         <SectionChangeSpectator {...props} />
       </Box>
       <Box component="section" className={styles['tab-map']}>
-        <Grid container spacing={2} justifyContent="left" alignItems="stretch">
-          <Grid
-            item
-            xs={12}
-            sm={12}
-            md={stateSelectedElementCount === 0 ? 12 : 6}
-            xl={
-              stateSelectedElementCount === 0
-                ? 12
-                : stateSelectedElementCount === 1
-                  ? 9
-                  : 6
-            }
+        <GridConnectedElementsLayout
+          stateConnectedElements={stateConnectedElements}
+          stateDismissibleElements={stateDismissibleElements}
+        >
+          <SearchBar
+            placeholder="TODO: Search map"
+            {...props}
+            {...propsTabMap}
+          />
+          <Box
+            sx={{
+              height: 'calc(100vh - 14.25rem)',
+            }}
           >
-            <SearchBarBeta
-              placeholder="TODO: Search map"
-              {...props}
-              {...propsTabMap}
-            />
             <Map
               {...props}
               {...propsTabMap}
               startPos={{lat: 48.7784485, long: 9.1800132, zoom: 11}}
             />
-          </Grid>
-          <GridConnectedElements {...props} {...propsTabMap} />
-        </Grid>
+          </Box>
+        </GridConnectedElementsLayout>
 
         <Box
           sx={{
