@@ -20,6 +20,11 @@ import type {
   ConnectedElementSection,
   DismissibleElement,
 } from '@components/Grid/GridConnectedElementsLayout';
+import type {
+  GlobalPropsParticipantSelectedElements,
+  GlobalPropsSearch,
+  GlobalPropsSpectatorMap,
+} from '@misc/props/global';
 import type {ReactElement} from 'react';
 import type {SettingsUiProps} from '@misc/props/settings';
 import type {TableBlockchainProps} from '@components/Table/TableBlockchain';
@@ -27,7 +32,10 @@ import type {TableBlockchainProps} from '@components/Table/TableBlockchain';
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface TabBlockchainProps
   extends TableBlockchainProps,
-    SettingsUiProps {}
+    SettingsUiProps,
+    GlobalPropsParticipantSelectedElements,
+    GlobalPropsSpectatorMap,
+    GlobalPropsSearch {}
 
 // eslint-disable-next-line no-empty-pattern
 export default function TabBlockchain(props: TabBlockchainProps) {

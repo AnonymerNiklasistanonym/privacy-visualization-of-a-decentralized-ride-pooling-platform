@@ -6,12 +6,10 @@ import {useEffect} from 'react';
 import {Box, Modal} from '@mui/material';
 // Local imports
 // > Components
-import GridConnectedElements from '@components/Grid/GridConnectedElements';
 import TableBlockchainElement from '@components/Table/TableBlockchain/TableBlockchainElement';
 // Type imports
 import type {ReactSetState, ReactState} from '@misc/react';
 import type {ChangeViewButtonProps} from '@components/Button/ChangeViewButton';
-import type {GridConnectedElementsProps} from '@components/Grid/GridConnectedElements';
 import type {SimulationEndpointSmartContractInformation} from '@globals/types/simulation';
 
 export interface RideRequestModalInformation {
@@ -22,9 +20,7 @@ export interface RideRequestModalPropsSetStates {
   setStateRideRequestModalOpen: ReactSetState<boolean>;
 }
 
-export interface RideRequestModalProps
-  extends ChangeViewButtonProps,
-    GridConnectedElementsProps {}
+export type RideRequestModalProps = ChangeViewButtonProps;
 
 export interface RideRequestModalPropsInput
   extends RideRequestModalProps,
@@ -85,7 +81,6 @@ export default function RideRequestModal(props: RideRequestModalPropsInput) {
               {...props}
               stateSmartContract={stateRideRequestModalContent.smartContract}
             />
-            <GridConnectedElements {...props} />
           </>
         ) : undefined}
       </Box>

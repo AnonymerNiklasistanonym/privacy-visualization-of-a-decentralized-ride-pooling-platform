@@ -314,12 +314,13 @@ export default function TabMap(props: TabMapProps) {
   );
 
   const stateConnectedElements = useMemo<Array<ConnectedElementSection>>(() => {
-    const selectedElements: Array<ReactElement> = [];
+    const selectedParticipants: Array<ReactElement> = [];
+    const selectedContracts: Array<ReactElement> = [];
     if (
       props.stateSelectedParticipantTypeGlobal === 'customer' &&
       props.stateSelectedParticipantCustomerInformationGlobal !== undefined
     ) {
-      selectedElements.push(
+      selectedParticipants.push(
         <CardParticipant
           {...props}
           participantType={props.stateSelectedParticipantTypeGlobal}
@@ -347,7 +348,7 @@ export default function TabMap(props: TabMapProps) {
       props.stateSelectedParticipantTypeGlobal === 'ride_provider' &&
       props.stateSelectedParticipantRideProviderInformationGlobal !== undefined
     ) {
-      selectedElements.push(
+      selectedParticipants.push(
         <CardParticipant
           {...props}
           participantType={props.stateSelectedParticipantTypeGlobal}
@@ -374,7 +375,7 @@ export default function TabMap(props: TabMapProps) {
     if (
       props.stateSelectedParticipantRideRequestInformationGlobal !== undefined
     ) {
-      selectedElements.push(
+      selectedContracts.push(
         <CardRideRequest
           {...props}
           stateRideRequestInformation={
@@ -397,7 +398,7 @@ export default function TabMap(props: TabMapProps) {
       props.stateSelectedParticipantTypeGlobal !== 'ride_provider' &&
       props.stateSelectedParticipantRideProviderInformationGlobal !== undefined
     ) {
-      selectedElements.push(
+      selectedParticipants.push(
         <CardParticipant
           {...props}
           participantType={
@@ -420,7 +421,7 @@ export default function TabMap(props: TabMapProps) {
       props.stateSelectedParticipantTypeGlobal !== 'customer' &&
       props.stateSelectedParticipantCustomerInformationGlobal !== undefined
     ) {
-      selectedElements.push(
+      selectedParticipants.push(
         <CardParticipant
           {...props}
           participantType={
@@ -441,9 +442,14 @@ export default function TabMap(props: TabMapProps) {
     }
     return [
       {
-        elements: selectedElements,
+        elements: selectedParticipants,
         icon: <ConnectedElementsIcon fontSize="large" />,
-        title: 'Connected Elements',
+        title: 'Connected Participants',
+      },
+      {
+        elements: selectedContracts,
+        icon: <ConnectedElementsIcon fontSize="large" />,
+        title: 'Connected Contracts',
       },
     ];
   }, [intl, props]);

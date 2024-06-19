@@ -109,7 +109,7 @@ export function OverviewElementSectionTitle({
   showTitle,
 }: PropsWithChildren<OverviewElementTitleProps>) {
   return showTitle ? (
-    <Typography variant="h4" id={id} gutterBottom>
+    <Typography variant="h5" id={id} gutterBottom>
       {icon} {children}
     </Typography>
   ) : undefined;
@@ -130,7 +130,7 @@ export function OverviewElementSectionHeadingTitle({
   showTitle,
 }: PropsWithChildren<OverviewElementTitleProps>) {
   return showTitle ? (
-    <Typography variant="h5" id={id} gutterBottom>
+    <Typography variant="h6" id={id} gutterBottom>
       {icon} {children}
     </Typography>
   ) : undefined;

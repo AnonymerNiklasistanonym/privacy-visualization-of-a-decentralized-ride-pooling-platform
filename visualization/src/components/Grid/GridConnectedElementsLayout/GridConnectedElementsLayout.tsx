@@ -3,16 +3,17 @@
 import {
   Badge,
   Card,
-  CardActions,
   CardContent,
-  Divider,
+  CardHeader,
   Grid,
   IconButton,
-  Paper,
-  Stack,
   Typography,
 } from '@mui/material';
-import {Clear as DismissIcon, Info as InfoIcon} from '@mui/icons-material';
+import {
+  Clear as DismissIcon,
+  ExpandLess as ExpandLessIcon,
+  Info as InfoIcon,
+} from '@mui/icons-material';
 import Masonry, {ResponsiveMasonry} from 'react-responsive-masonry';
 // Type imports
 import {PropsWithChildren, ReactElement} from 'react';
@@ -80,22 +81,20 @@ export default function GridConnectedElementsLayout({
                 <Masonry gutter={`${stateSettingsUiGridSpacing / 2}rem`}>
                   {stateDismissibleElements.map((element, index) => (
                     <Card key={index}>
+                      <CardHeader
+                        avatar={element.icon ?? <InfoIcon />}
+                        action={
+                          <IconButton aria-label="dismiss">
+                            <DismissIcon />
+                          </IconButton>
+                        }
+                        title={element.title.toUpperCase()}
+                      />
                       <CardContent>
-                        <Stack direction="row" alignItems="center" gap={1}>
-                          {element.icon ?? <InfoIcon />}
-                          <Typography gutterBottom variant="h5" component="div">
-                            {element.title}
-                          </Typography>
-                        </Stack>
                         <Typography variant="body2">
                           {element.description}
                         </Typography>
                       </CardContent>
-                      <CardActions>
-                        <IconButton aria-label="dismiss">
-                          <DismissIcon />
-                        </IconButton>
-                      </CardActions>
                     </Card>
                   ))}
                 </Masonry>
@@ -104,81 +103,60 @@ export default function GridConnectedElementsLayout({
           ) : undefined}
           {/* Connected elements */}
           <Grid item xs={12} md={12} xl={12}>
-            <Paper
-              sx={{
-                alignItems: 'center',
-                display: 'flex',
-                flexDirection: 'column',
-                margin: 0,
-                minHeight: {
-                  md: `calc(100vh - 9.25rem - ${
-                    (stateSettingsUiGridSpacing / 2) * 2
-                  }rem)`,
-                  xs: '100%',
-                },
-                overflow: {
-                  md: 'scroll',
-                  xs: 'auto',
-                },
-                padding: '1rem',
-                width: '100%',
-              }}
-              elevation={2}
+            <Grid
+              container
+              spacing={stateSettingsUiGridSpacing}
+              justifyContent="left"
+              alignItems="stretch"
             >
-              {stateConnectedElements.map(stateConnectedElement => (
-                <>
-                  <Grid
-                    key={stateConnectedElement.title}
-                    container
-                    spacing={stateSettingsUiGridSpacing}
-                  >
-                    <Grid item xs={12}>
-                      <Badge
-                        color="secondary"
-                        badgeContent={stateConnectedElement.elements.length}
-                        sx={{
-                          marginBottom: '1rem',
-                          marginTop: '0.5rem',
-                        }}
-                      >
-                        <Stack direction="row" alignItems="center" gap={1}>
-                          {stateConnectedElement.icon}
-                          <Typography variant="h6" component="div">
-                            {stateConnectedElement.title}
-                          </Typography>
-                        </Stack>
-                      </Badge>
-
-                      <ResponsiveMasonry
-                        columnsCountBreakPoints={{
-                          0: 1,
-                          600: 2,
-                          900: 1,
-                          1200: 2,
-                        }}
-                      >
-                        <Masonry
-                          gutter={`${stateSettingsUiGridSpacing / 2}rem`}
+              {stateConnectedElements
+                .filter(a => a.elements.length > 0)
+                .map(stateConnectedElement => (
+                  <Grid item xs={12} key={stateConnectedElement.title}>
+                    <Card>
+                      <CardHeader
+                        avatar={
+                          <Badge
+                            color="secondary"
+                            badgeContent={stateConnectedElement.elements.length}
+                            showZero
+                          >
+                            {stateConnectedElement.icon}
+                          </Badge>
+                        }
+                        title={stateConnectedElement.title.toUpperCase()}
+                        action={
+                          <IconButton aria-label="expand">
+                            <ExpandLessIcon />
+                          </IconButton>
+                        }
+                      />
+                      <CardContent>
+                        <ResponsiveMasonry
+                          columnsCountBreakPoints={{
+                            0: 1,
+                            600: 2,
+                            900: 1,
+                            1200: 2,
+                          }}
                         >
-                          {stateConnectedElement.elements.map(
-                            (element, index) => (
-                              <Card key={index}>
-                                <CardContent>{element}</CardContent>
-                              </Card>
-                            )
-                          )}
-                        </Masonry>
-                      </ResponsiveMasonry>
-                    </Grid>
+                          <Masonry
+                            gutter={`${stateSettingsUiGridSpacing / 2}rem`}
+                          >
+                            {stateConnectedElement.elements.map(
+                              (element, index) => (
+                                <Card key={index} variant="outlined">
+                                  <CardContent>{element}</CardContent>
+                                </Card>
+                              )
+                            )}
+                          </Masonry>
+                        </ResponsiveMasonry>
+                      </CardContent>
+                    </Card>
                   </Grid>
-                  <Divider
-                    key={stateConnectedElement.title + '-divider'}
-                    variant="fullWidth"
-                    component="div"
-                  />
-                </>
-              ))}
-            </Paper>
+                ))}
+            </Grid>
           </Grid>
         </Grid>
       </Grid>

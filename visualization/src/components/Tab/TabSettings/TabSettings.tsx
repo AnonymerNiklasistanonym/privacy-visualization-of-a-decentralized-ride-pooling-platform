@@ -9,6 +9,7 @@ import {
   Button,
   Card,
   CardContent,
+  CardHeader,
   FormControl,
   FormControlLabel,
   FormGroup,
@@ -240,6 +241,7 @@ export function RenderSettings({title, icon, elements}: RenderSettingsProps) {
   return (
     <Grid item xs={12} sm={6} md={4}>
       <Card>
+        <CardHeader avatar={icon} title={title.toUpperCase()} />
         <CardContent>
           <List
             sx={{
@@ -249,11 +251,6 @@ export function RenderSettings({title, icon, elements}: RenderSettingsProps) {
             }}
             subheader={<li />}
           >
-            <ListItem>
-              {icon}
-              <div style={{width: '1rem'}} />
-              {title.toUpperCase()}
-            </ListItem>
             {elements
               .sort((a, b) => stringComparator(a.label, b.label))
               .map(a => (

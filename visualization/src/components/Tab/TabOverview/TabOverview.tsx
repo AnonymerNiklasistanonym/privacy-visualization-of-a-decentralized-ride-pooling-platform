@@ -120,7 +120,7 @@ export default function TabOverview(propsInput: TabOverviewProps) {
         }}
       >
         <CardContent>
-          <Typography variant="h3" gutterBottom>
+          <Typography variant="h4" gutterBottom>
             {intl.formatMessage({id: 'project.name'}, intlValues)}
           </Typography>
           <Typography variant="subtitle1" gutterBottom>
