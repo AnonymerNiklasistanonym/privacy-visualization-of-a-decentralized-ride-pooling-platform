@@ -284,6 +284,8 @@ export function TabSettings({
   stateSettingsUiNavBarPosition,
   setStateSettingsUiGridSpacing,
   stateSettingsUiGridSpacing,
+  setStateSettingsUiMapScroll,
+  stateSettingsUiMapScroll,
   setStateThemeMode,
   stateThemeMode,
 }: TabSettingsProps) {
@@ -514,6 +516,14 @@ export function TabSettings({
             stateValue: stateSettingsUiGridSpacing,
             type: 'number',
           },
+          {
+            label: intl.formatMessage({
+              id: 'page.home.tab.settings.card.ui.mapPopupVerticalScroll',
+            }),
+            setStateValue: setStateSettingsUiMapScroll,
+            stateValue: stateSettingsUiMapScroll,
+            type: 'toggle',
+          },
         ],
         icon: <SettingsUiIcon />,
         title: intl.formatMessage({
@@ -567,6 +577,8 @@ export function TabSettings({
       stateSettingsUiNavBarPositionLocal,
       setStateSettingsUiGridSpacing,
       stateSettingsUiGridSpacing,
+      setStateSettingsUiMapScroll,
+      stateSettingsUiMapScroll,
     ]
   );
 

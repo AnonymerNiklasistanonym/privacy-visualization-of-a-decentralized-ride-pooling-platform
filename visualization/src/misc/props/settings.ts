@@ -43,6 +43,8 @@ export interface SettingsUiProps extends SettingsGlobalPropsSet {
   setStateSettingsUiNavBarPosition: Dispatch<'bottom' | 'top'>;
   stateSettingsUiGridSpacing: number;
   setStateSettingsUiGridSpacing: Dispatch<number>;
+  stateSettingsUiMapScroll: boolean;
+  setStateSettingsUiMapScroll: Dispatch<boolean>;
 }
 
 export interface SettingsProps

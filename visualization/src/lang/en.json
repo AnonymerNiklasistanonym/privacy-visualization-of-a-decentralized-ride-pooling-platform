@@ -96,6 +96,7 @@
   "page.home.title": "Visualization of the GETACAR Platform",
   "pathfinder": "Pathfinder",
   "project.description": "Visualization of the privacy aspects of the decentralized, privacy-preserving ride-pooling platform concept {GETACAR}",
+  "page.home.tab.settings.card.ui.mapPopupVerticalScroll": "Vertical scroll in map popups",
   "project.name": "Visualization of a privacy focused ride pooling platform concept ({GETACAR})",
   "simulation": "Simulation",
   "theme.dark": "Dark",

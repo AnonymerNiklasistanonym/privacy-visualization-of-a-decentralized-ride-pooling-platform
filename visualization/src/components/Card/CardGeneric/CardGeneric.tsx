@@ -28,6 +28,10 @@ export interface CardGenericProps {
   label?: string;
   /** A label that should be displayed above all content */
   onDelete?: () => void;
+  /** Restrict card height via a scrollable overflow option */
+  scrollHeight?: string;
+  /** Restrict card width */
+  maxWidth?: string;
 }
 
 export interface CardGenericPropsInput extends CardGenericProps {
@@ -44,13 +48,26 @@ export interface CardGenericPropsInput extends CardGenericProps {
 }
 
 export default function CardGeneric(props: CardGenericPropsInput) {
-  const {label, icon, name, status, id, content, onDelete} = props;
+  const {
+    label,
+    icon,
+    name,
+    status,
+    id,
+    content,
+    onDelete,
+    scrollHeight,
+    maxWidth,
+  } = props;
   return (
     <Box display="flex" justifyContent="left">
       <Box
         component="section"
         sx={{
-          maxWidth: '800px',
+          maxHeight: scrollHeight,
+          maxWidth,
+          overflowX: 'hidden',
+          overflowY: 'scroll',
           width: '100%',
         }}
       >
@@ -91,31 +108,29 @@ export default function CardGeneric(props: CardGenericPropsInput) {
             />
           ) : undefined}
         </Stack>
-        {content.map(a => {
-          return (
-            <>
-              {a.label ? (
-                <Divider>
-                  <Chip
-                    icon={a.labelIcon ?? undefined}
-                    label={a.label}
-                    size="small"
-                  />
-                </Divider>
-              ) : undefined}
-              {a.content === null ? (
-                <Box
-                  sx={{display: 'flex', width: '100%'}}
-                  justifyContent="center"
-                >
-                  <CircularProgress />
-                </Box>
-              ) : (
-                a.content
-              )}
-            </>
-          );
-        })}
+        {content.map((a, index) => (
+          <div key={index}>
+            {a.label ? (
+              <Divider>
+                <Chip
+                  icon={a.labelIcon ?? undefined}
+                  label={a.label}
+                  size="small"
+                />
+              </Divider>
+            ) : undefined}
+            {a.content === null ? (
+              <Box
+                sx={{display: 'flex', width: '100%'}}
+                justifyContent="center"
+              >
+                <CircularProgress />
+              </Box>
+            ) : (
+              a.content
+            )}
+          </div>
+        ))}
       </Box>
     </Box>
   );

@@ -40,6 +40,7 @@ import type {
   GlobalPropsSpectatorSelectedElements,
   GlobalPropsSpectatorSelectedElementsSet,
 } from '@misc/props/global';
+import type {SettingsMapProps, SettingsUiProps} from '@misc/props/settings';
 import type {
   SimulationEndpointGraphInformation,
   SimulationEndpointParticipantCoordinates,
@@ -47,7 +48,6 @@ import type {
 import type {Dispatch} from 'react';
 import type {PathfinderEndpointGraphInformation} from '@globals/types/pathfinder';
 import type {ReactState} from '@misc/react';
-import type {SettingsMapProps} from '@misc/props/settings';
 
 export interface StatPos {
   lat: number;
@@ -57,6 +57,7 @@ export interface StatPos {
 
 export interface MapProps
   extends SettingsMapProps,
+    SettingsUiProps,
     GlobalPropsFetch,
     GlobalPropsShowError,
     GlobalPropsParticipantSelectedElements,
@@ -143,7 +144,9 @@ export default function Map(props: MapPropsInput) {
                 <ParticipantMarker
                   {...props}
                   key={`customer_marker_${customer.id}`}
-                  stateParticipantCoordinates={customer}
+                  stateParticipantId={customer.id}
+                  stateParticipantLat={customer.lat}
+                  stateParticipantLong={customer.long}
                   participantType="customer"
                 />
               ))}
@@ -159,7 +162,9 @@ export default function Map(props: MapPropsInput) {
                   <ParticipantMarker
                     {...props}
                     key={`ride_provider_marker_${rideProvider.id}`}
-                    stateParticipantCoordinates={rideProvider}
+                    stateParticipantId={rideProvider.id}
+                    stateParticipantLat={rideProvider.lat}
+                    stateParticipantLong={rideProvider.long}
                     participantType="ride_provider"
                   />
                 )

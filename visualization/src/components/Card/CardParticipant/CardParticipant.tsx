@@ -1,3 +1,5 @@
+// Package imports
+import {memo} from 'react';
 // Local imports
 import cardParticipantContentCustomer from './cardParticipantContentCustomer';
 import cardParticipantContentRideProvider from './cardParticipantContentRideProvider';
@@ -28,7 +30,9 @@ export interface CardParticipantProps
   showRideRequest?: boolean;
 }
 
-export default function CardParticipant(props: CardParticipantProps) {
+export default memo(CardParticipant);
+
+export function CardParticipant(props: CardParticipantProps) {
   const {
     stateParticipantId,
     stateCustomerInformation,

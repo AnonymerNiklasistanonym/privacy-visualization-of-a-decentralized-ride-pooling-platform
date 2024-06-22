@@ -1,7 +1,7 @@
 'use client';
 
 // Package imports
-import {ReactNode, useEffect, useRef, useState} from 'react';
+import {memo, useEffect, useRef, useState} from 'react';
 // > Components
 import {
   Circle,
@@ -36,6 +36,7 @@ import type {
   GlobalPropsSpectatorSelectedElementsSet,
 } from '@misc/props/global';
 import type {ReactSetState, ReactState} from '@misc/react';
+import type {SettingsMapProps, SettingsUiProps} from '@misc/props/settings';
 import type {
   SimulationEndpointParticipantIdFromPseudonym,
   SimulationEndpointParticipantInformationCustomer,
@@ -44,8 +45,7 @@ import type {
   SimulationEndpointRideRequestInformation,
 } from '@globals/types/simulation';
 import type {Marker as LMarker} from 'leaflet';
-import type {SettingsMapProps} from '@misc/props/settings';
-import type {SimulationEndpointParticipantCoordinatesParticipant} from '@globals/types/simulation';
+import type {ReactNode} from 'react';
 
 interface ParticipantMarkerProps
   extends GlobalPropsSpectatorSelectedElementsSet,
@@ -54,9 +54,12 @@ interface ParticipantMarkerProps
     GlobalPropsParticipantSelectedElementsSet,
     GlobalPropsFetch,
     GlobalPropsShowError,
-    SettingsMapProps {
+    SettingsMapProps,
+    SettingsUiProps {
   /** The participant ID and current coordinates */
-  stateParticipantCoordinates: ReactState<SimulationEndpointParticipantCoordinatesParticipant>;
+  stateParticipantId: string;
+  stateParticipantLong: number;
+  stateParticipantLat: number;
   /** The participant ID and current coordinates */
   participantType: SimulationEndpointParticipantTypes;
 }
@@ -66,14 +69,16 @@ interface ParticipantMarkerProps
 //const colorActiveRideProvider = 'blue';
 const rideRequestColor = 'blue';
 
+export default memo(ParticipantMarker);
+
 /**
  * Marker that represents a participant on the map.
  * On click it opens a popup element which allows further interaction and prints detailed information.
  * The displayed content changes depending on who the current spectator is.
  */
-export default function ParticipantMarker(props: ParticipantMarkerProps) {
+export function ParticipantMarker(props: ParticipantMarkerProps) {
   const {
-    stateParticipantCoordinates,
+    stateParticipantId,
     stateSpectator,
     participantType,
     stateSelectedParticipant,
@@ -113,7 +118,7 @@ export default function ParticipantMarker(props: ParticipantMarkerProps) {
       const customerInformation =
         await fetchJsonSimulation<SimulationEndpointParticipantInformationCustomer>(
           simulationEndpoints.apiV1.participantInformationCustomer(
-            stateParticipantCoordinates.id
+            stateParticipantId
           )
         );
       setStateCustomerInformation(customerInformation);
@@ -126,7 +131,7 @@ export default function ParticipantMarker(props: ParticipantMarkerProps) {
       const rideProviderInformation =
         await fetchJsonSimulation<SimulationEndpointParticipantInformationRideProvider>(
           simulationEndpoints.apiV1.participantInformationRideProvider(
-            stateParticipantCoordinates.id
+            stateParticipantId
           )
         );
       setStateRideProviderInformation(rideProviderInformation);
@@ -194,9 +199,9 @@ export default function ParticipantMarker(props: ParticipantMarkerProps) {
       if (
         statePopupOpen ||
         stateSelectedParticipantCustomerInformationGlobal?.id ===
-          stateParticipantCoordinates.id ||
+          stateParticipantId ||
         stateSelectedParticipantRideProviderInformationGlobal?.id ===
-          stateParticipantCoordinates.id
+          stateParticipantId
       ) {
         fetchParticipantInformation().catch(err =>
           showError('Simulation fetch participant information', err)
@@ -210,16 +215,15 @@ export default function ParticipantMarker(props: ParticipantMarkerProps) {
 
   const showRideRequest =
     stateSelectedRideRequest === stateRideRequestInformation?.id ||
-    stateSpectator === stateParticipantCoordinates.id;
+    stateSpectator === stateParticipantId;
   const showParticipant =
-    stateSelectedParticipant === stateParticipantCoordinates.id ||
-    stateSpectator === stateParticipantCoordinates.id ||
+    stateSelectedParticipant === stateParticipantId ||
+    stateSpectator === stateParticipantId ||
     showRideRequest ||
     (showRideRequest &&
-      stateRideRequestAuctionRideProviderId ===
-        stateParticipantCoordinates.id) ||
+      stateRideRequestAuctionRideProviderId === stateParticipantId) ||
     (showRideRequest &&
-      stateRideRequestAuctionCustomerId === stateParticipantCoordinates.id);
+      stateRideRequestAuctionCustomerId === stateParticipantId);
 
   return (
     <ParticipantMarkerElement
@@ -246,7 +250,9 @@ interface ParticipantMarkerElementProps extends ParticipantMarkerProps {
 
 export function ParticipantMarkerElement(props: ParticipantMarkerElementProps) {
   const {
-    stateParticipantCoordinates,
+    stateParticipantId,
+    stateParticipantLong,
+    stateParticipantLat,
     participantType,
     stateSettingsMapShowTooltips,
     setStateSelectedParticipant,
@@ -261,6 +267,7 @@ export function ParticipantMarkerElement(props: ParticipantMarkerElementProps) {
     setStateSelectedParticipantTypeGlobal,
     stateSelectedSpectator,
     setStateSelectedSpectator,
+    stateSettingsUiMapScroll,
   } = props;
   const elementsToRender: Array<ReactNode> = [];
 
@@ -269,17 +276,14 @@ export function ParticipantMarkerElement(props: ParticipantMarkerElementProps) {
 
   useEffect(() => {
     // In case the spectator of this marker is freshly selected open the popup
-    if (stateSelectedSpectator === stateParticipantCoordinates.id) {
+    if (stateSelectedSpectator === stateParticipantId) {
       // Select this participant
-      setStateSelectedParticipant(stateParticipantCoordinates.id);
+      setStateSelectedParticipant(stateParticipantId);
       setStateSelectedParticipantTypeGlobal(participantType);
       // Fly to marker
-      map.panTo(
-        [stateParticipantCoordinates.lat, stateParticipantCoordinates.long],
-        {
-          duration: 2,
-        }
-      );
+      map.panTo([stateParticipantLat, stateParticipantLong], {
+        duration: 2,
+      });
       // Open marker popup
       const marker = markerRef.current;
       if (marker) {
@@ -296,22 +300,21 @@ export function ParticipantMarkerElement(props: ParticipantMarkerElementProps) {
     stateSelectedSpectator,
     setStateSelectedSpectator,
     setStatePopupOpen,
-    stateParticipantCoordinates,
+    stateParticipantLat,
+    stateParticipantLong,
     map,
     participantType,
     setStateSelectedParticipant,
     setStateSelectedParticipantTypeGlobal,
+    stateParticipantId,
   ]);
 
   // Icon that shows the current position of the participant
   elementsToRender.push(
     <Marker
-      key={`customer_${stateParticipantCoordinates.id}`}
+      key={`customer_${stateParticipantId}`}
       ref={markerRef}
-      position={[
-        stateParticipantCoordinates.lat,
-        stateParticipantCoordinates.long,
-      ]}
+      position={[stateParticipantLat, stateParticipantLong]}
       icon={
         // If participant is not relevant use gray icon
         participantType === 'customer'
@@ -324,7 +327,7 @@ export function ParticipantMarkerElement(props: ParticipantMarkerElementProps) {
       }
       eventHandlers={{
         click: () => {
-          setStateSelectedParticipant(stateParticipantCoordinates.id);
+          setStateSelectedParticipant(stateParticipantId);
           setStateSelectedParticipantTypeGlobal(participantType);
         },
         popupclose: () => setStatePopupOpen(false),
@@ -340,7 +343,7 @@ export function ParticipantMarkerElement(props: ParticipantMarkerElementProps) {
       {stateSettingsMapShowTooltips ? (
         // Show tooltip if enabled
         <Tooltip direction="bottom" offset={[0, 0]} opacity={1} permanent>
-          {participantType} {stateParticipantCoordinates.id}
+          {participantType} {stateParticipantId}
         </Tooltip>
       ) : (
         <></>
@@ -348,7 +351,9 @@ export function ParticipantMarkerElement(props: ParticipantMarkerElementProps) {
       <Popup className={styles['leaflet-popup-content-wrapper']}>
         <CardParticipant
           {...props}
-          stateParticipantId={stateParticipantCoordinates.id}
+          stateParticipantId={stateParticipantId}
+          scrollHeight={stateSettingsUiMapScroll ? '50vh' : undefined}
+          maxWidth={'30vw'}
         />
       </Popup>
     </Marker>
@@ -419,7 +424,7 @@ export function ParticipantMarkerElement(props: ParticipantMarkerElementProps) {
       ].map(([name, coordinates]) =>
         coordinates !== null ? (
           <Polyline
-            key={`route_${name}_${stateParticipantCoordinates.id}`}
+            key={`route_${name}_${stateParticipantId}`}
             positions={coordinates.map(a => [a.lat, a.long])}
             color={name === 'current' ? 'blue' : 'gray'}
             weight={3}

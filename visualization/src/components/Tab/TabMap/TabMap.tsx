@@ -86,7 +86,6 @@ export default function TabMap(props: TabMapProps) {
     stateSettingsMapBaseUrlSimulation,
     stateSettingsMapUpdateRateInMs,
     stateSettingsUiGridSpacing,
-    setStateSettingsUiGridSpacing,
     updateGlobalSearch,
   } = props;
 
@@ -308,10 +307,7 @@ export default function TabMap(props: TabMapProps) {
     };
   });
 
-  const stateDismissibleElements = useMemo<Array<InfoElement>>(
-    () => [],
-    []
-  );
+  const stateDismissibleElements = useMemo<Array<InfoElement>>(() => [], []);
 
   const stateConnectedElements = useMemo<Array<ConnectedElementSection>>(() => {
     const selectedParticipants: Array<ReactElement> = [];
