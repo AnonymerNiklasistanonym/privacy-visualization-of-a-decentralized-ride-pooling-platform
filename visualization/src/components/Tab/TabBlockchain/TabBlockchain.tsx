@@ -18,7 +18,7 @@ import TableBlockchain from '@components/Table/TableBlockchain';
 // Type imports
 import type {
   ConnectedElementSection,
-  DismissibleElement,
+  InfoElement,
 } from '@components/Grid/GridConnectedElementsLayout';
 import type {
   GlobalPropsParticipantSelectedElements,
@@ -177,7 +177,7 @@ export default function TabBlockchain(props: TabBlockchainProps) {
     ];
   }, [intl, props]);
 
-  const stateDismissibleElements = useMemo<Array<DismissibleElement>>(
+  const stateDismissibleElements = useMemo<Array<InfoElement>>(
     () => [
       {
         description: intl.formatMessage({
@@ -213,7 +213,7 @@ export default function TabBlockchain(props: TabBlockchainProps) {
       <GridConnectedElementsLayout
         stateSettingsUiGridSpacing={stateSettingsUiGridSpacing}
         stateConnectedElements={stateConnectedElements}
-        stateDismissibleElements={stateDismissibleElements}
+        stateInfoElements={stateDismissibleElements}
       >
         <Grid container spacing={stateSettingsUiGridSpacing}>
           <Grid item xs={12}>

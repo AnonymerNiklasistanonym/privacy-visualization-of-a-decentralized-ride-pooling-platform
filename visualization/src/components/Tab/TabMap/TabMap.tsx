@@ -33,7 +33,7 @@ import styles from '@styles/Map.module.scss';
 // Type imports
 import type {
   ConnectedElementSection,
-  DismissibleElement,
+  InfoElement,
 } from '@components/Grid/GridConnectedElementsLayout';
 import type {
   GlobalPropsFetch,
@@ -308,7 +308,7 @@ export default function TabMap(props: TabMapProps) {
     };
   });
 
-  const stateDismissibleElements = useMemo<Array<DismissibleElement>>(
+  const stateDismissibleElements = useMemo<Array<InfoElement>>(
     () => [],
     []
   );
@@ -472,7 +472,7 @@ export default function TabMap(props: TabMapProps) {
         <GridConnectedElementsLayout
           stateSettingsUiGridSpacing={stateSettingsUiGridSpacing}
           stateConnectedElements={stateConnectedElements}
-          stateDismissibleElements={stateDismissibleElements}
+          stateInfoElements={stateDismissibleElements}
         >
           <Grid container spacing={stateSettingsUiGridSpacing}>
             <Grid item xs={12}>

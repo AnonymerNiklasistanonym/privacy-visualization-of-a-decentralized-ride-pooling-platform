@@ -1,22 +1,10 @@
 // Package imports
 // > Components
-import {
-  Badge,
-  Card,
-  CardContent,
-  CardHeader,
-  Grid,
-  IconButton,
-  Typography,
-} from '@mui/material';
-import {
-  Clear as DismissIcon,
-  ExpandLess as ExpandLessIcon,
-  Info as InfoIcon,
-} from '@mui/icons-material';
+import {Badge, Card, CardContent, Grid, Typography} from '@mui/material';
 import Masonry, {ResponsiveMasonry} from 'react-responsive-masonry';
 // Type imports
 import {PropsWithChildren, ReactElement} from 'react';
+import {GridConnectedElementsCard} from './GridConnectedElementsCard';
 
 export interface ConnectedElementSection {
   /** Title of the connected element section */
@@ -26,7 +14,7 @@ export interface ConnectedElementSection {
   elements: Array<ReactElement>;
 }
 
-export interface DismissibleElement {
+export interface InfoElement {
   title: string;
   icon?: ReactElement;
   description: string;
@@ -36,7 +24,7 @@ export interface GridConnectedElementsLayoutProps {
   /** Content related connected elements */
   stateConnectedElements: Array<ConnectedElementSection>;
   /** Content related temporary elements that can be dismissed */
-  stateDismissibleElements: Array<DismissibleElement>;
+  stateInfoElements: Array<InfoElement>;
   /** The spacing between elements */
   stateSettingsUiGridSpacing: number;
 }
@@ -44,7 +32,7 @@ export interface GridConnectedElementsLayoutProps {
 export default function GridConnectedElementsLayout({
   children,
   stateConnectedElements,
-  stateDismissibleElements,
+  stateInfoElements,
   stateSettingsUiGridSpacing,
 }: PropsWithChildren<GridConnectedElementsLayoutProps>) {
   console.log('stateSettingsUiGridSpacing', stateSettingsUiGridSpacing);
@@ -67,41 +55,6 @@ export default function GridConnectedElementsLayout({
           justifyContent="left"
           alignItems="stretch"
         >
-          {/* Temporary elements */}
-          {stateDismissibleElements.length > 0 ? (
-            <Grid item xs={12} md={12} xl={12}>
-              <ResponsiveMasonry
-                columnsCountBreakPoints={{
-                  0: 1,
-                  600: 2,
-                  900: 1,
-                  1200: 2,
-                }}
-              >
-                <Masonry gutter={`${stateSettingsUiGridSpacing / 2}rem`}>
-                  {stateDismissibleElements.map((element, index) => (
-                    <Card key={index}>
-                      <CardHeader
-                        avatar={element.icon ?? <InfoIcon />}
-                        action={
-                          <IconButton aria-label="dismiss">
-                            <DismissIcon />
-                          </IconButton>
-                        }
-                        title={element.title.toUpperCase()}
-                      />
-                      <CardContent>
-                        <Typography variant="body2">
-                          {element.description}
-                        </Typography>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </Masonry>
-              </ResponsiveMasonry>
-            </Grid>
-          ) : undefined}
-          {/* Connected elements */}
           <Grid item xs={12} md={12} xl={12}>
             <Grid
               container
@@ -109,51 +62,58 @@ export default function GridConnectedElementsLayout({
               justifyContent="left"
               alignItems="stretch"
             >
+              {stateInfoElements.map((element, index) => (
+                <Grid item xs={12} key={index + element.title}>
+                  <GridConnectedElementsCard
+                    icon={element.icon}
+                    title={element.title}
+                  >
+                    <Typography variant="body2">
+                      {element.description}
+                    </Typography>
+                  </GridConnectedElementsCard>
+                </Grid>
+              ))}
               {stateConnectedElements
                 .filter(a => a.elements.length > 0)
                 .map(stateConnectedElement => (
                   <Grid item xs={12} key={stateConnectedElement.title}>
-                    <Card>
-                      <CardHeader
-                        avatar={
-                          <Badge
-                            color="secondary"
-                            badgeContent={stateConnectedElement.elements.length}
-                            showZero
-                          >
-                            {stateConnectedElement.icon}
-                          </Badge>
-                        }
-                        title={stateConnectedElement.title.toUpperCase()}
-                        action={
-                          <IconButton aria-label="expand">
-                            <ExpandLessIcon />
-                          </IconButton>
-                        }
-                      />
-                      <CardContent>
-                        <ResponsiveMasonry
-                          columnsCountBreakPoints={{
-                            0: 1,
-                            600: 2,
-                            900: 1,
-                            1200: 2,
-                          }}
+                    <GridConnectedElementsCard
+                      icon={
+                        <Badge
+                          color="secondary"
+                          badgeContent={stateConnectedElement.elements.length}
+                          showZero
                         >
-                          <Masonry
-                            gutter={`${stateSettingsUiGridSpacing / 2}rem`}
-                          >
-                            {stateConnectedElement.elements.map(
-                              (element, index) => (
-                                <Card key={index} variant="outlined">
-                                  <CardContent>{element}</CardContent>
-                                </Card>
-                              )
-                            )}
-                          </Masonry>
-                        </ResponsiveMasonry>
-                      </CardContent>
-                    </Card>
+                          {stateConnectedElement.icon}
+                        </Badge>
+                      }
+                      title={stateConnectedElement.title}
+                      onExtend={extend => {
+                        console.log('ACTION: EXTEND', extend);
+                      }}
+                    >
+                      <ResponsiveMasonry
+                        columnsCountBreakPoints={{
+                          0: 1,
+                          600: 2,
+                          900: 1,
+                          1200: 2,
+                        }}
+                      >
+                        <Masonry
+                          gutter={`${stateSettingsUiGridSpacing / 2}rem`}
+                        >
+                          {stateConnectedElement.elements.map(
+                            (element, index) => (
+                              <Card key={index} variant="outlined">
+                                <CardContent>{element}</CardContent>
+                              </Card>
+                            )
+                          )}
+                        </Masonry>
+                      </ResponsiveMasonry>
+                    </GridConnectedElementsCard>
                   </Grid>
                 ))}
             </Grid>
