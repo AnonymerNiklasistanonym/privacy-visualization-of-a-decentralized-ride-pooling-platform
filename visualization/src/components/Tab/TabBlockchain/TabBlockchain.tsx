@@ -177,7 +177,7 @@ export default function TabBlockchain(props: TabBlockchainProps) {
     ];
   }, [intl, props]);
 
-  const stateDismissibleElements = useMemo<Array<InfoElement>>(
+  const stateInfoElements = useMemo<Array<InfoElement>>(
     () => [
       {
         description: intl.formatMessage({
@@ -213,7 +213,7 @@ export default function TabBlockchain(props: TabBlockchainProps) {
       <GridConnectedElementsLayout
         stateSettingsUiGridSpacing={stateSettingsUiGridSpacing}
         stateConnectedElements={stateConnectedElements}
-        stateInfoElements={stateDismissibleElements}
+        stateInfoElements={stateInfoElements}
       >
         <Grid container spacing={stateSettingsUiGridSpacing}>
           <Grid item xs={12}>

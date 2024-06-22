@@ -8,6 +8,7 @@ import {
   CardContent,
   CardHeader,
   Collapse,
+  Grid,
   IconButton,
 } from '@mui/material';
 import {
@@ -21,6 +22,7 @@ import type {PropsWithChildren, ReactElement} from 'react';
 export interface GridConnectedElementsCardProps {
   title: string;
   icon?: ReactElement;
+  muiGridItemSize?: number;
   onDismiss?: () => void;
   onExtend?: (extend: boolean) => void;
 }
@@ -31,6 +33,7 @@ export function GridConnectedElementsCard({
   icon,
   title,
   children,
+  muiGridItemSize,
   onDismiss,
   onExtend,
 }: PropsWithChildren<GridConnectedElementsCardProps>) {
@@ -63,7 +66,8 @@ export function GridConnectedElementsCard({
       </IconButton>
     );
   }
-  return stateShow ? (
+
+  const card = (
     <Card>
       <CardHeader
         avatar={icon ?? <InfoIcon />}
@@ -74,5 +78,17 @@ export function GridConnectedElementsCard({
         <CardContent>{children}</CardContent>
       </Collapse>
     </Card>
-  ) : undefined;
+  );
+
+  if (stateShow) {
+    if (muiGridItemSize !== undefined) {
+      return (
+        <Grid item xs={muiGridItemSize}>
+          {card}
+        </Grid>
+      );
+    }
+    return card;
+  }
+  return undefined;
 }

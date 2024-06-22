@@ -63,58 +63,57 @@ export default function GridConnectedElementsLayout({
               alignItems="stretch"
             >
               {stateInfoElements.map((element, index) => (
-                <Grid item xs={12} key={index + element.title}>
-                  <GridConnectedElementsCard
-                    icon={element.icon}
-                    title={element.title}
-                  >
-                    <Typography variant="body2">
-                      {element.description}
-                    </Typography>
-                  </GridConnectedElementsCard>
-                </Grid>
+                <GridConnectedElementsCard
+                  key={index + element.title}
+                  muiGridItemSize={12}
+                  icon={element.icon}
+                  title={element.title}
+                  onDismiss={() => {
+                    console.log('ACTION: DISMISS', stateInfoElements);
+                  }}
+                >
+                  <Typography variant="body2">{element.description}</Typography>
+                </GridConnectedElementsCard>
               ))}
               {stateConnectedElements
                 .filter(a => a.elements.length > 0)
                 .map(stateConnectedElement => (
-                  <Grid item xs={12} key={stateConnectedElement.title}>
-                    <GridConnectedElementsCard
-                      icon={
-                        <Badge
-                          color="secondary"
-                          badgeContent={stateConnectedElement.elements.length}
-                          showZero
-                        >
-                          {stateConnectedElement.icon}
-                        </Badge>
-                      }
-                      title={stateConnectedElement.title}
-                      onExtend={extend => {
-                        console.log('ACTION: EXTEND', extend);
+                  <GridConnectedElementsCard
+                    key={stateConnectedElement.title}
+                    icon={
+                      <Badge
+                        color="secondary"
+                        badgeContent={stateConnectedElement.elements.length}
+                        showZero
+                      >
+                        {stateConnectedElement.icon}
+                      </Badge>
+                    }
+                    muiGridItemSize={12}
+                    title={stateConnectedElement.title}
+                    onExtend={extend => {
+                      console.log('ACTION: EXTEND', extend);
+                    }}
+                  >
+                    <ResponsiveMasonry
+                      columnsCountBreakPoints={{
+                        0: 1,
+                        600: 2,
+                        900: 1,
+                        1200: 2,
                       }}
                     >
-                      <ResponsiveMasonry
-                        columnsCountBreakPoints={{
-                          0: 1,
-                          600: 2,
-                          900: 1,
-                          1200: 2,
-                        }}
-                      >
-                        <Masonry
-                          gutter={`${stateSettingsUiGridSpacing / 2}rem`}
-                        >
-                          {stateConnectedElement.elements.map(
-                            (element, index) => (
-                              <Card key={index} variant="outlined">
-                                <CardContent>{element}</CardContent>
-                              </Card>
-                            )
-                          )}
-                        </Masonry>
-                      </ResponsiveMasonry>
-                    </GridConnectedElementsCard>
-                  </Grid>
+                      <Masonry gutter={`${stateSettingsUiGridSpacing / 2}rem`}>
+                        {stateConnectedElement.elements.map(
+                          (element, index) => (
+                            <Card key={index} variant="outlined">
+                              <CardContent>{element}</CardContent>
+                            </Card>
+                          )
+                        )}
+                      </Masonry>
+                    </ResponsiveMasonry>
+                  </GridConnectedElementsCard>
                 ))}
             </Grid>
           </Grid>
