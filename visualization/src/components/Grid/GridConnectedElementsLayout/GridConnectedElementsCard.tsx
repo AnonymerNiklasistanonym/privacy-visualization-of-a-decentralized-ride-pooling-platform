@@ -14,6 +14,7 @@ import {
 import {
   Clear as DismissIcon,
   ExpandLess as ExpandLessIcon,
+  ExpandMore as ExpandMoreIcon,
   Info as InfoIcon,
 } from '@mui/icons-material';
 // Type imports
@@ -62,7 +63,7 @@ export function GridConnectedElementsCard({
           onExtend(stateExtend);
         }}
       >
-        <ExpandLessIcon />
+        {stateExtend ? <ExpandLessIcon /> : <ExpandMoreIcon />}
       </IconButton>
     );
   }
