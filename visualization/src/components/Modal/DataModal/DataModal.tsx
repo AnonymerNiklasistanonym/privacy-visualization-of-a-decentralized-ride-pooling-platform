@@ -15,7 +15,7 @@ import {
 import {DataHiddenIcon, DataVisibleIcon} from '@components/Icons';
 import DataModelListElement from './DataModalElement';
 // > Misc
-import {debugComponentUpdate} from '@misc/debug';
+import {debugComponentUpdate, debugMemoHelper} from '@misc/debug';
 // Type imports
 import type {
   DataModalInformation,
@@ -41,7 +41,22 @@ export interface DataModalProps
   dataOriginName: string;
 }
 
-export default memo(DataModal);
+export default memo(DataModal, (prev, next) =>
+  debugMemoHelper(
+    'DataModal',
+    [
+      'stateSpectator',
+      'stateDataModalOpen',
+      'stateDataModalContent',
+      'dataLabel',
+      'dataOriginName',
+      'dataOriginIcon',
+      'dataValueSpectator',
+    ],
+    prev,
+    next
+  )
+);
 
 export function DataModal(props: DataModalProps) {
   debugComponentUpdate('DataModal', true);

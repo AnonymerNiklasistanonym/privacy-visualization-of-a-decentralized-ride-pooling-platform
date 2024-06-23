@@ -20,6 +20,7 @@ import type {ChangeViewButtonProps} from '@components/Button/ChangeViewButton';
 import type {DataElement} from './PopupContentGeneric';
 import type {GlobalPropsSpectatorSelectedElementsSet} from '@misc/props/global';
 import type {SimulationEndpointParticipantInformationRideProvider} from '@globals/types/simulation';
+import {useMemo} from 'react';
 
 export interface CardParticipantContentRideProviderProps
   extends GlobalPropsSpectatorSelectedElementsSet,
@@ -33,81 +34,92 @@ export default function cardParticipantContentCustomer(
 ) {
   const {setStateSelectedRideRequest, showRideRequest} = props;
   const result: Array<CardGenericPropsContentElement> = [];
-  const showContentSpectatorContactDetails = [
-    {
-      description: 'registered authentication service',
-      spectator: 'auth',
-    },
-  ];
-  const carData: DataElement[] = [];
-  const personalData: DataElement[] = [];
-  if (rideProvider !== undefined) {
-    carData.push(
-      ...[
-        {
-          content: rideProvider.vehicleIdentificationNumber,
-          dataAccessInformation: [...dataModalInformationPersonalData],
-          label: 'VIN (Vehicle Identification Number)',
-          showContentSpectator: [...showContentSpectatorContactDetails],
-        },
-        {
-          content: rideProvider.vehicleNumberPlate,
-          dataAccessInformation: [...dataModalInformationPersonalData],
-          label: 'Vehicle Number Plate',
-          showContentSpectator: [...showContentSpectatorContactDetails],
-        },
-      ]
-    );
-    if ('company' in rideProvider) {
-      personalData.push({
-        content: rideProvider.company,
-        dataAccessInformation: [...dataModalInformationPersonalData],
-        label: 'Company',
-        showContentSpectator: [...showContentSpectatorContactDetails],
-      });
-    } else {
-      personalData.push(
+  const showContentSpectatorContactDetails = useMemo(
+    () => [
+      {
+        description: 'registered authentication service',
+        spectator: 'auth',
+      },
+    ],
+    []
+  );
+  const carData: DataElement[] = useMemo(() => {
+    const carDataTemp = [];
+    if (rideProvider !== undefined) {
+      carDataTemp.push(
         ...[
           {
-            content: rideProvider.dateOfBirth,
+            content: rideProvider.vehicleIdentificationNumber,
             dataAccessInformation: [...dataModalInformationPersonalData],
-            label: 'Date of birth',
+            label: 'VIN (Vehicle Identification Number)',
             showContentSpectator: [...showContentSpectatorContactDetails],
           },
           {
-            content: rideProvider.emailAddress,
+            content: rideProvider.vehicleNumberPlate,
             dataAccessInformation: [...dataModalInformationPersonalData],
-            label: 'Email Address',
-            showContentSpectator: [...showContentSpectatorContactDetails],
-          },
-          {
-            content: rideProvider.fullName,
-            dataAccessInformation: [...dataModalInformationPersonalData],
-            label: 'Full Name',
-            showContentSpectator: [...showContentSpectatorContactDetails],
-          },
-          {
-            content: rideProvider.gender,
-            dataAccessInformation: [...dataModalInformationPersonalData],
-            label: 'Gender',
-            showContentSpectator: [...showContentSpectatorContactDetails],
-          },
-          {
-            content: rideProvider.homeAddress,
-            dataAccessInformation: [...dataModalInformationPersonalData],
-            label: 'Home Address',
-            showContentSpectator: [...showContentSpectatorContactDetails],
-          },
-          {
-            content: rideProvider.phoneNumber,
-            dataAccessInformation: [...dataModalInformationPersonalData],
-            label: 'Phone Number',
+            label: 'Vehicle Number Plate',
             showContentSpectator: [...showContentSpectatorContactDetails],
           },
         ]
       );
     }
-  }
+    return carDataTemp;
+  }, [rideProvider, showContentSpectatorContactDetails]);
+  const personalData: DataElement[] = useMemo(() => {
+    const personalDataTemp = [];
+    if (rideProvider !== undefined) {
+      if ('company' in rideProvider) {
+        personalDataTemp.push({
+          content: rideProvider.company,
+          dataAccessInformation: [...dataModalInformationPersonalData],
+          label: 'Company',
+          showContentSpectator: [...showContentSpectatorContactDetails],
+        });
+      } else {
+        personalDataTemp.push(
+          ...[
+            {
+              content: rideProvider.dateOfBirth,
+              dataAccessInformation: [...dataModalInformationPersonalData],
+              label: 'Date of birth',
+              showContentSpectator: [...showContentSpectatorContactDetails],
+            },
+            {
+              content: rideProvider.emailAddress,
+              dataAccessInformation: [...dataModalInformationPersonalData],
+              label: 'Email Address',
+              showContentSpectator: [...showContentSpectatorContactDetails],
+            },
+            {
+              content: rideProvider.fullName,
+              dataAccessInformation: [...dataModalInformationPersonalData],
+              label: 'Full Name',
+              showContentSpectator: [...showContentSpectatorContactDetails],
+            },
+            {
+              content: rideProvider.gender,
+              dataAccessInformation: [...dataModalInformationPersonalData],
+              label: 'Gender',
+              showContentSpectator: [...showContentSpectatorContactDetails],
+            },
+            {
+              content: rideProvider.homeAddress,
+              dataAccessInformation: [...dataModalInformationPersonalData],
+              label: 'Home Address',
+              showContentSpectator: [...showContentSpectatorContactDetails],
+            },
+            {
+              content: rideProvider.phoneNumber,
+              dataAccessInformation: [...dataModalInformationPersonalData],
+              label: 'Phone Number',
+              showContentSpectator: [...showContentSpectatorContactDetails],
+            },
+          ]
+        );
+      }
+    }
+    return personalDataTemp;
+  }, [rideProvider, showContentSpectatorContactDetails]);
   result.push({
     content: (
       <List>
@@ -139,7 +151,7 @@ export default function cardParticipantContentCustomer(
             ? personalData.map((a, index) => (
                 <RenderDataElement
                   {...props}
-                  key={`render-personal-data-element-${index}`}
+                  key={`render-car-personal-data-element-${index}`}
                   element={a}
                   id={rideProvider.id}
                   dataOriginName={`Ride Provider (${rideProvider.id})`}

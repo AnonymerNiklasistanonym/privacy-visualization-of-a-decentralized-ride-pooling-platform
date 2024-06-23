@@ -1,5 +1,5 @@
 // Package imports
-import {useState} from 'react';
+import {useMemo, useState} from 'react';
 // > Components
 import {Box, ListItem, Tooltip, Typography} from '@mui/material';
 // Local imports
@@ -57,17 +57,26 @@ export function RenderDataElement(props: RenderDataElementProps) {
 
   const [stateOpen, setStateOpen] = useState(false);
 
-  const dataModalContent: Array<DataModalInformation> = [
-    {
-      accessType: 'owner',
-      description: 'Owns this data',
-      icon: dataOriginIcon,
-      name: dataOriginName,
-      spectatorId: dataOriginId,
-      spectatorInformation: dataOriginInformation,
-    },
-    ...dataAccessInformation,
-  ];
+  const dataModalContent: Array<DataModalInformation> = useMemo(
+    () => [
+      {
+        accessType: 'owner',
+        description: 'Owns this data',
+        icon: dataOriginIcon,
+        name: dataOriginName,
+        spectatorId: dataOriginId,
+        spectatorInformation: dataOriginInformation,
+      },
+      ...dataAccessInformation,
+    ],
+    [
+      dataAccessInformation,
+      dataOriginIcon,
+      dataOriginId,
+      dataOriginInformation,
+      dataOriginName,
+    ]
+  );
 
   let content = element.content;
   let tooltip = '';
@@ -110,6 +119,7 @@ export function RenderDataElement(props: RenderDataElementProps) {
         {dataValue}
         <DataModal
           {...props}
+          key={element.label}
           stateDataModalOpen={stateOpen}
           setStateDataModalOpen={setStateOpen}
           stateDataModalContent={dataModalContent}
