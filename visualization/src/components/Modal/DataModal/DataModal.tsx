@@ -88,19 +88,31 @@ export function DataModal(props: DataModalProps) {
         onClose={() => setStateDataModalOpen(false)}
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
+        sx={{
+          maxHeight: '90vh',
+          overflow: 'scroll',
+        }}
       >
         <Box
           sx={{
             bgcolor: 'background.paper',
             border: '2px solid #000',
             boxShadow: 24,
+            height: {
+              md: '80vh',
+              xs: '90%',
+            },
             left: '50%',
+            maxHeight: '90vh',
             maxWidth: 1200,
-            minWidth: 600,
             p: 4,
             position: 'absolute' as const,
             top: '50%',
             transform: 'translate(-50%, -50%)',
+            width: {
+              md: '80vw',
+              xs: '100%',
+            },
           }}
         >
           <Typography
