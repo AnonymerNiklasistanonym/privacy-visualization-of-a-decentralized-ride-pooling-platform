@@ -4,7 +4,6 @@ import {useEffect, useState} from 'react';
 import {Box} from '@mui/material';
 // Local imports
 // > Components
-import RideRequestModal from '@components/Modal/RideRequestModal';
 import TableDebugData from '../TableDebugData';
 // > Globals
 import {simulationEndpoints} from '@globals/defaults/endpoints';
@@ -16,11 +15,6 @@ import type {
   GlobalPropsSpectatorSelectedElementsSet,
 } from '@misc/props/global';
 import type {
-  RideRequestModalInformation,
-  RideRequestModalProps,
-  RideRequestModalPropsInput,
-} from '@components/Modal/RideRequestModal';
-import type {
   SimulationEndpointSmartContractInformation,
   SimulationEndpointSmartContracts,
 } from '@globals/types/simulation';
@@ -31,24 +25,27 @@ export interface TableBlockchainProps
     GlobalPropsFetch,
     GlobalPropsShowError,
     GlobalPropsSpectatorSelectedElements,
-    GlobalPropsSpectatorSelectedElementsSet,
-    RideRequestModalProps {}
+    GlobalPropsSpectatorSelectedElementsSet {}
 
-export default function TableBlockchain(props: TableBlockchainProps) {
+export interface TableBlockchainPropsInput extends TableBlockchainProps {
+  onRowSelect: (
+    customerPseudonym: string,
+    rideProviderPseudonym: string
+  ) => void;
+}
+
+export default function TableBlockchain(props: TableBlockchainPropsInput) {
   const {
     stateSettingsBlockchainUpdateRateInMs,
     showError: stateShowError,
     fetchJsonSimulation,
+    onRowSelect,
   } = props;
 
   // React: States
   const [stateSmartContracts, setStateSmartContracts] = useState<
     Array<SimulationEndpointSmartContractInformation>
   >([]);
-  const [stateRideRequestModalOpen, setStateRideRequestModalOpen] =
-    useState(false);
-  const [stateRideRequestModalContent, setStateRideRequestModalContent] =
-    useState<RideRequestModalInformation | undefined>(undefined);
 
   const fetchSmartContracts = () =>
     fetchJsonSimulation<SimulationEndpointSmartContracts>(
@@ -80,13 +77,6 @@ export default function TableBlockchain(props: TableBlockchainProps) {
     };
   });
 
-  const propsInput: RideRequestModalPropsInput = {
-    ...props,
-    setStateRideRequestModalOpen,
-    stateRideRequestModalContent,
-    stateRideRequestModalOpen,
-  };
-
   return (
     <Box
       sx={{
@@ -108,12 +98,10 @@ export default function TableBlockchain(props: TableBlockchainProps) {
             a => a.walletId === id
           );
           if (smartContract) {
-            setStateRideRequestModalContent({smartContract});
-            setStateRideRequestModalOpen(true);
+            onRowSelect(smartContract.customerId, smartContract.rideProviderId);
           }
         }}
       />
-      <RideRequestModal {...propsInput} />
     </Box>
   );
 }

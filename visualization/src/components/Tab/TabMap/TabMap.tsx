@@ -39,8 +39,7 @@ import type {
 } from '@components/Grid/GridConnectedElementsLayout';
 import type {
   GlobalPropsFetch,
-  GlobalPropsParticipantSelectedElements,
-  GlobalPropsParticipantSelectedElementsSet,
+  GlobalPropsIntlValues,
   GlobalPropsSearch,
   GlobalPropsShowError,
   GlobalPropsSpectatorMap,
@@ -77,10 +76,9 @@ export interface TabMapProps
     GlobalPropsSpectatorMap,
     GlobalPropsSpectatorSelectedElements,
     GlobalPropsSpectatorSelectedElementsSet,
-    GlobalPropsParticipantSelectedElements,
-    GlobalPropsParticipantSelectedElementsSet,
     GlobalPropsSearch,
     GlobalPropsShowError,
+    GlobalPropsIntlValues,
     GlobalPropsFetch {}
 
 export default function TabMap(props: TabMapProps) {
@@ -345,7 +343,7 @@ export default function TabMap(props: TabMapProps) {
   const stateConnectedElements = useMemo<Array<ConnectedElementSection>>(() => {
     const pinnedParticipants: Array<ReactElement> = [];
     const selectedParticipants: Array<ReactElement> = [];
-    const selectedContracts: Array<ReactElement> = [];
+    const selectedRideRequests: Array<ReactElement> = [];
     for (const pinnedCustomerId of statePinnedCustomers) {
       pinnedParticipants.push(
         <CardParticipantRefresh
@@ -394,89 +392,37 @@ export default function TabMap(props: TabMapProps) {
         />
       );
     }
-    if (
-      props.stateSelectedParticipantRideRequestInformationGlobal !== undefined
-    ) {
-      selectedContracts.push(
-        <CardRideRequest
-          {...props}
-          stateRideRequestInformation={
-            props.stateSelectedParticipantRideRequestInformationGlobal
-          }
-          label={intl.formatMessage(
-            {
-              id: 'getacar.spectator.message.connected',
-            },
-            {
-              name: intl.formatMessage({
-                id: 'getacar.rideRequest',
-              }),
-            }
-          )}
-        />
-      );
-    }
-    if (
-      props.stateSelectedParticipantTypeGlobal !== 'ride_provider' &&
-      props.stateSelectedParticipantRideProviderInformationGlobal !== undefined
-    ) {
-      selectedParticipants.push(
-        <CardParticipant
-          {...props}
-          participantType={
-            props.stateSelectedParticipantRideProviderInformationGlobal.type
-          }
-          stateCustomerInformation={null}
-          stateRideProviderInformation={
-            props.stateSelectedParticipantRideProviderInformationGlobal
-          }
-          stateParticipantId={
-            props.stateSelectedParticipantRideProviderInformationGlobal.id
-          }
-          label={intl.formatMessage({
-            id: 'getacar.spectator.message.driver',
-          })}
-        />
-      );
-    }
-    if (
-      props.stateSelectedParticipantTypeGlobal !== 'customer' &&
-      props.stateSelectedParticipantCustomerInformationGlobal !== undefined
-    ) {
-      selectedParticipants.push(
-        <CardParticipant
-          {...props}
-          participantType={
-            props.stateSelectedParticipantCustomerInformationGlobal.type
-          }
-          stateCustomerInformation={
-            props.stateSelectedParticipantCustomerInformationGlobal
-          }
-          stateRideProviderInformation={null}
-          stateParticipantId={
-            props.stateSelectedParticipantCustomerInformationGlobal.id
-          }
-          label={intl.formatMessage({
-            id: 'getacar.spectator.message.passenger',
-          })}
-        />
-      );
-    }
+    // TODO Show Ride Request
     return [
       {
         elements: pinnedParticipants,
         icon: <PinnedElementsIcon fontSize="large" />,
-        title: 'Pinned Participants',
+        title: intl.formatMessage(
+          {id: 'getacar.spectator.message.pinned'},
+          {
+            name: intl.formatMessage({id: 'getacar.participant.plural'}),
+          }
+        ),
       },
       {
         elements: selectedParticipants,
         icon: <ConnectedElementsIcon fontSize="large" />,
-        title: 'Connected Participants',
+        title: intl.formatMessage(
+          {id: 'getacar.spectator.message.connected'},
+          {
+            name: intl.formatMessage({id: 'getacar.participant.plural'}),
+          }
+        ),
       },
       {
-        elements: selectedContracts,
+        elements: selectedRideRequests,
         icon: <ConnectedElementsIcon fontSize="large" />,
-        title: 'Connected Contracts',
+        title: intl.formatMessage(
+          {id: 'getacar.spectator.message.connected'},
+          {
+            name: intl.formatMessage({id: 'getacar.rideRequest.plural'}),
+          }
+        ),
       },
     ];
   }, [intl, props, statePinnedCustomers, statePinnedRideProviders]);

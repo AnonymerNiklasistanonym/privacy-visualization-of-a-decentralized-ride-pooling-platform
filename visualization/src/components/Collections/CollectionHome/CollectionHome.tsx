@@ -7,14 +7,21 @@ import {useIntl} from 'react-intl';
 import {useMediaQuery} from '@mui/material';
 // > Components
 import {Language as LanguageIcon} from '@mui/icons-material';
+import {Link} from '@mui/material';
 // Local imports
 import {i18n, i18nGetLanguageName} from '../../../../i18n-config';
 import {UrlParameter} from '@misc/urlParameter';
 import {fetchJson} from '@globals/lib/fetch';
 // > Components
 import {
+  ChipListElement,
+  ChipListElementProps,
+} from '@components/Tab/TabOverview/TabOverviewElements';
+import {
   PageAboutIcon,
   PageHomeIcon,
+  ParticipantCustomerIcon,
+  ParticipantRideProviderIcon,
   ServiceAuthenticationIcon,
   ServiceMatchingIcon,
   SpectatorEverythingIcon,
@@ -24,14 +31,18 @@ import SnackbarContentChange from '@components/Snackbar/SnackbarContentChange';
 import TabPanel from '@components/TabPanel';
 import ThemeContainer from '@components/ThemeContainer';
 // > Globals
-import {baseUrlPathfinder, baseUrlSimulation} from '@globals/defaults/urls';
+import {
+  baseUrlPathfinder,
+  baseUrlSimulation,
+  confidenceVisualizer,
+  getacar,
+} from '@globals/defaults/urls';
 // > Misc
 import {LocalStorageKey} from '@misc/localStorage';
 // Type imports
 import type {
   GlobalPropsFetch,
-  GlobalPropsParticipantSelectedElements,
-  GlobalPropsParticipantSelectedElementsSet,
+  GlobalPropsIntlValues,
   GlobalPropsSearch,
   GlobalPropsShowError,
   GlobalPropsSpectatorElement,
@@ -114,50 +125,14 @@ export default function CollectionHome(
   // > Snackbars
   const [stateSnackbarSpectatorOpen, setStateSnackbarSpectatorOpen] =
     useState(false);
-  const [
-    stateSnackbarSelectedParticipantOpen,
-    setStateSnackbarSelectedParticipantOpen,
-  ] = useState(false);
-  const [
-    stateSnackbarSelectedRideRequestOpen,
-    setStateSnackbarSelectedRideRequestOpen,
-  ] = useState(false);
   // > Spectator
   const [stateSpectator, setStateSpectator] = useState(
     searchParams.get(UrlParameter.SPECTATOR) ?? 'everything'
   );
-  // > Selected Elements
-  const [stateSelectedSpectator, setStateSelectedSpectator] = useState<
-    string | undefined
-  >(searchParams.get(UrlParameter.SPECTATOR) ?? undefined);
-  const [stateSelectedParticipant, setStateSelectedParticipant] = useState<
-    string | undefined
-  >(undefined);
-  const [stateSelectedRideRequest, setStateSelectedRideRequest] = useState<
-    string | undefined
-  >(undefined);
-  // > Selected Element Information
-  const [
-    stateSelectedParticipantTypeGlobal,
-    setStateSelectedParticipantTypeGlobal,
-  ] = useState<SimulationEndpointParticipantTypes | undefined>(undefined);
-  const [
-    stateSelectedParticipantCustomerInformationGlobal,
-    setStateSelectedParticipantCustomerInformationGlobal,
-  ] = useState<undefined | SimulationEndpointParticipantInformationCustomer>(
-    undefined
-  );
-  const [
-    stateSelectedParticipantRideProviderInformationGlobal,
-    setStateSelectedParticipantRideProviderInformationGlobal,
-  ] = useState<
-    undefined | SimulationEndpointParticipantInformationRideProvider
-  >(undefined);
-  const [
-    stateSelectedParticipantRideRequestInformationGlobal,
-    setStateSelectedParticipantRideRequestInformationGlobal,
-  ] = useState<undefined | SimulationEndpointRideRequestInformation>(undefined);
-
+  const [stateShowSpectator, setStateShowSpectator] = useState<
+    undefined | string
+  >(stateSpectator);
+  // > Settings
   const [stateSettingsUiNavBarPosition, setStateSettingsUiNavBarPosition] =
     useState<'bottom' | 'top'>('top');
   const [stateSettingsUiGridSpacing, setStateSettingsUiGridSpacing] =
@@ -281,12 +256,6 @@ export default function CollectionHome(
   useEffect(() => {
     setStateSnackbarSpectatorOpen(true);
   }, [stateSpectator, setStateSnackbarSpectatorOpen]);
-  useEffect(() => {
-    setStateSnackbarSelectedParticipantOpen(true);
-  }, [stateSelectedParticipant, setStateSnackbarSelectedParticipantOpen]);
-  useEffect(() => {
-    setStateSnackbarSelectedRideRequestOpen(true);
-  }, [stateSelectedRideRequest, setStateSnackbarSelectedRideRequestOpen]);
   // > URL parameter listeners
   useEffect(() => {
     if (stateSettingsGlobalDebug) {
@@ -417,6 +386,61 @@ export default function CollectionHome(
     });
   }, [stateSpectators, stateTabs, params, pathname, router, intl]);
 
+  // TODO intl values
+  const customerChip: ChipListElementProps = {
+    description: 'requests rides (human)',
+    icon: <ParticipantCustomerIcon />,
+    label: intl.formatMessage({id: 'getacar.participant.customer'}),
+    link: '#anchor-customer',
+  };
+  const customersChip: ChipListElementProps = {
+    ...customerChip,
+    label: intl.formatMessage({id: 'getacar.participant.customers'}),
+  };
+  const rideProviderChip: ChipListElementProps = {
+    description: 'provides rides (human/autonomous vehicle)',
+    icon: <ParticipantRideProviderIcon />,
+    label: intl.formatMessage({id: 'getacar.participant.rideProvider'}),
+    link: '#anchor-ride-provider',
+  };
+  const rideProvidersChip: ChipListElementProps = {
+    ...customerChip,
+    label: intl.formatMessage({id: 'getacar.participant.rideProviders'}),
+  };
+  const authServiceChip: ChipListElementProps = {
+    icon: <ServiceAuthenticationIcon />,
+    label: intl.formatMessage({id: 'getacar.service.auth'}),
+    link: '#anchor-as',
+  };
+  const matchServiceChip: ChipListElementProps = {
+    icon: <ServiceMatchingIcon />,
+    label: intl.formatMessage({id: 'getacar.service.match'}),
+    link: '#anchor-ms',
+  };
+
+  const intlValues: {[key: string]: ReactElement} = {
+    AUTH_SERVICE: <ChipListElement {...authServiceChip} noDescription={true} />,
+    CONFIDENTIALITY_VISUALIZER: (
+      <Link href={confidenceVisualizer}>
+        {intl.formatMessage({id: 'confidentialityVisualizer.name'})}
+      </Link>
+    ),
+    CUSTOMER: <ChipListElement {...customerChip} noDescription={true} />,
+    CUSTOMERS: <ChipListElement {...customersChip} noDescription={true} />,
+    GETACAR: (
+      <Link href={getacar}>{intl.formatMessage({id: 'getacar.name'})}</Link>
+    ),
+    MATCHING_SERVICE: (
+      <ChipListElement {...matchServiceChip} noDescription={true} />
+    ),
+    RIDE_PROVIDER: (
+      <ChipListElement {...rideProviderChip} noDescription={true} />
+    ),
+    RIDE_PROVIDERS: (
+      <ChipListElement {...rideProvidersChip} noDescription={true} />
+    ),
+  };
+
   // Group all props for easy forwarding
   const props: GlobalPropsShowError &
     GlobalPropsFetch &
@@ -428,18 +452,11 @@ export default function CollectionHome(
     GlobalPropsSpectatorsSet &
     GlobalPropsSearch &
     GlobalPropsSpectatorMap &
-    GlobalPropsParticipantSelectedElements &
-    GlobalPropsParticipantSelectedElementsSet = {
+    GlobalPropsIntlValues = {
     ...propsError,
     fetchJsonSimulation,
     globalSearch,
-    setStateSelectedParticipant,
-    setStateSelectedParticipantCustomerInformationGlobal,
-    setStateSelectedParticipantRideProviderInformationGlobal,
-    setStateSelectedParticipantRideRequestInformationGlobal,
-    setStateSelectedParticipantTypeGlobal,
-    setStateSelectedRideRequest,
-    setStateSelectedSpectator,
+    intlValues,
     setStateSettingsBlockchainUpdateRateInMs,
     setStateSettingsCardUpdateRateInMs,
     setStateSettingsGlobalDebug,
@@ -450,15 +467,9 @@ export default function CollectionHome(
     setStateSettingsUiGridSpacing,
     setStateSettingsUiMapScroll,
     setStateSettingsUiNavBarPosition,
+    setStateShowSpectator,
     setStateSpectator,
     setStateThemeMode,
-    stateSelectedParticipant,
-    stateSelectedParticipantCustomerInformationGlobal,
-    stateSelectedParticipantRideProviderInformationGlobal,
-    stateSelectedParticipantRideRequestInformationGlobal,
-    stateSelectedParticipantTypeGlobal,
-    stateSelectedRideRequest,
-    stateSelectedSpectator,
     stateSettingsBlockchainUpdateRateInMs,
     stateSettingsCardUpdateRateInMs,
     stateSettingsGlobalDebug,
@@ -469,6 +480,7 @@ export default function CollectionHome(
     stateSettingsUiGridSpacing,
     stateSettingsUiMapScroll,
     stateSettingsUiNavBarPosition,
+    stateShowSpectator,
     stateSpectator,
     stateSpectators,
     stateThemeMode,
@@ -485,29 +497,9 @@ export default function CollectionHome(
         stateOpen={stateSnackbarSpectatorOpen}
         stateContent={stateSpectator}
         setStateOpen={setStateSnackbarSpectatorOpen}
-        handleChangeStateContent={a => `Changed spectator to ${a}`}
-      />
-      <SnackbarContentChange
-        stateOpen={stateSnackbarSelectedParticipantOpen}
-        stateContent={stateSelectedParticipant}
-        setStateOpen={setStateSnackbarSelectedParticipantOpen}
         handleChangeStateContent={a =>
-          a === undefined
-            ? 'No participant selected any more'
-            : `Changed selected participant to ${a}`
+          intl.formatMessage({id: 'getacar.spectator.changed'}, {name: a})
         }
-        bottomOffset={60}
-      />
-      <SnackbarContentChange
-        stateOpen={stateSnackbarSelectedRideRequestOpen}
-        stateContent={stateSelectedRideRequest}
-        setStateOpen={setStateSnackbarSelectedRideRequestOpen}
-        handleChangeStateContent={a =>
-          a === undefined
-            ? 'No ride request selected any more'
-            : `Changed selected ride request to ${a}`
-        }
-        bottomOffset={120}
       />
       {children}
     </ThemeContainer>

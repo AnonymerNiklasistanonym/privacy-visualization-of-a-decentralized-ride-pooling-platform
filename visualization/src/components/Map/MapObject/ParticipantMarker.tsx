@@ -29,8 +29,7 @@ import {simulationEndpoints} from '@globals/defaults/endpoints';
 // Type imports
 import type {
   GlobalPropsFetch,
-  GlobalPropsParticipantSelectedElements,
-  GlobalPropsParticipantSelectedElementsSet,
+  GlobalPropsIntlValues,
   GlobalPropsShowError,
   GlobalPropsSpectatorSelectedElements,
   GlobalPropsSpectatorSelectedElementsSet,
@@ -50,11 +49,10 @@ import type {ReactNode} from 'react';
 interface ParticipantMarkerProps
   extends GlobalPropsSpectatorSelectedElementsSet,
     GlobalPropsSpectatorSelectedElements,
-    GlobalPropsParticipantSelectedElements,
-    GlobalPropsParticipantSelectedElementsSet,
     GlobalPropsFetch,
     GlobalPropsShowError,
     SettingsMapProps,
+    GlobalPropsIntlValues,
     SettingsUiProps {
   /** The participant ID and current coordinates */
   stateParticipantId: string;
@@ -84,15 +82,8 @@ export function ParticipantMarker(props: ParticipantMarkerProps) {
     stateParticipantId,
     stateSpectator,
     participantType,
-    stateSelectedParticipant,
     showError,
     fetchJsonSimulation,
-    stateSelectedRideRequest,
-    stateSelectedParticipantCustomerInformationGlobal,
-    stateSelectedParticipantRideProviderInformationGlobal,
-    setStateSelectedParticipantCustomerInformationGlobal,
-    setStateSelectedParticipantRideProviderInformationGlobal,
-    setStateSelectedParticipantRideRequestInformationGlobal,
   } = props;
 
   // React: States
@@ -125,9 +116,7 @@ export function ParticipantMarker(props: ParticipantMarkerProps) {
           )
         );
       setStateCustomerInformation(customerInformation);
-      setStateSelectedParticipantCustomerInformationGlobal(customerInformation);
-      setStateSelectedParticipantRideProviderInformationGlobal(undefined);
-      setStateSelectedParticipantRideRequestInformationGlobal(undefined);
+      // TODO Add information
       rideRequestId = customerInformation.rideRequest;
     }
     if (participantType === 'ride_provider') {
@@ -138,11 +127,7 @@ export function ParticipantMarker(props: ParticipantMarkerProps) {
           )
         );
       setStateRideProviderInformation(rideProviderInformation);
-      setStateSelectedParticipantRideProviderInformationGlobal(
-        rideProviderInformation
-      );
-      setStateSelectedParticipantCustomerInformationGlobal(undefined);
-      setStateSelectedParticipantRideRequestInformationGlobal(undefined);
+      // TODO Add information
       rideRequestId = rideProviderInformation.rideRequest;
     }
     if (rideRequestId !== undefined) {
@@ -151,7 +136,6 @@ export function ParticipantMarker(props: ParticipantMarkerProps) {
           simulationEndpoints.apiV1.rideRequestInformation(rideRequestId)
         );
       setStateRideRequestInformation(rideRequest);
-      setStateSelectedParticipantRideRequestInformationGlobal(rideRequest);
       if (rideRequest.auctionWinner !== null) {
         const rideRequestAuctionWinnerId =
           await fetchJsonSimulation<SimulationEndpointParticipantIdFromPseudonym>(
@@ -160,6 +144,7 @@ export function ParticipantMarker(props: ParticipantMarkerProps) {
             )
           );
         setStateRideRequestAuctionRideProviderId(rideRequestAuctionWinnerId.id);
+        // TODO Add information
         if (participantType === 'customer') {
           // Get connected ride provider information for global state:
           const rideProviderInformation =
@@ -168,9 +153,7 @@ export function ParticipantMarker(props: ParticipantMarkerProps) {
                 rideRequestAuctionWinnerId.id
               )
             );
-          setStateSelectedParticipantRideProviderInformationGlobal(
-            rideProviderInformation
-          );
+          // TODO Add information
         }
       }
       const rideRequestUserId =
@@ -188,9 +171,7 @@ export function ParticipantMarker(props: ParticipantMarkerProps) {
               rideRequestUserId.id
             )
           );
-        setStateSelectedParticipantCustomerInformationGlobal(
-          customerInformation
-        );
+        // TODO Add information
       }
     }
   };
@@ -199,13 +180,7 @@ export function ParticipantMarker(props: ParticipantMarkerProps) {
   // > When popup is opened fetch information every few seconds
   useEffect(() => {
     const interval = setInterval(async () => {
-      if (
-        statePopupOpen ||
-        stateSelectedParticipantCustomerInformationGlobal?.id ===
-          stateParticipantId ||
-        stateSelectedParticipantRideProviderInformationGlobal?.id ===
-          stateParticipantId
-      ) {
+      if (statePopupOpen) {
         fetchParticipantInformation().catch(err =>
           showError('Simulation fetch participant information', err)
         );
@@ -216,11 +191,8 @@ export function ParticipantMarker(props: ParticipantMarkerProps) {
     };
   });
 
-  const showRideRequest =
-    stateSelectedRideRequest === stateRideRequestInformation?.id ||
-    stateSpectator === stateParticipantId;
+  const showRideRequest = stateSpectator === stateParticipantId;
   const showParticipant =
-    stateSelectedParticipant === stateParticipantId ||
     stateSpectator === stateParticipantId ||
     showRideRequest ||
     (showRideRequest &&
@@ -258,7 +230,6 @@ export function ParticipantMarkerElement(props: ParticipantMarkerElementProps) {
     stateParticipantLat,
     participantType,
     stateSettingsMapShowTooltips,
-    setStateSelectedParticipant,
     showError,
     showParticipant,
     showRideRequest,
@@ -267,10 +238,9 @@ export function ParticipantMarkerElement(props: ParticipantMarkerElementProps) {
     stateCustomerInformation,
     stateRideProviderInformation,
     stateRideRequestInformation,
-    setStateSelectedParticipantTypeGlobal,
-    stateSelectedSpectator,
-    setStateSelectedSpectator,
     stateSettingsUiMapScroll,
+    stateShowSpectator,
+    setStateShowSpectator,
     onPin,
     onUnpin,
     isPinned,
@@ -282,10 +252,7 @@ export function ParticipantMarkerElement(props: ParticipantMarkerElementProps) {
 
   useEffect(() => {
     // In case the spectator of this marker is freshly selected open the popup
-    if (stateSelectedSpectator === stateParticipantId) {
-      // Select this participant
-      setStateSelectedParticipant(stateParticipantId);
-      setStateSelectedParticipantTypeGlobal(participantType);
+    if (stateShowSpectator === stateParticipantId) {
       // Fly to marker
       map.panTo([stateParticipantLat, stateParticipantLong], {
         duration: 2,
@@ -293,22 +260,23 @@ export function ParticipantMarkerElement(props: ParticipantMarkerElementProps) {
       // Open marker popup
       const marker = markerRef.current;
       if (marker) {
-        // TODO: Fix
-        marker.openPopup();
+        if (marker.isPopupOpen()) {
+          marker.closePopup();
+        } else {
+          marker.openPopup();
+        }
       }
       // Reset selected spectator
-      setStateSelectedSpectator(undefined);
+      setStateShowSpectator(undefined);
     }
   }, [
-    stateSelectedSpectator,
-    setStateSelectedSpectator,
+    stateShowSpectator,
+    setStateShowSpectator,
     setStatePopupOpen,
     stateParticipantLat,
     stateParticipantLong,
     map,
     participantType,
-    setStateSelectedParticipant,
-    setStateSelectedParticipantTypeGlobal,
     stateParticipantId,
   ]);
 
@@ -330,8 +298,8 @@ export function ParticipantMarkerElement(props: ParticipantMarkerElementProps) {
       }
       eventHandlers={{
         click: () => {
-          setStateSelectedParticipant(stateParticipantId);
-          setStateSelectedParticipantTypeGlobal(participantType);
+          //setStateSelectedParticipant(stateParticipantId);
+          //setStateSelectedParticipantTypeGlobal(participantType);
         },
         popupclose: () => setStatePopupOpen(false),
         popupopen: () => {
@@ -442,9 +410,7 @@ export function ParticipantMarkerElement(props: ParticipantMarkerElementProps) {
               sticky
             ></Tooltip>
           </Polyline>
-        ) : (
-          <></>
-        )
+        ) : undefined
       )
     );
   }

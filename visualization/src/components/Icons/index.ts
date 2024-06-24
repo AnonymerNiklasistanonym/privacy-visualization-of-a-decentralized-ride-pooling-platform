@@ -8,6 +8,7 @@ import {
   // Participants
   DirectionsWalk as ParticipantCustomerIcon,
   Person as ParticipantPersonalDataIcon,
+  ManageSearch as ParticipantQueriesIcon,
   DirectionsCar as ParticipantRideProviderIcon,
   TravelExplore as ParticipantRideRequestIcon,
   // Services
@@ -57,6 +58,7 @@ export {
   PageHomeIcon,
   ParticipantCustomerIcon,
   ParticipantPersonalDataIcon,
+  ParticipantQueriesIcon,
   ParticipantRideProviderIcon,
   ParticipantRideRequestIcon,
   PinnedElementsIcon,

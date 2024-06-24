@@ -1,15 +1,20 @@
 'use client';
 
 // Package imports
+import {useEffect, useMemo, useState} from 'react';
 import {useIntl} from 'react-intl';
-import {useMemo} from 'react';
 // > Components
 import {Box, Grid} from '@mui/material';
 // Local imports
+import {simulationEndpoints} from '@globals/defaults/endpoints';
 // > Components
-import CardParticipant from '@components/Card/CardParticipant';
-import CardRideRequest from '@components/Card/CardRideRequest';
-import {ConnectedElementsIcon} from '@components/Icons';
+import {
+  ConnectedElementsIcon,
+  ParticipantCustomerIcon,
+  ParticipantRideRequestIcon,
+} from '@components/Icons';
+import CardGeneric from '@components/Card/CardGeneric';
+import CardParticipantRefresh from '@components/Card/CardParticipantRefresh';
 import GridConnectedElementsLayout from '@components/Grid/GridConnectedElementsLayout';
 import SearchBar from '@components/TextInput/SearchBar';
 import SectionChangeSpectator from '@components/Tab/TabMap/SectionChangeSpectator';
@@ -21,47 +26,95 @@ import type {
   InfoElement,
 } from '@components/Grid/GridConnectedElementsLayout';
 import type {
-  GlobalPropsParticipantSelectedElements,
+  GlobalPropsIntlValues,
   GlobalPropsSearch,
   GlobalPropsSpectatorMap,
 } from '@misc/props/global';
+import type {
+  SettingsConnectedElementsProps,
+  SettingsUiProps,
+} from '@misc/props/settings';
 import type {ReactElement} from 'react';
-import type {SettingsUiProps} from '@misc/props/settings';
+import type {SimulationEndpointParticipantIdFromPseudonym} from '@globals/types/simulation';
 import type {TableBlockchainProps} from '@components/Table/TableBlockchain';
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface TabBlockchainProps
   extends TableBlockchainProps,
     SettingsUiProps,
-    GlobalPropsParticipantSelectedElements,
     GlobalPropsSpectatorMap,
+    GlobalPropsIntlValues,
+    SettingsConnectedElementsProps,
     GlobalPropsSearch {}
 
 // eslint-disable-next-line no-empty-pattern
 export default function TabBlockchain(props: TabBlockchainProps) {
-  const {stateSettingsUiGridSpacing} = props;
+  const {fetchJsonSimulation, showError, stateSettingsUiGridSpacing} = props;
   const intl = useIntl();
 
+  const [stateSelectedCustomerPseudonym, setStateSelectedCustomerPseudonym] =
+    useState<string | undefined>(undefined);
+  const [
+    stateSelectedRideProviderPseudonym,
+    setStateSelectedRideProviderPseudonym,
+  ] = useState<string | undefined>(undefined);
+
+  const [stateSelectedCustomerResolved, setStateSelectedCustomerResolved] =
+    useState<string | undefined>(undefined);
+  const [
+    stateSelectedRideProviderResolved,
+    setStateSelectedRideProviderResolved,
+  ] = useState<string | undefined>(undefined);
+
+  useEffect(() => {
+    if (stateSelectedCustomerPseudonym !== undefined) {
+      fetchJsonSimulation<SimulationEndpointParticipantIdFromPseudonym>(
+        simulationEndpoints.apiV1.participantIdFromPseudonym(
+          stateSelectedCustomerPseudonym
+        )
+      )
+        .then(data => setStateSelectedCustomerResolved(data.id))
+        .catch(err =>
+          showError('Simulation fetch customer ID from pseudonym', err)
+        );
+    }
+  }, [
+    fetchJsonSimulation,
+    setStateSelectedCustomerResolved,
+    showError,
+    stateSelectedCustomerPseudonym,
+  ]);
+
+  useEffect(() => {
+    if (stateSelectedRideProviderPseudonym !== undefined) {
+      fetchJsonSimulation<SimulationEndpointParticipantIdFromPseudonym>(
+        simulationEndpoints.apiV1.participantIdFromPseudonym(
+          stateSelectedRideProviderPseudonym
+        )
+      )
+        .then(data => setStateSelectedRideProviderResolved(data.id))
+        .catch(err =>
+          showError('Simulation fetch ride provider ID from pseudonym', err)
+        );
+    }
+  }, [
+    fetchJsonSimulation,
+    setStateSelectedRideProviderResolved,
+    showError,
+    stateSelectedRideProviderPseudonym,
+  ]);
+
   const stateConnectedElements = useMemo<Array<ConnectedElementSection>>(() => {
-    const selectedElements: Array<ReactElement> = [];
-    if (
-      props.stateSelectedParticipantTypeGlobal === 'customer' &&
-      props.stateSelectedParticipantCustomerInformationGlobal !== undefined
-    ) {
-      selectedElements.push(
-        <CardParticipant
+    const selectedParticipants: Array<ReactElement> = [];
+    const selectedRideRequests: Array<ReactElement> = [];
+    if (stateSelectedCustomerResolved !== undefined) {
+      selectedParticipants.push(
+        <CardParticipantRefresh
           {...props}
-          participantType={props.stateSelectedParticipantTypeGlobal}
-          stateCustomerInformation={
-            props.stateSelectedParticipantCustomerInformationGlobal
-          }
-          stateRideProviderInformation={null}
-          stateParticipantId={
-            props.stateSelectedParticipantCustomerInformationGlobal.id
-          }
+          participantType={'customer'}
+          participantId={stateSelectedCustomerResolved}
           label={intl.formatMessage(
             {
-              id: 'getacar.spectator.message.lastSelected',
+              id: 'getacar.spectator.message.connected',
             },
             {
               name: intl.formatMessage({
@@ -72,24 +125,15 @@ export default function TabBlockchain(props: TabBlockchainProps) {
         />
       );
     }
-    if (
-      props.stateSelectedParticipantTypeGlobal === 'ride_provider' &&
-      props.stateSelectedParticipantRideProviderInformationGlobal !== undefined
-    ) {
-      selectedElements.push(
-        <CardParticipant
+    if (stateSelectedRideProviderResolved !== undefined) {
+      selectedParticipants.push(
+        <CardParticipantRefresh
           {...props}
-          participantType={props.stateSelectedParticipantTypeGlobal}
-          stateCustomerInformation={null}
-          stateRideProviderInformation={
-            props.stateSelectedParticipantRideProviderInformationGlobal
-          }
-          stateParticipantId={
-            props.stateSelectedParticipantRideProviderInformationGlobal.id
-          }
+          participantType={'ride_provider'}
+          participantId={stateSelectedRideProviderResolved}
           label={intl.formatMessage(
             {
-              id: 'getacar.spectator.message.lastSelected',
+              id: 'getacar.spectator.message.connected',
             },
             {
               name: intl.formatMessage({
@@ -100,15 +144,38 @@ export default function TabBlockchain(props: TabBlockchainProps) {
         />
       );
     }
-    if (
-      props.stateSelectedParticipantRideRequestInformationGlobal !== undefined
-    ) {
-      selectedElements.push(
-        <CardRideRequest
+    if (stateSelectedRideProviderResolved !== undefined) {
+      selectedParticipants.push(
+        <CardGeneric
           {...props}
-          stateRideRequestInformation={
-            props.stateSelectedParticipantRideRequestInformationGlobal
-          }
+          icon={<ParticipantCustomerIcon />}
+          name={intl.formatMessage({
+            id: 'getacar.participant.customer',
+          })}
+          label={intl.formatMessage(
+            {
+              id: 'getacar.spectator.message.connected',
+            },
+            {
+              name: intl.formatMessage({
+                id: 'getacar.spectator.message.passenger',
+              }),
+            }
+          )}
+          id={'TODO'}
+          status={'TODO'}
+          content={[]}
+        />
+      );
+    }
+    if (stateSelectedRideProviderResolved !== undefined) {
+      selectedRideRequests.push(
+        <CardGeneric
+          {...props}
+          icon={<ParticipantRideRequestIcon />}
+          name={intl.formatMessage({
+            id: 'getacar.rideRequest',
+          })}
           label={intl.formatMessage(
             {
               id: 'getacar.spectator.message.connected',
@@ -119,63 +186,41 @@ export default function TabBlockchain(props: TabBlockchainProps) {
               }),
             }
           )}
+          id={'TODO'}
+          status={'TODO'}
+          content={[]}
         />
       );
     }
-    if (
-      props.stateSelectedParticipantTypeGlobal !== 'ride_provider' &&
-      props.stateSelectedParticipantRideProviderInformationGlobal !== undefined
-    ) {
-      selectedElements.push(
-        <CardParticipant
-          {...props}
-          participantType={
-            props.stateSelectedParticipantRideProviderInformationGlobal.type
-          }
-          stateCustomerInformation={null}
-          stateRideProviderInformation={
-            props.stateSelectedParticipantRideProviderInformationGlobal
-          }
-          stateParticipantId={
-            props.stateSelectedParticipantRideProviderInformationGlobal.id
-          }
-          label={intl.formatMessage({
-            id: 'getacar.spectator.message.driver',
-          })}
-        />
-      );
-    }
-    if (
-      props.stateSelectedParticipantTypeGlobal !== 'customer' &&
-      props.stateSelectedParticipantCustomerInformationGlobal !== undefined
-    ) {
-      selectedElements.push(
-        <CardParticipant
-          {...props}
-          participantType={
-            props.stateSelectedParticipantCustomerInformationGlobal.type
-          }
-          stateCustomerInformation={
-            props.stateSelectedParticipantCustomerInformationGlobal
-          }
-          stateRideProviderInformation={null}
-          stateParticipantId={
-            props.stateSelectedParticipantCustomerInformationGlobal.id
-          }
-          label={intl.formatMessage({
-            id: 'getacar.spectator.message.passenger',
-          })}
-        />
-      );
-    }
+    // TODO Show connected Ride Request
     return [
       {
-        elements: selectedElements,
+        elements: selectedParticipants,
         icon: <ConnectedElementsIcon fontSize="large" />,
-        title: 'Connected Elements',
+        title: intl.formatMessage(
+          {id: 'getacar.spectator.message.connected'},
+          {
+            name: intl.formatMessage({id: 'getacar.participant.plural'}),
+          }
+        ),
+      },
+      {
+        elements: selectedRideRequests,
+        icon: <ConnectedElementsIcon fontSize="large" />,
+        title: intl.formatMessage(
+          {id: 'getacar.spectator.message.connected'},
+          {
+            name: intl.formatMessage({id: 'getacar.rideRequest.plural'}),
+          }
+        ),
       },
     ];
-  }, [intl, props]);
+  }, [
+    intl,
+    props,
+    stateSelectedCustomerResolved,
+    stateSelectedRideProviderResolved,
+  ]);
 
   const stateInfoElements = useMemo<Array<InfoElement>>(
     () => [
@@ -222,7 +267,13 @@ export default function TabBlockchain(props: TabBlockchainProps) {
                 }rem)`,
               }}
             >
-              <TableBlockchain {...props} />
+              <TableBlockchain
+                {...props}
+                onRowSelect={(customerPseudonym, rideProviderPseudonym) => {
+                  setStateSelectedCustomerPseudonym(customerPseudonym);
+                  setStateSelectedRideProviderPseudonym(rideProviderPseudonym);
+                }}
+              />
             </Box>
           </Grid>
         </Grid>

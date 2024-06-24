@@ -5,6 +5,7 @@
 import {Box, Chip, Typography} from '@mui/material';
 // Type imports
 import type {PropsWithChildren, ReactElement} from 'react';
+import type {GlobalPropsIntlValues} from '@misc/props/global';
 import type {ReactSetState} from '@misc/react';
 
 export interface OverviewElementImageProps {
@@ -51,9 +52,8 @@ export function ImageBox({
   );
 }
 
-export interface OverviewElementProps {
+export interface OverviewElementProps extends GlobalPropsIntlValues {
   showTitle?: boolean;
-  intlValues: {[key: string]: ReactElement};
 }
 
 export interface ChipListProps {

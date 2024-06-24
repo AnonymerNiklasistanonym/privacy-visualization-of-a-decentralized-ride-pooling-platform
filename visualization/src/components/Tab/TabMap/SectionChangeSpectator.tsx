@@ -126,7 +126,7 @@ export function SectionChangeSpectator(props: SectionChangeSpectatorProps) {
 }
 
 export function ButtonCurrentSpectator({
-  setStateSelectedSpectator,
+  setStateShowSpectator,
   stateSpectator,
   stateSpectators,
 }: SectionChangeSpectatorProps) {
@@ -134,7 +134,7 @@ export function ButtonCurrentSpectator({
   return (
     <GenericButton
       icon={currentSpectator?.icon}
-      onClick={() => setStateSelectedSpectator(stateSpectator)}
+      onClick={() => setStateShowSpectator(stateSpectator)}
       secondaryColor={true}
     >
       {currentSpectator?.name ?? stateSpectator ?? undefined}

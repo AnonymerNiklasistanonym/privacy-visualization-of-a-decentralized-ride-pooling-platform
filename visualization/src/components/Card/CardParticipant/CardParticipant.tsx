@@ -1,7 +1,8 @@
 // Package imports
 import {memo, useMemo} from 'react';
+import {useIntl} from 'react-intl';
 // > Components
-import {Button, List, Typography} from '@mui/material';
+import {List} from '@mui/material';
 // Local imports
 import {dataModalInformationPersonalData} from './PopupContentGeneric';
 // > Components
@@ -9,8 +10,8 @@ import {DataElement, RenderDataElement} from './PopupContentGeneric';
 import {
   ParticipantCustomerIcon,
   ParticipantPersonalDataIcon,
+  ParticipantQueriesIcon,
   ParticipantRideProviderIcon,
-  ParticipantRideRequestIcon,
 } from '@components/Icons';
 import {
   ParticipantsCustomer,
@@ -30,11 +31,13 @@ import type {
 } from '@globals/types/simulation';
 import type {ChangeViewButtonProps} from '@components/Button/ChangeViewButton';
 import type {DataModalInformation} from '@components/Modal/DataModal';
+import type {GlobalPropsIntlValues} from '@misc/props/global';
 import type {ReactState} from '@misc/react';
 
 export interface CardParticipantProps
   extends ChangeViewButtonProps,
-    CardGenericProps {
+    CardGenericProps,
+    GlobalPropsIntlValues {
   stateParticipantId: ReactState<string>;
   stateCustomerInformation: ReactState<null | SimulationEndpointParticipantInformationCustomer>;
   stateRideProviderInformation: ReactState<null | SimulationEndpointParticipantInformationRideProvider>;
@@ -46,13 +49,13 @@ export default memo(CardParticipant);
 
 export function CardParticipant(props: CardParticipantProps) {
   const {
-    setStateSelectedRideRequest,
-    showRideRequest,
     stateParticipantId,
     stateCustomerInformation,
     stateRideProviderInformation,
     participantType,
+    intlValues,
   } = props;
+  const intl = useIntl();
   const content: CardGenericPropsContentElement[] = useMemo(() => {
     const result: Array<CardGenericPropsContentElement> = [];
     if (participantType === 'customer') {
@@ -138,15 +141,45 @@ export function CardParticipant(props: CardParticipantProps) {
                     dataOriginName={`Customer (${stateCustomerInformation.id})`}
                     dataOriginId={stateCustomerInformation.id}
                     dataOriginIcon={<ParticipantCustomerIcon />}
-                    dataOriginInformation={<ParticipantsCustomer />}
+                    dataOriginInformation={
+                      <ParticipantsCustomer intlValues={intlValues} />
+                    }
                     dataAccessInformation={a.dataAccessInformation}
                   />
                 ))
               : null}
           </List>
         ),
-        label: 'Personal Details',
+        label: intl.formatMessage({id: 'data.section.personalDetails'}),
         labelIcon: <ParticipantPersonalDataIcon />,
+      });
+      result.push({
+        content: (
+          <List>
+            {stateCustomerInformation ? (
+              <RenderDataElement
+                {...props}
+                key={'render-data-element-queries'}
+                element={{
+                  content: 'TODO',
+                  dataAccessInformation: dataModalInformationPersonalData,
+                  label: 'Rank',
+                  showContentSpectator: showContentSpectatorContactDetails,
+                }}
+                id={stateCustomerInformation.id}
+                dataOriginName={`Customer (${stateCustomerInformation.id})`}
+                dataOriginId={stateCustomerInformation.id}
+                dataOriginIcon={<ParticipantCustomerIcon />}
+                dataOriginInformation={
+                  <ParticipantsCustomer intlValues={intlValues} />
+                }
+                dataAccessInformation={dataModalInformationPersonalData}
+              />
+            ) : null}
+          </List>
+        ),
+        label: intl.formatMessage({id: 'data.section.queries'}),
+        labelIcon: <ParticipantQueriesIcon />,
       });
       if (stateCustomerInformation?.passenger !== undefined) {
         result.push({
@@ -163,33 +196,33 @@ export function CardParticipant(props: CardParticipantProps) {
           labelIcon: <ParticipantRideProviderIcon />,
         });
       }
-      if (
-        stateCustomerInformation?.rideRequest !== undefined &&
-        showRideRequest
-      ) {
-        result.push({
-          content: (
-            <Typography variant="body2" gutterBottom>
-              <Button
-                variant="contained"
-                startIcon={<ParticipantRideRequestIcon />}
-                onClick={() =>
-                  setStateSelectedRideRequest(
-                    stateCustomerInformation.rideRequest
-                  )
-                }
-              >
-                Show ride request ({stateCustomerInformation.rideRequest})
-              </Button>
-            </Typography>
-          ),
-          label: 'Ride Request',
-          labelIcon: <ParticipantRideRequestIcon />,
-        });
-      }
+      //if (
+      //  stateCustomerInformation?.rideRequest !== undefined &&
+      //  showRideRequest
+      //) {
+      //  // TODO Add Ride
+      //  result.push({
+      //    content: (
+      //      <Typography variant="body2" gutterBottom>
+      //        <Button
+      //          variant="contained"
+      //          startIcon={<ParticipantRideRequestIcon />}
+      //          onClick={() =>
+      //            setStateSelectedRideRequest(
+      //              stateCustomerInformation.rideRequest
+      //            )
+      //          }
+      //        >
+      //          Show ride request ({stateCustomerInformation.rideRequest})
+      //        </Button>
+      //      </Typography>
+      //    ),
+      //    label: 'Ride Request',
+      //    labelIcon: <ParticipantRideRequestIcon />,
+      //  });
+      //}
     }
     if (participantType === 'ride_provider') {
-      const {setStateSelectedRideRequest, showRideRequest} = props;
       const result: Array<CardGenericPropsContentElement> = [];
       const showContentSpectatorContactDetails = [
         {
@@ -227,7 +260,9 @@ export function CardParticipant(props: CardParticipantProps) {
                   dataOriginName={`Ride Provider (${stateParticipantId})`}
                   dataOriginId={stateParticipantId}
                   dataOriginIcon={<ParticipantRideProviderIcon />}
-                  dataOriginInformation={<ParticipantsRideProvider />}
+                  dataOriginInformation={
+                    <ParticipantsRideProvider intlValues={intlValues} />
+                  }
                   dataAccessInformation={a.dataAccessInformation}
                 />
               ))}
@@ -300,13 +335,15 @@ export function CardParticipant(props: CardParticipantProps) {
                   dataOriginName={`Ride Provider (${stateParticipantId})`}
                   dataOriginId={stateParticipantId}
                   dataOriginIcon={<ParticipantRideProviderIcon />}
-                  dataOriginInformation={<ParticipantsRideProvider />}
+                  dataOriginInformation={
+                    <ParticipantsRideProvider intlValues={intlValues} />
+                  }
                   dataAccessInformation={a.dataAccessInformation}
                 />
               ))}
             </List>
           ),
-          label: 'Personal Details',
+          label: intl.formatMessage({id: 'data.section.personalDetails'}),
           labelIcon: <ParticipantPersonalDataIcon />,
         });
       }
@@ -335,38 +372,40 @@ export function CardParticipant(props: CardParticipantProps) {
           labelIcon: <ParticipantRideProviderIcon />,
         });
       }
-      if (
-        stateRideProviderInformation?.rideRequest !== undefined &&
-        showRideRequest
-      ) {
-        result.push({
-          content: (
-            <Typography variant="body2" gutterBottom>
-              <Button
-                variant="contained"
-                startIcon={<ParticipantRideRequestIcon />}
-                onClick={() =>
-                  setStateSelectedRideRequest(
-                    stateRideProviderInformation.rideRequest
-                  )
-                }
-              >
-                Show ride request ({stateRideProviderInformation.rideRequest})
-              </Button>
-            </Typography>
-          ),
-          label: 'Ride Request',
-          labelIcon: <ParticipantRideRequestIcon />,
-        });
-      }
+      //// TODO Show Ride Request
+      //if (
+      //  stateRideProviderInformation?.rideRequest !== undefined &&
+      //  showRideRequest
+      //) {
+      //  result.push({
+      //    content: (
+      //      <Typography variant="body2" gutterBottom>
+      //        <Button
+      //          variant="contained"
+      //          startIcon={<ParticipantRideRequestIcon />}
+      //          onClick={() =>
+      //            setStateSelectedRideRequest(
+      //              stateRideProviderInformation.rideRequest
+      //            )
+      //          }
+      //        >
+      //          Show ride request ({stateRideProviderInformation.rideRequest})
+      //        </Button>
+      //      </Typography>
+      //    ),
+      //    label: 'Ride Request',
+      //    labelIcon: <ParticipantRideRequestIcon />,
+      //  });
+      //}
     }
     return result;
   }, [
+    intl,
+    intlValues,
     participantType,
     props,
-    setStateSelectedRideRequest,
-    showRideRequest,
     stateCustomerInformation,
+    stateParticipantId,
     stateRideProviderInformation,
   ]);
   const actions = useMemo(

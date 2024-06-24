@@ -12,11 +12,13 @@ import type {
 } from '@globals/types/simulation';
 import type {ChangeViewButtonProps} from '@components/Button/ChangeViewButton';
 import type {GetACarParticipantTypes} from '@globals/types/participant';
+import type {GlobalPropsIntlValues} from '@misc/props/global';
 import type {SettingsConnectedElementsProps} from '@misc/props/settings';
 
 export interface CardParticipantRefreshProps
   extends ChangeViewButtonProps,
-    SettingsConnectedElementsProps {
+    SettingsConnectedElementsProps,
+    GlobalPropsIntlValues {
   participantType: GetACarParticipantTypes;
   participantId: string;
   label: string;
@@ -34,6 +36,7 @@ export function CardParticipantRefresh(props: CardParticipantRefreshProps) {
     showError,
     stateSettingsCardUpdateRateInMs,
     onUnpin,
+    intlValues,
   } = props;
 
   const [stateCustomerInformation, setStateCustomerInformation] =
@@ -82,6 +85,7 @@ export function CardParticipantRefresh(props: CardParticipantRefreshProps) {
       stateParticipantId={participantId}
       label={label}
       unpinAction={onUnpin}
+      intlValues={intlValues}
     />
   );
 }
