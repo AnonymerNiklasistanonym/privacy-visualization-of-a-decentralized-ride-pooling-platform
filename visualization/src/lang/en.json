@@ -30,6 +30,8 @@
   "getacar.spectator.message.connected": "Connected {name}",
   "getacar.spectator.message.driver": "Driver",
   "getacar.spectator.message.lastSelected": "Last selected {name}",
+  "page.home.tab.settings.connectedElements.title": "Connected Elements",
+  "getacar.spectator.message.pinned": "Pinned {name}",
   "getacar.spectator.message.passenger": "Passenger",
   "getacar.spectator.message.selected": "Selected {name}",
   "getacar.spectator.participant.customerid": "Customer ({id})",

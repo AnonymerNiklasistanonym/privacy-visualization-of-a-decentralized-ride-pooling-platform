@@ -21,6 +21,7 @@ export interface ReactPropsI18nHome {
   };
 }
 
-//export type ReactSetState<T> = (newValue: T | ((prevValue: T) => T)) => void;
+/** React state setter */
 export type ReactSetState<T> = Dispatch<T>;
-export type ReactState<T> = T;
+/** React state that should not be edited */
+export type ReactState<T> = Readonly<T>;

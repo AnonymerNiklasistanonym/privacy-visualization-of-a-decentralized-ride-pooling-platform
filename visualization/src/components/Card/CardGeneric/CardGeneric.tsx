@@ -2,18 +2,24 @@
 // > Components
 import {
   Box,
+  Card,
+  CardActions,
+  CardContent,
+  CardHeader,
   Chip,
   CircularProgress,
   Divider,
+  IconButton,
   Stack,
-  Typography,
 } from '@mui/material';
 import {
   Fingerprint as FingerprintIcon,
   Info as InfoIcon,
+  PushPin as PinIcon,
+  Remove as UnpinIcon,
 } from '@mui/icons-material';
 // Type imports
-import type {ReactElement, ReactNode} from 'react';
+import {type ReactElement, type ReactNode, useMemo} from 'react';
 
 export interface CardGenericPropsContentElement {
   /** Label of the content element */
@@ -32,6 +38,12 @@ export interface CardGenericProps {
   scrollHeight?: string;
   /** Restrict card width */
   maxWidth?: string;
+  /** Add pin button action */
+  pinAction?: () => void;
+  /** Add unpin button action */
+  unpinAction?: () => void;
+  /** Add unpin button action */
+  isPinned?: boolean;
 }
 
 export interface CardGenericPropsInput extends CardGenericProps {
@@ -45,6 +57,8 @@ export interface CardGenericPropsInput extends CardGenericProps {
   id?: string;
   /** The content to be rendered */
   content: Array<CardGenericPropsContentElement>;
+  /** The actions to be rendered */
+  actions?: Array<ReactNode>;
 }
 
 export default function CardGeneric(props: CardGenericPropsInput) {
@@ -56,58 +70,94 @@ export default function CardGeneric(props: CardGenericPropsInput) {
     id,
     content,
     onDelete,
+    pinAction,
+    unpinAction,
+    actions,
+    isPinned,
     scrollHeight,
     maxWidth,
   } = props;
+  const titleStackList = useMemo(() => {
+    const result: Array<ReactElement> = [];
+    if (label !== undefined) {
+      result.push(
+        <Chip
+          key="label"
+          label={label}
+          size="small"
+          color="warning"
+          icon={<InfoIcon />}
+          onDelete={onDelete}
+        />
+      );
+    }
+    if (id !== undefined) {
+      result.push(
+        <Chip
+          key="id"
+          label={id}
+          size="small"
+          variant="outlined"
+          icon={<FingerprintIcon />}
+        />
+      );
+    }
+    if (status !== undefined) {
+      result.push(
+        <Chip
+          key="status"
+          label={status}
+          size="small"
+          color="primary"
+          icon={<InfoIcon />}
+          sx={{maxWidth: '100%'}}
+        />
+      );
+    }
+    return result;
+  }, [name, label, id, status, onDelete]);
+  const iconActions = useMemo(() => {
+    const result = [];
+    if (
+      pinAction !== undefined &&
+      (isPinned === undefined || isPinned === false)
+    ) {
+      result.push(
+        <IconButton aria-label="pin" onClick={() => pinAction()}>
+          <PinIcon />
+        </IconButton>
+      );
+    }
+    if (
+      unpinAction !== undefined &&
+      (isPinned === undefined || isPinned === true)
+    ) {
+      result.push(
+        <IconButton aria-label="unpin" onClick={() => unpinAction()}>
+          <UnpinIcon />
+        </IconButton>
+      );
+    }
+    return result;
+  }, [isPinned, pinAction, unpinAction]);
   return (
-    <Box display="flex" justifyContent="left">
-      <Box
-        component="section"
+    <Card variant="outlined">
+      <CardHeader
+        avatar={icon}
+        action={iconActions}
+        title={name}
+        subheader={
+          <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap">
+            {titleStackList}
+          </Stack>
+        }
         sx={{
-          maxHeight: scrollHeight,
-          maxWidth,
-          overflowX: 'hidden',
-          overflowY: 'scroll',
-          width: '100%',
+          '& .MuiCardHeader-content': {
+            overflow: 'hidden',
+          },
         }}
-      >
-        {label !== undefined ? (
-          <Chip
-            label={label}
-            size="small"
-            color="warning"
-            icon={<InfoIcon />}
-            onDelete={onDelete}
-          />
-        ) : undefined}
-        <Stack alignItems="center" direction="row" gap={2}>
-          {icon}
-          <Typography variant="h5" gutterBottom>
-            {name}
-          </Typography>
-        </Stack>
-        <Stack
-          direction="row"
-          spacing={1}
-          useFlexGap
-          flexWrap="wrap"
-          style={{marginBottom: 10}}
-        >
-          <Chip
-            label={id}
-            size="small"
-            variant="outlined"
-            icon={<FingerprintIcon />}
-          />
-          {status !== undefined ? (
-            <Chip
-              label={status}
-              size="small"
-              color="primary"
-              icon={<InfoIcon />}
-            />
-          ) : undefined}
-        </Stack>
+      />
+      <CardContent>
         {content.map((a, index) => (
           <div key={index}>
             {a.label ? (
@@ -131,7 +181,10 @@ export default function CardGeneric(props: CardGenericPropsInput) {
             )}
           </div>
         ))}
-      </Box>
-    </Box>
+      </CardContent>
+      {actions !== undefined && actions.length > 0 ? (
+        <CardActions>{actions}</CardActions>
+      ) : undefined}
+    </Card>
   );
 }

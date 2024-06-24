@@ -37,13 +37,23 @@ export interface SettingsThemePropsSet extends SettingsGlobalPropsSet {
   stateThemeMode: ReactState<'light' | 'dark'>;
   setStateThemeMode: ReactSetState<'light' | 'dark'>;
 }
+export interface SettingsConnectedElementsProps extends SettingsGlobalProps {
+  stateSettingsCardUpdateRateInMs: ReactState<number>;
+}
+export interface SettingsConnectedElementsPropsSet
+  extends SettingsGlobalPropsSet {
+  setStateSettingsCardUpdateRateInMs: ReactSetState<number>;
+}
 
 export interface SettingsUiProps extends SettingsGlobalPropsSet {
   stateSettingsUiNavBarPosition: 'bottom' | 'top';
-  setStateSettingsUiNavBarPosition: Dispatch<'bottom' | 'top'>;
   stateSettingsUiGridSpacing: number;
-  setStateSettingsUiGridSpacing: Dispatch<number>;
   stateSettingsUiMapScroll: boolean;
+}
+
+export interface SettingsUiPropsSet extends SettingsGlobalPropsSet {
+  setStateSettingsUiNavBarPosition: Dispatch<'bottom' | 'top'>;
+  setStateSettingsUiGridSpacing: Dispatch<number>;
   setStateSettingsUiMapScroll: Dispatch<boolean>;
 }
 
@@ -57,4 +67,7 @@ export interface SettingsProps
     SettingsBlockchainProps,
     SettingsBlockchainPropsSet,
     SettingsThemePropsSet,
-    SettingsUiProps {}
+    SettingsConnectedElementsProps,
+    SettingsConnectedElementsPropsSet,
+    SettingsUiProps,
+    SettingsUiPropsSet {}

@@ -40,6 +40,7 @@ import type {
   GlobalPropsSpectatorSelectedElements,
   GlobalPropsSpectatorSelectedElementsSet,
 } from '@misc/props/global';
+import type {ReactSetState, ReactState} from '@misc/react';
 import type {SettingsMapProps, SettingsUiProps} from '@misc/props/settings';
 import type {
   SimulationEndpointGraphInformation,
@@ -47,7 +48,6 @@ import type {
 } from '@globals/types/simulation';
 import type {Dispatch} from 'react';
 import type {PathfinderEndpointGraphInformation} from '@globals/types/pathfinder';
-import type {ReactState} from '@misc/react';
 
 export interface StatPos {
   lat: number;
@@ -70,6 +70,10 @@ export interface MapPropsInput extends MapProps {
   stateGraphPathfinder: ReactState<PathfinderEndpointGraphInformation>;
   startPos: StatPos;
   stateParticipantCoordinatesList: ReactState<SimulationEndpointParticipantCoordinates>;
+  setStatePinnedCustomers: ReactSetState<Array<string>>;
+  setStatePinnedRideProviders: ReactSetState<Array<string>>;
+  statePinnedCustomers: ReactState<Array<string>>;
+  statePinnedRideProviders: ReactState<Array<string>>;
 }
 
 export default function Map(props: MapPropsInput) {
@@ -79,6 +83,10 @@ export default function Map(props: MapPropsInput) {
     stateParticipantCoordinatesList,
     startPos,
     stateSettingsGlobalDebug,
+    setStatePinnedCustomers,
+    setStatePinnedRideProviders,
+    statePinnedCustomers,
+    statePinnedRideProviders,
   } = props;
 
   const intl = useIntl();
@@ -148,6 +156,18 @@ export default function Map(props: MapPropsInput) {
                   stateParticipantLat={customer.lat}
                   stateParticipantLong={customer.long}
                   participantType="customer"
+                  isPinned={statePinnedCustomers.includes(customer.id)}
+                  onPin={() =>
+                    setStatePinnedCustomers(prev => [
+                      ...prev.filter(id => id !== customer.id),
+                      customer.id,
+                    ])
+                  }
+                  onUnpin={() =>
+                    setStatePinnedCustomers(prev =>
+                      prev.filter(id => id !== customer.id)
+                    )
+                  }
                 />
               ))}
             </LayerGroup>
@@ -166,6 +186,20 @@ export default function Map(props: MapPropsInput) {
                     stateParticipantLat={rideProvider.lat}
                     stateParticipantLong={rideProvider.long}
                     participantType="ride_provider"
+                    isPinned={statePinnedRideProviders.includes(
+                      rideProvider.id
+                    )}
+                    onPin={() =>
+                      setStatePinnedRideProviders(prev => [
+                        ...prev.filter(id => id !== rideProvider.id),
+                        rideProvider.id,
+                      ])
+                    }
+                    onUnpin={() =>
+                      setStatePinnedRideProviders(prev =>
+                        prev.filter(id => id !== rideProvider.id)
+                      )
+                    }
                   />
                 )
               )}

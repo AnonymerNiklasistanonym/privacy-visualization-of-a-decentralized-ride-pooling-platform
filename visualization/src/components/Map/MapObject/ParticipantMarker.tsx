@@ -62,6 +62,9 @@ interface ParticipantMarkerProps
   stateParticipantLat: number;
   /** The participant ID and current coordinates */
   participantType: SimulationEndpointParticipantTypes;
+  onPin: () => void;
+  onUnpin: () => void;
+  isPinned: boolean;
 }
 
 // TODO
@@ -268,6 +271,9 @@ export function ParticipantMarkerElement(props: ParticipantMarkerElementProps) {
     stateSelectedSpectator,
     setStateSelectedSpectator,
     stateSettingsUiMapScroll,
+    onPin,
+    onUnpin,
+    isPinned,
   } = props;
   const elementsToRender: Array<ReactNode> = [];
 
@@ -288,9 +294,6 @@ export function ParticipantMarkerElement(props: ParticipantMarkerElementProps) {
       const marker = markerRef.current;
       if (marker) {
         // TODO: Fix
-        if (marker.isPopupOpen()) {
-          marker.closePopup();
-        }
         marker.openPopup();
       }
       // Reset selected spectator
@@ -354,6 +357,9 @@ export function ParticipantMarkerElement(props: ParticipantMarkerElementProps) {
           stateParticipantId={stateParticipantId}
           scrollHeight={stateSettingsUiMapScroll ? '50vh' : undefined}
           maxWidth={'30vw'}
+          pinAction={() => onPin()}
+          unpinAction={() => onUnpin()}
+          isPinned={isPinned}
         />
       </Popup>
     </Marker>

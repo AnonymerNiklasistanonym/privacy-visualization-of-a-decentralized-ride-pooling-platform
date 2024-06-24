@@ -104,13 +104,7 @@ export default function GridConnectedElementsLayout({
                       }}
                     >
                       <Masonry gutter={`${stateSettingsUiGridSpacing / 2}rem`}>
-                        {stateConnectedElement.elements.map(
-                          (element, index) => (
-                            <Card key={index} variant="outlined">
-                              <CardContent>{element}</CardContent>
-                            </Card>
-                          )
-                        )}
+                        {stateConnectedElement.elements}
                       </Masonry>
                     </ResponsiveMasonry>
                   </GridConnectedElementsCard>

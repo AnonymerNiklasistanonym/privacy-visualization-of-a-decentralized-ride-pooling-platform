@@ -3,7 +3,9 @@ import {memo, useMemo} from 'react';
 // > Components
 import {Button, List, Typography} from '@mui/material';
 // Local imports
+import {dataModalInformationPersonalData} from './PopupContentGeneric';
 // > Components
+import {DataElement, RenderDataElement} from './PopupContentGeneric';
 import {
   ParticipantCustomerIcon,
   ParticipantPersonalDataIcon,
@@ -29,11 +31,6 @@ import type {
 import type {ChangeViewButtonProps} from '@components/Button/ChangeViewButton';
 import type {DataModalInformation} from '@components/Modal/DataModal';
 import type {ReactState} from '@misc/react';
-import {
-  DataElement,
-  RenderDataElement,
-  dataModalInformationPersonalData,
-} from './PopupContentGeneric';
 
 export interface CardParticipantProps
   extends ChangeViewButtonProps,
@@ -378,32 +375,28 @@ export function CardParticipant(props: CardParticipantProps) {
     stateCustomerInformation,
     stateRideProviderInformation,
   ]);
-  const contentFinal = useMemo(
+  const actions = useMemo(
     () => [
-      ...content,
-      {
-        content: (
-          <ChangeViewButton
-            {...props}
-            actorId={stateParticipantId}
-            icon={
-              participantType === 'customer' ? (
-                <ParticipantCustomerIcon />
-              ) : (
-                <ParticipantRideProviderIcon />
-              )
-            }
-            isPseudonym={false}
-            label={
-              participantType === 'customer'
-                ? 'this customer'
-                : 'this ride provider'
-            }
-          />
-        ),
-      },
+      <ChangeViewButton
+        {...props}
+        key={`spectate-button-${stateParticipantId}`}
+        actorId={stateParticipantId}
+        icon={
+          participantType === 'customer' ? (
+            <ParticipantCustomerIcon />
+          ) : (
+            <ParticipantRideProviderIcon />
+          )
+        }
+        isPseudonym={false}
+        label={
+          participantType === 'customer'
+            ? 'this customer'
+            : 'this ride provider'
+        }
+      />,
     ],
-    [content, participantType, props, stateParticipantId]
+    [participantType, props, stateParticipantId]
   );
   return (
     <CardGeneric
@@ -422,7 +415,8 @@ export function CardParticipant(props: CardParticipantProps) {
           ? stateCustomerInformation?.simulationStatus
           : stateRideProviderInformation?.simulationStatus
       }
-      content={contentFinal}
+      content={content}
+      actions={actions}
     />
   );
 }

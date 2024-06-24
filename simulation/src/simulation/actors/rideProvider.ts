@@ -143,7 +143,7 @@ export abstract class RideProvider<
         closedRideRequest,
       });
       // 4. Drive to customer and drive them to the dropoff location
-      this.status = 'drive to ride requests pickup location';
+      this.status = 'drive to pickup location';
       // TODO Fix this to correspond to the driver arriving at location, for now just wait the sky distance multiplied by a car speed
       await this.moveToLocation(
         simulation,
@@ -151,7 +151,7 @@ export abstract class RideProvider<
       );
       randMatchService.helperSetRideProviderArrived(openRideRequest.id);
       this.passengerList.push(closedRideRequest.request.userId);
-      this.status = 'drive to ride requests dropoff location';
+      this.status = 'drive to dropoff location';
       await this.moveToLocation(
         simulation,
         closedRideRequest.request.dropoffLocationReal

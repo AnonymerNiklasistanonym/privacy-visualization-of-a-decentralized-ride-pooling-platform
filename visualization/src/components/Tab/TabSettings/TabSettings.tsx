@@ -28,6 +28,7 @@ import {ReactElement, memo, useEffect, useMemo, useState} from 'react';
 import {i18n, i18nGetLanguageName} from '../../../../i18n-config';
 // > Components
 import {
+  ConnectedElementsIcon,
   SettingsBrightnessIcon,
   SettingsDebugIcon,
   SettingsLanguageIcon,
@@ -286,6 +287,8 @@ export function TabSettings({
   stateSettingsUiGridSpacing,
   setStateSettingsUiMapScroll,
   stateSettingsUiMapScroll,
+  stateSettingsCardUpdateRateInMs,
+  setStateSettingsCardUpdateRateInMs,
   setStateThemeMode,
   stateThemeMode,
 }: TabSettingsProps) {
@@ -476,6 +479,22 @@ export function TabSettings({
         elements: [
           {
             label: intl.formatMessage({
+              id: 'page.home.tab.settings.card.generic.updateRate',
+            }),
+            setStateValue: setStateSettingsCardUpdateRateInMs,
+            stateValue: stateSettingsCardUpdateRateInMs,
+            type: 'ms',
+          },
+        ],
+        icon: <ConnectedElementsIcon />,
+        title: intl.formatMessage({
+          id: 'page.home.tab.settings.connectedElements.title',
+        }),
+      },
+      {
+        elements: [
+          {
+            label: intl.formatMessage({
               id: 'page.home.tab.settings.card.debug.enableDebug',
             }),
             setStateValue: setStateSettingsGlobalDebug,
@@ -572,6 +591,8 @@ export function TabSettings({
       stateSettingsMapBaseUrlSimulation,
       setStateSettingsMapUpdateRateInMs,
       stateSettingsMapUpdateRateInMs,
+      setStateSettingsCardUpdateRateInMs,
+      stateSettingsCardUpdateRateInMs,
       setStateSettingsGlobalDebug,
       stateSettingsGlobalDebug,
       stateSettingsUiNavBarPositionLocal,

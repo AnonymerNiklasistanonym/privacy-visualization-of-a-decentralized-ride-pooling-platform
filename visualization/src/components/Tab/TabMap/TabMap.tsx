@@ -12,8 +12,10 @@ import {
   ConnectedElementsIcon,
   ParticipantCustomerIcon,
   ParticipantRideProviderIcon,
+  PinnedElementsIcon,
 } from '@components/Icons';
 import CardParticipant from '@components/Card/CardParticipant';
+import CardParticipantRefresh from '@components/Card/CardParticipantRefresh';
 import CardRideRequest from '@components/Card/CardRideRequest';
 import GenericButton from '@components/Button/GenericButton';
 import GridConnectedElementsLayout from '@components/Grid/GridConnectedElementsLayout';
@@ -46,7 +48,11 @@ import type {
   GlobalPropsSpectatorSelectedElementsSet,
   GlobalPropsSpectatorsSet,
 } from '@misc/props/global';
-import type {SettingsMapProps, SettingsUiProps} from '@misc/props/settings';
+import type {
+  SettingsConnectedElementsProps,
+  SettingsMapProps,
+  SettingsUiProps,
+} from '@misc/props/settings';
 import type {
   SimulationEndpointGraphInformation,
   SimulationEndpointParticipantCoordinates,
@@ -65,6 +71,7 @@ import type {ReactElement} from 'react';
 export interface TabMapProps
   extends SettingsMapProps,
     SettingsUiProps,
+    SettingsConnectedElementsProps,
     MapProps,
     GlobalPropsSpectatorsSet,
     GlobalPropsSpectatorMap,
@@ -90,17 +97,20 @@ export default function TabMap(props: TabMapProps) {
   } = props;
 
   // React states
+  // > Debug
   const [stateDebugData, setStateDebugData] = useState<DebugData>({
     customers: [],
     rideProviders: [],
     rideRequests: [],
     smartContracts: [],
   });
+  // > Participant coordinates
   const [stateParticipantCoordinatesList, setStateParticipantCoordinatesList] =
     useState<SimulationEndpointParticipantCoordinates>({
       customers: [],
       rideProviders: [],
     });
+  // > Graphs
   const [stateGraph, setGraphState] =
     useState<SimulationEndpointGraphInformation>({
       edges: [],
@@ -112,6 +122,13 @@ export default function TabMap(props: TabMapProps) {
       edges: [],
       vertices: [],
     });
+  // > Pinned participants
+  const [statePinnedCustomers, setStatePinnedCustomers] = useState<
+    Array<string>
+  >([]);
+  const [statePinnedRideProviders, setStatePinnedRideProviders] = useState<
+    Array<string>
+  >([]);
 
   const fetchGraphs = (clear = false) => {
     if (clear === true) {
@@ -290,10 +307,14 @@ export default function TabMap(props: TabMapProps) {
 
   const propsTabMap = {
     ...props,
+    setStatePinnedCustomers,
+    setStatePinnedRideProviders,
     showRideRequest: true,
     stateGraph,
     stateGraphPathfinder,
     stateParticipantCoordinatesList,
+    statePinnedCustomers,
+    statePinnedRideProviders,
   };
 
   // React: Effects
@@ -310,26 +331,18 @@ export default function TabMap(props: TabMapProps) {
   const stateDismissibleElements = useMemo<Array<InfoElement>>(() => [], []);
 
   const stateConnectedElements = useMemo<Array<ConnectedElementSection>>(() => {
+    const pinnedParticipants: Array<ReactElement> = [];
     const selectedParticipants: Array<ReactElement> = [];
     const selectedContracts: Array<ReactElement> = [];
-    if (
-      props.stateSelectedParticipantTypeGlobal === 'customer' &&
-      props.stateSelectedParticipantCustomerInformationGlobal !== undefined
-    ) {
-      selectedParticipants.push(
-        <CardParticipant
+    for (const pinnedCustomerId of statePinnedCustomers) {
+      pinnedParticipants.push(
+        <CardParticipantRefresh
           {...props}
-          participantType={props.stateSelectedParticipantTypeGlobal}
-          stateCustomerInformation={
-            props.stateSelectedParticipantCustomerInformationGlobal
-          }
-          stateRideProviderInformation={null}
-          stateParticipantId={
-            props.stateSelectedParticipantCustomerInformationGlobal.id
-          }
+          participantType={'customer'}
+          participantId={pinnedCustomerId}
           label={intl.formatMessage(
             {
-              id: 'getacar.spectator.message.lastSelected',
+              id: 'getacar.spectator.message.pinned',
             },
             {
               name: intl.formatMessage({
@@ -337,27 +350,23 @@ export default function TabMap(props: TabMapProps) {
               }),
             }
           )}
+          onUnpin={() =>
+            setStatePinnedCustomers(prev =>
+              prev.filter(id => id !== pinnedCustomerId)
+            )
+          }
         />
       );
     }
-    if (
-      props.stateSelectedParticipantTypeGlobal === 'ride_provider' &&
-      props.stateSelectedParticipantRideProviderInformationGlobal !== undefined
-    ) {
-      selectedParticipants.push(
-        <CardParticipant
+    for (const pinnedRideProviderId of statePinnedRideProviders) {
+      pinnedParticipants.push(
+        <CardParticipantRefresh
           {...props}
-          participantType={props.stateSelectedParticipantTypeGlobal}
-          stateCustomerInformation={null}
-          stateRideProviderInformation={
-            props.stateSelectedParticipantRideProviderInformationGlobal
-          }
-          stateParticipantId={
-            props.stateSelectedParticipantRideProviderInformationGlobal.id
-          }
+          participantType={'ride_provider'}
+          participantId={pinnedRideProviderId}
           label={intl.formatMessage(
             {
-              id: 'getacar.spectator.message.lastSelected',
+              id: 'getacar.spectator.message.pinned',
             },
             {
               name: intl.formatMessage({
@@ -365,6 +374,11 @@ export default function TabMap(props: TabMapProps) {
               }),
             }
           )}
+          onUnpin={() =>
+            setStatePinnedRideProviders(prev =>
+              prev.filter(id => id !== pinnedRideProviderId)
+            )
+          }
         />
       );
     }
@@ -438,6 +452,11 @@ export default function TabMap(props: TabMapProps) {
     }
     return [
       {
+        elements: pinnedParticipants,
+        icon: <PinnedElementsIcon fontSize="large" />,
+        title: 'Pinned Participants',
+      },
+      {
         elements: selectedParticipants,
         icon: <ConnectedElementsIcon fontSize="large" />,
         title: 'Connected Participants',
@@ -448,7 +467,7 @@ export default function TabMap(props: TabMapProps) {
         title: 'Connected Contracts',
       },
     ];
-  }, [intl, props]);
+  }, [intl, props, statePinnedCustomers, statePinnedRideProviders]);
 
   return (
     <TabContainer fullPage={true}>
@@ -472,11 +491,7 @@ export default function TabMap(props: TabMapProps) {
         >
           <Grid container spacing={stateSettingsUiGridSpacing}>
             <Grid item xs={12}>
-              <SearchBar
-                placeholder="TODO: Search map"
-                {...props}
-                {...propsTabMap}
-              />
+              <SearchBar placeholder="TODO: Search map" {...propsTabMap} />
             </Grid>
             <Grid item xs={12}>
               <Box
@@ -487,7 +502,6 @@ export default function TabMap(props: TabMapProps) {
                 }}
               >
                 <Map
-                  {...props}
                   {...propsTabMap}
                   startPos={{lat: 48.7784485, long: 9.1800132, zoom: 11}}
                 />

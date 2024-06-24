@@ -150,7 +150,7 @@ export class Customer extends ParticipantPerson<SimulationTypeCustomer> {
       randMatchService.getSetContractAddress(this.rideRequest, contractAddress);
       // 5. Be part of the ride and wait until the ride is over
       // TODO Fix this to correspond to the driver arriving at location, for now just wait the sky distance multiplied by a car speed
-      this.status = 'wait for ride provider to arrive';
+      this.status = 'wait for ride provider';
       while (
         randMatchService.getRideRequest(this.rideRequest)
           .helperRideProviderArrived !== true
@@ -158,7 +158,7 @@ export class Customer extends ParticipantPerson<SimulationTypeCustomer> {
         await wait(1 * 1000);
       }
       this.passenger = rideRequestInfo.auctionWinner;
-      this.status = 'ride with ride provider to dropoff location';
+      this.status = 'ride to dropoff location';
       await this.moveToLocation(simulation, dropoffLocation, true);
       // > Rate the driver
       simulation.blockchain.rateParticipantRideContract(

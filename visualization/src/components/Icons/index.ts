@@ -40,6 +40,7 @@ import {
   Lock as DataHiddenIcon,
   // Other
   Link as ConnectedElementsIcon,
+  PushPin as PinnedElementsIcon,
 } from '@mui/icons-material';
 export {
   ConnectedElementsIcon,
@@ -58,6 +59,7 @@ export {
   ParticipantPersonalDataIcon,
   ParticipantRideProviderIcon,
   ParticipantRideRequestIcon,
+  PinnedElementsIcon,
   ServiceAuthenticationIcon,
   ServiceMatchingIcon,
   SettingsBrightnessIcon,

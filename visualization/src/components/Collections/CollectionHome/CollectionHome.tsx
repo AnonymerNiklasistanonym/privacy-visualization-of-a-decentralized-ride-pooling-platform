@@ -102,6 +102,8 @@ export default function CollectionHome(
   ] = useState(baseUrlSimulation);
   const [stateSettingsMapUpdateRateInMs, setStateSettingsMapUpdateRateInMs] =
     useState(1000 / 5);
+  const [stateSettingsCardUpdateRateInMs, setStateSettingsCardUpdateRateInMs] =
+    useState(1000 / 5);
   const [
     stateSettingsBlockchainUpdateRateInMs,
     setStateSettingsBlockchainUpdateRateInMs,
@@ -439,6 +441,7 @@ export default function CollectionHome(
     setStateSelectedRideRequest,
     setStateSelectedSpectator,
     setStateSettingsBlockchainUpdateRateInMs,
+    setStateSettingsCardUpdateRateInMs,
     setStateSettingsGlobalDebug,
     setStateSettingsMapBaseUrlPathfinder,
     setStateSettingsMapBaseUrlSimulation,
@@ -457,6 +460,7 @@ export default function CollectionHome(
     stateSelectedRideRequest,
     stateSelectedSpectator,
     stateSettingsBlockchainUpdateRateInMs,
+    stateSettingsCardUpdateRateInMs,
     stateSettingsGlobalDebug,
     stateSettingsMapBaseUrlPathfinder,
     stateSettingsMapBaseUrlSimulation,
