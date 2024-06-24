@@ -132,6 +132,7 @@ export function RenderDataElement(props: RenderDataElementProps) {
   );
 }
 
+// TODO Fix this
 export const dataModalInformationPersonalData: DataModalInformation[] = [
   {
     accessType: 'local_storage',
@@ -140,7 +141,7 @@ export const dataModalInformationPersonalData: DataModalInformation[] = [
     icon: <ServiceAuthenticationIcon />,
     name: 'Authentication Service',
     spectatorId: 'auth',
-    spectatorInformation: <ServiceAuthentication />,
+    spectatorInformation: <ServiceAuthentication intlValues={{}} />,
   },
   {
     accessType: 'none',
@@ -149,7 +150,7 @@ export const dataModalInformationPersonalData: DataModalInformation[] = [
     icon: <ServiceMatchingIcon />,
     name: 'Matching Service',
     spectatorId: 'match',
-    spectatorInformation: <ServiceMatching />,
+    spectatorInformation: <ServiceMatching intlValues={{}} />,
   },
   {
     accessType: 'none',

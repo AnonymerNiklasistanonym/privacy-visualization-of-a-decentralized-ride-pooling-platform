@@ -34,8 +34,7 @@ import '@styles/Map.module.scss';
 // Type imports
 import type {
   GlobalPropsFetch,
-  GlobalPropsParticipantSelectedElements,
-  GlobalPropsParticipantSelectedElementsSet,
+  GlobalPropsIntlValues,
   GlobalPropsShowError,
   GlobalPropsSpectatorSelectedElements,
   GlobalPropsSpectatorSelectedElementsSet,
@@ -60,8 +59,7 @@ export interface MapProps
     SettingsUiProps,
     GlobalPropsFetch,
     GlobalPropsShowError,
-    GlobalPropsParticipantSelectedElements,
-    GlobalPropsParticipantSelectedElementsSet,
+    GlobalPropsIntlValues,
     GlobalPropsSpectatorSelectedElements,
     GlobalPropsSpectatorSelectedElementsSet {}
 
@@ -158,14 +156,14 @@ export default function Map(props: MapPropsInput) {
                   participantType="customer"
                   isPinned={statePinnedCustomers.includes(customer.id)}
                   onPin={() =>
-                    setStatePinnedCustomers(prev => [
-                      ...prev.filter(id => id !== customer.id),
+                    setStatePinnedCustomers([
+                      ...statePinnedCustomers.filter(id => id !== customer.id),
                       customer.id,
                     ])
                   }
                   onUnpin={() =>
-                    setStatePinnedCustomers(prev =>
-                      prev.filter(id => id !== customer.id)
+                    setStatePinnedCustomers(
+                      statePinnedCustomers.filter(id => id !== customer.id)
                     )
                   }
                 />
@@ -190,14 +188,18 @@ export default function Map(props: MapPropsInput) {
                       rideProvider.id
                     )}
                     onPin={() =>
-                      setStatePinnedRideProviders(prev => [
-                        ...prev.filter(id => id !== rideProvider.id),
+                      setStatePinnedRideProviders([
+                        ...statePinnedRideProviders.filter(
+                          id => id !== rideProvider.id
+                        ),
                         rideProvider.id,
                       ])
                     }
                     onUnpin={() =>
-                      setStatePinnedRideProviders(prev =>
-                        prev.filter(id => id !== rideProvider.id)
+                      setStatePinnedRideProviders(
+                        statePinnedRideProviders.filter(
+                          id => id !== rideProvider.id
+                        )
                       )
                     }
                   />

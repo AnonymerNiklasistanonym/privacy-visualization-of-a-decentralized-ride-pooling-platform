@@ -14,8 +14,11 @@ import type {
   CardGenericProps,
   CardGenericPropsContentElement,
 } from '@components/Card/CardGeneric';
+import type {
+  GlobalPropsIntlValues,
+  GlobalPropsSpectatorSelectedElementsSet,
+} from '@misc/props/global';
 import type {ChangeViewButtonProps} from '@components/Button/ChangeViewButton';
-import type {GlobalPropsSpectatorSelectedElementsSet} from '@misc/props/global';
 import type {ReactState} from '@misc/react';
 import type {SimulationEndpointRideRequestInformation} from '@globals/types/simulation';
 // A
@@ -27,7 +30,8 @@ import {ParticipantsCustomer} from '@components/Tab/TabOverview/Elements';
 
 export interface CardRideRequestProps
   extends ChangeViewButtonProps,
-    CardGenericProps {
+    CardGenericProps,
+    GlobalPropsIntlValues {
   stateRideRequestInformation: ReactState<SimulationEndpointRideRequestInformation>;
 }
 
@@ -59,7 +63,8 @@ export default function CardRideRequest(props: CardRideRequestProps) {
 
 export interface CardRideRequestContentProps
   extends GlobalPropsSpectatorSelectedElementsSet,
-    ChangeViewButtonProps {
+    ChangeViewButtonProps,
+    GlobalPropsIntlValues {
   showRideRequest?: boolean;
 }
 
@@ -67,6 +72,7 @@ export function cardRideRequestContent(
   props: CardRideRequestContentProps,
   request?: SimulationEndpointRideRequestInformation
 ) {
+  const {intlValues} = props;
   const result: Array<CardGenericPropsContentElement> = [];
   const showContentSpectatorContactDetails = [
     {
@@ -100,7 +106,9 @@ export function cardRideRequestContent(
                 dataOriginName={`Customer (${request.id})`}
                 dataOriginId={request.id}
                 dataOriginIcon={<ParticipantCustomerIcon />}
-                dataOriginInformation={<ParticipantsCustomer />}
+                dataOriginInformation={
+                  <ParticipantsCustomer intlValues={intlValues} />
+                }
                 dataAccessInformation={a.dataAccessInformation}
               />
             ))

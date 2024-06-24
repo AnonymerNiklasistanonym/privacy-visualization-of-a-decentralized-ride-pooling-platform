@@ -153,6 +153,7 @@ export function CardParticipant(props: CardParticipantProps) {
         label: intl.formatMessage({id: 'data.section.personalDetails'}),
         labelIcon: <ParticipantPersonalDataIcon />,
       });
+      // TODO
       result.push({
         content: (
           <List>

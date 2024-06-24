@@ -21,7 +21,6 @@ export function debugComponentUpdate(name: string, date = false) {
   }
 }
 
-
 export function debugMemoHelper<T, TYPE = Record<keyof T, unknown>>(
   /** Component name */
   name: string,

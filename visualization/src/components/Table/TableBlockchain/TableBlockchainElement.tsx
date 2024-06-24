@@ -40,7 +40,7 @@ export interface TableBlockchainElementProps
 export default function TableBlockchainElement(
   props: TableBlockchainElementProps
 ) {
-  const {stateSmartContract, setStateSelectedParticipant} = props;
+  const {stateSmartContract} = props;
   const [open, setOpen] = useState(true);
 
   const handleClick = () => {
@@ -67,7 +67,9 @@ export default function TableBlockchainElement(
           <List>
             <ListItem
               onClick={() =>
-                setStateSelectedParticipant(stateSmartContract.customerId)
+                // TODO
+                //setStateSelectedParticipant(stateSmartContract.customerId)
+                undefined
               }
             >
               <ListItemIcon>
@@ -87,7 +89,9 @@ export default function TableBlockchainElement(
             </ListItem>
             <ListItem
               onClick={() =>
-                setStateSelectedParticipant(stateSmartContract.rideProviderId)
+                // TODO
+                //setStateSelectedParticipant(stateSmartContract.rideProviderId)
+                undefined
               }
             >
               <ListItemIcon>

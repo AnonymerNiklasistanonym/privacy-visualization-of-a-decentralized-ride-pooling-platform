@@ -1,5 +1,5 @@
 // Package imports
-import {memo, useCallback, useEffect, useMemo, useState} from 'react';
+import {memo, useCallback, useEffect, useState} from 'react';
 // > Components
 import {Button} from '@mui/material';
 import {Lock as LockIcon} from '@mui/icons-material';

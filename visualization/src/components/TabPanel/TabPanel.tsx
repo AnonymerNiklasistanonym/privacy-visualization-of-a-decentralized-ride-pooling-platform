@@ -35,8 +35,7 @@ import TabSettings from '@components/Tab/TabSettings';
 // Type imports
 import type {
   GlobalPropsFetch,
-  GlobalPropsParticipantSelectedElements,
-  GlobalPropsParticipantSelectedElementsSet,
+  GlobalPropsIntlValues,
   GlobalPropsSearch,
   GlobalPropsShowError,
   GlobalPropsSpectatorMap,
@@ -93,9 +92,8 @@ export interface TabPanelProps
     GlobalPropsSpectatorMap,
     ErrorModalProps,
     GlobalPropsSpectatorsSet,
-    GlobalPropsSearch,
-    GlobalPropsParticipantSelectedElements,
-    GlobalPropsParticipantSelectedElementsSet {}
+    GlobalPropsIntlValues,
+    GlobalPropsSearch {}
 
 // eslint-disable-next-line no-empty-pattern
 export default function TabPanel(props: TabPanelProps) {

@@ -24,4 +24,6 @@ export interface ReactPropsI18nHome {
 /** React state setter */
 export type ReactSetState<T> = Dispatch<T>;
 /** React state that should not be edited */
-export type ReactState<T> = Readonly<T>;
+export type ReactState<T> = T;
+// TODO
+//export type ReactState<T> = Readonly<T>;
