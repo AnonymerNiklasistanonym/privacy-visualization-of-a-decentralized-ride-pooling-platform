@@ -328,7 +328,19 @@ export default function TabMap(props: TabMapProps) {
     };
   });
 
-  const stateDismissibleElements = useMemo<Array<InfoElement>>(() => [], []);
+  const stateInfoElements = useMemo<Array<InfoElement>>(
+    () => [
+      {
+        description: intl.formatMessage({
+          id: 'page.home.tab.map.section.info.content',
+        }),
+        title: intl.formatMessage({
+          id: 'page.home.tab.map.section.info.title',
+        }),
+      },
+    ],
+    [intl]
+  );
 
   const stateConnectedElements = useMemo<Array<ConnectedElementSection>>(() => {
     const pinnedParticipants: Array<ReactElement> = [];
@@ -487,11 +499,11 @@ export default function TabMap(props: TabMapProps) {
         <GridConnectedElementsLayout
           stateSettingsUiGridSpacing={stateSettingsUiGridSpacing}
           stateConnectedElements={stateConnectedElements}
-          stateInfoElements={stateDismissibleElements}
+          stateInfoElements={stateInfoElements}
         >
           <Grid container spacing={stateSettingsUiGridSpacing}>
             <Grid item xs={12}>
-              <SearchBar placeholder="TODO: Search map" {...propsTabMap} />
+              <SearchBar {...propsTabMap} />
             </Grid>
             <Grid item xs={12}>
               <Box

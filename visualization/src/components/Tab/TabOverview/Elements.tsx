@@ -238,6 +238,7 @@ export function ServiceAuthentication(props: OverviewElementProps) {
 }
 
 export function ServiceMatching(props: OverviewElementProps) {
+  const {intlValues} = props;
   const intl = useIntl();
   return (
     <>
@@ -251,15 +252,19 @@ export function ServiceMatching(props: OverviewElementProps) {
         })}
       </OverviewElementSectionHeadingTitle>
       <Typography variant="body1" gutterBottom>
-        {intl.formatMessage({
-          id: 'page.home.tab.overview.section.ms.content',
-        })}
+        {intl.formatMessage(
+          {
+            id: 'page.home.tab.overview.section.ms.content',
+          },
+          intlValues
+        )}
       </Typography>
     </>
   );
 }
 
 export function Blockchain(props: OverviewElementProps) {
+  const {intlValues} = props;
   const intl = useIntl();
   return (
     <>
@@ -277,10 +282,22 @@ export function Blockchain(props: OverviewElementProps) {
           id: 'getacar.blockchain.cryptoExchange',
         })}
       </OverviewElementSectionHeadingTitle>
-      <Typography variant="body1" gutterBottom>
-        {intl.formatMessage({
-          id: 'page.home.tab.overview.section.cryptoExchange.content',
-        })}
+      <Typography variant="body1" component={'span'}>
+        {intl.formatMessage(
+          {
+            id: 'page.home.tab.overview.section.cryptoExchange.content',
+          },
+          intlValues
+        )}
+      </Typography>
+      <br />
+      <Typography variant="body1" component={'span'}>
+        {intl.formatMessage(
+          {
+            id: 'page.home.tab.overview.section.cryptoExchange.notes',
+          },
+          intlValues
+        )}
       </Typography>
       <OverviewElementSectionHeadingTitle
         {...props}
@@ -291,10 +308,44 @@ export function Blockchain(props: OverviewElementProps) {
           id: 'getacar.blockchain.rideContractService',
         })}
       </OverviewElementSectionHeadingTitle>
-      <Typography variant="body1" gutterBottom>
+      <Typography variant="body1" component={'span'}>
+        {intl.formatMessage(
+          {
+            id: 'page.home.tab.overview.section.rideContractService.content',
+          },
+          intlValues
+        )}
+      </Typography>
+    </>
+  );
+}
+
+export function Other(props: OverviewElementProps) {
+  const {intlValues} = props;
+  const intl = useIntl();
+  return (
+    <>
+      <OverviewElementSectionTitle {...props} id="other">
         {intl.formatMessage({
-          id: 'page.home.tab.overview.section.rideContractService.content',
+          id: 'page.home.tab.overview.section.other.title',
         })}
+      </OverviewElementSectionTitle>
+      <OverviewElementSectionHeadingTitle
+        {...props}
+        icon={<MiscGetACarFoundationIcon fontSize="small" />}
+        id="anchor-getacar-foundation"
+      >
+        {intl.formatMessage({
+          id: 'getacar.foundation',
+        })}
+      </OverviewElementSectionHeadingTitle>
+      <Typography variant="body1" component={'span'}>
+        {intl.formatMessage(
+          {
+            id: 'page.home.tab.overview.section.other.foundation.content',
+          },
+          intlValues
+        )}
       </Typography>
     </>
   );

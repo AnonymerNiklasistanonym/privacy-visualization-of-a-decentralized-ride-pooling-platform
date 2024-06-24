@@ -197,8 +197,8 @@ export function CardParticipant(props: CardParticipantProps) {
           spectator: 'auth',
         },
       ];
-      const carData: DataElement[] = [];
       if (stateRideProviderInformation) {
+        const carData: DataElement[] = [];
         carData.push(
           ...[
             {
@@ -215,6 +215,27 @@ export function CardParticipant(props: CardParticipantProps) {
             },
           ]
         );
+        result.push({
+          content: (
+            <List>
+              {carData.map((a, index) => (
+                <RenderDataElement
+                  {...props}
+                  key={`render-car-data-element-${index}`}
+                  element={a}
+                  id={stateParticipantId}
+                  dataOriginName={`Ride Provider (${stateParticipantId})`}
+                  dataOriginId={stateParticipantId}
+                  dataOriginIcon={<ParticipantRideProviderIcon />}
+                  dataOriginInformation={<ParticipantsRideProvider />}
+                  dataAccessInformation={a.dataAccessInformation}
+                />
+              ))}
+            </List>
+          ),
+          label: 'Car Details',
+          labelIcon: <ParticipantRideProviderIcon />,
+        });
       }
       const personalData: DataElement[] = [];
       if (stateRideProviderInformation) {
@@ -267,49 +288,22 @@ export function CardParticipant(props: CardParticipantProps) {
             ]
           );
         }
-      }
-      result.push({
-        content: (
-          <List>
-            {stateRideProviderInformation
-              ? carData.map((a, index) => (
-                  <RenderDataElement
-                    {...props}
-                    key={`render-car-data-element-${index}`}
-                    element={a}
-                    id={stateRideProviderInformation.id}
-                    dataOriginName={`Ride Provider (${stateRideProviderInformation.id})`}
-                    dataOriginId={stateRideProviderInformation.id}
-                    dataOriginIcon={<ParticipantRideProviderIcon />}
-                    dataOriginInformation={<ParticipantsRideProvider />}
-                    dataAccessInformation={a.dataAccessInformation}
-                  />
-                ))
-              : null}
-          </List>
-        ),
-        label: 'Car Details',
-        labelIcon: <ParticipantRideProviderIcon />,
-      });
-      if (stateRideProviderInformation) {
         result.push({
           content: (
             <List>
-              {stateRideProviderInformation
-                ? personalData.map((a, index) => (
-                    <RenderDataElement
-                      {...props}
-                      key={`render-car-personal-data-element-${index}`}
-                      element={a}
-                      id={stateRideProviderInformation.id}
-                      dataOriginName={`Ride Provider (${stateRideProviderInformation.id})`}
-                      dataOriginId={stateRideProviderInformation.id}
-                      dataOriginIcon={<ParticipantRideProviderIcon />}
-                      dataOriginInformation={<ParticipantsRideProvider />}
-                      dataAccessInformation={a.dataAccessInformation}
-                    />
-                  ))
-                : null}
+              {personalData.map((a, index) => (
+                <RenderDataElement
+                  {...props}
+                  key={`render-car-personal-data-element-${index}`}
+                  element={a}
+                  id={stateParticipantId}
+                  dataOriginName={`Ride Provider (${stateParticipantId})`}
+                  dataOriginId={stateParticipantId}
+                  dataOriginIcon={<ParticipantRideProviderIcon />}
+                  dataOriginInformation={<ParticipantsRideProvider />}
+                  dataAccessInformation={a.dataAccessInformation}
+                />
+              ))}
             </List>
           ),
           label: 'Personal Details',

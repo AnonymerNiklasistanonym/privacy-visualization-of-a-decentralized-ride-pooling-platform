@@ -181,16 +181,11 @@ export default function TabBlockchain(props: TabBlockchainProps) {
     () => [
       {
         description: intl.formatMessage({
-          id: 'page.home.tab.blockchain.section.smartContracts.content',
+          id: 'page.home.tab.blockchain.section.info.content',
         }),
         title: intl.formatMessage({
-          id: 'page.home.tab.blockchain.section.smartContracts.title',
+          id: 'page.home.tab.blockchain.section.info.title',
         }),
-      },
-      {
-        description:
-          'Include real ID/Names in the table or is it enough in the modal (if available to spectator?)',
-        title: 'TODO',
       },
     ],
     [intl]
@@ -217,7 +212,7 @@ export default function TabBlockchain(props: TabBlockchainProps) {
       >
         <Grid container spacing={stateSettingsUiGridSpacing}>
           <Grid item xs={12}>
-            <SearchBar placeholder="TODO: Search map" {...props} />
+            <SearchBar {...props} />
           </Grid>
           <Grid item xs={12}>
             <Box

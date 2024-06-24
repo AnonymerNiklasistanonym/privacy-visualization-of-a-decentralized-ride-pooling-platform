@@ -7,7 +7,13 @@ import {useState} from 'react';
 import {Card, CardContent, Divider, Typography} from '@mui/material';
 // Local imports
 // > Components
-import {Blockchain, Participants, Services, Stakeholders} from './Elements';
+import {
+  Blockchain,
+  Other,
+  Participants,
+  Services,
+  Stakeholders,
+} from './Elements';
 import {
   ChipListElement,
   ChipListElementProps,
@@ -34,6 +40,7 @@ import type {
   SettingsUiProps,
 } from '@misc/props/settings';
 import type {ImageModalProps} from '@components/Modal/ImageModal';
+import type {ReactElement} from 'react';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface TabOverviewProps
@@ -48,21 +55,6 @@ export default function TabOverview(propsInput: TabOverviewProps) {
   const [stateImgUrl, setStateImgUrl] = useState<string | undefined>(undefined);
   const [stateImgBg, setStateImgBg] = useState<string | undefined>(undefined);
   const [stateImgAlt, setStateImgAlt] = useState<string | undefined>(undefined);
-  const props: TabOverviewProps &
-    OverviewElementImageProps &
-    OverviewElementProps &
-    ImageModalProps = {
-    ...propsInput,
-    setStateImgAlt,
-    setStateImgBg,
-    setStateImgModalOpen,
-    setStateImgUrl,
-    showTitle: true,
-    stateImgAlt,
-    stateImgBg,
-    stateImgModalOpen,
-    stateImgUrl,
-  };
   const customerChip: ChipListElementProps = {
     description: 'requests rides (human)',
     icon: <ParticipantCustomerIcon />,
@@ -94,7 +86,7 @@ export default function TabOverview(propsInput: TabOverviewProps) {
     link: '#anchor-ms',
   };
 
-  const intlValues = {
+  const intlValues: {[key: string]: ReactElement} = {
     AUTH_SERVICE: <ChipListElement {...authServiceChip} noDescription={true} />,
     CUSTOMER: <ChipListElement {...customerChip} noDescription={true} />,
     CUSTOMERS: <ChipListElement {...customersChip} noDescription={true} />,
@@ -111,6 +103,24 @@ export default function TabOverview(propsInput: TabOverviewProps) {
       <ChipListElement {...rideProvidersChip} noDescription={true} />
     ),
   };
+
+  const props: TabOverviewProps &
+    OverviewElementImageProps &
+    OverviewElementProps &
+    ImageModalProps = {
+    ...propsInput,
+    intlValues,
+    setStateImgAlt,
+    setStateImgBg,
+    setStateImgModalOpen,
+    setStateImgUrl,
+    showTitle: true,
+    stateImgAlt,
+    stateImgBg,
+    stateImgModalOpen,
+    stateImgUrl,
+  };
+
   return (
     <TabContainer>
       <Card
@@ -149,13 +159,11 @@ export default function TabOverview(propsInput: TabOverviewProps) {
             url="./res/ride_pooling_platform_overview.svg"
             {...props}
           />
-          <Typography variant="body1" gutterBottom>
-            Platform Participants:
-          </Typography>
-          <Stakeholders showTitle={true} />
-          <Participants showTitle={true} />
-          <Services showTitle={true} />
-          <Blockchain showTitle={true} />
+          <Stakeholders {...props} />
+          <Participants {...props} />
+          <Services {...props} />
+          <Blockchain {...props} />
+          <Other {...props} />
         </CardContent>
       </Card>
       <ImageModal {...props} />

@@ -35,6 +35,7 @@ export function CardParticipantRefresh(props: CardParticipantRefreshProps) {
     stateSettingsCardUpdateRateInMs,
     onUnpin,
   } = props;
+
   const [stateCustomerInformation, setStateCustomerInformation] =
     useState<SimulationEndpointParticipantInformationCustomer | null>(null);
   const [stateRideProviderInformation, setStateRideProviderInformation] =

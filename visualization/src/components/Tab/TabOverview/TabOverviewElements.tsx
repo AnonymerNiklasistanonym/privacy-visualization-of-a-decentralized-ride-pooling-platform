@@ -53,6 +53,7 @@ export function ImageBox({
 
 export interface OverviewElementProps {
   showTitle?: boolean;
+  intlValues: {[key: string]: ReactElement};
 }
 
 export interface ChipListProps {
