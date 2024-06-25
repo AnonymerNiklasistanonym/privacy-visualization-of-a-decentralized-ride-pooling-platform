@@ -29,6 +29,7 @@ export interface TableBlockchainProps
 
 export interface TableBlockchainPropsInput extends TableBlockchainProps {
   onRowSelect: (
+    smartContractId: string,
     customerPseudonym: string,
     rideProviderPseudonym: string
   ) => void;
@@ -98,7 +99,11 @@ export default function TableBlockchain(props: TableBlockchainPropsInput) {
             a => a.walletId === id
           );
           if (smartContract) {
-            onRowSelect(smartContract.customerId, smartContract.rideProviderId);
+            onRowSelect(
+              smartContract.walletId,
+              smartContract.customerId,
+              smartContract.rideProviderId
+            );
           }
         }}
       />

@@ -10,13 +10,15 @@ export interface GlobalPropsSpectatorSelectedElements {
   /** The current spectator from which POV everything should be shown */
   stateSpectator: ReactState<string>;
   /** The spectator that should be shown */
-  stateShowSpectator: ReactState<string | undefined>;
+  stateShowSpectator: ReactState<undefined | string>;
   /** The currently selected participant ID */
   stateSelectedParticipantId: ReactState<undefined | string>;
   /** The currently selected participant Type */
   stateSelectedParticipantType: ReactState<
     undefined | SimulationEndpointParticipantTypes
   >;
+  /** The currently selected smart contract ID */
+  stateSelectedSmartContractId: ReactState<undefined | string>;
 }
 
 /** Props to set the current spectators/selected elements */
@@ -24,13 +26,15 @@ export interface GlobalPropsSpectatorSelectedElementsSet {
   /** Set the spectator from which POV everything should be shown */
   setStateSpectator: ReactSetState<string>;
   /** Set to spectator that should be shown */
-  setStateShowSpectator: ReactSetState<string | undefined>;
+  setStateShowSpectator: ReactSetState<undefined | string>;
   /** Set the currently selected participant ID */
   setStateSelectedParticipantId: ReactSetState<undefined | string>;
   /** Set the currently selected participant Type */
   setStateSelectedParticipantType: ReactSetState<
     undefined | SimulationEndpointParticipantTypes
   >;
+  /** Set the currently selected smart contract ID */
+  setStateSelectedSmartContractId: ReactSetState<undefined | string>;
 }
 
 /** Props to fetch requests for actor data */

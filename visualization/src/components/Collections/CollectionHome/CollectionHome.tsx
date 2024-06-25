@@ -54,15 +54,10 @@ import type {
   GlobalSearchElement,
 } from '@misc/props/global';
 import type {PropsWithChildren, ReactElement} from 'react';
-import type {
-  SimulationEndpointParticipantInformationCustomer,
-  SimulationEndpointParticipantInformationRideProvider,
-  SimulationEndpointParticipantTypes,
-  SimulationEndpointRideRequestInformation,
-} from '@globals/types/simulation';
 import type {ErrorModalProps} from '@components/Modal/ErrorModal';
 import type {FetchOptions} from '@globals/lib/fetch';
 import type {SettingsProps} from '@misc/props/settings';
+import type {SimulationEndpointParticipantTypes} from '@globals/types/simulation';
 
 /** The Home page collection */
 export default function CollectionHome(
@@ -129,6 +124,10 @@ export default function CollectionHome(
     stateSnackbarSelectedParticipantOpen,
     setStateSnackbarSelectedParticipantOpen,
   ] = useState(false);
+  const [
+    stateSnackbarSelectedSmartContractOpen,
+    setStateSnackbarSelectedSmartContractOpen,
+  ] = useState(false);
   // > Spectator
   const [stateSpectator, setStateSpectator] = useState(
     searchParams.get(UrlParameter.SPECTATOR) ?? 'everything'
@@ -145,6 +144,11 @@ export default function CollectionHome(
       (searchParams.get(
         UrlParameter.SELECTED_PARTICIPANT_TYPE
       ) as SimulationEndpointParticipantTypes | null) ?? undefined
+    );
+  // > Selected smart contract
+  const [stateSelectedSmartContractId, setStateSelectedSmartContractId] =
+    useState<undefined | string>(
+      searchParams.get(UrlParameter.SELECTED_SMART_CONTRACT_ID) ?? undefined
     );
   // > Settings
   const [stateSettingsUiNavBarPosition, setStateSettingsUiNavBarPosition] =
@@ -282,6 +286,11 @@ export default function CollectionHome(
     stateSelectedParticipantType,
     setStateSnackbarSelectedParticipantOpen,
   ]);
+  useEffect(() => {
+    if (stateSelectedSmartContractId !== undefined) {
+      setStateSnackbarSelectedSmartContractOpen(true);
+    }
+  }, [stateSelectedSmartContractId, setStateSnackbarSelectedSmartContractOpen]);
   // > URL parameter listeners
   useEffect(() => {
     if (stateSettingsGlobalDebug) {
@@ -289,12 +298,42 @@ export default function CollectionHome(
     } else {
       params.delete(UrlParameter.DEBUG);
     }
-    updateRouter();
-  }, [stateSettingsGlobalDebug, updateRouter, pathname, params]);
-  useEffect(() => {
     params.set(UrlParameter.SPECTATOR, stateSpectator);
+    if (stateSelectedParticipantId !== undefined) {
+      params.set(
+        UrlParameter.SELECTED_PARTICIPANT_ID,
+        stateSelectedParticipantId
+      );
+    } else {
+      params.delete(UrlParameter.SELECTED_PARTICIPANT_ID);
+    }
+    if (stateSelectedParticipantType !== undefined) {
+      params.set(
+        UrlParameter.SELECTED_PARTICIPANT_TYPE,
+        stateSelectedParticipantType
+      );
+    } else {
+      params.delete(UrlParameter.SELECTED_PARTICIPANT_TYPE);
+    }
+    if (stateSelectedSmartContractId !== undefined) {
+      params.set(
+        UrlParameter.SELECTED_SMART_CONTRACT_ID,
+        stateSelectedSmartContractId
+      );
+    } else {
+      params.delete(UrlParameter.SELECTED_SMART_CONTRACT_ID);
+    }
     updateRouter();
-  }, [stateSpectator, updateRouter, pathname, params]);
+  }, [
+    stateSettingsGlobalDebug,
+    stateSpectator,
+    updateRouter,
+    pathname,
+    params,
+    stateSelectedParticipantId,
+    stateSelectedParticipantType,
+    stateSelectedSmartContractId,
+  ]);
 
   useEffect(() => {
     localStorage.setItem(LocalStorageKey.THEME_MODE, stateThemeMode);
@@ -485,6 +524,7 @@ export default function CollectionHome(
     intlValues,
     setStateSelectedParticipantId,
     setStateSelectedParticipantType,
+    setStateSelectedSmartContractId,
     setStateSettingsBlockchainUpdateRateInMs,
     setStateSettingsCardUpdateRateInMs,
     setStateSettingsGlobalDebug,
@@ -500,6 +540,7 @@ export default function CollectionHome(
     setStateThemeMode,
     stateSelectedParticipantId,
     stateSelectedParticipantType,
+    stateSelectedSmartContractId,
     stateSettingsBlockchainUpdateRateInMs,
     stateSettingsCardUpdateRateInMs,
     stateSettingsGlobalDebug,
@@ -530,6 +571,7 @@ export default function CollectionHome(
         handleChangeStateContent={a =>
           intl.formatMessage({id: 'getacar.spectator.changed'}, {name: a})
         }
+        bottomOffset={60 * 0}
       />
       <SnackbarContentChange
         stateOpen={stateSnackbarSelectedParticipantOpen}
@@ -541,7 +583,19 @@ export default function CollectionHome(
             {name: a}
           )
         }
-        bottomOffset={60}
+        bottomOffset={60 * 1}
+      />
+      <SnackbarContentChange
+        stateOpen={stateSnackbarSelectedSmartContractOpen}
+        stateContent={`${stateSelectedParticipantId} (${stateSelectedParticipantType})`}
+        setStateOpen={setStateSnackbarSelectedSmartContractOpen}
+        handleChangeStateContent={a =>
+          intl.formatMessage(
+            {id: 'getacar.selectedSmartContract.changed'},
+            {name: a}
+          )
+        }
+        bottomOffset={60 * 2}
       />
       {children}
     </ThemeContainer>

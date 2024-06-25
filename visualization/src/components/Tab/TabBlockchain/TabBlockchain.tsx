@@ -48,7 +48,12 @@ export interface TabBlockchainProps
 
 // eslint-disable-next-line no-empty-pattern
 export default function TabBlockchain(props: TabBlockchainProps) {
-  const {fetchJsonSimulation, showError, stateSettingsUiGridSpacing} = props;
+  const {
+    fetchJsonSimulation,
+    showError,
+    stateSettingsUiGridSpacing,
+    setStateSelectedSmartContractId,
+  } = props;
   const intl = useIntl();
 
   const [stateSelectedCustomerPseudonym, setStateSelectedCustomerPseudonym] =
@@ -269,7 +274,12 @@ export default function TabBlockchain(props: TabBlockchainProps) {
             >
               <TableBlockchain
                 {...props}
-                onRowSelect={(customerPseudonym, rideProviderPseudonym) => {
+                onRowSelect={(
+                  smartContractId,
+                  customerPseudonym,
+                  rideProviderPseudonym
+                ) => {
+                  setStateSelectedSmartContractId(smartContractId);
                   setStateSelectedCustomerPseudonym(customerPseudonym);
                   setStateSelectedRideProviderPseudonym(rideProviderPseudonym);
                 }}
