@@ -174,22 +174,26 @@ export default function CollectionHome(
         {
           icon: <SpectatorPublicIcon />,
           id: 'public',
-          nameId: 'getacar.spectator.public',
+          name: intl.formatMessage({id: 'getacar.spectator.public'}),
         },
         {
           icon: <SpectatorEverythingIcon />,
           id: 'everything',
-          nameId: 'getacar.spectator.everything',
+          name: intl.formatMessage({id: 'getacar.spectator.everything'}),
         },
         {
           icon: <ServiceAuthenticationIcon />,
           id: 'auth',
-          nameId: 'getacar.spectator.service.authentication',
+          keywords: [intl.formatMessage({id: 'getacar.service'})],
+          name: intl.formatMessage({
+            id: 'getacar.spectator.service.authentication',
+          }),
         },
         {
           icon: <ServiceMatchingIcon />,
           id: 'match',
-          nameId: 'getacar.spectator.service.matching',
+          keywords: [intl.formatMessage({id: 'getacar.service'})],
+          name: intl.formatMessage({id: 'getacar.spectator.service.matching'}),
         },
       ].map(a => [
         a.id,
@@ -198,8 +202,9 @@ export default function CollectionHome(
             setStateSpectator(a.id);
           },
           icon: a.icon,
-          name: intl.formatMessage({id: a.nameId}),
-        } as GlobalPropsSpectatorElement,
+          keywords: a.keywords ?? [],
+          name: a.name,
+        },
       ])
     )
   );
@@ -460,7 +465,7 @@ export default function CollectionHome(
   };
   const customersChip: ChipListElementProps = {
     ...customerChip,
-    label: intl.formatMessage({id: 'getacar.participant.customers'}),
+    label: intl.formatMessage({id: 'getacar.participant.customer.plural'}),
   };
   const rideProviderChip: ChipListElementProps = {
     description: 'provides rides (human/autonomous vehicle)',
@@ -470,7 +475,7 @@ export default function CollectionHome(
   };
   const rideProvidersChip: ChipListElementProps = {
     ...customerChip,
-    label: intl.formatMessage({id: 'getacar.participant.rideProviders'}),
+    label: intl.formatMessage({id: 'getacar.participant.rideProvider.plural'}),
   };
   const authServiceChip: ChipListElementProps = {
     icon: <ServiceAuthenticationIcon />,
@@ -587,7 +592,7 @@ export default function CollectionHome(
       />
       <SnackbarContentChange
         stateOpen={stateSnackbarSelectedSmartContractOpen}
-        stateContent={`${stateSelectedParticipantId} (${stateSelectedParticipantType})`}
+        stateContent={stateSelectedSmartContractId}
         setStateOpen={setStateSnackbarSelectedSmartContractOpen}
         handleChangeStateContent={a =>
           intl.formatMessage(

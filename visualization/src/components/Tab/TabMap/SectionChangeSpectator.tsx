@@ -2,10 +2,22 @@
 import {memo} from 'react';
 import {useIntl} from 'react-intl';
 // > Components
-import {ButtonGroup} from '@mui/material';
+import {
+  Box,
+  ButtonGroup,
+  FormControl,
+  InputLabel,
+  ListItemIcon,
+  ListItemText,
+  ListSubheader,
+  MenuItem,
+  Select,
+  Stack,
+} from '@mui/material';
 // Local imports
 // > Components
 import {
+  ParticipantCustomerIcon,
   ServiceAuthenticationIcon,
   ServiceMatchingIcon,
   SpectatorEverythingIcon,
@@ -29,8 +41,111 @@ export default memo(SectionChangeSpectator);
 
 export function SectionChangeSpectator(props: SectionChangeSpectatorProps) {
   debugComponentUpdate('SectionChangeSpectator');
+  const {setStateSpectator, stateSpectator, stateSpectators} = props;
+  const intl = useIntl();
+  const spectatorsList = Array.from(stateSpectators);
+  console.log(spectatorsList);
+  const spectatorsOther = spectatorsList.filter(
+    ([spectatorId, spectatorInfo]) =>
+      !spectatorInfo.keywords.includes(
+        intl.formatMessage({id: 'getacar.participant.rideProvider'})
+      ) &&
+      !spectatorInfo.keywords.includes(
+        intl.formatMessage({id: 'getacar.participant.customer'})
+      ) &&
+      !spectatorInfo.keywords.includes(
+        intl.formatMessage({id: 'getacar.service'})
+      )
+  );
+  const spectatorsServices = spectatorsList.filter(
+    ([spectatorId, spectatorInfo]) =>
+      spectatorInfo.keywords.includes(
+        intl.formatMessage({id: 'getacar.service'})
+      )
+  );
+  const spectatorsCustomers = spectatorsList.filter(
+    ([spectatorId, spectatorInfo]) =>
+      spectatorInfo.keywords.includes(
+        intl.formatMessage({id: 'getacar.participant.customer'})
+      )
+  );
+  const spectatorsRideProvider = spectatorsList.filter(
+    ([spectatorId, spectatorInfo]) =>
+      spectatorInfo.keywords.includes(
+        intl.formatMessage({id: 'getacar.participant.rideProvider'})
+      )
+  );
   return (
     <>
+      <Box sx={{minWidth: 500}}>
+        <FormControl fullWidth>
+          <InputLabel id="demo-simple-select-label">
+            {intl.formatMessage({id: 'getacar.spectator.change'})}
+          </InputLabel>
+          <Select
+            labelId="demo-simple-select-label"
+            id="demo-simple-select"
+            label={intl.formatMessage({id: 'getacar.spectator.change'})}
+            value={stateSpectator}
+            onChange={event => setStateSpectator(event.target.value)}
+            renderValue={value => {
+              const info = stateSpectators.get(value);
+              if (info === undefined) {
+                return value;
+              }
+              return (
+                <Stack alignItems="center" direction="row" gap={2}>
+                  {info.icon} {`${info.name} (${value})`}
+                </Stack>
+              );
+            }}
+          >
+            {spectatorsOther.map(([spectatorId, spectatorInfo]) => (
+              <MenuItem key={spectatorId} value={spectatorId}>
+                <ListItemIcon>{spectatorInfo.icon}</ListItemIcon>
+                <ListItemText
+                  primary={`${spectatorInfo.name} (${spectatorId})`}
+                />
+              </MenuItem>
+            ))}
+            <ListSubheader>
+              {intl.formatMessage({id: 'getacar.service.plural'})}
+            </ListSubheader>
+            {spectatorsServices.map(([spectatorId, spectatorInfo]) => (
+              <MenuItem key={spectatorId} value={spectatorId}>
+                <ListItemIcon>{spectatorInfo.icon}</ListItemIcon>
+                <ListItemText
+                  primary={`${spectatorInfo.name} (${spectatorId})`}
+                />
+              </MenuItem>
+            ))}
+            <ListSubheader>
+              {intl.formatMessage({id: 'getacar.participant.customer.plural'})}
+            </ListSubheader>
+            {spectatorsCustomers.map(([spectatorId, spectatorInfo]) => (
+              <MenuItem key={spectatorId} value={spectatorId}>
+                <ListItemIcon>{spectatorInfo.icon}</ListItemIcon>
+                <ListItemText
+                  primary={`${spectatorInfo.name} (${spectatorId})`}
+                />
+              </MenuItem>
+            ))}
+            <ListSubheader>
+              {intl.formatMessage({
+                id: 'getacar.participant.rideProvider.plural',
+              })}
+            </ListSubheader>
+            {spectatorsRideProvider.map(([spectatorId, spectatorInfo]) => (
+              <MenuItem key={spectatorId} value={spectatorId}>
+                <ListItemIcon>{spectatorInfo.icon}</ListItemIcon>
+                <ListItemText
+                  primary={`${spectatorInfo.name} (${spectatorId})`}
+                />
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      </Box>
       <ButtonGroup
         variant="contained"
         sx={{
