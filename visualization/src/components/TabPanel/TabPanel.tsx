@@ -153,7 +153,7 @@ export default function TabPanel(props: TabPanelProps) {
         <TabBlockchainIcon key="blockchain" />,
       ],
       [
-        intl.formatMessage({id: 'page.home.tab.overview.title'}),
+        intl.formatMessage({id: 'page.home.tab.guide.title'}),
         2,
         <TabOverviewIcon key="overview" />,
       ],

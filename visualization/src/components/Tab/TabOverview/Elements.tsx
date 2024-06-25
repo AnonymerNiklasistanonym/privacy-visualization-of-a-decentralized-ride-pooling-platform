@@ -27,12 +27,12 @@ export function Stakeholders(props: OverviewElementProps) {
     <>
       <OverviewElementSectionTitle {...props} id="anchor-stackeholders">
         {intl.formatMessage({
-          id: 'page.home.tab.overview.section.stakeholders.title',
+          id: 'page.home.tab.guide.section.stakeholders.title',
         })}
       </OverviewElementSectionTitle>
       <Typography variant="body1" gutterBottom>
         {intl.formatMessage({
-          id: 'page.home.tab.overview.section.stakeholders.participants.title',
+          id: 'page.home.tab.guide.section.stakeholders.participants.title',
         })}
       </Typography>
       <ChipList
@@ -61,7 +61,7 @@ export function Stakeholders(props: OverviewElementProps) {
       />
       <Typography variant="body1" gutterBottom>
         {intl.formatMessage({
-          id: 'page.home.tab.overview.section.stakeholders.services.title',
+          id: 'page.home.tab.guide.section.stakeholders.services.title',
         })}
       </Typography>
       <ChipList
@@ -90,7 +90,7 @@ export function Stakeholders(props: OverviewElementProps) {
       />
       <Typography variant="body1" gutterBottom>
         {intl.formatMessage({
-          id: 'page.home.tab.overview.section.stakeholders.blockchain.title',
+          id: 'page.home.tab.guide.section.stakeholders.blockchain.title',
         })}
       </Typography>
       <ChipList
@@ -119,7 +119,7 @@ export function Stakeholders(props: OverviewElementProps) {
       />
       <Typography variant="body1" gutterBottom>
         {intl.formatMessage({
-          id: 'page.home.tab.overview.section.stakeholders.other.title',
+          id: 'page.home.tab.guide.section.stakeholders.other.title',
         })}
       </Typography>
       <ChipList
@@ -146,7 +146,7 @@ export function Participants(props: OverviewElementProps) {
     <>
       <OverviewElementSectionTitle {...props} id="anchor-participants">
         {intl.formatMessage({
-          id: 'page.home.tab.overview.section.participants.title',
+          id: 'page.home.tab.guide.section.participants.title',
         })}
       </OverviewElementSectionTitle>
       <ParticipantsCustomer {...props} />
@@ -170,7 +170,7 @@ export function ParticipantsCustomer(props: OverviewElementProps) {
       </OverviewElementSectionHeadingTitle>
       <Typography variant="body1" gutterBottom>
         {intl.formatMessage({
-          id: 'page.home.tab.overview.section.customer.content',
+          id: 'page.home.tab.guide.section.customer.content',
         })}
       </Typography>
     </>
@@ -192,7 +192,7 @@ export function ParticipantsRideProvider(props: OverviewElementProps) {
       </OverviewElementSectionHeadingTitle>
       <Typography variant="body1" gutterBottom>
         {intl.formatMessage({
-          id: 'page.home.tab.overview.section.rideProvider.content',
+          id: 'page.home.tab.guide.section.rideProvider.content',
         })}
       </Typography>
     </>
@@ -205,7 +205,7 @@ export function Services(props: OverviewElementProps) {
     <>
       <OverviewElementSectionTitle {...props} id="anchor-services">
         {intl.formatMessage({
-          id: 'page.home.tab.overview.section.services.title',
+          id: 'page.home.tab.guide.section.services.title',
         })}
       </OverviewElementSectionTitle>
       <ServiceAuthentication {...props} />
@@ -230,7 +230,7 @@ export function ServiceAuthentication(props: OverviewElementProps) {
       </OverviewElementSectionHeadingTitle>
       <Typography variant="body1" gutterBottom>
         {intl.formatMessage({
-          id: 'page.home.tab.overview.section.as.content',
+          id: 'page.home.tab.guide.section.as.content',
         })}
       </Typography>
     </>
@@ -254,7 +254,7 @@ export function ServiceMatching(props: OverviewElementProps) {
       <Typography variant="body1" gutterBottom>
         {intl.formatMessage(
           {
-            id: 'page.home.tab.overview.section.ms.content',
+            id: 'page.home.tab.guide.section.ms.content',
           },
           intlValues
         )}
@@ -270,7 +270,7 @@ export function Blockchain(props: OverviewElementProps) {
     <>
       <OverviewElementSectionTitle {...props} id="anchor-blockchain">
         {intl.formatMessage({
-          id: 'page.home.tab.overview.section.blockchain.title',
+          id: 'page.home.tab.guide.section.blockchain.title',
         })}
       </OverviewElementSectionTitle>
       <OverviewElementSectionHeadingTitle
@@ -285,7 +285,7 @@ export function Blockchain(props: OverviewElementProps) {
       <Typography variant="body1" component={'span'}>
         {intl.formatMessage(
           {
-            id: 'page.home.tab.overview.section.cryptoExchange.content',
+            id: 'page.home.tab.guide.section.cryptoExchange.content',
           },
           intlValues
         )}
@@ -294,7 +294,7 @@ export function Blockchain(props: OverviewElementProps) {
       <Typography variant="body1" component={'span'}>
         {intl.formatMessage(
           {
-            id: 'page.home.tab.overview.section.cryptoExchange.notes',
+            id: 'page.home.tab.guide.section.cryptoExchange.notes',
           },
           intlValues
         )}
@@ -311,7 +311,7 @@ export function Blockchain(props: OverviewElementProps) {
       <Typography variant="body1" component={'span'}>
         {intl.formatMessage(
           {
-            id: 'page.home.tab.overview.section.rideContractService.content',
+            id: 'page.home.tab.guide.section.rideContractService.content',
           },
           intlValues
         )}
@@ -327,7 +327,7 @@ export function Other(props: OverviewElementProps) {
     <>
       <OverviewElementSectionTitle {...props} id="other">
         {intl.formatMessage({
-          id: 'page.home.tab.overview.section.other.title',
+          id: 'page.home.tab.guide.section.other.title',
         })}
       </OverviewElementSectionTitle>
       <OverviewElementSectionHeadingTitle
@@ -342,7 +342,7 @@ export function Other(props: OverviewElementProps) {
       <Typography variant="body1" component={'span'}>
         {intl.formatMessage(
           {
-            id: 'page.home.tab.overview.section.other.foundation.content',
+            id: 'page.home.tab.guide.section.other.foundation.content',
           },
           intlValues
         )}

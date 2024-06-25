@@ -14,7 +14,7 @@ import {
   ParticipantRideRequestIcon,
 } from '@components/Icons';
 import CardGeneric from '@components/Card/CardGeneric';
-import CardParticipantRefresh from '@components/Card/CardParticipantRefresh';
+import CardRefresh from '@components/Card/CardRefresh';
 import GridConnectedElementsLayout from '@components/Grid/GridConnectedElementsLayout';
 import SearchBar from '@components/TextInput/SearchBar';
 import SectionChangeSpectator from '@components/Tab/TabMap/SectionChangeSpectator';
@@ -108,10 +108,10 @@ export default function TabBlockchain(props: TabBlockchainProps) {
     const selectedRideRequests: Array<ReactElement> = [];
     if (stateSelectedCustomerResolved !== undefined) {
       selectedParticipants.push(
-        <CardParticipantRefresh
+        <CardRefresh
           {...props}
-          participantType={'customer'}
-          participantId={stateSelectedCustomerResolved}
+          cardType={'customer'}
+          id={stateSelectedCustomerResolved}
           label={intl.formatMessage(
             {
               id: 'getacar.spectator.message.connected',
@@ -127,10 +127,10 @@ export default function TabBlockchain(props: TabBlockchainProps) {
     }
     if (stateSelectedRideProviderResolved !== undefined) {
       selectedParticipants.push(
-        <CardParticipantRefresh
+        <CardRefresh
           {...props}
-          participantType={'ride_provider'}
-          participantId={stateSelectedRideProviderResolved}
+          cardType={'ride_provider'}
+          id={stateSelectedRideProviderResolved}
           label={intl.formatMessage(
             {
               id: 'getacar.spectator.message.connected',

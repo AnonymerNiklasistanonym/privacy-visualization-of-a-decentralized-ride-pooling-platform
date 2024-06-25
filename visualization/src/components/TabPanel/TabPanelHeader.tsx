@@ -24,7 +24,7 @@ const tabPanelInformation: ReadonlyArray<TabPanelInformation> = [
   {
     icon: <TabOverviewIcon />,
     index: 0,
-    labelIdI18n: 'page.home.tab.overview.title',
+    labelIdI18n: 'page.home.tab.guide.title',
   },
   {
     icon: <TabMapIcon />,

@@ -3,6 +3,7 @@ import type {ReactSetState, ReactState} from '../react';
 import type {FetchOptions} from '@globals/lib/fetch';
 import type {ReactElement} from 'react';
 import type {ShowError} from '@components/Modal/ErrorModal';
+import type {SimulationEndpointParticipantTypes} from '@globals/types/simulation';
 
 /** Props to get the current spectators/selected elements */
 export interface GlobalPropsSpectatorSelectedElements {
@@ -10,6 +11,12 @@ export interface GlobalPropsSpectatorSelectedElements {
   stateSpectator: ReactState<string>;
   /** The spectator that should be shown */
   stateShowSpectator: ReactState<string | undefined>;
+  /** The currently selected participant ID */
+  stateSelectedParticipantId: ReactState<undefined | string>;
+  /** The currently selected participant Type */
+  stateSelectedParticipantType: ReactState<
+    undefined | SimulationEndpointParticipantTypes
+  >;
 }
 
 /** Props to set the current spectators/selected elements */
@@ -18,6 +25,12 @@ export interface GlobalPropsSpectatorSelectedElementsSet {
   setStateSpectator: ReactSetState<string>;
   /** Set to spectator that should be shown */
   setStateShowSpectator: ReactSetState<string | undefined>;
+  /** Set the currently selected participant ID */
+  setStateSelectedParticipantId: ReactSetState<undefined | string>;
+  /** Set the currently selected participant Type */
+  setStateSelectedParticipantType: ReactSetState<
+    undefined | SimulationEndpointParticipantTypes
+  >;
 }
 
 /** Props to fetch requests for actor data */

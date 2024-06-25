@@ -125,6 +125,10 @@ export default function CollectionHome(
   // > Snackbars
   const [stateSnackbarSpectatorOpen, setStateSnackbarSpectatorOpen] =
     useState(false);
+  const [
+    stateSnackbarSelectedParticipantOpen,
+    setStateSnackbarSelectedParticipantOpen,
+  ] = useState(false);
   // > Spectator
   const [stateSpectator, setStateSpectator] = useState(
     searchParams.get(UrlParameter.SPECTATOR) ?? 'everything'
@@ -132,6 +136,16 @@ export default function CollectionHome(
   const [stateShowSpectator, setStateShowSpectator] = useState<
     undefined | string
   >(stateSpectator);
+  // > Selected participant
+  const [stateSelectedParticipantId, setStateSelectedParticipantId] = useState<
+    undefined | string
+  >(searchParams.get(UrlParameter.SELECTED_PARTICIPANT_ID) ?? undefined);
+  const [stateSelectedParticipantType, setStateSelectedParticipantType] =
+    useState<undefined | SimulationEndpointParticipantTypes>(
+      (searchParams.get(
+        UrlParameter.SELECTED_PARTICIPANT_TYPE
+      ) as SimulationEndpointParticipantTypes | null) ?? undefined
+    );
   // > Settings
   const [stateSettingsUiNavBarPosition, setStateSettingsUiNavBarPosition] =
     useState<'bottom' | 'top'>('top');
@@ -256,6 +270,18 @@ export default function CollectionHome(
   useEffect(() => {
     setStateSnackbarSpectatorOpen(true);
   }, [stateSpectator, setStateSnackbarSpectatorOpen]);
+  useEffect(() => {
+    if (
+      stateSelectedParticipantId !== undefined &&
+      stateSelectedParticipantType !== undefined
+    ) {
+      setStateSnackbarSelectedParticipantOpen(true);
+    }
+  }, [
+    stateSelectedParticipantId,
+    stateSelectedParticipantType,
+    setStateSnackbarSelectedParticipantOpen,
+  ]);
   // > URL parameter listeners
   useEffect(() => {
     if (stateSettingsGlobalDebug) {
@@ -457,6 +483,8 @@ export default function CollectionHome(
     fetchJsonSimulation,
     globalSearch,
     intlValues,
+    setStateSelectedParticipantId,
+    setStateSelectedParticipantType,
     setStateSettingsBlockchainUpdateRateInMs,
     setStateSettingsCardUpdateRateInMs,
     setStateSettingsGlobalDebug,
@@ -470,6 +498,8 @@ export default function CollectionHome(
     setStateShowSpectator,
     setStateSpectator,
     setStateThemeMode,
+    stateSelectedParticipantId,
+    stateSelectedParticipantType,
     stateSettingsBlockchainUpdateRateInMs,
     stateSettingsCardUpdateRateInMs,
     stateSettingsGlobalDebug,
@@ -500,6 +530,18 @@ export default function CollectionHome(
         handleChangeStateContent={a =>
           intl.formatMessage({id: 'getacar.spectator.changed'}, {name: a})
         }
+      />
+      <SnackbarContentChange
+        stateOpen={stateSnackbarSelectedParticipantOpen}
+        stateContent={`${stateSelectedParticipantId} (${stateSelectedParticipantType})`}
+        setStateOpen={setStateSnackbarSelectedParticipantOpen}
+        handleChangeStateContent={a =>
+          intl.formatMessage(
+            {id: 'getacar.selectedParticipant.changed'},
+            {name: a}
+          )
+        }
+        bottomOffset={60}
       />
       {children}
     </ThemeContainer>

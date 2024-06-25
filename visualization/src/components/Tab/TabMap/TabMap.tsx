@@ -10,12 +10,15 @@ import {fetchJsonEndpoint, fetchTextEndpoint} from '@misc/fetch';
 // > Components
 import {
   ConnectedElementsIcon,
+  MiscRideContractSmartContractIcon,
   ParticipantCustomerIcon,
   ParticipantRideProviderIcon,
+  ParticipantRideRequestIcon,
   PinnedElementsIcon,
 } from '@components/Icons';
+import CardGeneric from '@components/Card/CardGeneric';
 import CardParticipant from '@components/Card/CardParticipant';
-import CardParticipantRefresh from '@components/Card/CardParticipantRefresh';
+import CardRefresh from '@components/Card/CardRefresh';
 import CardRideRequest from '@components/Card/CardRideRequest';
 import GenericButton from '@components/Button/GenericButton';
 import GridConnectedElementsLayout from '@components/Grid/GridConnectedElementsLayout';
@@ -86,6 +89,8 @@ export default function TabMap(props: TabMapProps) {
   const {
     fetchJsonSimulation,
     showError,
+    stateSelectedParticipantId,
+    stateSelectedParticipantType,
     stateSettingsGlobalDebug,
     stateSettingsMapBaseUrlPathfinder,
     stateSettingsMapBaseUrlSimulation,
@@ -326,6 +331,7 @@ export default function TabMap(props: TabMapProps) {
     };
   });
 
+  /** Specify dismissible cards that should be displayed */
   const stateInfoElements = useMemo<Array<InfoElement>>(
     () => [
       {
@@ -340,26 +346,25 @@ export default function TabMap(props: TabMapProps) {
     [intl]
   );
 
+  /** Specify which connected elements should be displayed */
   const stateConnectedElements = useMemo<Array<ConnectedElementSection>>(() => {
+    /** The pinned participant cards */
     const pinnedParticipants: Array<ReactElement> = [];
-    const selectedParticipants: Array<ReactElement> = [];
-    const selectedRideRequests: Array<ReactElement> = [];
+    /** The connected participants */
+    const connectedParticipants: Array<ReactElement> = [];
+    /** The connected ride requests */
+    const connectedRideRequests: Array<ReactElement> = [];
+    /** The connected smart contracts */
+    const connectedSmartContracts: Array<ReactElement> = [];
+
+    // Pinned participants
+    // > Customers
     for (const pinnedCustomerId of statePinnedCustomers) {
       pinnedParticipants.push(
-        <CardParticipantRefresh
+        <CardRefresh
           {...props}
-          participantType={'customer'}
-          participantId={pinnedCustomerId}
-          label={intl.formatMessage(
-            {
-              id: 'getacar.spectator.message.pinned',
-            },
-            {
-              name: intl.formatMessage({
-                id: 'getacar.participant.customer',
-              }),
-            }
-          )}
+          cardType={'customer'}
+          id={pinnedCustomerId}
           onUnpin={() =>
             setStatePinnedCustomers(prev =>
               prev.filter(id => id !== pinnedCustomerId)
@@ -368,22 +373,13 @@ export default function TabMap(props: TabMapProps) {
         />
       );
     }
+    // > Ride Providers
     for (const pinnedRideProviderId of statePinnedRideProviders) {
       pinnedParticipants.push(
-        <CardParticipantRefresh
+        <CardRefresh
           {...props}
-          participantType={'ride_provider'}
-          participantId={pinnedRideProviderId}
-          label={intl.formatMessage(
-            {
-              id: 'getacar.spectator.message.pinned',
-            },
-            {
-              name: intl.formatMessage({
-                id: 'getacar.participant.rideProvider',
-              }),
-            }
-          )}
+          cardType={'ride_provider'}
+          id={pinnedRideProviderId}
           onUnpin={() =>
             setStatePinnedRideProviders(prev =>
               prev.filter(id => id !== pinnedRideProviderId)
@@ -392,7 +388,111 @@ export default function TabMap(props: TabMapProps) {
         />
       );
     }
-    // TODO Show Ride Request
+
+    // Selected Participant
+    const participantSelected =
+      stateSelectedParticipantId !== undefined &&
+      stateSelectedParticipantType !== undefined;
+    // > Connected ride requests
+    if (participantSelected) {
+      // TODO
+      connectedRideRequests.push(
+        <CardGeneric
+          {...props}
+          name={intl.formatMessage({
+            id: 'getacar.rideRequest',
+          })}
+          content={[{content: 'TODO'}]}
+          icon={<ParticipantRideRequestIcon />}
+          label={intl.formatMessage(
+            {
+              id: 'getacar.spectator.message.connected',
+            },
+            {
+              name: intl.formatMessage({
+                id: 'getacar.rideRequest',
+              }),
+            }
+          )}
+        />
+      );
+    }
+    // > Connected smart contracts
+    if (participantSelected) {
+      // TODO
+      connectedSmartContracts.push(
+        <CardGeneric
+          {...props}
+          name={intl.formatMessage({
+            id: 'getacar.smartContract',
+          })}
+          content={[{content: 'TODO'}]}
+          icon={<MiscRideContractSmartContractIcon />}
+          label={intl.formatMessage(
+            {
+              id: 'getacar.spectator.message.connected',
+            },
+            {
+              name: intl.formatMessage({
+                id: 'getacar.smartContract',
+              }),
+            }
+          )}
+        />
+      );
+    }
+    // > Connected passengers
+    if (
+      participantSelected &&
+      stateSelectedParticipantType === 'ride_provider'
+    ) {
+      // TODO
+      connectedParticipants.push(
+        <CardGeneric
+          {...props}
+          name={intl.formatMessage({
+            id: 'getacar.participant.customer',
+          })}
+          content={[{content: 'TODO'}]}
+          icon={<ParticipantCustomerIcon />}
+          label={intl.formatMessage(
+            {
+              id: 'getacar.spectator.message.connected',
+            },
+            {
+              name: intl.formatMessage({
+                id: 'getacar.spectator.message.passenger',
+              }),
+            }
+          )}
+        />
+      );
+    }
+    // > Connected driver
+    if (participantSelected && stateSelectedParticipantType === 'customer') {
+      // TODO
+      connectedParticipants.push(
+        <CardGeneric
+          {...props}
+          name={intl.formatMessage({
+            id: 'getacar.participant.rideProvider',
+          })}
+          content={[{content: 'TODO'}]}
+          icon={<ParticipantRideProviderIcon />}
+          label={intl.formatMessage(
+            {
+              id: 'getacar.spectator.message.connected',
+            },
+            {
+              name: intl.formatMessage({
+                id: 'getacar.spectator.message.driver',
+              }),
+            }
+          )}
+        />
+      );
+    }
+
     return [
       {
         elements: pinnedParticipants,
@@ -405,7 +505,7 @@ export default function TabMap(props: TabMapProps) {
         ),
       },
       {
-        elements: selectedParticipants,
+        elements: connectedParticipants,
         icon: <ConnectedElementsIcon fontSize="large" />,
         title: intl.formatMessage(
           {id: 'getacar.spectator.message.connected'},
@@ -415,7 +515,7 @@ export default function TabMap(props: TabMapProps) {
         ),
       },
       {
-        elements: selectedRideRequests,
+        elements: connectedRideRequests,
         icon: <ConnectedElementsIcon fontSize="large" />,
         title: intl.formatMessage(
           {id: 'getacar.spectator.message.connected'},
@@ -424,8 +524,25 @@ export default function TabMap(props: TabMapProps) {
           }
         ),
       },
+      {
+        elements: connectedSmartContracts,
+        icon: <ConnectedElementsIcon fontSize="large" />,
+        title: intl.formatMessage(
+          {id: 'getacar.spectator.message.connected'},
+          {
+            name: intl.formatMessage({id: 'getacar.smartContract.plural'}),
+          }
+        ),
+      },
     ];
-  }, [intl, props, statePinnedCustomers, statePinnedRideProviders]);
+  }, [
+    intl,
+    props,
+    statePinnedCustomers,
+    statePinnedRideProviders,
+    stateSelectedParticipantId,
+    stateSelectedParticipantType,
+  ]);
 
   return (
     <TabContainer fullPage={true}>

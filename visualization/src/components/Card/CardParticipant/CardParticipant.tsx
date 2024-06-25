@@ -432,6 +432,7 @@ export function CardParticipant(props: CardParticipantProps) {
     ],
     [participantType, props, stateParticipantId]
   );
+  // TODO Add label with information (e.g. current spectator)
   return (
     <CardGeneric
       {...props}

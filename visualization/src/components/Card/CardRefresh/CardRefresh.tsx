@@ -15,60 +15,77 @@ import type {GetACarParticipantTypes} from '@globals/types/participant';
 import type {GlobalPropsIntlValues} from '@misc/props/global';
 import type {SettingsConnectedElementsProps} from '@misc/props/settings';
 
-export interface CardParticipantRefreshProps
+export interface CardRefreshProps
   extends ChangeViewButtonProps,
     SettingsConnectedElementsProps,
     GlobalPropsIntlValues {
-  participantType: GetACarParticipantTypes;
-  participantId: string;
-  label: string;
+  /** The type of data that should be fetched/displayed (e.g. participant)  */
+  cardType: GetACarParticipantTypes;
+  /** The ID of the element that should be fetched/displayed */
+  id: string;
+  /** Additional label of the card (e.g. 'passenger'/'pinned') */
+  label?: string;
+  /** If found enable unpin action (with icon) */
   onUnpin?: () => void;
+  /** If found check if the fetching should be paused at the moment */
+  pauseRefresh?: () => boolean;
 }
 
-export default memo(CardParticipantRefresh);
+export default memo(CardRefresh);
 
-export function CardParticipantRefresh(props: CardParticipantRefreshProps) {
+/**
+ * Auto refreshing card
+ */
+export function CardRefresh(props: CardRefreshProps) {
   const {
+    cardType,
     fetchJsonSimulation,
+    id,
+    intlValues,
     label,
-    participantId,
-    participantType,
+    onUnpin,
+    pauseRefresh,
     showError,
     stateSettingsCardUpdateRateInMs,
-    onUnpin,
-    intlValues,
   } = props;
 
+  // React: States
+  // > Card information
   const [stateCustomerInformation, setStateCustomerInformation] =
     useState<SimulationEndpointParticipantInformationCustomer | null>(null);
   const [stateRideProviderInformation, setStateRideProviderInformation] =
     useState<SimulationEndpointParticipantInformationRideProvider | null>(null);
 
-  const fetchParticipantInformation = async () => {
-    if (participantType === 'customer') {
+  /** Fetches the card specific information in set intervals */
+  const fetchCardInformation = async () => {
+    if (pauseRefresh !== undefined && pauseRefresh()) {
+      return;
+    }
+    if (cardType === 'customer') {
       const customerInformation =
         await fetchJsonSimulation<SimulationEndpointParticipantInformationCustomer>(
-          simulationEndpoints.apiV1.participantInformationCustomer(
-            participantId
-          )
+          simulationEndpoints.apiV1.participantInformationCustomer(id)
         );
       setStateCustomerInformation(customerInformation);
     }
-    if (participantType === 'ride_provider') {
+    if (cardType === 'ride_provider') {
       const rideProviderInformation =
         await fetchJsonSimulation<SimulationEndpointParticipantInformationRideProvider>(
-          simulationEndpoints.apiV1.participantInformationRideProvider(
-            participantId
-          )
+          simulationEndpoints.apiV1.participantInformationRideProvider(id)
         );
       setStateRideProviderInformation(rideProviderInformation);
     }
   };
 
+  // React: Effects
+  // > Fetch data in interval
   useEffect(() => {
     const interval = setInterval(async () => {
-      fetchParticipantInformation().catch(err =>
-        showError('Simulation fetch participant information', err)
+      fetchCardInformation().catch(err =>
+        showError(
+          `Simulation fetch card information '${cardType}' (${id})`,
+          err
+        )
       );
     }, stateSettingsCardUpdateRateInMs);
     return () => {
@@ -76,16 +93,18 @@ export function CardParticipantRefresh(props: CardParticipantRefreshProps) {
     };
   });
 
-  return (
+  return cardType === 'customer' || cardType === 'ride_provider' ? (
     <CardParticipant
       {...props}
-      participantType={participantType}
+      participantType={cardType}
       stateCustomerInformation={stateCustomerInformation}
       stateRideProviderInformation={stateRideProviderInformation}
-      stateParticipantId={participantId}
+      stateParticipantId={id}
       label={label}
       unpinAction={onUnpin}
       intlValues={intlValues}
     />
+  ) : (
+    <></>
   );
 }

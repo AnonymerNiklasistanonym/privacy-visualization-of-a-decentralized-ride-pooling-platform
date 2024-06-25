@@ -79,7 +79,7 @@ export default function TabOverview(propsInput: TabOverviewProps) {
           </Typography>
           <Typography variant="body1">
             {intl.formatMessage(
-              {id: 'page.home.tab.overview.section.sources'},
+              {id: 'page.home.tab.guide.section.sources'},
               intlValues
             )}
           </Typography>
@@ -88,7 +88,7 @@ export default function TabOverview(propsInput: TabOverviewProps) {
           <OverviewElementSectionTitle {...props} id="anchor-summary">
             {intl.formatMessage(
               {
-                id: 'page.home.tab.overview.section.summary.title',
+                id: 'page.home.tab.guide.section.summary.title',
               },
               intlValues
             )}
@@ -96,7 +96,7 @@ export default function TabOverview(propsInput: TabOverviewProps) {
           <OverviewElementSectionContent>
             {intl.formatMessage(
               {
-                id: 'page.home.tab.overview.section.summary.content',
+                id: 'page.home.tab.guide.section.summary.content',
               },
               intlValues
             )}

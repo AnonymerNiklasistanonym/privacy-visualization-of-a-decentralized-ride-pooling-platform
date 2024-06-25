@@ -241,6 +241,8 @@ export function ParticipantMarkerElement(props: ParticipantMarkerElementProps) {
     stateSettingsUiMapScroll,
     stateShowSpectator,
     setStateShowSpectator,
+    setStateSelectedParticipantId,
+    setStateSelectedParticipantType,
     onPin,
     onUnpin,
     isPinned,
@@ -298,12 +300,17 @@ export function ParticipantMarkerElement(props: ParticipantMarkerElementProps) {
       }
       eventHandlers={{
         click: () => {
-          //setStateSelectedParticipant(stateParticipantId);
-          //setStateSelectedParticipantTypeGlobal(participantType);
+          // Select this participant
+          setStateSelectedParticipantId(stateParticipantId);
+          setStateSelectedParticipantType(participantType);
         },
         popupclose: () => setStatePopupOpen(false),
         popupopen: () => {
+          // Store that popup is open
           setStatePopupOpen(true);
+          // Select this participant
+          setStateSelectedParticipantId(stateParticipantId);
+          setStateSelectedParticipantType(participantType);
           // Fetch participant information when popup is opened
           fetchParticipantInformation().catch(err =>
             showError('Simulation fetch participant information', err)
