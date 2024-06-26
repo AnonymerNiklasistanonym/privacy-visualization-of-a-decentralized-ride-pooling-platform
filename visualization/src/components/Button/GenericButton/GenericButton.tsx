@@ -1,6 +1,6 @@
 // Package imports
 // > Components
-import MuiButton from '@mui/material/Button';
+import {Button, Tooltip} from '@mui/material';
 // Type imports
 import type {PropsWithChildren, ReactElement} from 'react';
 
@@ -14,24 +14,29 @@ export interface ButtonProps {
   disabled?: boolean;
   /** Use secondary color */
   secondaryColor?: boolean;
+  /** Optional tooltip message */
+  tooltip?: string;
 }
 
-export default function Button({
+export default function GenericButton({
   children,
   disabled,
   icon,
   onClick,
   secondaryColor,
+  tooltip,
 }: PropsWithChildren<ButtonProps>) {
   return (
-    <MuiButton
-      startIcon={icon}
-      variant="contained"
-      color={secondaryColor === true ? 'secondary' : 'primary'}
-      disabled={disabled ?? false}
-      onClick={onClick ?? (() => {})}
-    >
-      {children}
-    </MuiButton>
+    <Tooltip title={tooltip}>
+      <Button
+        startIcon={icon}
+        variant="contained"
+        color={secondaryColor === true ? 'secondary' : 'primary'}
+        disabled={disabled ?? false}
+        onClick={onClick ?? (() => {})}
+      >
+        {children}
+      </Button>
+    </Tooltip>
   );
 }

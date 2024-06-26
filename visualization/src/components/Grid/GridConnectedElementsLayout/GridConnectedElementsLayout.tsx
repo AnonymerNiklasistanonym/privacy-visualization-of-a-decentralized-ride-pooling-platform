@@ -1,9 +1,9 @@
 // Package imports
 // > Components
-import {Badge, Card, CardContent, Grid, Typography} from '@mui/material';
+import {Badge, Box, Grid, Typography} from '@mui/material';
 import Masonry, {ResponsiveMasonry} from 'react-responsive-masonry';
 // Type imports
-import {PropsWithChildren, ReactElement} from 'react';
+import {PropsWithChildren, ReactElement, isValidElement} from 'react';
 import {GridConnectedElementsCard} from './GridConnectedElementsCard';
 
 export interface ConnectedElementSection {
@@ -15,9 +15,11 @@ export interface ConnectedElementSection {
 }
 
 export interface InfoElement {
-  title: string;
+  title?: string;
   icon?: ReactElement;
-  description: string;
+  content: string | ReactElement;
+  /** Card can be dismissed */
+  dismissible?: boolean;
 }
 
 export interface GridConnectedElementsLayoutProps {
@@ -37,82 +39,98 @@ export default function GridConnectedElementsLayout({
 }: PropsWithChildren<GridConnectedElementsLayoutProps>) {
   console.log('stateSettingsUiGridSpacing', stateSettingsUiGridSpacing);
   return (
-    <Grid
-      container
-      spacing={stateSettingsUiGridSpacing}
-      justifyContent="left"
-      alignItems="stretch"
+    <Box
+      sx={{
+        marginTop: `${stateSettingsUiGridSpacing / 2}rem`,
+      }}
     >
-      {/* Content */}
-      <Grid item xs={12} md={6} xl={7}>
-        {children}
-      </Grid>
-      {/* Temporary and Connected elements */}
-      <Grid item xs={12} md={6} xl={5}>
-        <Grid
-          container
-          spacing={stateSettingsUiGridSpacing}
-          justifyContent="left"
-          alignItems="stretch"
-        >
-          <Grid item xs={12} md={12} xl={12}>
-            <Grid
-              container
-              spacing={stateSettingsUiGridSpacing}
-              justifyContent="left"
-              alignItems="stretch"
-            >
-              {stateInfoElements.map((element, index) => (
-                <GridConnectedElementsCard
-                  key={index + element.title}
-                  muiGridItemSize={12}
-                  icon={element.icon}
-                  title={element.title}
-                  onDismiss={() => {
-                    console.log('ACTION: DISMISS', stateInfoElements);
-                  }}
-                >
-                  <Typography variant="body2">{element.description}</Typography>
-                </GridConnectedElementsCard>
-              ))}
-              {stateConnectedElements
-                .filter(a => a.elements.length > 0)
-                .map(stateConnectedElement => (
+      <Grid
+        container
+        spacing={stateSettingsUiGridSpacing}
+        justifyContent="left"
+        alignItems="stretch"
+      >
+        {/* Content */}
+        <Grid item xs={12} md={6} xl={7}>
+          {children}
+        </Grid>
+        {/* Temporary and Connected elements */}
+        <Grid item xs={12} md={6} xl={5}>
+          <Grid
+            container
+            spacing={stateSettingsUiGridSpacing}
+            justifyContent="left"
+            alignItems="stretch"
+          >
+            <Grid item xs={12} md={12} xl={12}>
+              <Grid
+                container
+                spacing={stateSettingsUiGridSpacing}
+                justifyContent="left"
+                alignItems="stretch"
+              >
+                {stateInfoElements.map((element, index) => (
                   <GridConnectedElementsCard
-                    key={stateConnectedElement.title}
-                    icon={
-                      <Badge
-                        color="secondary"
-                        badgeContent={stateConnectedElement.elements.length}
-                        showZero
-                      >
-                        {stateConnectedElement.icon}
-                      </Badge>
-                    }
+                    key={index + (element.title ?? '')}
                     muiGridItemSize={12}
-                    title={stateConnectedElement.title}
-                    onExtend={extend => {
-                      console.log('ACTION: EXTEND', extend);
-                    }}
+                    icon={element.icon}
+                    title={element.title}
+                    onDismiss={
+                      element.dismissible === true
+                        ? () => {
+                            console.log('ACTION: DISMISS', stateInfoElements);
+                          }
+                        : undefined
+                    }
                   >
-                    <ResponsiveMasonry
-                      columnsCountBreakPoints={{
-                        0: 1,
-                        600: 2,
-                        900: 1,
-                        1200: 2,
-                      }}
-                    >
-                      <Masonry gutter={`${stateSettingsUiGridSpacing / 2}rem`}>
-                        {stateConnectedElement.elements}
-                      </Masonry>
-                    </ResponsiveMasonry>
+                    {typeof element.content === 'string' ? (
+                      <Typography variant="body2">{element.content}</Typography>
+                    ) : (
+                      element.content
+                    )}
                   </GridConnectedElementsCard>
                 ))}
+                {stateConnectedElements
+                  .filter(a => a.elements.length > 0)
+                  .map(stateConnectedElement => (
+                    <GridConnectedElementsCard
+                      key={stateConnectedElement.title}
+                      icon={
+                        <Badge
+                          color="secondary"
+                          badgeContent={stateConnectedElement.elements.length}
+                          showZero
+                        >
+                          {stateConnectedElement.icon}
+                        </Badge>
+                      }
+                      muiGridItemSize={12}
+                      title={stateConnectedElement.title}
+                      onExtend={extend => {
+                        console.log('ACTION: EXTEND', extend);
+                      }}
+                    >
+                      <ResponsiveMasonry
+                        columnsCountBreakPoints={{
+                          0: 1,
+                          600: 2,
+                          900: 1,
+                          1200: 2,
+                        }}
+                      >
+                        <Masonry
+                          gutter={`${stateSettingsUiGridSpacing / 2}rem`}
+                        >
+                          {stateConnectedElement.elements}
+                        </Masonry>
+                      </ResponsiveMasonry>
+                    </GridConnectedElementsCard>
+                  ))}
+              </Grid>
             </Grid>
           </Grid>
         </Grid>
       </Grid>
-    </Grid>
+    </Box>
   );
 }

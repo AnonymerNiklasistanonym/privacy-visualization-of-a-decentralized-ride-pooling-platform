@@ -52,10 +52,17 @@ export interface GlobalPropsShowError {
   showError: ShowError;
 }
 
+/** Information of spectator */
 export interface GlobalPropsSpectatorElement {
+  /** Name of the spectator */
   name: string;
+  /** Callback to run when being clicked in a search */
   callback: () => void;
+  /** Spectator category (e.g. service) */
+  category: string;
+  /** Keywords to find spectator */
   keywords: Array<string>;
+  /** Icon to describe spectator */
   icon: ReactElement;
 }
 

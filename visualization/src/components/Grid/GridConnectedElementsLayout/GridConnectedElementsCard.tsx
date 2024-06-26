@@ -21,7 +21,7 @@ import {
 import type {PropsWithChildren, ReactElement} from 'react';
 
 export interface GridConnectedElementsCardProps {
-  title: string;
+  title?: string;
   icon?: ReactElement;
   muiGridItemSize?: number;
   onDismiss?: () => void;
@@ -70,11 +70,13 @@ export function GridConnectedElementsCard({
 
   const card = (
     <Card>
-      <CardHeader
-        avatar={icon ?? <InfoIcon />}
-        action={actions}
-        title={title.toUpperCase()}
-      />
+      {title !== undefined ? (
+        <CardHeader
+          avatar={icon ?? <InfoIcon />}
+          action={actions}
+          title={title.toUpperCase()}
+        />
+      ) : undefined}
       <Collapse in={stateExtend} timeout="auto" unmountOnExit>
         <CardContent>{children}</CardContent>
       </Collapse>

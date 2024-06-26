@@ -143,7 +143,9 @@ export default function Map(props: MapPropsInput) {
           </LayersControl.Overlay>
           <LayersControl.Overlay
             checked={true}
-            name={intl.formatMessage({id: 'getacar.participant.customer.plural'})}
+            name={intl.formatMessage({
+              id: 'getacar.participant.customer.plural',
+            })}
           >
             <LayerGroup>
               {stateParticipantCoordinatesList.customers.map(customer => (
@@ -172,7 +174,9 @@ export default function Map(props: MapPropsInput) {
           </LayersControl.Overlay>
           <LayersControl.Overlay
             checked={true}
-            name={intl.formatMessage({id: 'getacar.participant.rideProvider.plural'})}
+            name={intl.formatMessage({
+              id: 'getacar.participant.rideProvider.plural',
+            })}
           >
             <LayerGroup>
               {stateParticipantCoordinatesList.rideProviders.map(

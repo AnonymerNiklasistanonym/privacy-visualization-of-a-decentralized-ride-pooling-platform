@@ -11,7 +11,9 @@ import {debugComponentUpdate, debugMemoHelper} from '@misc/debug';
 // Type imports
 import type {GlobalPropsSearch, GlobalSearchElement} from '@misc/props/global';
 
-export type SearchBarAutocompleteProps = GlobalPropsSearch;
+export interface SearchBarAutocompleteProps extends GlobalPropsSearch {
+  placeholder: string;
+}
 
 export default memo(SearchBarAutocomplete, (prev, next) =>
   debugMemoHelper('SearchBarAutocomplete', ['globalSearch'], prev, next)
@@ -19,6 +21,7 @@ export default memo(SearchBarAutocomplete, (prev, next) =>
 
 export function SearchBarAutocomplete({
   globalSearch,
+  placeholder,
 }: SearchBarAutocompleteProps) {
   debugComponentUpdate('SearchBarAutocomplete');
   const intl = useIntl();
@@ -65,9 +68,7 @@ export function SearchBarAutocomplete({
       renderInput={params => (
         <TextField
           {...params}
-          placeholder={intl.formatMessage({
-            id: 'page.home.search.title',
-          })}
+          placeholder={placeholder}
           InputProps={{
             ...params.InputProps,
           }}

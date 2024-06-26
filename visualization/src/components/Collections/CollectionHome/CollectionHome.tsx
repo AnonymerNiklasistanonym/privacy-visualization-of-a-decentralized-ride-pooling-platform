@@ -151,8 +151,6 @@ export default function CollectionHome(
       searchParams.get(UrlParameter.SELECTED_SMART_CONTRACT_ID) ?? undefined
     );
   // > Settings
-  const [stateSettingsUiNavBarPosition, setStateSettingsUiNavBarPosition] =
-    useState<'bottom' | 'top'>('top');
   const [stateSettingsUiGridSpacing, setStateSettingsUiGridSpacing] =
     useState<number>(2);
   const [stateSettingsUiMapScroll, setStateSettingsUiMapScroll] =
@@ -172,27 +170,29 @@ export default function CollectionHome(
     new Map(
       [
         {
+          category: intl.formatMessage({id: 'other'}),
           icon: <SpectatorPublicIcon />,
           id: 'public',
           name: intl.formatMessage({id: 'getacar.spectator.public'}),
         },
         {
+          category: intl.formatMessage({id: 'other'}),
           icon: <SpectatorEverythingIcon />,
           id: 'everything',
           name: intl.formatMessage({id: 'getacar.spectator.everything'}),
         },
         {
+          category: intl.formatMessage({id: 'getacar.service'}),
           icon: <ServiceAuthenticationIcon />,
           id: 'auth',
-          keywords: [intl.formatMessage({id: 'getacar.service'})],
           name: intl.formatMessage({
             id: 'getacar.spectator.service.authentication',
           }),
         },
         {
+          category: intl.formatMessage({id: 'getacar.service'}),
           icon: <ServiceMatchingIcon />,
           id: 'match',
-          keywords: [intl.formatMessage({id: 'getacar.service'})],
           name: intl.formatMessage({id: 'getacar.spectator.service.matching'}),
         },
       ].map(a => [
@@ -201,8 +201,9 @@ export default function CollectionHome(
           callback: () => {
             setStateSpectator(a.id);
           },
+          category: a.category,
           icon: a.icon,
-          keywords: a.keywords ?? [],
+          keywords: [],
           name: a.name,
         },
       ])
@@ -539,7 +540,6 @@ export default function CollectionHome(
     setStateSettingsMapUpdateRateInMs,
     setStateSettingsUiGridSpacing,
     setStateSettingsUiMapScroll,
-    setStateSettingsUiNavBarPosition,
     setStateShowSpectator,
     setStateSpectator,
     setStateThemeMode,
@@ -555,7 +555,6 @@ export default function CollectionHome(
     stateSettingsMapUpdateRateInMs,
     stateSettingsUiGridSpacing,
     stateSettingsUiMapScroll,
-    stateSettingsUiNavBarPosition,
     stateShowSpectator,
     stateSpectator,
     stateSpectators,

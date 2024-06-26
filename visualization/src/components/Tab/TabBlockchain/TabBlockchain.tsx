@@ -16,8 +16,8 @@ import {
 import CardGeneric from '@components/Card/CardGeneric';
 import CardRefresh from '@components/Card/CardRefresh';
 import GridConnectedElementsLayout from '@components/Grid/GridConnectedElementsLayout';
-import SearchBar from '@components/TextInput/SearchBar';
-import SectionChangeSpectator from '@components/Tab/TabMap/SectionChangeSpectator';
+import InputChangeSpectator from '@components/Input/InputChangeSpectator';
+import InputSearchBar from '@components/Input/InputSearchBar';
 import TabContainer from '@components/Tab/TabContainer';
 import TableBlockchain from '@components/Table/TableBlockchain';
 // Type imports
@@ -230,7 +230,10 @@ export default function TabBlockchain(props: TabBlockchainProps) {
   const stateInfoElements = useMemo<Array<InfoElement>>(
     () => [
       {
-        description: intl.formatMessage({
+        content: <InputChangeSpectator {...props} />,
+      },
+      {
+        content: intl.formatMessage({
           id: 'page.home.tab.blockchain.section.info.content',
         }),
         title: intl.formatMessage({
@@ -238,23 +241,11 @@ export default function TabBlockchain(props: TabBlockchainProps) {
         }),
       },
     ],
-    [intl]
+    [intl, props]
   );
 
   return (
     <TabContainer fullPage={true}>
-      <Box
-        sx={{
-          '& > *': {m: 1},
-          alignItems: 'center',
-          display: 'flex',
-          flexDirection: 'column',
-          marginBottom: `${stateSettingsUiGridSpacing / 2}rem`,
-          marginTop: `${stateSettingsUiGridSpacing / 2}rem`,
-        }}
-      >
-        <SectionChangeSpectator {...props} />
-      </Box>
       <GridConnectedElementsLayout
         stateSettingsUiGridSpacing={stateSettingsUiGridSpacing}
         stateConnectedElements={stateConnectedElements}
@@ -262,13 +253,19 @@ export default function TabBlockchain(props: TabBlockchainProps) {
       >
         <Grid container spacing={stateSettingsUiGridSpacing}>
           <Grid item xs={12}>
-            <SearchBar {...props} />
+            <InputSearchBar
+              key={'search-bar-blockchain'}
+              placeholder={intl.formatMessage({
+                id: 'page.home.tab.blockchain.search',
+              })}
+              {...props}
+            />
           </Grid>
           <Grid item xs={12}>
             <Box
               sx={{
-                height: `calc(100vh - 13rem - ${
-                  (stateSettingsUiGridSpacing / 2) * 3
+                height: `calc(100vh - 10rem - ${
+                  (stateSettingsUiGridSpacing / 2) * 2
                 }rem)`,
               }}
             >

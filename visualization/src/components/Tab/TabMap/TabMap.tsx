@@ -4,27 +4,26 @@
 import {useEffect, useMemo, useState} from 'react';
 import {useIntl} from 'react-intl';
 // > Components
-import {Box, ButtonGroup, Chip, Divider, Grid} from '@mui/material';
+import {Box, ButtonGroup, Chip, Divider, Grid, Tooltip} from '@mui/material';
 // Local imports
 import {fetchJsonEndpoint, fetchTextEndpoint} from '@misc/fetch';
 // > Components
 import {
   ConnectedElementsIcon,
   MiscRideContractSmartContractIcon,
+  NavigateToLocationIcon,
   ParticipantCustomerIcon,
   ParticipantRideProviderIcon,
   ParticipantRideRequestIcon,
   PinnedElementsIcon,
 } from '@components/Icons';
 import CardGeneric from '@components/Card/CardGeneric';
-import CardParticipant from '@components/Card/CardParticipant';
 import CardRefresh from '@components/Card/CardRefresh';
-import CardRideRequest from '@components/Card/CardRideRequest';
 import GenericButton from '@components/Button/GenericButton';
 import GridConnectedElementsLayout from '@components/Grid/GridConnectedElementsLayout';
+import InputChangeSpectator from '@components/Input/InputChangeSpectator';
+import InputSearchBar from '@components/Input/InputSearchBar';
 import Map from '@components/Map';
-import SearchBar from '@components/TextInput/SearchBar';
-import SectionChangeSpectator from './SectionChangeSpectator';
 import TabContainer from '@components/Tab/TabContainer';
 import TableDebugData from '@components/Table/TableDebugData';
 // > Globals
@@ -89,6 +88,9 @@ export default function TabMap(props: TabMapProps) {
   const {
     fetchJsonSimulation,
     showError,
+    setStateShowSpectator,
+    stateSpectator,
+    stateSpectators,
     stateSelectedParticipantId,
     stateSelectedParticipantType,
     stateSettingsGlobalDebug,
@@ -252,10 +254,10 @@ export default function TabMap(props: TabMapProps) {
                 callback: () => {
                   console.log(`Selected Customer ${a.id}`);
                 },
+                category: customer,
                 icon: <ParticipantCustomerIcon />,
                 keywords: [
                   changeSpectatorInfo,
-                  customer,
                   a.id,
                   customerInformation.fullName,
                 ],
@@ -283,10 +285,10 @@ export default function TabMap(props: TabMapProps) {
                 callback: () => {
                   console.log(`Selected Ride Provider ${a.id}`);
                 },
+                category: rideProvider,
                 icon: <ParticipantRideProviderIcon />,
                 keywords: [
                   changeSpectatorInfo,
-                  rideProvider,
                   a.id,
                   'company' in rideProviderInformation
                     ? rideProviderInformation.company
@@ -332,19 +334,82 @@ export default function TabMap(props: TabMapProps) {
   });
 
   /** Specify dismissible cards that should be displayed */
-  const stateInfoElements = useMemo<Array<InfoElement>>(
-    () => [
+  const stateInfoElements = useMemo<Array<InfoElement>>(() => {
+    const currentSpectator = stateSpectators.get(stateSpectator);
+    const currentSelectedParticipant =
+      stateSelectedParticipantId !== undefined
+        ? stateSpectators.get(stateSelectedParticipantId)
+        : undefined;
+    return [
       {
-        description: intl.formatMessage({
+        content: (
+          <>
+            <InputChangeSpectator {...props} />
+            <ButtonGroup
+              sx={{marginTop: `${stateSettingsUiGridSpacing / 2}rem`}}
+            >
+              <GenericButton
+                disabled={
+                  currentSpectator?.category !== undefined
+                    ? ![
+                        intl.formatMessage({
+                          id: 'getacar.participant.customer',
+                        }),
+                        intl.formatMessage({
+                          id: 'getacar.participant.rideProvider',
+                        }),
+                      ].includes(currentSpectator?.category)
+                    : true
+                }
+                icon={<NavigateToLocationIcon />}
+                onClick={() => setStateShowSpectator(stateSpectator)}
+                secondaryColor={true}
+              >
+                {intl.formatMessage({id: 'getacar.spectator.showCurrent'})}
+              </GenericButton>
+              <GenericButton
+                disabled={
+                  currentSelectedParticipant?.category !== undefined
+                    ? ![
+                        intl.formatMessage({
+                          id: 'getacar.participant.customer',
+                        }),
+                        intl.formatMessage({
+                          id: 'getacar.participant.rideProvider',
+                        }),
+                      ].includes(currentSelectedParticipant?.category)
+                    : true
+                }
+                icon={<NavigateToLocationIcon />}
+                onClick={() =>
+                  setStateShowSpectator(stateSelectedParticipantId)
+                }
+              >
+                {intl.formatMessage({id: 'getacar.participant.showSelected'})}
+              </GenericButton>
+            </ButtonGroup>
+          </>
+        ),
+      },
+      {
+        content: intl.formatMessage({
           id: 'page.home.tab.map.section.info.content',
         }),
+        dismissible: true,
         title: intl.formatMessage({
           id: 'page.home.tab.map.section.info.title',
         }),
       },
-    ],
-    [intl]
-  );
+    ];
+  }, [
+    intl,
+    props,
+    setStateShowSpectator,
+    stateSelectedParticipantId,
+    stateSettingsUiGridSpacing,
+    stateSpectator,
+    stateSpectators,
+  ]);
 
   /** Specify which connected elements should be displayed */
   const stateConnectedElements = useMemo<Array<ConnectedElementSection>>(() => {
@@ -546,18 +611,6 @@ export default function TabMap(props: TabMapProps) {
 
   return (
     <TabContainer fullPage={true}>
-      <Box
-        sx={{
-          '& > *': {m: 1},
-          alignItems: 'center',
-          display: 'flex',
-          flexDirection: 'column',
-          marginBottom: `${stateSettingsUiGridSpacing / 2}rem`,
-          marginTop: `${stateSettingsUiGridSpacing / 2}rem`,
-        }}
-      >
-        <SectionChangeSpectator {...props} />
-      </Box>
       <Box component="section" className={styles['tab-map']}>
         <GridConnectedElementsLayout
           stateSettingsUiGridSpacing={stateSettingsUiGridSpacing}
@@ -566,13 +619,19 @@ export default function TabMap(props: TabMapProps) {
         >
           <Grid container spacing={stateSettingsUiGridSpacing}>
             <Grid item xs={12}>
-              <SearchBar {...propsTabMap} />
+              <InputSearchBar
+                {...propsTabMap}
+                key={'search-bar-map'}
+                placeholder={intl.formatMessage({
+                  id: 'page.home.tab.map.search',
+                })}
+              />
             </Grid>
             <Grid item xs={12}>
               <Box
                 sx={{
-                  height: `calc(100vh - 13rem - ${
-                    (stateSettingsUiGridSpacing / 2) * 3
+                  height: `calc(100vh - 10rem - ${
+                    (stateSettingsUiGridSpacing / 2) * 2
                   }rem)`,
                 }}
               >

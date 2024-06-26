@@ -1,7 +1,7 @@
 // Package imports
 import {useEffect, useState} from 'react';
 // > Components
-import {Box} from '@mui/material';
+import {Paper} from '@mui/material';
 // Local imports
 // > Components
 import TableDebugData from '../TableDebugData';
@@ -79,13 +79,15 @@ export default function TableBlockchain(props: TableBlockchainPropsInput) {
   });
 
   return (
-    <Box
+    <Paper
       sx={{
+        height: '100%',
         width: '100%',
       }}
+      elevation={2}
     >
       <TableDebugData
-        height={'calc(100vh - 14rem)'}
+        height={'100%'}
         stateDebugData={{
           customers: [],
           rideProviders: [],
@@ -107,6 +109,6 @@ export default function TableBlockchain(props: TableBlockchainPropsInput) {
           }
         }}
       />
-    </Box>
+    </Paper>
   );
 }

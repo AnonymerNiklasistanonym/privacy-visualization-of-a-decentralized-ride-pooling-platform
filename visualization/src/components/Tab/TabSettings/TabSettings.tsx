@@ -281,8 +281,6 @@ export function TabSettings({
   stateSettingsMapBaseUrlSimulation,
   stateSettingsMapShowTooltips,
   stateSettingsMapUpdateRateInMs,
-  setStateSettingsUiNavBarPosition,
-  stateSettingsUiNavBarPosition,
   setStateSettingsUiGridSpacing,
   stateSettingsUiGridSpacing,
   setStateSettingsUiMapScroll,
@@ -328,20 +326,6 @@ export function TabSettings({
       setStateThemeMode(stateSettingsBrightnessLocal);
     }
   }, [stateSettingsBrightnessLocal, setStateThemeMode]);
-
-  const [
-    stateSettingsUiNavBarPositionLocal,
-    setStateSettingsUiNavBarPositionLocal,
-  ] = useState<string>(stateSettingsUiNavBarPosition);
-
-  useEffect(() => {
-    if (
-      stateSettingsUiNavBarPositionLocal === 'top' ||
-      stateSettingsUiNavBarPositionLocal === 'bottom'
-    ) {
-      setStateSettingsUiNavBarPosition(stateSettingsUiNavBarPositionLocal);
-    }
-  }, [stateSettingsUiNavBarPositionLocal, setStateSettingsUiNavBarPosition]);
 
   const settingsCards = useMemo<RenderSettingsProps[]>(
     () => [
@@ -511,24 +495,6 @@ export function TabSettings({
         elements: [
           {
             label: intl.formatMessage({
-              id: 'page.home.tab.settings.card.ui.positionNavBar',
-            }),
-            options: [
-              {
-                label: intl.formatMessage({id: 'position.bottom'}),
-                value: 'bottom',
-              },
-              {
-                label: intl.formatMessage({id: 'position.top'}),
-                value: 'top',
-              },
-            ],
-            setStateValue: setStateSettingsUiNavBarPositionLocal,
-            stateValue: stateSettingsUiNavBarPositionLocal,
-            type: 'radio',
-          },
-          {
-            label: intl.formatMessage({
               id: 'page.home.tab.settings.card.ui.gridSpacing',
             }),
             setStateValue: setStateSettingsUiGridSpacing,
@@ -595,7 +561,6 @@ export function TabSettings({
       stateSettingsCardUpdateRateInMs,
       setStateSettingsGlobalDebug,
       stateSettingsGlobalDebug,
-      stateSettingsUiNavBarPositionLocal,
       setStateSettingsUiGridSpacing,
       stateSettingsUiGridSpacing,
       setStateSettingsUiMapScroll,

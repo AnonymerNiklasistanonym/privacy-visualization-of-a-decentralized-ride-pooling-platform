@@ -5,17 +5,7 @@ import {useCallback, useEffect, useMemo, useState} from 'react';
 import {usePathname, useRouter, useSearchParams} from 'next/navigation';
 import {useIntl} from 'react-intl';
 // > Components
-import {
-  BottomNavigation,
-  BottomNavigationAction,
-  Box,
-  ButtonGroup,
-  Chip,
-  Divider,
-  Paper,
-  Tab,
-  Tabs,
-} from '@mui/material';
+import {Box, ButtonGroup, Chip, Divider, Tab, Tabs} from '@mui/material';
 import Link from 'next/link';
 // Local imports
 import {UrlParameter} from '@misc/urlParameter';
@@ -50,10 +40,11 @@ import type {SettingsProps} from '@misc/props/settings';
 interface CustomTabPanelProps {
   index: number;
   value: number;
+  spacing: string;
 }
 
 function CustomTabPanel(props: PropsWithChildren<CustomTabPanelProps>) {
-  const {children, value, index, ...other} = props;
+  const {children, value, index, spacing} = props;
 
   return (
     <div
@@ -61,16 +52,15 @@ function CustomTabPanel(props: PropsWithChildren<CustomTabPanelProps>) {
       hidden={value !== index}
       id={`simple-tabpanel-${index}`}
       aria-labelledby={`simple-tab-${index}`}
-      {...other}
     >
       {value === index && (
         <Box
           sx={{
             padding: {
-              lg: '0 1rem 0 1rem',
+              lg: `0 ${spacing} 0 ${spacing}`,
               md: 0,
               sm: 0,
-              xl: '0 1rem 0 1rem',
+              xl: `0 ${spacing} 0 ${spacing}`,
               xs: 0,
             },
           }}
@@ -104,7 +94,7 @@ export default function TabPanel(props: TabPanelProps) {
     setStateErrorModalOpen,
     stateSettingsMapBaseUrlSimulation,
     stateSettingsMapBaseUrlPathfinder,
-    stateSettingsUiNavBarPosition,
+    stateSettingsUiGridSpacing,
     updateGlobalSearch,
   } = props;
 
@@ -176,6 +166,7 @@ export default function TabPanel(props: TabPanelProps) {
         callback: () => {
           setStateTabIndex(tabIndex);
         },
+        category: 'tab',
         icon: tabIcon,
         keywords: ['tab', 'switch', tabTitle, `${tabIndex}`],
         name: tabTitle,
@@ -186,68 +177,61 @@ export default function TabPanel(props: TabPanelProps) {
 
   return (
     <Box>
-      <Paper
-        sx={{bottom: 0, left: 0, position: 'fixed', right: 0}}
-        elevation={3}
-      >
-        {stateSettingsUiNavBarPosition === 'bottom' ? (
-          <BottomNavigation
-            showLabels
-            value={stateTabIndex}
-            onChange={(event, newValue) => setStateTabIndex(newValue)}
-          >
-            {tabs.map(([title, index, icon]) => (
-              <BottomNavigationAction
-                key={title}
-                label={title.toUpperCase()}
-                id={`${index}`}
-                icon={icon}
-              />
-            ))}
-          </BottomNavigation>
-        ) : undefined}
-      </Paper>
       <Box
         sx={{
           width: '100%',
         }}
       >
-        {stateSettingsUiNavBarPosition === 'top' ? (
-          <Box
-            sx={{
-              bgcolor: 'background.paper',
-              borderBottom: 1,
-              borderColor: 'divider',
-              display: 'flex',
-              justifyContent: 'center',
-              width: '100%',
-            }}
+        <Box
+          sx={{
+            bgcolor: 'background.paper',
+            borderBottom: 1,
+            borderColor: 'divider',
+            display: 'flex',
+            justifyContent: 'center',
+            width: '100%',
+          }}
+        >
+          <Tabs
+            value={stateTabIndex}
+            onChange={(event, newTabIndex) => setStateTabIndex(newTabIndex)}
+            centered
           >
-            <Tabs
-              value={stateTabIndex}
-              onChange={(event, newTabIndex) => setStateTabIndex(newTabIndex)}
-              centered
-            >
-              {tabs.map(([tabTitle, tabIndex, tabIcon]) => (
-                <Tab
-                  key={tabIndex}
-                  label={tabTitle.toUpperCase()}
-                  icon={tabIcon}
-                />
-              ))}
-            </Tabs>
-          </Box>
-        ) : undefined}
-        <CustomTabPanel value={stateTabIndex} index={0}>
+            {tabs.map(([tabTitle, tabIndex, tabIcon]) => (
+              <Tab
+                key={tabIndex}
+                label={tabTitle.toUpperCase()}
+                icon={tabIcon}
+              />
+            ))}
+          </Tabs>
+        </Box>
+        <CustomTabPanel
+          value={stateTabIndex}
+          index={0}
+          spacing={`${stateSettingsUiGridSpacing / 2}rem`}
+        >
           <TabMap {...props} />
         </CustomTabPanel>
-        <CustomTabPanel value={stateTabIndex} index={1}>
+        <CustomTabPanel
+          value={stateTabIndex}
+          index={1}
+          spacing={`${stateSettingsUiGridSpacing / 2}rem`}
+        >
           <TabBlockchain {...props} />
         </CustomTabPanel>
-        <CustomTabPanel value={stateTabIndex} index={2}>
+        <CustomTabPanel
+          value={stateTabIndex}
+          index={2}
+          spacing={`${stateSettingsUiGridSpacing / 2}rem`}
+        >
           <TabOverview {...props} />
         </CustomTabPanel>
-        <CustomTabPanel value={stateTabIndex} index={3}>
+        <CustomTabPanel
+          value={stateTabIndex}
+          index={3}
+          spacing={`${stateSettingsUiGridSpacing / 2}rem`}
+        >
           <TabSettings {...props} />
         </CustomTabPanel>
       </Box>

@@ -1,7 +1,5 @@
 // Package imports
 import {memo} from 'react';
-// Components
-import {InputBase} from '@mui/material';
 // Local imports
 // > Components
 import SearchBarAutocomplete from './SearchBarAutocomplete';
