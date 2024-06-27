@@ -59,7 +59,7 @@ import type {FetchOptions} from '@globals/lib/fetch';
 import type {SettingsProps} from '@misc/props/settings';
 import type {SimulationEndpointParticipantTypes} from '@globals/types/simulation';
 
-/** The Home page collection */
+/** Home page collection */
 export default function CollectionHome(
   propsError: PropsWithChildren<GlobalPropsShowError & ErrorModalProps>
 ) {

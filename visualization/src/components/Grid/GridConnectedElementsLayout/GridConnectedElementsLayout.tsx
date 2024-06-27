@@ -2,9 +2,13 @@
 // > Components
 import {Badge, Box, Grid, Typography} from '@mui/material';
 import Masonry, {ResponsiveMasonry} from 'react-responsive-masonry';
-// Type imports
-import {PropsWithChildren, ReactElement, isValidElement} from 'react';
+// Local imports
+// > Components
 import {GridConnectedElementsCard} from './GridConnectedElementsCard';
+// > Misc
+import {debugComponentUpdate} from '@misc/debug';
+// Type imports
+import type {PropsWithChildren, ReactElement} from 'react';
 
 export interface ConnectedElementSection {
   /** Title of the connected element section */
@@ -37,7 +41,8 @@ export default function GridConnectedElementsLayout({
   stateInfoElements,
   stateSettingsUiGridSpacing,
 }: PropsWithChildren<GridConnectedElementsLayoutProps>) {
-  console.log('stateSettingsUiGridSpacing', stateSettingsUiGridSpacing);
+  debugComponentUpdate('GridConnectedElementsLayout');
+
   return (
     <Box
       sx={{

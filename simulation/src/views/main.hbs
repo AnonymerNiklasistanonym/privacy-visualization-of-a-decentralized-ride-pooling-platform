@@ -20,39 +20,41 @@
   var globalSimulationEndpoints = JSON.parse(decodeEntities("{{globalSimulationEndpoints}}"));
 </scr{{!}}ipt>
 
-<h2>Customers ({{customers.length}}) <a href="/json/customers">[json]</a></h2>
+<h2>Customers ({{customers.length}}) <a href="{{urlJsonCustomers}}">[json]</a></h2>
 <ul class="scrolling">
   {{#each customers}}
     <li>{{> customer}}</li>
   {{/each}}
 </ul>
 
-<h2>Ride Providers ({{rideProviders.length}}) <a href="/json/ride_providers">[json]</a></h2>
+<h2>Ride Providers ({{rideProviders.length}}) <a href="{{urlJsonRideProviders}}">[json]</a></h2>
 <ul class="scrolling">
   {{#each rideProviders}}
     <li>{{> rideProvider}}</li>
   {{/each}}
 </ul>
 
-<h2>Authentication Services ({{authenticationServices.length}}) <a href="/json/authentication_services">[json]</a></h2>
+<h2>Authentication Services ({{authenticationServices.length}}) <a href="{{urlJsonAs}}">[json]</a></h2>
 <ul class="scrolling">
   {{#each authenticationServices}}
     <li>{{> authenticationService}}</li>
   {{/each}}
 </ul>
 
-<h2>Matching Services ({{matchingServices.length}}) <a href="/json/matching_services">[json]</a></h2>
+<h2>Matching Services ({{matchingServices.length}}) <a href="{{urlJsonMs}}">[json]</a></h2>
 <ul class="scrolling">
   {{#each matchingServices}}
     <li>{{> matchingService}}</li>
   {{/each}}
 </ul>
 
-<h2>Smart Contracts ({{smartContracts.length}}) <a href="/json/smart_contracts">[json]</a></h2>
+<h2>Smart Contracts ({{smartContracts.length}}) <a href="{{urlJsonSmartContracts}}">[json]</a></h2>
 <ul class="scrolling">
   {{#each smartContracts}}
     <li>{{> smartContract}}</li>
   {{/each}}
 </ul>
+
+<h2>Ride Requests ({{rideRequests.length}}) <a href="{{urlJsonRideRequests}}">[json]</a></h2>
 
 <button onClick="window.location.reload();">Refresh Page</button>

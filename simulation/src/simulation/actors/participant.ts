@@ -198,6 +198,10 @@ export abstract class Participant<JsonType> extends Actor<
       simulation.config.customPathfinderProvider === 'all' ||
       simulation.config.customPathfinderProvider === 'internal'
     ) {
+      this.logger.info(
+        'getRoute()',
+        (routeInternal ?? []).map(a => `lat=${a.lat}:long=${a.long}`).join(', ')
+      );
       return routeInternal ?? null;
     } else if (
       simulation.config.customPathfinderProvider === 'pathfinder-server'

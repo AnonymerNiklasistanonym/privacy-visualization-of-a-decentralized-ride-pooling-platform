@@ -7,13 +7,13 @@ import {
   Divider,
   List,
   ListSubheader,
-  Modal,
   Typography,
 } from '@mui/material';
 // Local imports
 // > Components
 import {DataHiddenIcon, DataVisibleIcon} from '@components/Icons';
 import DataModelListElement from './DataModalElement';
+import GenericModal from '@components/Modal/ModalGeneric';
 // > Misc
 import {debugComponentUpdate, debugMemoHelper} from '@misc/debug';
 // Type imports
@@ -58,6 +58,7 @@ export default memo(DataModal, (prev, next) =>
   )
 );
 
+/** Modal that showcases data access and ownership */
 export function DataModal(props: DataModalProps) {
   debugComponentUpdate('DataModal', true);
   const {
@@ -82,111 +83,75 @@ export function DataModal(props: DataModalProps) {
   // TODO: Make this better
   const dataValueHidden = dataValueSpectator === '******';
   return (
-    <div>
-      <Modal
-        open={stateDataModalOpen}
-        onClose={() => setStateDataModalOpen(false)}
-        aria-labelledby="modal-modal-title"
-        aria-describedby="modal-modal-description"
+    <GenericModal
+      setStateModalOpen={setStateDataModalOpen}
+      stateModalOpen={stateDataModalOpen}
+    >
+      <Typography
+        variant="h5"
         sx={{
-          maxHeight: '90vh',
-          overflow: 'scroll',
+          color: theme => (theme.palette.mode === 'dark' ? 'white' : undefined),
+        }}
+        gutterBottom
+      >
+        Who can see {dataLabel} from{' '}
+        <Chip
+          icon={dataOriginIcon}
+          label={dataOriginName}
+          color="primary"
+          onClick={() => {}}
+        />
+        ?
+      </Typography>
+      <Box
+        sx={{
+          color: theme => (theme.palette.mode === 'dark' ? 'white' : undefined),
+          margin: '1rem',
         }}
       >
-        <Box
-          sx={{
-            bgcolor: 'background.paper',
-            border: '2px solid #000',
-            boxShadow: 24,
-            height: {
-              md: '80vh',
-              xs: '90%',
-            },
-            left: '50%',
-            maxHeight: '90vh',
-            maxWidth: 1200,
-            p: 4,
-            position: 'absolute' as const,
-            top: '50%',
-            transform: 'translate(-50%, -50%)',
-            width: {
-              md: '80vw',
-              xs: '100%',
-            },
-          }}
-        >
-          <Typography
-            variant="h5"
-            sx={{
-              color: theme =>
-                theme.palette.mode === 'dark' ? 'white' : undefined,
-            }}
-            gutterBottom
-          >
-            Who can see {dataLabel} from{' '}
-            <Chip
-              icon={dataOriginIcon}
-              label={dataOriginName}
-              color="primary"
-              onClick={() => {}}
-            />
-            ?
-          </Typography>
-          <Box
-            sx={{
-              color: theme =>
-                theme.palette.mode === 'dark' ? 'white' : undefined,
-              margin: '1rem',
-            }}
-          >
-            {dataValueSpectator}
-          </Box>
-          <Chip
-            icon={dataValueHidden ? <DataHiddenIcon /> : <DataVisibleIcon />}
-            color={dataValueHidden ? 'error' : 'success'}
-            label={`${
-              dataValueHidden ? 'Hidden' : 'Visible'
-            } for ${stateSpectator}`}
-          />
-          <Divider sx={{paddingTop: '1rem'}} />
-          {listInformation.map(([title, accessType]) => {
-            const elements = stateDataModalContent.filter(
-              a => a.accessType === accessType
-            );
-            if (elements.length === 0) {
-              return undefined;
-            }
-            return (
-              <>
-                <List
-                  sx={{
-                    bgcolor: 'background.paper',
-                    width: '100%',
-                  }}
-                  component="nav"
-                  aria-labelledby="nested-list-subheader-owner"
-                  subheader={
-                    <ListSubheader
-                      component="div"
-                      id="nested-list-subheader-owner"
-                    >
-                      {title}:
-                    </ListSubheader>
-                  }
-                >
-                  {elements.map(a => (
-                    <DataModelListElement
-                      {...props}
-                      key={`data-${accessType}-${a.name}`}
-                      stateDataModalContentElement={a}
-                    />
-                  ))}
-                </List>
-              </>
-            );
-          })}
-        </Box>
-      </Modal>
-    </div>
+        {dataValueSpectator}
+      </Box>
+      <Chip
+        icon={dataValueHidden ? <DataHiddenIcon /> : <DataVisibleIcon />}
+        color={dataValueHidden ? 'error' : 'success'}
+        label={`${
+          dataValueHidden ? 'Hidden' : 'Visible'
+        } for ${stateSpectator}`}
+      />
+      <Divider sx={{paddingTop: '1rem'}} />
+      {listInformation.map(([title, accessType]) => {
+        const elements = stateDataModalContent.filter(
+          a => a.accessType === accessType
+        );
+        if (elements.length === 0) {
+          return undefined;
+        }
+        return (
+          <>
+            <List
+              sx={{
+                bgcolor: 'background.paper',
+                width: '100%',
+              }}
+              component="nav"
+              aria-labelledby="nested-list-subheader-owner"
+              subheader={
+                <ListSubheader component="div" id="nested-list-subheader-owner">
+                  {title}:
+                </ListSubheader>
+              }
+            >
+              {elements.map(a => (
+                <DataModelListElement
+                  {...props}
+                  key={`data-${accessType}-${a.name}`}
+                  stateDataModalContentElement={a}
+                />
+              ))}
+            </List>
+          </>
+        );
+      })}
+    </GenericModal>
   );
 }

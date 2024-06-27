@@ -150,12 +150,21 @@ async function main() {
       customers: simulation.customersJson,
       matchingServices: simulation.matchingServicesJson,
       rideProviders: simulation.rideProvidersJson,
+      rideRequests: simulation.matchingServicesJson.flatMap(a => a.auctionsDb),
       smartContracts: simulation.rideContractsJson,
 
       // Objects lose function properties when serialized!
       globalBaseUrlSimulation: `http://localhost:${simulationConfig.port}`,
       globalSimulationEndpoints: JSON.stringify(globalSimulationEndpoints),
       globalStartPos: JSON.stringify(simulation.startPos),
+
+      // URLS
+      urlJsonAs: simulationEndpoints.internal.authenticationServices,
+      urlJsonCustomers: simulationEndpoints.internal.customers,
+      urlJsonMs: simulationEndpoints.internal.matchingServices,
+      urlJsonRideProviders: simulationEndpoints.internal.rideProviders,
+      urlJsonRideRequests: simulationEndpoints.internal.rideRequests,
+      urlJsonSmartContracts: simulationEndpoints.internal.smartContracts,
     });
   });
 

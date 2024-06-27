@@ -1,4 +1,3 @@
-/* eslint-disable sort-imports */
 import {
   // Misc
   CurrencyExchange as MiscCryptoExchangeIcon,
@@ -18,6 +17,7 @@ import {
   LockOpen as SpectatorEverythingIcon,
   Public as SpectatorPublicIcon,
   // Pages
+  // eslint-disable-next-line sort-imports
   Info as PageAboutIcon,
   Home as PageHomeIcon,
   // Tabs

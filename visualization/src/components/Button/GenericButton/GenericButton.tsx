@@ -1,42 +1,46 @@
 // Package imports
+import {memo} from 'react';
 // > Components
-import {Button, Tooltip} from '@mui/material';
+import {Tooltip} from '@mui/material';
+// Local imports
+// > Components
+import GenericButtonComponent from './GenericButtonComponent';
+// > Misc
+import {debugComponentUpdate} from '@misc/debug';
 // Type imports
-import type {PropsWithChildren, ReactElement} from 'react';
+import type {GenericButtonComponentProps} from './GenericButtonComponent';
+import type {PropsWithChildren} from 'react';
 
 /** Props necessary to render the 'Generic Button' */
-export interface ButtonProps {
-  /** Function that should be run when button is clicked */
-  onClick?: () => void;
-  /** Icon that should be rendered on the button */
-  icon?: ReactElement;
-  /** Disable button usage */
-  disabled?: boolean;
-  /** Use secondary color */
-  secondaryColor?: boolean;
+export interface GenericButtonProps extends GenericButtonComponentProps {
   /** Optional tooltip message */
   tooltip?: string;
 }
 
-export default function GenericButton({
+export default memo(GenericButton);
+
+export function GenericButton({
   children,
   disabled,
   icon,
   onClick,
   secondaryColor,
   tooltip,
-}: PropsWithChildren<ButtonProps>) {
-  return (
-    <Tooltip title={tooltip}>
-      <Button
-        startIcon={icon}
-        variant="contained"
-        color={secondaryColor === true ? 'secondary' : 'primary'}
-        disabled={disabled ?? false}
-        onClick={onClick ?? (() => {})}
-      >
-        {children}
-      </Button>
-    </Tooltip>
+}: PropsWithChildren<GenericButtonProps>) {
+  debugComponentUpdate('GenericButton', true);
+  const button = (
+    <GenericButtonComponent
+      disabled={disabled}
+      icon={icon}
+      onClick={onClick}
+      secondaryColor={secondaryColor}
+    >
+      {children}
+    </GenericButtonComponent>
+  );
+  return disabled !== true && tooltip !== undefined ? (
+    <Tooltip title={tooltip}>{button}</Tooltip>
+  ) : (
+    <>{button}</>
   );
 }

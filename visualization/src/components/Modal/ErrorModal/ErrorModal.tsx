@@ -1,18 +1,17 @@
 // Package imports
+import {useCallback, useState} from 'react';
 import {useIntl} from 'react-intl';
 // > Components
 import {
   Badge,
   Box,
   Collapse,
-  IconButton,
   List,
   ListItem,
   ListItemButton,
   ListItemIcon,
   ListItemText,
   ListSubheader,
-  Modal,
   Typography,
 } from '@mui/material';
 // > Icons
@@ -22,9 +21,12 @@ import {
   ExpandLess as ExpandLessIcon,
   ExpandMore as ExpandMoreIcon,
 } from '@mui/icons-material';
+// Local imports
+// > Components
+import GenericModal from '@components/Modal/ModalGeneric';
 // Type imports
 import type {ReactSetState, ReactState} from '@misc/react';
-import {useState} from 'react';
+import {GenericButton} from '@components/Button/GenericButton/GenericButton';
 
 export interface ErrorModalContentElement {
   title: string;
@@ -98,6 +100,7 @@ export function showErrorBuilder(
   };
 }
 
+/** Modal that displays errors */
 export default function ErrorModal(props: ErrorModalProps) {
   const {stateErrorModalOpen, stateErrorModalContent, setStateErrorModalOpen} =
     props;
@@ -108,46 +111,28 @@ export default function ErrorModal(props: ErrorModalProps) {
     setStateErrorModalOpen(false);
   }
   return (
-    <div>
-      <Modal
-        open={stateErrorModalOpen}
-        onClose={() => setStateErrorModalOpen(false)}
-        aria-labelledby="modal-modal-title"
-        aria-describedby="modal-modal-description"
+    <GenericModal
+      setStateModalOpen={setStateErrorModalOpen}
+      stateModalOpen={stateErrorModalOpen}
+    >
+      <List
+        sx={{
+          bgcolor: 'background.paper',
+          width: '100%',
+        }}
+        component="nav"
+        aria-labelledby="nested-list-subheader"
+        subheader={
+          <ListSubheader component="div" id="nested-list-subheader">
+            {intl.formatMessage({id: 'errors'})}
+          </ListSubheader>
+        }
       >
-        <Box
-          sx={{
-            bgcolor: 'background.paper',
-            border: '2px solid #000',
-            boxShadow: 24,
-            left: '50%',
-            maxWidth: 1200,
-            p: 4,
-            position: 'absolute' as const,
-            top: '50%',
-            transform: 'translate(-50%, -50%)',
-          }}
-        >
-          <List
-            sx={{
-              bgcolor: 'background.paper',
-              width: '100%',
-            }}
-            component="nav"
-            aria-labelledby="nested-list-subheader"
-            subheader={
-              <ListSubheader component="div" id="nested-list-subheader">
-                {intl.formatMessage({id: 'errors'})}
-              </ListSubheader>
-            }
-          >
-            {stateErrorModalContent.map(a => (
-              <ErrorModalListElement key={a.title} {...props} element={a} />
-            ))}
-          </List>
-        </Box>
-      </Modal>
-    </div>
+        {stateErrorModalContent.map(a => (
+          <ErrorModalListElement key={a.title} {...props} element={a} />
+        ))}
+      </List>
+    </GenericModal>
   );
 }
 
@@ -162,9 +147,16 @@ export function ErrorModalListElement({
 }: ErrorModalListElementProps) {
   const [open, setOpen] = useState(false);
 
-  const handleClick = () => {
-    setOpen(!open);
-  };
+  const handleClick = useCallback(() => setOpen(!open), [setOpen, open]);
+  const removeErrorMessage = useCallback(
+    () =>
+      setStateErrorModalContent(
+        stateErrorModalContent.filter(
+          b => !compareErrorModalContent(b.title, b.error, element)
+        )
+      ),
+    [setStateErrorModalContent, stateErrorModalContent, element]
+  );
   return (
     <>
       <ListItem>
@@ -185,33 +177,20 @@ export function ErrorModalListElement({
           />
           {open ? <ExpandLessIcon /> : <ExpandMoreIcon />}
         </ListItemButton>
-        <ListItemButton onClick={handleClick}>
-          <IconButton
-            edge="end"
-            aria-label="delete"
-            onClick={() => {
-              setStateErrorModalContent(
-                stateErrorModalContent.filter(
-                  b => !compareErrorModalContent(b.title, b.error, element)
-                )
-              );
-            }}
-          >
-            <DeleteIcon />
-          </IconButton>
-        </ListItemButton>
       </ListItem>
       <Collapse in={open} timeout="auto" unmountOnExit>
         <Box
           component="section"
           sx={{
             maxHeight: '50vh',
-            maxWidth: 800,
             overflow: 'scroll',
             width: '100%',
           }}
         >
-          <Typography variant="body1" gutterBottom>
+          <GenericButton icon={<DeleteIcon />} onClick={removeErrorMessage}>
+            Remove Error
+          </GenericButton>
+          <Typography variant="body2" sx={{marginTop: '1rem'}} gutterBottom>
             {element.error.stack ?? 'No stack found'}
           </Typography>
         </Box>

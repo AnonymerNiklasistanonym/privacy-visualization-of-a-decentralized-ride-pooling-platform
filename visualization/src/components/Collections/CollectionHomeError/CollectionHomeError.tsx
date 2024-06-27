@@ -15,6 +15,7 @@ import type {
 } from '@components/Modal/ErrorModal';
 import type {GlobalPropsShowError} from '@misc/props/global';
 
+/** Home page collection with error modal */
 export default function ErrorModalWrapperCollectionHome() {
   // React: States
   // > Error Modal
@@ -31,7 +32,7 @@ export default function ErrorModalWrapperCollectionHome() {
     stateErrorModalOpen,
   });
 
-  // Group all props for easy forwarding
+  // Group all props
   const props: GlobalPropsShowError & ErrorModalProps = {
     setStateErrorModalContent,
     setStateErrorModalOpen,

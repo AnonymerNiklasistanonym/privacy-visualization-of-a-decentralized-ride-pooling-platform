@@ -1,7 +1,7 @@
 // Local imports
 import {getIntl} from '../../services/intl';
 // > Components
-import ErrorModalWrapperCollectionHome from '@components/Collections/ErrorModalWrapperCollectionHome';
+import CollectionHomeError from '@components/Collections/CollectionHomeError';
 import TranslationWrapper from '@components/TranslationWrapper';
 // > Logging
 import {createLoggerSection} from '@services/logging';
@@ -14,16 +14,15 @@ const logger = createLoggerSection('Home');
 export default async function Home({params: {locale}}: ReactPropsI18nHome) {
   logger.debug(`GET / locale='${locale}'`);
 
-  // Server translations
+  // Server Side translations
   const intl = await getIntl(locale);
-  // Client translations
   const messages = JSON.parse(
     JSON.stringify(intl.messages)
   ) as ReactI18nMessages;
 
   return (
     <TranslationWrapper locale={locale} messages={messages}>
-      <ErrorModalWrapperCollectionHome />
+      <CollectionHomeError />
     </TranslationWrapper>
   );
 }

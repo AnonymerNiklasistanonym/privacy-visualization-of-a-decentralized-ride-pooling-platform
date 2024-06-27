@@ -1,10 +1,11 @@
 'use client';
 
 // Package imports
-import {useEffect, useMemo, useState} from 'react';
+import {useCallback, useEffect, useMemo, useState} from 'react';
 import {useIntl} from 'react-intl';
 // > Components
-import {Box, ButtonGroup, Chip, Divider, Grid, Tooltip} from '@mui/material';
+import {Box, ButtonGroup, Chip, Divider, Grid} from '@mui/material';
+import {Delete as DeleteIcon} from '@mui/icons-material';
 // Local imports
 import {fetchJsonEndpoint, fetchTextEndpoint} from '@misc/fetch';
 // > Components
@@ -89,6 +90,7 @@ export default function TabMap(props: TabMapProps) {
     fetchJsonSimulation,
     showError,
     setStateShowSpectator,
+    setStateSelectedParticipantId,
     stateSpectator,
     stateSpectators,
     stateSelectedParticipantId,
@@ -135,178 +137,208 @@ export default function TabMap(props: TabMapProps) {
     Array<string>
   >([]);
 
-  const fetchGraphs = (clear = false) => {
-    if (clear === true) {
-      setGraphState({
-        edges: [],
-        geometry: [],
-        vertices: [],
-      });
-      setPathfinderGraphState({
-        edges: [],
-        vertices: [],
-      });
-      return;
-    }
-    fetchJsonSimulation<SimulationEndpointGraphInformation>(
-      simulationEndpoints.apiV1.graphInformation
-    )
-      .then(data => setGraphState(data))
-      .catch(err => showError('Fetch simulation graph', err));
-    fetchJsonEndpoint<PathfinderEndpointGraphInformation>(
-      stateSettingsMapBaseUrlPathfinder,
-      pathfinderEndpoints.graphInformation
-    )
-      .then(data => setPathfinderGraphState(data))
-      .catch(err => showError('Fetch pathfinder graph', err));
-  };
+  const fetchGraphs = useCallback(
+    (clear = false) => {
+      if (clear === true) {
+        setGraphState({
+          edges: [],
+          geometry: [],
+          vertices: [],
+        });
+        setPathfinderGraphState({
+          edges: [],
+          vertices: [],
+        });
+        return;
+      }
+      fetchJsonSimulation<SimulationEndpointGraphInformation>(
+        simulationEndpoints.apiV1.graphInformation
+      )
+        .then(data => setGraphState(data))
+        .catch(err => showError('Fetch simulation graph', err));
+      fetchJsonEndpoint<PathfinderEndpointGraphInformation>(
+        stateSettingsMapBaseUrlPathfinder,
+        pathfinderEndpoints.graphInformation
+      )
+        .then(data => setPathfinderGraphState(data))
+        .catch(err => showError('Fetch pathfinder graph', err));
+    },
+    [fetchJsonSimulation, showError, stateSettingsMapBaseUrlPathfinder]
+  );
+  const clearGraphs = useCallback(() => fetchGraphs(true), [fetchGraphs]);
 
-  const fetchDebugData = (clear = false) => {
-    if (clear === true) {
-      setStateDebugData({
-        customers: [],
-        rideProviders: [],
-        rideRequests: [],
-        smartContracts: [],
-      });
-      return;
-    }
+  const fetchDebugData = useCallback(
+    (clear = false) => {
+      if (clear === true) {
+        setStateDebugData({
+          customers: [],
+          rideProviders: [],
+          rideRequests: [],
+          smartContracts: [],
+        });
+        return;
+      }
 
-    Promise.all([
-      fetchJsonSimulation<SimulationEndpointParticipantCoordinates>(
-        simulationEndpoints.apiV1.participantCoordinates
-      ),
-      fetchJsonSimulation<SimulationEndpointRideRequests>(
-        simulationEndpoints.apiV1.rideRequests
-      ),
-      fetchJsonSimulation<SimulationEndpointSmartContracts>(
-        simulationEndpoints.apiV1.smartContracts
-      ),
-    ])
-      .then(
-        ([participantCoordinatesData, rideRequestsData, smartContractsData]) =>
-          Promise.all([
-            Promise.all(
-              participantCoordinatesData.customers.map(a =>
-                fetchJsonSimulation<SimulationEndpointParticipantInformationCustomer>(
-                  simulationEndpoints.apiV1.participantInformationCustomer(a.id)
-                )
-              )
-            ),
-            Promise.all(
-              participantCoordinatesData.rideProviders.map(a =>
-                fetchJsonSimulation<SimulationEndpointParticipantInformationRideProvider>(
-                  simulationEndpoints.apiV1.participantInformationRideProvider(
-                    a.id
+      Promise.all([
+        fetchJsonSimulation<SimulationEndpointParticipantCoordinates>(
+          simulationEndpoints.apiV1.participantCoordinates
+        ),
+        fetchJsonSimulation<SimulationEndpointRideRequests>(
+          simulationEndpoints.apiV1.rideRequests
+        ),
+        fetchJsonSimulation<SimulationEndpointSmartContracts>(
+          simulationEndpoints.apiV1.smartContracts
+        ),
+      ])
+        .then(
+          ([
+            participantCoordinatesData,
+            rideRequestsData,
+            smartContractsData,
+          ]) =>
+            Promise.all([
+              Promise.all(
+                participantCoordinatesData.customers.map(a =>
+                  fetchJsonSimulation<SimulationEndpointParticipantInformationCustomer>(
+                    simulationEndpoints.apiV1.participantInformationCustomer(
+                      a.id
+                    )
                   )
                 )
-              )
-            ),
-            Promise.all(
-              rideRequestsData.rideRequests.map(a =>
-                fetchJsonSimulation<SimulationEndpointRideRequestInformation>(
-                  simulationEndpoints.apiV1.rideRequestInformation(a)
+              ),
+              Promise.all(
+                participantCoordinatesData.rideProviders.map(a =>
+                  fetchJsonSimulation<SimulationEndpointParticipantInformationRideProvider>(
+                    simulationEndpoints.apiV1.participantInformationRideProvider(
+                      a.id
+                    )
+                  )
                 )
-              )
-            ),
-            Promise.all(
-              smartContractsData.smartContracts.map(a =>
-                fetchJsonSimulation<SimulationEndpointSmartContractInformation>(
-                  simulationEndpoints.apiV1.smartContract(a)
+              ),
+              Promise.all(
+                rideRequestsData.rideRequests.map(a =>
+                  fetchJsonSimulation<SimulationEndpointRideRequestInformation>(
+                    simulationEndpoints.apiV1.rideRequestInformation(a)
+                  )
                 )
-              )
-            ),
-          ])
-      )
-      .then(([customers, rideProviders, rideRequests, smartContracts]) => {
-        setStateDebugData({
-          customers,
-          rideProviders,
-          rideRequests,
-          smartContracts,
-        });
-      })
-      .catch(err => showError('Fetch debug data', err));
-  };
+              ),
+              Promise.all(
+                smartContractsData.smartContracts.map(a =>
+                  fetchJsonSimulation<SimulationEndpointSmartContractInformation>(
+                    simulationEndpoints.apiV1.smartContract(a)
+                  )
+                )
+              ),
+            ])
+        )
+        .then(([customers, rideProviders, rideRequests, smartContracts]) => {
+          setStateDebugData({
+            customers,
+            rideProviders,
+            rideRequests,
+            smartContracts,
+          });
+        })
+        .catch(err => showError('Fetch debug data', err));
+    },
+    [fetchJsonSimulation, showError]
+  );
+  const clearDebugData = useCallback(
+    () => fetchDebugData(true),
+    [fetchDebugData]
+  );
 
   const changeSpectatorInfo = intl.formatMessage({
     id: 'getacar.spectator.change',
   });
 
-  const fetchParticipantCoordinates = () =>
-    fetchJsonSimulation<SimulationEndpointParticipantCoordinates>(
-      simulationEndpoints.apiV1.participantCoordinates
-    )
-      .then(data => {
-        setStateParticipantCoordinatesList(data);
-        updateGlobalSearch(
-          data.customers.map(a => [
-            a.id,
-            async () => {
-              const customerInformation =
-                await fetchJsonSimulation<SimulationEndpointParticipantInformationCustomer>(
-                  simulationEndpoints.apiV1.participantInformationCustomer(a.id)
-                );
-              const customer = intl.formatMessage({
-                id: 'getacar.participant.customer',
-              });
-              return {
-                callback: () => {
-                  console.log(`Selected Customer ${a.id}`);
-                },
-                category: customer,
-                icon: <ParticipantCustomerIcon />,
-                keywords: [
-                  changeSpectatorInfo,
-                  a.id,
-                  customerInformation.fullName,
-                ],
-                name: `${customer} ${customerInformation.fullName}`,
-              };
-            },
-          ]),
-          [],
-          []
-        );
-        updateGlobalSearch(
-          data.rideProviders.map(a => [
-            a.id,
-            async () => {
-              const rideProviderInformation =
-                await fetchJsonSimulation<SimulationEndpointParticipantInformationRideProvider>(
-                  simulationEndpoints.apiV1.participantInformationRideProvider(
-                    a.id
-                  )
-                );
-              const rideProvider = intl.formatMessage({
-                id: 'getacar.participant.rideProvider',
-              });
-              return {
-                callback: () => {
-                  console.log(`Selected Ride Provider ${a.id}`);
-                },
-                category: rideProvider,
-                icon: <ParticipantRideProviderIcon />,
-                keywords: [
-                  changeSpectatorInfo,
-                  a.id,
-                  'company' in rideProviderInformation
-                    ? rideProviderInformation.company
-                    : rideProviderInformation.fullName,
-                ],
-                name: `${rideProvider} ${
-                  'company' in rideProviderInformation
-                    ? rideProviderInformation.company
-                    : rideProviderInformation.fullName
-                }`,
-              };
-            },
-          ]),
-          [],
-          []
-        );
-      })
-      .catch(err => showError('Fetch simulation participant coordinates', err));
+  const fetchParticipantCoordinates = useCallback(
+    () =>
+      fetchJsonSimulation<SimulationEndpointParticipantCoordinates>(
+        simulationEndpoints.apiV1.participantCoordinates
+      )
+        .then(data => {
+          setStateParticipantCoordinatesList(data);
+          updateGlobalSearch(
+            data.customers.map(a => [
+              a.id,
+              async () => {
+                const customerInformation =
+                  await fetchJsonSimulation<SimulationEndpointParticipantInformationCustomer>(
+                    simulationEndpoints.apiV1.participantInformationCustomer(
+                      a.id
+                    )
+                  );
+                const customer = intl.formatMessage({
+                  id: 'getacar.participant.customer',
+                });
+                return {
+                  callback: () => {
+                    console.log(`Selected Customer ${a.id}`);
+                  },
+                  category: customer,
+                  icon: <ParticipantCustomerIcon />,
+                  keywords: [
+                    changeSpectatorInfo,
+                    a.id,
+                    customerInformation.fullName,
+                  ],
+                  name: `${customer} ${customerInformation.fullName}`,
+                };
+              },
+            ]),
+            [],
+            []
+          );
+          updateGlobalSearch(
+            data.rideProviders.map(a => [
+              a.id,
+              async () => {
+                const rideProviderInformation =
+                  await fetchJsonSimulation<SimulationEndpointParticipantInformationRideProvider>(
+                    simulationEndpoints.apiV1.participantInformationRideProvider(
+                      a.id
+                    )
+                  );
+                const rideProvider = intl.formatMessage({
+                  id: 'getacar.participant.rideProvider',
+                });
+                return {
+                  callback: () => {
+                    console.log(`Selected Ride Provider ${a.id}`);
+                  },
+                  category: rideProvider,
+                  icon: <ParticipantRideProviderIcon />,
+                  keywords: [
+                    changeSpectatorInfo,
+                    a.id,
+                    'company' in rideProviderInformation
+                      ? rideProviderInformation.company
+                      : rideProviderInformation.fullName,
+                  ],
+                  name: `${rideProvider} ${
+                    'company' in rideProviderInformation
+                      ? rideProviderInformation.company
+                      : rideProviderInformation.fullName
+                  }`,
+                };
+              },
+            ]),
+            [],
+            []
+          );
+        })
+        .catch(err =>
+          showError('Fetch simulation participant coordinates', err)
+        ),
+    [
+      changeSpectatorInfo,
+      fetchJsonSimulation,
+      intl,
+      showError,
+      updateGlobalSearch,
+    ]
+  );
 
   // TODO: Start Position
 
@@ -387,6 +419,11 @@ export default function TabMap(props: TabMapProps) {
               >
                 {intl.formatMessage({id: 'getacar.participant.showSelected'})}
               </GenericButton>
+              <GenericButton
+                disabled={currentSelectedParticipant?.category === undefined}
+                icon={<DeleteIcon />}
+                onClick={() => setStateSelectedParticipantId(undefined)}
+              />
             </ButtonGroup>
           </>
         ),
@@ -405,6 +442,7 @@ export default function TabMap(props: TabMapProps) {
     intl,
     props,
     setStateShowSpectator,
+    setStateSelectedParticipantId,
     stateSelectedParticipantId,
     stateSettingsUiGridSpacing,
     stateSpectator,
@@ -702,10 +740,10 @@ export default function TabMap(props: TabMapProps) {
                 <Chip label="Debug Graphs/Pathfinder" size="small" />
               </Divider>
               <ButtonGroup variant="contained" aria-label="Basic button group">
-                <GenericButton onClick={() => fetchGraphs()}>
+                <GenericButton onClick={fetchGraphs}>
                   Fetch Graphs
                 </GenericButton>
-                <GenericButton onClick={() => fetchGraphs(true)}>
+                <GenericButton onClick={clearGraphs}>
                   Clear Graphs
                 </GenericButton>
               </ButtonGroup>
@@ -717,10 +755,10 @@ export default function TabMap(props: TabMapProps) {
                 <Chip label="Debug Data" size="small" />
               </Divider>
               <ButtonGroup variant="contained" aria-label="Basic button group">
-                <GenericButton onClick={() => fetchDebugData()}>
+                <GenericButton onClick={fetchDebugData}>
                   Fetch Debug Data
                 </GenericButton>
-                <GenericButton onClick={() => fetchDebugData(true)}>
+                <GenericButton onClick={clearDebugData}>
                   Clear Debug Data
                 </GenericButton>
               </ButtonGroup>

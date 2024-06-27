@@ -3,11 +3,15 @@
 import Link from 'next/link';
 
 export interface CollectionErrorProps {
+  /** The error code */
   code: string;
+  /** The error message */
   message: string;
+  /** Links to other pages (e.g. home page) */
   links: Array<{url: string; text: string}>;
 }
 
+/** Error page collection */
 export default function CollectionError({
   code,
   links,

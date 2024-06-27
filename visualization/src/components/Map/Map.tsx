@@ -221,7 +221,7 @@ export default function Map(props: MapPropsInput) {
               <LayerGroup>
                 {stateGraph.edges.map(a => (
                   <Polyline
-                    key={`graph_edge_${a.id}`}
+                    key={`graph_edge_${a.id}_${JSON.stringify(a.geometry)}`}
                     positions={a.geometry.map(a => [a.lat, a.long])}
                     color={'cyan'}
                     weight={3}
@@ -303,7 +303,7 @@ export default function Map(props: MapPropsInput) {
                 ))}
                 {stateGraphPathfinder.vertices.map(a => (
                   <Circle
-                    key={`graph_pathfinder_vertice_${a.id}`}
+                    key={`graph_pathfinder_vertex_${a.id}`}
                     radius={5}
                     color={'red'}
                     fillColor={'red'}
