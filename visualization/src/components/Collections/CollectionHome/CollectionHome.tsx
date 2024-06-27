@@ -136,15 +136,9 @@ export default function CollectionHome(
     undefined | string
   >(stateSpectator);
   // > Selected participant
-  const [stateSelectedParticipantId, setStateSelectedParticipantId] = useState<
+  const [stateSelectedSpectator, setStateSelectedSpectator] = useState<
     undefined | string
-  >(searchParams.get(UrlParameter.SELECTED_PARTICIPANT_ID) ?? undefined);
-  const [stateSelectedParticipantType, setStateSelectedParticipantType] =
-    useState<undefined | SimulationEndpointParticipantTypes>(
-      (searchParams.get(
-        UrlParameter.SELECTED_PARTICIPANT_TYPE
-      ) as SimulationEndpointParticipantTypes | null) ?? undefined
-    );
+  >(searchParams.get(UrlParameter.SELECTED_SPECTATOR) ?? undefined);
   // > Selected smart contract
   const [stateSelectedSmartContractId, setStateSelectedSmartContractId] =
     useState<undefined | string>(
@@ -281,17 +275,10 @@ export default function CollectionHome(
     setStateSnackbarSpectatorOpen(true);
   }, [stateSpectator, setStateSnackbarSpectatorOpen]);
   useEffect(() => {
-    if (
-      stateSelectedParticipantId !== undefined &&
-      stateSelectedParticipantType !== undefined
-    ) {
+    if (stateSelectedSpectator !== undefined) {
       setStateSnackbarSelectedParticipantOpen(true);
     }
-  }, [
-    stateSelectedParticipantId,
-    stateSelectedParticipantType,
-    setStateSnackbarSelectedParticipantOpen,
-  ]);
+  }, [stateSelectedSpectator, setStateSnackbarSelectedParticipantOpen]);
   useEffect(() => {
     if (stateSelectedSmartContractId !== undefined) {
       setStateSnackbarSelectedSmartContractOpen(true);
@@ -305,21 +292,10 @@ export default function CollectionHome(
       params.delete(UrlParameter.DEBUG);
     }
     params.set(UrlParameter.SPECTATOR, stateSpectator);
-    if (stateSelectedParticipantId !== undefined) {
-      params.set(
-        UrlParameter.SELECTED_PARTICIPANT_ID,
-        stateSelectedParticipantId
-      );
+    if (stateSelectedSpectator !== undefined) {
+      params.set(UrlParameter.SELECTED_SPECTATOR, stateSelectedSpectator);
     } else {
-      params.delete(UrlParameter.SELECTED_PARTICIPANT_ID);
-    }
-    if (stateSelectedParticipantType !== undefined) {
-      params.set(
-        UrlParameter.SELECTED_PARTICIPANT_TYPE,
-        stateSelectedParticipantType
-      );
-    } else {
-      params.delete(UrlParameter.SELECTED_PARTICIPANT_TYPE);
+      params.delete(UrlParameter.SELECTED_SPECTATOR);
     }
     if (stateSelectedSmartContractId !== undefined) {
       params.set(
@@ -336,8 +312,7 @@ export default function CollectionHome(
     updateRouter,
     pathname,
     params,
-    stateSelectedParticipantId,
-    stateSelectedParticipantType,
+    stateSelectedSpectator,
     stateSelectedSmartContractId,
   ]);
 
@@ -528,9 +503,8 @@ export default function CollectionHome(
     fetchJsonSimulation,
     globalSearch,
     intlValues,
-    setStateSelectedParticipantId,
-    setStateSelectedParticipantType,
     setStateSelectedSmartContractId,
+    setStateSelectedSpectator,
     setStateSettingsBlockchainUpdateRateInMs,
     setStateSettingsCardUpdateRateInMs,
     setStateSettingsGlobalDebug,
@@ -543,9 +517,8 @@ export default function CollectionHome(
     setStateShowSpectator,
     setStateSpectator,
     setStateThemeMode,
-    stateSelectedParticipantId,
-    stateSelectedParticipantType,
     stateSelectedSmartContractId,
+    stateSelectedSpectator,
     stateSettingsBlockchainUpdateRateInMs,
     stateSettingsCardUpdateRateInMs,
     stateSettingsGlobalDebug,
@@ -579,7 +552,7 @@ export default function CollectionHome(
       />
       <SnackbarContentChange
         stateOpen={stateSnackbarSelectedParticipantOpen}
-        stateContent={`${stateSelectedParticipantId} (${stateSelectedParticipantType})`}
+        stateContent={stateSelectedSpectator}
         setStateOpen={setStateSnackbarSelectedParticipantOpen}
         handleChangeStateContent={a =>
           intl.formatMessage(

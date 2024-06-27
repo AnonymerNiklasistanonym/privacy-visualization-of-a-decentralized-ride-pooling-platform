@@ -90,11 +90,10 @@ export default function TabMap(props: TabMapProps) {
     fetchJsonSimulation,
     showError,
     setStateShowSpectator,
-    setStateSelectedParticipantId,
+    setStateSelectedSpectator,
     stateSpectator,
     stateSpectators,
-    stateSelectedParticipantId,
-    stateSelectedParticipantType,
+    stateSelectedSpectator,
     stateSettingsGlobalDebug,
     stateSettingsMapBaseUrlPathfinder,
     stateSettingsMapBaseUrlSimulation,
@@ -368,9 +367,9 @@ export default function TabMap(props: TabMapProps) {
   /** Specify dismissible cards that should be displayed */
   const stateInfoElements = useMemo<Array<InfoElement>>(() => {
     const currentSpectator = stateSpectators.get(stateSpectator);
-    const currentSelectedParticipant =
-      stateSelectedParticipantId !== undefined
-        ? stateSpectators.get(stateSelectedParticipantId)
+    const currentSelectedSpectator =
+      stateSelectedSpectator !== undefined
+        ? stateSpectators.get(stateSelectedSpectator)
         : undefined;
     return [
       {
@@ -401,7 +400,7 @@ export default function TabMap(props: TabMapProps) {
               </GenericButton>
               <GenericButton
                 disabled={
-                  currentSelectedParticipant?.category !== undefined
+                  currentSelectedSpectator?.category !== undefined
                     ? ![
                         intl.formatMessage({
                           id: 'getacar.participant.customer',
@@ -409,20 +408,18 @@ export default function TabMap(props: TabMapProps) {
                         intl.formatMessage({
                           id: 'getacar.participant.rideProvider',
                         }),
-                      ].includes(currentSelectedParticipant?.category)
+                      ].includes(currentSelectedSpectator?.category)
                     : true
                 }
                 icon={<NavigateToLocationIcon />}
-                onClick={() =>
-                  setStateShowSpectator(stateSelectedParticipantId)
-                }
+                onClick={() => setStateShowSpectator(stateSelectedSpectator)}
               >
                 {intl.formatMessage({id: 'getacar.participant.showSelected'})}
               </GenericButton>
               <GenericButton
-                disabled={currentSelectedParticipant?.category === undefined}
+                disabled={currentSelectedSpectator?.category === undefined}
                 icon={<DeleteIcon />}
-                onClick={() => setStateSelectedParticipantId(undefined)}
+                onClick={() => setStateSelectedSpectator(undefined)}
               />
             </ButtonGroup>
           </>
@@ -442,8 +439,8 @@ export default function TabMap(props: TabMapProps) {
     intl,
     props,
     setStateShowSpectator,
-    setStateSelectedParticipantId,
-    stateSelectedParticipantId,
+    setStateSelectedSpectator,
+    stateSelectedSpectator,
     stateSettingsUiGridSpacing,
     stateSpectator,
     stateSpectators,
@@ -459,6 +456,11 @@ export default function TabMap(props: TabMapProps) {
     const connectedRideRequests: Array<ReactElement> = [];
     /** The connected smart contracts */
     const connectedSmartContracts: Array<ReactElement> = [];
+
+    const currentSelectedSpectator =
+      stateSelectedSpectator !== undefined
+        ? stateSpectators.get(stateSelectedSpectator)
+        : undefined;
 
     // Pinned participants
     // > Customers
@@ -492,12 +494,8 @@ export default function TabMap(props: TabMapProps) {
       );
     }
 
-    // Selected Participant
-    const participantSelected =
-      stateSelectedParticipantId !== undefined &&
-      stateSelectedParticipantType !== undefined;
     // > Connected ride requests
-    if (participantSelected) {
+    if (currentSelectedSpectator) {
       // TODO
       connectedRideRequests.push(
         <CardGeneric
@@ -521,7 +519,7 @@ export default function TabMap(props: TabMapProps) {
       );
     }
     // > Connected smart contracts
-    if (participantSelected) {
+    if (currentSelectedSpectator) {
       // TODO
       connectedSmartContracts.push(
         <CardGeneric
@@ -546,8 +544,9 @@ export default function TabMap(props: TabMapProps) {
     }
     // > Connected passengers
     if (
-      participantSelected &&
-      stateSelectedParticipantType === 'ride_provider'
+      currentSelectedSpectator &&
+      currentSelectedSpectator.category ===
+        intl.formatMessage({id: 'getacar.participant.rideProvider'})
     ) {
       // TODO
       connectedParticipants.push(
@@ -572,7 +571,11 @@ export default function TabMap(props: TabMapProps) {
       );
     }
     // > Connected driver
-    if (participantSelected && stateSelectedParticipantType === 'customer') {
+    if (
+      currentSelectedSpectator &&
+      currentSelectedSpectator.category ===
+        intl.formatMessage({id: 'getacar.participant.customer'})
+    ) {
       // TODO
       connectedParticipants.push(
         <CardGeneric
@@ -643,8 +646,8 @@ export default function TabMap(props: TabMapProps) {
     props,
     statePinnedCustomers,
     statePinnedRideProviders,
-    stateSelectedParticipantId,
-    stateSelectedParticipantType,
+    stateSelectedSpectator,
+    stateSpectators,
   ]);
 
   return (

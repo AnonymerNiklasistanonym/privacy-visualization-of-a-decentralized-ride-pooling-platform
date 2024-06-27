@@ -12,11 +12,7 @@ export interface GlobalPropsSpectatorSelectedElements {
   /** The spectator that should be shown */
   stateShowSpectator: ReactState<undefined | string>;
   /** The currently selected participant ID */
-  stateSelectedParticipantId: ReactState<undefined | string>;
-  /** The currently selected participant Type */
-  stateSelectedParticipantType: ReactState<
-    undefined | SimulationEndpointParticipantTypes
-  >;
+  stateSelectedSpectator: ReactState<undefined | string>;
   /** The currently selected smart contract ID */
   stateSelectedSmartContractId: ReactState<undefined | string>;
 }
@@ -28,11 +24,7 @@ export interface GlobalPropsSpectatorSelectedElementsSet {
   /** Set to spectator that should be shown */
   setStateShowSpectator: ReactSetState<undefined | string>;
   /** Set the currently selected participant ID */
-  setStateSelectedParticipantId: ReactSetState<undefined | string>;
-  /** Set the currently selected participant Type */
-  setStateSelectedParticipantType: ReactSetState<
-    undefined | SimulationEndpointParticipantTypes
-  >;
+  setStateSelectedSpectator: ReactSetState<undefined | string>;
   /** Set the currently selected smart contract ID */
   setStateSelectedSmartContractId: ReactSetState<undefined | string>;
 }
