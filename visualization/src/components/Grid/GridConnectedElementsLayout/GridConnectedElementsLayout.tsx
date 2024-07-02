@@ -76,7 +76,9 @@ export default function GridConnectedElementsLayout({
               >
                 {stateInfoElements.map((element, index) => (
                   <GridConnectedElementsCard
-                    key={index + (element.title ?? '')}
+                    key={`connected-elements-info-card-dismissible-${
+                      element.title ?? index
+                    }`}
                     muiGridItemSize={12}
                     icon={element.icon}
                     title={element.title}
@@ -99,7 +101,7 @@ export default function GridConnectedElementsLayout({
                   .filter(a => a.elements.length > 0)
                   .map(stateConnectedElement => (
                     <GridConnectedElementsCard
-                      key={stateConnectedElement.title}
+                      key={`connected-elements-info-card-${stateConnectedElement.title}`}
                       icon={
                         <Badge
                           color="secondary"

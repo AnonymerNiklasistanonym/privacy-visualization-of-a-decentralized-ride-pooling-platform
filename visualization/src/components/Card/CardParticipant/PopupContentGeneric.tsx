@@ -16,7 +16,7 @@ import {
 import DataModal from '@components/Modal/DataModal';
 // Type imports
 import type {ReactElement, ReactNode} from 'react';
-import type {ChangeViewButtonProps} from '@components/Button/ChangeViewButton';
+import type {ChangeViewButtonProps} from '@components/Button/ChangeSpectatorButton';
 import type {DataModalInformation} from '@components/Modal/DataModal';
 
 export interface ShowContentSpectatorElement {

@@ -587,6 +587,7 @@ export default function TabMap(props: TabMapProps) {
       pinnedParticipants.push(
         <CardRefresh
           {...props}
+          key={`connected-element-pinned-customer-${pinnedCustomerId}`}
           cardType={'customer'}
           id={pinnedCustomerId}
           stateRideRequestList={stateConnectedRideRequests}
@@ -604,6 +605,7 @@ export default function TabMap(props: TabMapProps) {
       pinnedParticipants.push(
         <CardRefresh
           {...props}
+          key={`connected-element-pinned-rideProvider-${pinnedRideProviderId}`}
           cardType={'ride_provider'}
           id={pinnedRideProviderId}
           stateRideRequestList={stateConnectedRideRequests}
@@ -618,12 +620,13 @@ export default function TabMap(props: TabMapProps) {
     }
 
     // > Connected ride requests
-    for (const stateConnectedRideRequest of stateConnectedRideRequests) {
+    for (const connectedRideRequest of stateConnectedRideRequests) {
       connectedRideRequests.push(
         <CardRefresh
           {...props}
+          key={`connected-element-rideRequest-${connectedRideRequest}`}
           cardType={'ride_request'}
-          id={stateConnectedRideRequest}
+          id={connectedRideRequest}
           label={intl.formatMessage(
             {
               id: 'getacar.spectator.message.connected',
@@ -643,6 +646,7 @@ export default function TabMap(props: TabMapProps) {
       connectedSmartContracts.push(
         <CardGeneric
           {...props}
+          key={`connected-element-smartContract-${'TODO'}`}
           name={intl.formatMessage({
             id: 'getacar.smartContract',
           })}
@@ -671,6 +675,7 @@ export default function TabMap(props: TabMapProps) {
       connectedParticipants.push(
         <CardGeneric
           {...props}
+          key={`connected-element-passenger-${'TODO'}`}
           name={intl.formatMessage({
             id: 'getacar.participant.customer',
           })}
@@ -699,6 +704,7 @@ export default function TabMap(props: TabMapProps) {
       connectedParticipants.push(
         <CardGeneric
           {...props}
+          key={`connected-element-driver-${'TODO'}`}
           name={intl.formatMessage({
             id: 'getacar.participant.rideProvider',
           })}
@@ -763,6 +769,7 @@ export default function TabMap(props: TabMapProps) {
   }, [
     intl,
     props,
+    stateConnectedRideRequests,
     statePinnedCustomers,
     statePinnedRideProviders,
     stateSelectedSpectator,

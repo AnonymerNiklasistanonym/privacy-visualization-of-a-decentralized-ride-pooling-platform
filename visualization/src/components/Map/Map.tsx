@@ -40,7 +40,11 @@ import type {
   GlobalPropsSpectatorSelectedElementsSet,
 } from '@misc/props/global';
 import type {ReactSetState, ReactState} from '@misc/react';
-import type {SettingsMapProps, SettingsUiProps} from '@misc/props/settings';
+import type {
+  SettingsConnectedElementsProps,
+  SettingsMapProps,
+  SettingsUiProps,
+} from '@misc/props/settings';
 import type {
   SimulationEndpointGraphInformation,
   SimulationEndpointParticipantCoordinates,
@@ -61,6 +65,7 @@ export interface MapProps
     GlobalPropsFetch,
     GlobalPropsShowError,
     GlobalPropsIntlValues,
+    SettingsConnectedElementsProps,
     GlobalPropsSpectatorSelectedElements,
     GlobalPropsSpectatorSelectedElementsSet {}
 

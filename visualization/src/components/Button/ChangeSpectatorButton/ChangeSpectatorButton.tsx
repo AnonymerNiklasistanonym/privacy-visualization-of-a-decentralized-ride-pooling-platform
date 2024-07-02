@@ -1,5 +1,6 @@
 // Package imports
-import {memo, useCallback, useEffect, useState} from 'react';
+import {memo, useCallback, useEffect, useMemo, useState} from 'react';
+import {useIntl} from 'react-intl';
 // > Components
 import {Button} from '@mui/material';
 import {Lock as LockIcon} from '@mui/icons-material';
@@ -34,9 +35,9 @@ export interface ChangeViewButtonPropsInput extends ChangeViewButtonProps {
   icon?: ReactNode;
 }
 
-export default memo(ChangeViewButton);
+export default memo(ChangeSpectatorButton);
 
-export function ChangeViewButton({
+export function ChangeSpectatorButton({
   actorId,
   isPseudonym,
   icon,
@@ -46,6 +47,8 @@ export function ChangeViewButton({
   fetchJsonSimulation,
   showError,
 }: ChangeViewButtonPropsInput) {
+  const intl = useIntl();
+
   // React: States
   // > Fetching of actual actor ID in case it was a pseudonym
   const [stateResolvedPseudonym, setStateResolvedPseudonym] = useState<
@@ -66,26 +69,64 @@ export function ChangeViewButton({
     }
   });
 
+  /** The resolved pseudonym ID */
+  const resolvedPseudonymId = stateResolvedPseudonym?.id;
+
   /** If true it means that the actor is already selected */
   const isAlreadySelected =
     stateSpectator === actorId || stateSpectator === stateResolvedPseudonym?.id;
+
+  const spectatorCanSeePseudonym =
+    stateSpectator === 'everything' ||
+    stateSpectator === stateResolvedPseudonym?.id ||
+    stateSpectator === stateResolvedPseudonym?.authServiceId;
+
   /** If true disable the button from being pressed */
   const disabled =
-    isAlreadySelected ||
-    (isPseudonym &&
-      stateSpectator !== 'everything' &&
-      stateSpectator !== stateResolvedPseudonym?.authServiceId);
+    isAlreadySelected || (isPseudonym && !spectatorCanSeePseudonym);
+
   /** The button label */
-  let buttonLabel = `Spectate ${label}`;
-
-  if (isPseudonym) {
-    buttonLabel += ` (Pseudonym: ${actorId})`;
-  }
-  if (isAlreadySelected) {
-    buttonLabel += ' (Already selected)';
-  }
-
-  const resolvedPseudonymId = stateResolvedPseudonym?.id;
+  const buttonLabel = useMemo<string>(() => {
+    const buttonLabelSpectate = intl.formatMessage(
+      {id: 'getacar.spectator.spectate'},
+      {
+        name: label,
+      }
+    );
+    const buttonLabelInfo = [];
+    if (isPseudonym && !spectatorCanSeePseudonym) {
+      buttonLabelInfo.push(
+        intl.formatMessage({
+          id: 'pseudonym',
+        }) + ` [${actorId}]`
+      );
+    }
+    if (isPseudonym && spectatorCanSeePseudonym) {
+      buttonLabelInfo.push(
+        intl.formatMessage({
+          id: 'pseudonym.resolved',
+        }) + ` [${resolvedPseudonymId}]`
+      );
+    }
+    if (isAlreadySelected) {
+      buttonLabelInfo.push(
+        intl.formatMessage({
+          id: 'getacar.spectator.alreadySelected',
+        })
+      );
+    }
+    return `${buttonLabelSpectate}${
+      buttonLabelInfo.length > 0 ? ` (${buttonLabelInfo.join(', ')})` : ''
+    }`;
+  }, [
+    actorId,
+    intl,
+    isAlreadySelected,
+    isPseudonym,
+    label,
+    resolvedPseudonymId,
+    spectatorCanSeePseudonym,
+  ]);
 
   const buttonOnClick = useCallback(() => {
     if (disabled) {

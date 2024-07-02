@@ -20,11 +20,11 @@ import {
 } from '@mui/icons-material';
 // Local imports
 // > Components
-import ChangeViewButton from '@components/Button/ChangeViewButton';
+import ChangeSpectatorButton from '@components/Button/ChangeSpectatorButton';
 // > Misc
 import {debugComponentUpdate} from '@misc/debug';
 // Type imports
-import type {ChangeViewButtonProps} from '@components/Button/ChangeViewButton';
+import type {ChangeViewButtonProps} from '@components/Button/ChangeSpectatorButton';
 import type {DataModalInformation} from './DataModalInformation';
 import type {ReactState} from '@misc/react';
 
@@ -76,7 +76,7 @@ export function DataModelListElement(props: DataModalPropsElement) {
               {stateDataModalContentElement.spectatorInformation}
             </CardContent>
             <CardActions>
-              <ChangeViewButton
+              <ChangeSpectatorButton
                 {...props}
                 key={`modal_${stateDataModalContentElement.name}`}
                 actorId={stateDataModalContentElement.spectatorId}

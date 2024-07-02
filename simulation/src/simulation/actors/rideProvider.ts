@@ -25,6 +25,7 @@ import type {
 import type {AuthenticationService} from './services';
 import type {Coordinates} from '../../globals/types/coordinates';
 import type {Simulation} from '../simulation';
+import {getH3CellCenter} from '../../globals/lib/h3';
 
 export abstract class RideProvider<
   JsonType extends SimulationTypeRideProvider,
@@ -74,21 +75,35 @@ export abstract class RideProvider<
       // 2. Bid on open ride requests
       const randMatchService = getRandomElement(simulation.matchingServices);
       const openRideRequests = randMatchService.getRideRequests();
+      this.status = `looking for ride requests (found ${openRideRequests.length})`;
       if (openRideRequests.length === 0) {
-        await wait(100);
+        /** Wait a second if there are no open ride requests */
+        await wait(1 * 1000);
         continue;
       }
-      const openRideRequest = getRandomElement(openRideRequests);
-      this.rideRequest = openRideRequest.id;
+      // TODO Find the closest open ride request (aerial distance for fast computation)
+      const closestOpenRideRequest = openRideRequests.reduce((a, b) =>
+        haversineDistance(
+          this.currentLocation,
+          getH3CellCenter(a.request.pickupLocation)
+        ) <
+        haversineDistance(
+          this.currentLocation,
+          getH3CellCenter(b.request.pickupLocation)
+        )
+          ? a
+          : b
+      );
+      this.rideRequest = closestOpenRideRequest.id;
       const coordinatesPickupLocationPair = cellToLatLng(
-        openRideRequest.request.pickupLocation
+        closestOpenRideRequest.request.pickupLocation
       );
       const coordinatesPickupLocation: Coordinates = {
         lat: coordinatesPickupLocationPair[0],
         long: coordinatesPickupLocationPair[1],
       };
       const coordinatesDropoffLocationPair = cellToLatLng(
-        openRideRequest.request.dropoffLocation
+        closestOpenRideRequest.request.dropoffLocation
       );
       const coordinatesDropoffLocation: Coordinates = {
         lat: coordinatesDropoffLocationPair[0],
@@ -100,9 +115,11 @@ export abstract class RideProvider<
           coordinatesPickupLocation,
           coordinatesDropoffLocation
         );
-      this.logger.debug('Post bid for open ride request', {openRideRequest});
+      this.logger.debug('Post bid for open ride request', {
+        closestOpenRideRequest,
+      });
       randMatchService.postBid(
-        openRideRequest.id,
+        closestOpenRideRequest.id,
         pseudonym,
         // Base cost + random cost + cost to reach pickup + cost to reach destination
         costs.baseCostRide +
@@ -124,14 +141,18 @@ export abstract class RideProvider<
       );
       // 3. Wait for auction to close
       this.status = 'wait for ride request auction';
+      const waitTimeStartAuction = performance.now();
       while (
-        randMatchService.getRideRequest(openRideRequest.id).auctionStatus !==
-        'closed'
+        randMatchService.getRideRequest(closestOpenRideRequest.id)
+          .auctionStatus === 'open'
       ) {
         await wait(1 * 1000);
+        this.status = `wait for ride request auction (${Math.round(
+          (performance.now() - waitTimeStartAuction) / 1000
+        )}s)`;
       }
       const closedRideRequest = randMatchService.getRideRequest(
-        openRideRequest.id
+        closestOpenRideRequest.id
       );
       if (closedRideRequest.auctionWinner !== pseudonym) {
         this.logger.debug('Bid for open ride request was not successful', {
@@ -149,7 +170,7 @@ export abstract class RideProvider<
         simulation,
         closedRideRequest.request.pickupLocationReal
       );
-      randMatchService.helperSetRideProviderArrived(openRideRequest.id);
+      randMatchService.helperSetRideProviderArrived(closestOpenRideRequest.id);
       this.passengerList.push(closedRideRequest.request.userId);
       this.status = 'drive to dropoff location';
       await this.moveToLocation(

@@ -21,8 +21,7 @@ import {
   iconRideProvider,
   iconRideProviderGray,
 } from './LIcons/ParticipantIcons';
-import CardParticipant from '@components/Card/CardParticipant';
-import CardRideRequest from '@components/Card/CardRideRequest';
+import CardRefresh from '@components/Card/CardRefresh';
 // > Globals
 import {getH3Polygon} from '@globals/lib/h3';
 import {simulationEndpoints} from '@globals/defaults/endpoints';
@@ -35,7 +34,11 @@ import type {
   GlobalPropsSpectatorSelectedElementsSet,
 } from '@misc/props/global';
 import type {ReactSetState, ReactState} from '@misc/react';
-import type {SettingsMapProps, SettingsUiProps} from '@misc/props/settings';
+import type {
+  SettingsConnectedElementsProps,
+  SettingsMapProps,
+  SettingsUiProps,
+} from '@misc/props/settings';
 import type {
   SimulationEndpointParticipantIdFromPseudonym,
   SimulationEndpointParticipantInformationCustomer,
@@ -45,6 +48,9 @@ import type {
 } from '@globals/types/simulation';
 import type {Marker as LMarker} from 'leaflet';
 import type {ReactNode} from 'react';
+import {useIntl} from 'react-intl';
+
+const LOCATION_REAL_RADIUS = 50;
 
 export interface ParticipantMarkerProps
   extends GlobalPropsSpectatorSelectedElementsSet,
@@ -53,6 +59,7 @@ export interface ParticipantMarkerProps
     GlobalPropsShowError,
     SettingsMapProps,
     GlobalPropsIntlValues,
+    SettingsConnectedElementsProps,
     SettingsUiProps {}
 
 export interface ParticipantMarkerPropsInput extends ParticipantMarkerProps {
@@ -194,8 +201,10 @@ export function ParticipantMarker(props: ParticipantMarkerPropsInput) {
     };
   });
 
+  /** Show ride requests for the currently selected spectator */
   const showRideRequest = stateSelectedSpectator === stateParticipantId;
-  const showParticipant =
+  /** Highlight participants that are in any way connected to the current/selected spectator */
+  const highlightParticipant =
     stateSpectator === stateParticipantId ||
     stateSelectedSpectator === stateParticipantId ||
     showRideRequest ||
@@ -209,7 +218,7 @@ export function ParticipantMarker(props: ParticipantMarkerPropsInput) {
       {...props}
       fetchParticipantInformation={fetchParticipantInformation}
       setStatePopupOpen={setStatePopupOpen}
-      showParticipant={showParticipant}
+      highlightParticipant={highlightParticipant}
       showRideRequest={showRideRequest}
       stateCustomerInformation={stateCustomerInformation}
       stateRideProviderInformation={stateRideProviderInformation}
@@ -218,7 +227,7 @@ export function ParticipantMarker(props: ParticipantMarkerPropsInput) {
   );
 }
 interface ParticipantMarkerElementProps extends ParticipantMarkerPropsInput {
-  showParticipant: boolean;
+  highlightParticipant: boolean;
   showRideRequest: boolean;
   setStatePopupOpen: ReactSetState<boolean>;
   fetchParticipantInformation: () => Promise<void>;
@@ -229,29 +238,31 @@ interface ParticipantMarkerElementProps extends ParticipantMarkerPropsInput {
 
 export function ParticipantMarkerElement(props: ParticipantMarkerElementProps) {
   const {
-    stateParticipantId,
-    stateParticipantLong,
-    stateParticipantLat,
-    participantType,
-    stateSettingsMapShowTooltips,
-    showError,
-    showParticipant,
-    showRideRequest,
-    setStatePopupOpen,
     fetchParticipantInformation,
-    stateCustomerInformation,
-    stateRideProviderInformation,
-    stateRideRequestInformation,
-    stateSettingsUiMapScroll,
-    stateShowSpectator,
-    setStateShowSpectator,
-    setStateSelectedSpectator,
+    highlightParticipant,
+    isPinned,
     onPin,
     onUnpin,
-    isPinned,
+    participantType,
+    setStatePopupOpen,
+    setStateSelectedSpectator,
+    setStateShowSpectator,
+    showError,
+    showRideRequest,
+    stateCustomerInformation,
+    stateParticipantId,
+    stateParticipantLat,
+    stateParticipantLong,
+    stateRideProviderInformation,
+    stateRideRequestInformation,
+    stateSettingsMapShowTooltips,
+    stateShowSpectator,
+    stateSpectator,
+    stateSelectedSpectator,
   } = props;
   const elementsToRender: Array<ReactNode> = [];
 
+  const intl = useIntl();
   const map = useMap();
   const markerRef = useRef<LMarker>(null);
 
@@ -288,16 +299,16 @@ export function ParticipantMarkerElement(props: ParticipantMarkerElementProps) {
   // Icon that shows the current position of the participant
   elementsToRender.push(
     <Marker
-      key={`customer_${stateParticipantId}`}
+      key={`marker-participant-${stateParticipantId}`}
       ref={markerRef}
       position={[stateParticipantLat, stateParticipantLong]}
       icon={
         // If participant is not relevant use gray icon
         participantType === 'customer'
-          ? showParticipant
+          ? highlightParticipant
             ? iconCustomer
             : iconCustomerGray
-          : showParticipant
+          : highlightParticipant
             ? iconRideProvider
             : iconRideProviderGray
       }
@@ -319,22 +330,33 @@ export function ParticipantMarkerElement(props: ParticipantMarkerElementProps) {
         },
       }}
     >
-      {stateSettingsMapShowTooltips ? (
-        // Show tooltip if enabled
-        <Tooltip direction="bottom" offset={[0, 0]} opacity={1} permanent>
-          {participantType} {stateParticipantId}
+      {stateSettingsMapShowTooltips ||
+      stateSpectator === stateParticipantId ||
+      stateSelectedSpectator === stateParticipantId ? (
+        // Show tooltip message for specific cases
+        <Tooltip direction="bottom" offset={[0, 15]} opacity={0.8} permanent>
+          {[
+            stateSpectator === stateParticipantId
+              ? intl.formatMessage({id: 'getacar.spectator.current'})
+              : undefined,
+            stateSelectedSpectator === stateParticipantId
+              ? intl.formatMessage({id: 'getacar.spectator.selected'})
+              : undefined,
+            stateSettingsMapShowTooltips
+              ? `${participantType} ${stateParticipantId}`
+              : undefined,
+          ]
+            .filter(a => a !== undefined)
+            .join('/')}
         </Tooltip>
-      ) : (
-        <></>
-      )}
+      ) : undefined}
       <Popup className={styles['leaflet-popup-content-wrapper']}>
-        <CardParticipant
+        <CardRefresh
           {...props}
-          stateParticipantId={stateParticipantId}
-          scrollHeight={stateSettingsUiMapScroll ? '50vh' : undefined}
-          maxWidth={'30vw'}
-          pinAction={() => onPin()}
-          unpinAction={() => onUnpin()}
+          id={stateParticipantId}
+          cardType={participantType}
+          onPin={() => onPin()}
+          onUnpin={() => onUnpin()}
           isPinned={isPinned}
         />
       </Popup>
@@ -347,54 +369,66 @@ export function ParticipantMarkerElement(props: ParticipantMarkerElementProps) {
       {
         cloaked: stateRideRequestInformation.pickupLocation,
         color: 'green',
-        label: 'Ride request: Pickup location',
+        label: intl.formatMessage({id: 'getacar.rideRequest.location.pickup'}),
         real: stateRideRequestInformation.pickupLocationCoordinates,
       },
       {
         cloaked: stateRideRequestInformation.dropoffLocation,
         color: 'red',
-        label: 'Ride request: Dropoff location',
+        label: intl.formatMessage({id: 'getacar.rideRequest.location.dropoff'}),
         real: stateRideRequestInformation.dropoffLocationCoordinates,
       },
     ];
     elementsToRender.push(
       ...locations.map(location => (
-        <>
-          <Circle
-            center={{
-              lat: location.real.lat,
-              lng: location.real.long,
-            }}
-            color={rideRequestColor}
-            fillColor={location.color}
-            radius={50}
-          >
-            <Tooltip
-              content={location.label + ' (real)'}
-              permanent={true}
-              sticky
-            ></Tooltip>
-          </Circle>
-          <Polygon
-            color={rideRequestColor}
-            fillColor={location.color}
-            positions={getH3Polygon(location.cloaked)}
-          >
-            <Tooltip content={location.label + ' (cloaked)'}></Tooltip>
-            <Popup>
-              <CardRideRequest
-                {...props}
-                stateRideRequestId={stateRideRequestInformation.id}
-                stateRideRequestInformation={stateRideRequestInformation}
-              />
-            </Popup>
-          </Polygon>
-        </>
+        <Polygon
+          key={`${location.label}-cloaked-${stateParticipantId}`}
+          color={rideRequestColor}
+          fillColor={location.color}
+          positions={getH3Polygon(location.cloaked)}
+        >
+          <Tooltip
+            content={
+              location.label +
+              ` (${intl.formatMessage({id: 'location.cloaked'})})`
+            }
+            sticky
+          ></Tooltip>
+          <Popup>
+            <CardRefresh
+              {...props}
+              id={stateRideRequestInformation.id}
+              cardType={'ride_request'}
+            />
+          </Popup>
+        </Polygon>
+      ))
+    );
+    elementsToRender.push(
+      ...locations.map(location => (
+        <Circle
+          key={`${location.label}-real-${stateParticipantId}`}
+          center={{
+            lat: location.real.lat,
+            lng: location.real.long,
+          }}
+          color={rideRequestColor}
+          fillColor={location.color}
+          radius={LOCATION_REAL_RADIUS}
+        >
+          <Tooltip
+            direction={'left'}
+            content={
+              location.label + ` (${intl.formatMessage({id: 'location.real'})})`
+            }
+            offset={[-LOCATION_REAL_RADIUS / 2, 0]}
+          ></Tooltip>
+        </Circle>
       ))
     );
   }
 
-  if (showParticipant) {
+  if (highlightParticipant) {
     // Show current routes
     elementsToRender.push(
       ...[
@@ -407,17 +441,13 @@ export function ParticipantMarkerElement(props: ParticipantMarkerElementProps) {
       ].map(([name, coordinates]) =>
         coordinates !== null ? (
           <Polyline
-            key={`route_${name}_${stateParticipantId}`}
+            key={`route-${name}-${stateParticipantId}`}
             positions={coordinates.map(a => [a.lat, a.long])}
             color={name === 'current' ? 'blue' : 'gray'}
             weight={3}
             smoothFactor={1}
           >
-            <Tooltip
-              content={name}
-              permanent={name === 'current' ? true : undefined}
-              sticky
-            ></Tooltip>
+            <Tooltip content={name} sticky></Tooltip>
           </Polyline>
         ) : undefined
       )

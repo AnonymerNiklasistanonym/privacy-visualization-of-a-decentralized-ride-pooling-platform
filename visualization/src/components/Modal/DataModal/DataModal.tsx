@@ -23,7 +23,7 @@ import type {
 } from './DataModalInformation';
 import type {ReactElement, ReactNode} from 'react';
 import type {ReactSetState, ReactState} from '@misc/react';
-import type {ChangeViewButtonProps} from '@components/Button/ChangeViewButton';
+import type {ChangeViewButtonProps} from '@components/Button/ChangeSpectatorButton';
 export interface DataModalPropsSetStates {
   setStateDataModalOpen: ReactSetState<boolean>;
 }
@@ -127,29 +127,28 @@ export function DataModal(props: DataModalProps) {
           return undefined;
         }
         return (
-          <>
-            <List
-              sx={{
-                bgcolor: 'background.paper',
-                width: '100%',
-              }}
-              component="nav"
-              aria-labelledby="nested-list-subheader-owner"
-              subheader={
-                <ListSubheader component="div" id="nested-list-subheader-owner">
-                  {title}:
-                </ListSubheader>
-              }
-            >
-              {elements.map(a => (
-                <DataModelListElement
-                  {...props}
-                  key={`data-${accessType}-${a.name}`}
-                  stateDataModalContentElement={a}
-                />
-              ))}
-            </List>
-          </>
+          <List
+            key={`data-modal-${accessType}-${title}-${dataOriginName}`}
+            sx={{
+              bgcolor: 'background.paper',
+              width: '100%',
+            }}
+            component="nav"
+            aria-labelledby="nested-list-subheader-owner"
+            subheader={
+              <ListSubheader component="div" id="nested-list-subheader-owner">
+                {title}:
+              </ListSubheader>
+            }
+          >
+            {elements.map(a => (
+              <DataModelListElement
+                {...props}
+                key={`data-modal-${accessType}-${a.name}-${dataOriginName}`}
+                stateDataModalContentElement={a}
+              />
+            ))}
+          </List>
         );
       })}
     </GenericModal>

@@ -13,7 +13,7 @@ import type {
   SimulationEndpointParticipantInformationRideProvider,
   SimulationEndpointRideRequestInformation,
 } from '@globals/types/simulation';
-import type {ChangeViewButtonProps} from '@components/Button/ChangeViewButton';
+import type {ChangeViewButtonProps} from '@components/Button/ChangeSpectatorButton';
 import type {GetACarParticipantTypes} from '@globals/types/participant';
 import type {GlobalPropsIntlValues} from '@misc/props/global';
 import type {SettingsConnectedElementsProps} from '@misc/props/settings';
@@ -30,6 +30,10 @@ export interface CardRefreshProps
   label?: string;
   /** If found enable unpin action (with icon) */
   onUnpin?: () => void;
+  /** If found enable pin action (with icon) */
+  onPin?: () => void;
+  /** Indicator if pinned */
+  isPinned?: boolean;
   /** If found check if the fetching should be paused at the moment */
   pauseRefresh?: () => boolean;
   /** Optional method to update the ride request ID list with the current ride request ID */
@@ -51,6 +55,8 @@ export function CardRefresh(props: CardRefreshProps) {
     intlValues,
     label,
     onUnpin,
+    onPin,
+    isPinned,
     pauseRefresh,
     setStateRideRequestList,
     showError,
@@ -130,6 +136,8 @@ export function CardRefresh(props: CardRefreshProps) {
       stateRideProviderInformation={stateRideProviderInformation}
       stateParticipantId={id}
       label={label}
+      pinAction={onPin}
+      isPinned={isPinned}
       unpinAction={onUnpin}
       intlValues={intlValues}
     />

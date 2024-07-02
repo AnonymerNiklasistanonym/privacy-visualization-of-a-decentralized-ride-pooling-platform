@@ -47,7 +47,7 @@ export const createMockedCustomer = (
   index: number,
   config: Readonly<SimulationConfigWithData>
 ): Customer => {
-  const id = `customer_${getRandomId()}`;
+  const id = getRandomId();
   const randLocation = getRandomElement(config.places);
   const fakePerson = config.peopleData[index];
   const keyPair = config.privatePublicKeyData[index];

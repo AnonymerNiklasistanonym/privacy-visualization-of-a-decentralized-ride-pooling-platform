@@ -1,5 +1,5 @@
 // Package imports
-import {useCallback, useState} from 'react';
+import {useCallback, useEffect, useState} from 'react';
 import {useIntl} from 'react-intl';
 // > Components
 import {
@@ -106,10 +106,13 @@ export default function ErrorModal(props: ErrorModalProps) {
     props;
   const intl = useIntl();
 
-  // Close the modal when there is no content any more
-  if (stateErrorModalContent.length === 0) {
-    setStateErrorModalOpen(false);
-  }
+  useEffect(() => {
+    // Close the modal when there is no content any more
+    if (stateErrorModalContent.length === 0) {
+      setStateErrorModalOpen(false);
+    }
+  }, [stateErrorModalContent, setStateErrorModalOpen]);
+
   return (
     <GenericModal
       setStateModalOpen={setStateErrorModalOpen}

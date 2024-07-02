@@ -11,6 +11,7 @@ import {
   Divider,
   IconButton,
   Stack,
+  Tooltip,
 } from '@mui/material';
 import {
   Fingerprint as FingerprintIcon,
@@ -32,8 +33,6 @@ export interface CardGenericPropsContentElement {
 export interface CardGenericProps {
   /** A label that should be displayed above all content */
   label?: string;
-  /** A label that should be displayed above all content */
-  onDelete?: () => void;
   /** Restrict card height via a scrollable overflow option */
   scrollHeight?: string;
   /** Restrict card width */
@@ -69,53 +68,51 @@ export default function CardGeneric(props: CardGenericPropsInput) {
     status,
     id,
     content,
-    onDelete,
     pinAction,
     unpinAction,
     actions,
     isPinned,
-    scrollHeight,
-    maxWidth,
   } = props;
   const titleStackList = useMemo(() => {
     const result: Array<ReactElement> = [];
     if (label !== undefined) {
       result.push(
         <Chip
+          color="warning"
+          icon={<InfoIcon />}
           key="label"
           label={label}
           size="small"
-          color="warning"
-          icon={<InfoIcon />}
-          onDelete={onDelete}
+          title={label}
         />
       );
     }
     if (id !== undefined) {
       result.push(
         <Chip
+          icon={<FingerprintIcon />}
           key="id"
           label={id}
           size="small"
+          title={id}
           variant="outlined"
-          icon={<FingerprintIcon />}
         />
       );
     }
     if (status !== undefined) {
       result.push(
         <Chip
+          color="primary"
+          icon={<InfoIcon />}
           key="status"
           label={status}
           size="small"
-          color="primary"
-          icon={<InfoIcon />}
-          sx={{maxWidth: '100%'}}
+          title={status}
         />
       );
     }
     return result;
-  }, [name, label, id, status, onDelete]);
+  }, [label, id, status]);
   const iconActions = useMemo(() => {
     const result = [];
     if (
@@ -159,7 +156,7 @@ export default function CardGeneric(props: CardGenericPropsInput) {
       />
       <CardContent>
         {content.map((a, index) => (
-          <div key={index}>
+          <div key={`content-${a.label ?? index}`}>
             {a.label ? (
               <Divider>
                 <Chip

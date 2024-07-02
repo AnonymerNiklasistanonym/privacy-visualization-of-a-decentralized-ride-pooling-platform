@@ -1,8 +1,8 @@
 // Package imports
-import {memo, useMemo} from 'react';
+import {ReactElement, memo, useMemo} from 'react';
 import {useIntl} from 'react-intl';
 // > Components
-import {List} from '@mui/material';
+import {Button, List} from '@mui/material';
 // Local imports
 import {dataModalInformationPersonalData} from './PopupContentGeneric';
 // > Components
@@ -18,7 +18,7 @@ import {
   ParticipantsRideProvider,
 } from '@components/Tab/TabOverview/Elements';
 import CardGeneric from '@components/Card/CardGeneric';
-import ChangeViewButton from '@components/Button/ChangeViewButton';
+import ChangeSpectatorButton from '@components/Button/ChangeSpectatorButton';
 // Type imports
 import type {
   CardGenericProps,
@@ -29,15 +29,17 @@ import type {
   SimulationEndpointParticipantInformationRideProvider,
   SimulationEndpointParticipantTypes,
 } from '@globals/types/simulation';
-import type {ChangeViewButtonProps} from '@components/Button/ChangeViewButton';
+import type {ChangeViewButtonProps} from '@components/Button/ChangeSpectatorButton';
 import type {DataModalInformation} from '@components/Modal/DataModal';
 import type {GlobalPropsIntlValues} from '@misc/props/global';
 import type {ReactState} from '@misc/react';
+import {SettingsGlobalProps} from '@misc/props/settings';
 
 export interface CardParticipantProps
   extends ChangeViewButtonProps,
     CardGenericProps,
-    GlobalPropsIntlValues {
+    GlobalPropsIntlValues,
+    SettingsGlobalProps {
   stateParticipantId: ReactState<string>;
   stateCustomerInformation: ReactState<null | SimulationEndpointParticipantInformationCustomer>;
   stateRideProviderInformation: ReactState<null | SimulationEndpointParticipantInformationRideProvider>;
@@ -49,10 +51,13 @@ export default memo(CardParticipant);
 
 export function CardParticipant(props: CardParticipantProps) {
   const {
+    stateSpectator,
+    stateSelectedSpectator,
     stateParticipantId,
     stateCustomerInformation,
     stateRideProviderInformation,
     participantType,
+    stateSettingsGlobalDebug,
     intlValues,
   } = props;
   const intl = useIntl();
@@ -130,12 +135,12 @@ export function CardParticipant(props: CardParticipantProps) {
       }
       result.push({
         content: (
-          <List>
+          <List key={`participant-list-personalData-${stateParticipantId}`}>
             {stateCustomerInformation
-              ? personalData.map((a, index) => (
+              ? personalData.map(a => (
                   <RenderDataElement
                     {...props}
-                    key={`render-data-element-${index}`}
+                    key={`render-data-element-${a.label}-${stateParticipantId}`}
                     element={a}
                     id={stateCustomerInformation.id}
                     dataOriginName={`Customer (${stateCustomerInformation.id})`}
@@ -156,7 +161,7 @@ export function CardParticipant(props: CardParticipantProps) {
       // TODO
       result.push({
         content: (
-          <List>
+          <List key={`participant-list-queries-${stateParticipantId}`}>
             {stateCustomerInformation ? (
               <RenderDataElement
                 {...props}
@@ -185,8 +190,9 @@ export function CardParticipant(props: CardParticipantProps) {
       if (stateCustomerInformation?.passenger !== undefined) {
         result.push({
           content: (
-            <ChangeViewButton
+            <ChangeSpectatorButton
               {...props}
+              key={`participant-change-spectator-rideProvider-${stateParticipantId}`}
               actorId={stateCustomerInformation.passenger}
               icon={<ParticipantRideProviderIcon />}
               label={'the current ride provider'}
@@ -224,7 +230,6 @@ export function CardParticipant(props: CardParticipantProps) {
       //}
     }
     if (participantType === 'ride_provider') {
-      const result: Array<CardGenericPropsContentElement> = [];
       const showContentSpectatorContactDetails = [
         {
           description: 'registered authentication service',
@@ -251,7 +256,7 @@ export function CardParticipant(props: CardParticipantProps) {
         );
         result.push({
           content: (
-            <List>
+            <List key={`participant-list-carData-${stateParticipantId}`}>
               {carData.map((a, index) => (
                 <RenderDataElement
                   {...props}
@@ -326,7 +331,9 @@ export function CardParticipant(props: CardParticipantProps) {
         }
         result.push({
           content: (
-            <List>
+            <List
+              key={`participant-list-personalCarData-${stateParticipantId}`}
+            >
               {personalData.map((a, index) => (
                 <RenderDataElement
                   {...props}
@@ -354,22 +361,28 @@ export function CardParticipant(props: CardParticipantProps) {
       ) {
         result.push({
           content: (
-            <>
+            <List key={`participant-list-passengers-${stateParticipantId}`}>
               {stateRideProviderInformation.passengerList.map(
                 (passengerId, index) => (
-                  <ChangeViewButton
+                  <ChangeSpectatorButton
                     {...props}
-                    key={`passenger_${passengerId}_${index}`}
+                    key={`passenger-${passengerId}-${stateParticipantId}`}
                     actorId={passengerId}
                     icon={<ParticipantCustomerIcon />}
-                    label={`passenger #${index}`}
+                    label={intl.formatMessage(
+                      {id: 'getacar.participant.rideProvider.passengerNumber'},
+                      {name: index}
+                    )}
+                    // Passengers are always a pseudonym
                     isPseudonym={true}
                   />
                 )
               )}
-            </>
+            </List>
           ),
-          label: 'Passengers',
+          label: intl.formatMessage({
+            id: 'getacar.participant.rideProvider.passengers',
+          }),
           labelIcon: <ParticipantRideProviderIcon />,
         });
       }
@@ -409,11 +422,13 @@ export function CardParticipant(props: CardParticipantProps) {
     stateParticipantId,
     stateRideProviderInformation,
   ]);
-  const actions = useMemo(
-    () => [
-      <ChangeViewButton
+
+  /** Action buttons based on global state */
+  const actions = useMemo<Array<ReactElement>>(() => {
+    const actionsList = [
+      <ChangeSpectatorButton
         {...props}
-        key={`spectate-button-${stateParticipantId}`}
+        key={`action-change-spectator-${stateParticipantId}`}
         actorId={stateParticipantId}
         icon={
           participantType === 'customer' ? (
@@ -423,19 +438,63 @@ export function CardParticipant(props: CardParticipantProps) {
           )
         }
         isPseudonym={false}
-        label={
-          participantType === 'customer'
-            ? 'this customer'
-            : 'this ride provider'
-        }
+        label={intl.formatMessage(
+          {id: 'getacar.spectator.this'},
+          {
+            name:
+              participantType === 'customer'
+                ? intl.formatMessage({id: 'getacar.participant.customer'})
+                : intl.formatMessage({id: 'getacar.participant.rideProvider'}),
+          }
+        )}
       />,
-    ],
-    [participantType, props, stateParticipantId]
-  );
-  // TODO Add label with information (e.g. current spectator)
+    ];
+    if (stateSettingsGlobalDebug) {
+      actionsList.push(
+        <Button
+          key={`action-debug-${stateParticipantId}`}
+          onClick={() =>
+            console.warn('DEBUG participant information', {
+              participantType,
+              stateCustomerInformation,
+              stateParticipantId,
+              stateRideProviderInformation,
+            })
+          }
+        >
+          DEBUG participant information
+        </Button>
+      );
+    }
+    return actionsList;
+  }, [
+    intl,
+    participantType,
+    props,
+    stateCustomerInformation,
+    stateParticipantId,
+    stateRideProviderInformation,
+    stateSettingsGlobalDebug,
+  ]);
+
+  /** Additional information label based on global state */
+  const label = useMemo<string | undefined>(() => {
+    const labels = [
+      stateSpectator === stateParticipantId
+        ? intl.formatMessage({id: 'getacar.spectator.current'})
+        : undefined,
+      stateSelectedSpectator === stateParticipantId
+        ? intl.formatMessage({id: 'getacar.spectator.selected'})
+        : undefined,
+    ].filter(a => a !== undefined);
+    return labels.length > 0 ? labels.join('/') : undefined;
+  }, [intl, stateParticipantId, stateSelectedSpectator, stateSpectator]);
+
   return (
     <CardGeneric
       {...props}
+      key={`generic-card-${stateParticipantId}`}
+      label={label}
       icon={
         participantType === 'customer' ? (
           <ParticipantCustomerIcon />
@@ -443,7 +502,11 @@ export function CardParticipant(props: CardParticipantProps) {
           <ParticipantRideProviderIcon />
         )
       }
-      name={participantType === 'customer' ? 'Customer' : 'Ride Provider'}
+      name={
+        participantType === 'customer'
+          ? intl.formatMessage({id: 'getacar.participant.customer'})
+          : intl.formatMessage({id: 'getacar.participant.rideProvider'})
+      }
       id={stateParticipantId}
       status={
         participantType === 'customer'

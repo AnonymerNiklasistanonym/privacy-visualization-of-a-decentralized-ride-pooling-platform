@@ -238,7 +238,7 @@ export class AuthenticationService extends Service<SimulationTypeAuthenticationS
       a => a.contactDetails.id === id
     );
     if (participant) {
-      const newPseudonym = getRandomId();
+      const newPseudonym = `psuedonym_${getRandomId()}`;
       participant.pseudonyms.push(newPseudonym);
       return newPseudonym;
     }

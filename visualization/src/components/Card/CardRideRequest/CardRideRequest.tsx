@@ -18,7 +18,7 @@ import type {
   GlobalPropsIntlValues,
   GlobalPropsSpectatorSelectedElementsSet,
 } from '@misc/props/global';
-import type {ChangeViewButtonProps} from '@components/Button/ChangeViewButton';
+import type {ChangeViewButtonProps} from '@components/Button/ChangeSpectatorButton';
 import type {ReactState} from '@misc/react';
 import type {SimulationEndpointRideRequestInformation} from '@globals/types/simulation';
 // A
