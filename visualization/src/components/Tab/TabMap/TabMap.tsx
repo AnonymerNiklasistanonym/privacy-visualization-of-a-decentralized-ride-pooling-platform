@@ -5,7 +5,7 @@ import {useCallback, useEffect, useMemo, useState} from 'react';
 import {useIntl} from 'react-intl';
 // > Components
 import {Box, ButtonGroup, Chip, Divider, Grid} from '@mui/material';
-import {Delete as DeleteIcon} from '@mui/icons-material';
+import {Clear as DeleteIcon} from '@mui/icons-material';
 // Local imports
 import {fetchJsonEndpoint, fetchTextEndpoint} from '@misc/fetch';
 // > Components
@@ -91,6 +91,7 @@ export default function TabMap(props: TabMapProps) {
     showError,
     setStateShowSpectator,
     setStateSelectedSpectator,
+    setStateSpectator,
     stateSpectator,
     stateSpectators,
     stateSelectedSpectator,
@@ -139,15 +140,17 @@ export default function TabMap(props: TabMapProps) {
   const fetchGraphs = useCallback(
     (clear = false) => {
       if (clear === true) {
-        setGraphState({
+        setGraphState(prev => ({
+          ...prev,
           edges: [],
           geometry: [],
           vertices: [],
-        });
-        setPathfinderGraphState({
+        }));
+        setPathfinderGraphState(prev => ({
+          ...prev,
           edges: [],
           vertices: [],
-        });
+        }));
         return;
       }
       fetchJsonSimulation<SimulationEndpointGraphInformation>(
@@ -169,12 +172,13 @@ export default function TabMap(props: TabMapProps) {
   const fetchDebugData = useCallback(
     (clear = false) => {
       if (clear === true) {
-        setStateDebugData({
+        setStateDebugData(prev => ({
+          ...prev,
           customers: [],
           rideProviders: [],
           rideRequests: [],
           smartContracts: [],
-        });
+        }));
         return;
       }
 
@@ -339,8 +343,6 @@ export default function TabMap(props: TabMapProps) {
     ]
   );
 
-  // TODO: Start Position
-
   const propsTabMap = {
     ...props,
     setStatePinnedCustomers,
@@ -354,11 +356,73 @@ export default function TabMap(props: TabMapProps) {
   };
 
   // React: Effects
+  // > Fetch Participant Coordinates
   useEffect(() => {
     const interval = setInterval(
       () => fetchParticipantCoordinates(),
       stateSettingsMapUpdateRateInMs
     );
+    return () => {
+      clearInterval(interval);
+    };
+  });
+  // > Fetch Selected Participant
+  // TODO Make this better
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (stateSelectedSpectator === undefined) {
+        return;
+      }
+      const selectedSpectator = stateSpectators.get(stateSelectedSpectator);
+      if (selectedSpectator === undefined) {
+        return;
+      }
+      if (
+        selectedSpectator.category ===
+        intl.formatMessage({
+          id: 'getacar.participant.customer',
+        })
+      ) {
+        fetchJsonSimulation<SimulationEndpointParticipantInformationCustomer>(
+          simulationEndpoints.apiV1.participantInformationCustomer(
+            stateSelectedSpectator
+          )
+        ).then(customerInformation => {
+          const connectedRideRequest = customerInformation.rideRequest;
+          if (
+            connectedRideRequest !== undefined &&
+            !stateConnectedRideRequests.includes(connectedRideRequest)
+          ) {
+            setStateConnectedRideRequests(prev => [
+              ...prev,
+              connectedRideRequest,
+            ]);
+          }
+        });
+      } else if (
+        selectedSpectator.category ===
+        intl.formatMessage({
+          id: 'getacar.participant.rideProvider',
+        })
+      ) {
+        fetchJsonSimulation<SimulationEndpointParticipantInformationCustomer>(
+          simulationEndpoints.apiV1.participantInformationCustomer(
+            stateSelectedSpectator
+          )
+        ).then(rideProviderInformation => {
+          const connectedRideRequest = rideProviderInformation.rideRequest;
+          if (
+            connectedRideRequest !== undefined &&
+            !stateConnectedRideRequests.includes(connectedRideRequest)
+          ) {
+            setStateConnectedRideRequests(prev => [
+              ...prev,
+              connectedRideRequest,
+            ]);
+          }
+        });
+      }
+    }, stateSettingsMapUpdateRateInMs);
     return () => {
       clearInterval(interval);
     };
@@ -371,56 +435,106 @@ export default function TabMap(props: TabMapProps) {
       stateSelectedSpectator !== undefined
         ? stateSpectators.get(stateSelectedSpectator)
         : undefined;
+    const buttonCurrentSpectator = (
+      <GenericButton
+        disabled={
+          currentSpectator?.category !== undefined
+            ? ![
+                intl.formatMessage({
+                  id: 'getacar.participant.customer',
+                }),
+                intl.formatMessage({
+                  id: 'getacar.participant.rideProvider',
+                }),
+              ].includes(currentSpectator?.category)
+            : true
+        }
+        icon={<NavigateToLocationIcon />}
+        onClick={() => setStateShowSpectator(stateSpectator)}
+        secondaryColor={true}
+      >
+        {intl.formatMessage({
+          id: 'getacar.spectator.showCurrent',
+        })}
+      </GenericButton>
+    );
+    const buttonCurrentSpectatorClear = (
+      <GenericButton
+        disabled={stateSpectator === 'everything'}
+        icon={<DeleteIcon />}
+        onClick={() => setStateSpectator('everything')}
+        secondaryColor={true}
+      />
+    );
+    const buttonCurrentSelectedSpectator = (
+      <GenericButton
+        disabled={
+          currentSelectedSpectator?.category !== undefined
+            ? ![
+                intl.formatMessage({
+                  id: 'getacar.participant.customer',
+                }),
+                intl.formatMessage({
+                  id: 'getacar.participant.rideProvider',
+                }),
+              ].includes(currentSelectedSpectator?.category)
+            : true
+        }
+        icon={<NavigateToLocationIcon />}
+        onClick={() => setStateShowSpectator(stateSelectedSpectator)}
+      >
+        {intl.formatMessage({
+          id: 'getacar.participant.showSelected',
+        })}
+      </GenericButton>
+    );
+    const buttonCurrentSelectedSpectatorClear = (
+      <GenericButton
+        disabled={currentSelectedSpectator?.category === undefined}
+        icon={<DeleteIcon />}
+        onClick={() => setStateSelectedSpectator(undefined)}
+      />
+    );
     return [
       {
         content: (
           <>
             <InputChangeSpectator {...props} />
             <ButtonGroup
-              sx={{marginTop: `${stateSettingsUiGridSpacing / 2}rem`}}
+              sx={{
+                display: {sm: 'flex', xs: 'none'},
+                marginTop: `${stateSettingsUiGridSpacing / 2}rem`,
+              }}
             >
-              <GenericButton
-                disabled={
-                  currentSpectator?.category !== undefined
-                    ? ![
-                        intl.formatMessage({
-                          id: 'getacar.participant.customer',
-                        }),
-                        intl.formatMessage({
-                          id: 'getacar.participant.rideProvider',
-                        }),
-                      ].includes(currentSpectator?.category)
-                    : true
-                }
-                icon={<NavigateToLocationIcon />}
-                onClick={() => setStateShowSpectator(stateSpectator)}
-                secondaryColor={true}
+              {buttonCurrentSpectator}
+              {buttonCurrentSpectatorClear}
+              {buttonCurrentSelectedSpectator}
+              {buttonCurrentSelectedSpectatorClear}
+            </ButtonGroup>
+            <ButtonGroup
+              sx={{
+                display: {sm: 'none', xs: 'flex'},
+                marginTop: `${stateSettingsUiGridSpacing / 2}rem`,
+              }}
+            >
+              <Grid
+                container
+                spacing={stateSettingsUiGridSpacing}
+                justifyContent="center"
               >
-                {intl.formatMessage({id: 'getacar.spectator.showCurrent'})}
-              </GenericButton>
-              <GenericButton
-                disabled={
-                  currentSelectedSpectator?.category !== undefined
-                    ? ![
-                        intl.formatMessage({
-                          id: 'getacar.participant.customer',
-                        }),
-                        intl.formatMessage({
-                          id: 'getacar.participant.rideProvider',
-                        }),
-                      ].includes(currentSelectedSpectator?.category)
-                    : true
-                }
-                icon={<NavigateToLocationIcon />}
-                onClick={() => setStateShowSpectator(stateSelectedSpectator)}
-              >
-                {intl.formatMessage({id: 'getacar.participant.showSelected'})}
-              </GenericButton>
-              <GenericButton
-                disabled={currentSelectedSpectator?.category === undefined}
-                icon={<DeleteIcon />}
-                onClick={() => setStateSelectedSpectator(undefined)}
-              />
+                <Grid item xs={12} sm={6}>
+                  <ButtonGroup sx={{width: '100%'}}>
+                    {buttonCurrentSpectator}
+                    {buttonCurrentSpectatorClear}
+                  </ButtonGroup>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <ButtonGroup sx={{width: '100%'}}>
+                    {buttonCurrentSelectedSpectator}
+                    {buttonCurrentSelectedSpectatorClear}
+                  </ButtonGroup>
+                </Grid>
+              </Grid>
             </ButtonGroup>
           </>
         ),
@@ -440,11 +554,16 @@ export default function TabMap(props: TabMapProps) {
     props,
     setStateShowSpectator,
     setStateSelectedSpectator,
+    setStateSpectator,
     stateSelectedSpectator,
     stateSettingsUiGridSpacing,
     stateSpectator,
     stateSpectators,
   ]);
+
+  const [stateConnectedRideRequests, setStateConnectedRideRequests] = useState<
+    Array<string>
+  >([]);
 
   /** Specify which connected elements should be displayed */
   const stateConnectedElements = useMemo<Array<ConnectedElementSection>>(() => {
@@ -470,6 +589,8 @@ export default function TabMap(props: TabMapProps) {
           {...props}
           cardType={'customer'}
           id={pinnedCustomerId}
+          stateRideRequestList={stateConnectedRideRequests}
+          setStateRideRequestList={setStateConnectedRideRequests}
           onUnpin={() =>
             setStatePinnedCustomers(prev =>
               prev.filter(id => id !== pinnedCustomerId)
@@ -485,6 +606,8 @@ export default function TabMap(props: TabMapProps) {
           {...props}
           cardType={'ride_provider'}
           id={pinnedRideProviderId}
+          stateRideRequestList={stateConnectedRideRequests}
+          setStateRideRequestList={setStateConnectedRideRequests}
           onUnpin={() =>
             setStatePinnedRideProviders(prev =>
               prev.filter(id => id !== pinnedRideProviderId)
@@ -495,16 +618,12 @@ export default function TabMap(props: TabMapProps) {
     }
 
     // > Connected ride requests
-    if (currentSelectedSpectator) {
-      // TODO
+    for (const stateConnectedRideRequest of stateConnectedRideRequests) {
       connectedRideRequests.push(
-        <CardGeneric
+        <CardRefresh
           {...props}
-          name={intl.formatMessage({
-            id: 'getacar.rideRequest',
-          })}
-          content={[{content: 'TODO'}]}
-          icon={<ParticipantRideRequestIcon />}
+          cardType={'ride_request'}
+          id={stateConnectedRideRequest}
           label={intl.formatMessage(
             {
               id: 'getacar.spectator.message.connected',

@@ -49,6 +49,20 @@ export function debugMemoHelper<T, TYPE = Record<keyof T, unknown>>(
   if (!debug.useMemoHelper) {
     return Object.is(prev, next);
   }
+  if (keys === undefined) {
+    // TODO
+    //for (const keyNext of Object.keys(next)) {
+    //  if (!Object.is(prev[keyNext], next//[keyNext])) {
+    //    return false;
+    //  }
+    //}
+    //for (const keyPrev of Object.keys(prev)) {
+    //  if (!Object.is(prev[keyPrev], next//[keyPrev])) {
+    //    return false;
+    //  }
+    //}
+    return true;
+  }
   for (const key of keys) {
     if (Array.isArray(key)) {
       const prevElementsTemp = prev[key[0]];

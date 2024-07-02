@@ -3,12 +3,15 @@ import {memo, useEffect, useState} from 'react';
 // Local imports
 // > Components
 import CardParticipant from '../CardParticipant/CardParticipant';
+import CardRideRequest from '../CardRideRequest';
 // > Globals
 import {simulationEndpoints} from '@globals/defaults/endpoints';
 // Type imports
+import type {ReactSetState, ReactState} from '@misc/react';
 import type {
   SimulationEndpointParticipantInformationCustomer,
   SimulationEndpointParticipantInformationRideProvider,
+  SimulationEndpointRideRequestInformation,
 } from '@globals/types/simulation';
 import type {ChangeViewButtonProps} from '@components/Button/ChangeViewButton';
 import type {GetACarParticipantTypes} from '@globals/types/participant';
@@ -20,7 +23,7 @@ export interface CardRefreshProps
     SettingsConnectedElementsProps,
     GlobalPropsIntlValues {
   /** The type of data that should be fetched/displayed (e.g. participant)  */
-  cardType: GetACarParticipantTypes;
+  cardType: GetACarParticipantTypes | 'ride_request';
   /** The ID of the element that should be fetched/displayed */
   id: string;
   /** Additional label of the card (e.g. 'passenger'/'pinned') */
@@ -29,6 +32,10 @@ export interface CardRefreshProps
   onUnpin?: () => void;
   /** If found check if the fetching should be paused at the moment */
   pauseRefresh?: () => boolean;
+  /** Optional method to update the ride request ID list with the current ride request ID */
+  setStateRideRequestList?: ReactSetState<Array<string>>;
+  /** Optional state to not unnecessarily update the ride request ID list */
+  stateRideRequestList?: ReactState<Array<string>>;
 }
 
 export default memo(CardRefresh);
@@ -45,7 +52,9 @@ export function CardRefresh(props: CardRefreshProps) {
     label,
     onUnpin,
     pauseRefresh,
+    setStateRideRequestList,
     showError,
+    stateRideRequestList,
     stateSettingsCardUpdateRateInMs,
   } = props;
 
@@ -55,25 +64,45 @@ export function CardRefresh(props: CardRefreshProps) {
     useState<SimulationEndpointParticipantInformationCustomer | null>(null);
   const [stateRideProviderInformation, setStateRideProviderInformation] =
     useState<SimulationEndpointParticipantInformationRideProvider | null>(null);
+  const [stateRideRequestInformation, setStateRideRequestInformation] =
+    useState<SimulationEndpointRideRequestInformation | null>(null);
 
   /** Fetches the card specific information in set intervals */
   const fetchCardInformation = async () => {
     if (pauseRefresh !== undefined && pauseRefresh()) {
       return;
     }
+    let currentRideRequest: undefined | string = undefined;
+    // Get the card information
     if (cardType === 'customer') {
       const customerInformation =
         await fetchJsonSimulation<SimulationEndpointParticipantInformationCustomer>(
           simulationEndpoints.apiV1.participantInformationCustomer(id)
         );
       setStateCustomerInformation(customerInformation);
-    }
-    if (cardType === 'ride_provider') {
+      currentRideRequest = customerInformation.rideRequest;
+    } else if (cardType === 'ride_provider') {
       const rideProviderInformation =
         await fetchJsonSimulation<SimulationEndpointParticipantInformationRideProvider>(
           simulationEndpoints.apiV1.participantInformationRideProvider(id)
         );
       setStateRideProviderInformation(rideProviderInformation);
+      currentRideRequest = rideProviderInformation.rideRequest;
+    } else if (cardType === 'ride_request') {
+      const rideRequestInformation =
+        await fetchJsonSimulation<SimulationEndpointRideRequestInformation>(
+          simulationEndpoints.apiV1.rideRequestInformation(id)
+        );
+      setStateRideRequestInformation(rideRequestInformation);
+    }
+    // Update external ride request ID list
+    if (
+      currentRideRequest !== undefined &&
+      stateRideRequestList !== undefined &&
+      setStateRideRequestList !== undefined &&
+      !stateRideRequestList.includes(currentRideRequest)
+    ) {
+      setStateRideRequestList(prev => [...prev, currentRideRequest]);
     }
   };
 
@@ -104,7 +133,13 @@ export function CardRefresh(props: CardRefreshProps) {
       unpinAction={onUnpin}
       intlValues={intlValues}
     />
+  ) : cardType === 'ride_request' ? (
+    <CardRideRequest
+      {...props}
+      stateRideRequestInformation={stateRideRequestInformation}
+      stateRideRequestId={id}
+    />
   ) : (
-    <></>
+    <>Unknown card type: {cardType}</>
   );
 }

@@ -46,14 +46,16 @@ import type {
 import type {Marker as LMarker} from 'leaflet';
 import type {ReactNode} from 'react';
 
-interface ParticipantMarkerProps
+export interface ParticipantMarkerProps
   extends GlobalPropsSpectatorSelectedElementsSet,
     GlobalPropsSpectatorSelectedElements,
     GlobalPropsFetch,
     GlobalPropsShowError,
     SettingsMapProps,
     GlobalPropsIntlValues,
-    SettingsUiProps {
+    SettingsUiProps {}
+
+export interface ParticipantMarkerPropsInput extends ParticipantMarkerProps {
   /** The participant ID and current coordinates */
   stateParticipantId: string;
   stateParticipantLong: number;
@@ -77,10 +79,11 @@ export default memo(ParticipantMarker);
  * On click it opens a popup element which allows further interaction and prints detailed information.
  * The displayed content changes depending on who the current spectator is.
  */
-export function ParticipantMarker(props: ParticipantMarkerProps) {
+export function ParticipantMarker(props: ParticipantMarkerPropsInput) {
   const {
     stateParticipantId,
     stateSpectator,
+    stateSelectedSpectator,
     participantType,
     showError,
     fetchJsonSimulation,
@@ -191,9 +194,10 @@ export function ParticipantMarker(props: ParticipantMarkerProps) {
     };
   });
 
-  const showRideRequest = stateSpectator === stateParticipantId;
+  const showRideRequest = stateSelectedSpectator === stateParticipantId;
   const showParticipant =
     stateSpectator === stateParticipantId ||
+    stateSelectedSpectator === stateParticipantId ||
     showRideRequest ||
     (showRideRequest &&
       stateRideRequestAuctionRideProviderId === stateParticipantId) ||
@@ -213,7 +217,7 @@ export function ParticipantMarker(props: ParticipantMarkerProps) {
     />
   );
 }
-interface ParticipantMarkerElementProps extends ParticipantMarkerProps {
+interface ParticipantMarkerElementProps extends ParticipantMarkerPropsInput {
   showParticipant: boolean;
   showRideRequest: boolean;
   setStatePopupOpen: ReactSetState<boolean>;
@@ -380,6 +384,7 @@ export function ParticipantMarkerElement(props: ParticipantMarkerElementProps) {
             <Popup>
               <CardRideRequest
                 {...props}
+                stateRideRequestId={stateRideRequestInformation.id}
                 stateRideRequestInformation={stateRideRequestInformation}
               />
             </Popup>

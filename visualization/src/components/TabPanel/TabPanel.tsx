@@ -1,14 +1,11 @@
 'use client';
 
 // Package imports
-import {useCallback, useEffect, useMemo, useState} from 'react';
-import {usePathname, useRouter, useSearchParams} from 'next/navigation';
+import {useEffect, useMemo, useState} from 'react';
 import {useIntl} from 'react-intl';
 // > Components
 import {Box, ButtonGroup, Chip, Divider, Tab, Tabs} from '@mui/material';
 import Link from 'next/link';
-// Local imports
-import {UrlParameter} from '@misc/urlParameter';
 // > Components
 import {
   TabBlockchainIcon,
@@ -83,11 +80,16 @@ export interface TabPanelProps
     ErrorModalProps,
     GlobalPropsSpectatorsSet,
     GlobalPropsIntlValues,
-    GlobalPropsSearch {}
+    GlobalPropsSearch {
+  initialTabIndex?: number;
+  onTabIndexChange?: (tabIndex: number) => void;
+}
 
 // eslint-disable-next-line no-empty-pattern
 export default function TabPanel(props: TabPanelProps) {
   const {
+    initialTabIndex,
+    onTabIndexChange,
     showError,
     stateErrorModalContent,
     stateSettingsGlobalDebug,
@@ -101,34 +103,17 @@ export default function TabPanel(props: TabPanelProps) {
   // i18n
   const intl = useIntl();
 
-  // NextJs: Routing
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const pathname = usePathname();
-  const updateRouter = useCallback(
-    (params: URLSearchParams) => {
-      console.info('Update router', params.toString());
-      router.replace(`${pathname}?${params.toString()}`);
-    },
-    [router, pathname]
-  );
-
   // React: States
   // > Tabpanel
-  const [stateTabIndex, setStateTabIndex] = useState(
-    searchParams.get(UrlParameter.TAB_INDEX)
-      ? Number(searchParams.get(UrlParameter.TAB_INDEX))
-      : 0
-  );
+  const [stateTabIndex, setStateTabIndex] = useState(initialTabIndex ?? 0);
 
   // React: Listen for changes in created states
   // > URL parameter listeners
   useEffect(() => {
-    console.info(`Update ${UrlParameter.TAB_INDEX} to ${stateTabIndex}`);
-    const params = new URLSearchParams(searchParams);
-    params.set(UrlParameter.TAB_INDEX, `${stateTabIndex}`);
-    updateRouter(params);
-  }, [stateTabIndex, updateRouter, pathname, router, searchParams]);
+    if (onTabIndexChange !== undefined) {
+      onTabIndexChange(stateTabIndex);
+    }
+  }, [onTabIndexChange, stateTabIndex]);
 
   const tabs = useMemo<Array<[string, number, ReactElement]>>(
     () => [
@@ -195,7 +180,8 @@ export default function TabPanel(props: TabPanelProps) {
           <Tabs
             value={stateTabIndex}
             onChange={(event, newTabIndex) => setStateTabIndex(newTabIndex)}
-            centered
+            scrollButtons={true}
+            variant="fullWidth"
           >
             {tabs.map(([tabTitle, tabIndex, tabIcon]) => (
               <Tab

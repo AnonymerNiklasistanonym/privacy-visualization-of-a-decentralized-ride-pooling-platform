@@ -1,4 +1,4 @@
-import type {Dispatch} from 'react';
+import type {Dispatch, ReducerWithoutAction} from 'react';
 import type {MessageFormatElement} from 'react-intl';
 
 export type ReactHandleChange<T> = (
@@ -21,9 +21,9 @@ export interface ReactPropsI18nHome {
   };
 }
 
-/** React state setter */
-export type ReactSetState<T> = Dispatch<T>;
+/** React state setter (fallback since sometimes (prev) => ... is not parsed correct by the typescript compiler) */
+export type ReactSetState<T> = (newValue: T | ((prevValue: T) => T)) => void;
 /** React state that should not be edited */
-export type ReactState<T> = T;
+export type ReactState<T> = Readonly<T>;
 // TODO
 //export type ReactState<T> = Readonly<T>;

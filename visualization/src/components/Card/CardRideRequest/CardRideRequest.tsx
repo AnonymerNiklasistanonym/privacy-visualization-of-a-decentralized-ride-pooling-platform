@@ -32,18 +32,19 @@ export interface CardRideRequestProps
   extends ChangeViewButtonProps,
     CardGenericProps,
     GlobalPropsIntlValues {
-  stateRideRequestInformation: ReactState<SimulationEndpointRideRequestInformation>;
+  stateRideRequestInformation: ReactState<SimulationEndpointRideRequestInformation | null>;
+  stateRideRequestId: ReactState<string>;
 }
 
 export default function CardRideRequest(props: CardRideRequestProps) {
-  const {stateRideRequestInformation} = props;
+  const {stateRideRequestInformation, stateRideRequestId} = props;
   return (
     <CardGeneric
       {...props}
       icon={<ParticipantRideRequestIcon />}
       name={'Ride Request'}
-      id={stateRideRequestInformation.id}
-      status={stateRideRequestInformation.auctionStatus}
+      id={stateRideRequestId}
+      status={stateRideRequestInformation?.auctionStatus}
       content={[
         ...cardRideRequestContent(
           props,

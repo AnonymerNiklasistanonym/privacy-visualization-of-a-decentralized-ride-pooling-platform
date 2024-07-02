@@ -46,6 +46,7 @@ import type {
   SimulationEndpointParticipantCoordinates,
 } from '@globals/types/simulation';
 import type {Dispatch} from 'react';
+import type {ParticipantMarkerProps} from '@components/Map/MapObject/ParticipantMarker';
 import type {PathfinderEndpointGraphInformation} from '@globals/types/pathfinder';
 
 export interface StatPos {
@@ -76,16 +77,22 @@ export interface MapPropsInput extends MapProps {
 
 export default function Map(props: MapPropsInput) {
   const {
+    setStatePinnedCustomers,
+    setStatePinnedRideProviders,
+    startPos,
     stateGraph,
     stateGraphPathfinder,
     stateParticipantCoordinatesList,
-    startPos,
-    stateSettingsGlobalDebug,
-    setStatePinnedCustomers,
-    setStatePinnedRideProviders,
     statePinnedCustomers,
     statePinnedRideProviders,
+    stateSettingsGlobalDebug,
+    ...rest
   } = props;
+
+  const propsParticipantMarker: ParticipantMarkerProps = {
+    ...rest,
+    stateSettingsGlobalDebug,
+  };
 
   const intl = useIntl();
 
@@ -150,7 +157,7 @@ export default function Map(props: MapPropsInput) {
             <LayerGroup>
               {stateParticipantCoordinatesList.customers.map(customer => (
                 <ParticipantMarker
-                  {...props}
+                  {...propsParticipantMarker}
                   key={`customer_marker_${customer.id}`}
                   stateParticipantId={customer.id}
                   stateParticipantLat={customer.lat}
@@ -182,7 +189,7 @@ export default function Map(props: MapPropsInput) {
               {stateParticipantCoordinatesList.rideProviders.map(
                 rideProvider => (
                   <ParticipantMarker
-                    {...props}
+                    {...propsParticipantMarker}
                     key={`ride_provider_marker_${rideProvider.id}`}
                     stateParticipantId={rideProvider.id}
                     stateParticipantLat={rideProvider.lat}

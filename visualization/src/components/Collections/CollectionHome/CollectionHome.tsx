@@ -57,7 +57,6 @@ import type {PropsWithChildren, ReactElement} from 'react';
 import type {ErrorModalProps} from '@components/Modal/ErrorModal';
 import type {FetchOptions} from '@globals/lib/fetch';
 import type {SettingsProps} from '@misc/props/settings';
-import type {SimulationEndpointParticipantTypes} from '@globals/types/simulation';
 
 /** Home page collection */
 export default function CollectionHome(
@@ -96,27 +95,36 @@ export default function CollectionHome(
 
   // React: States
   // > Settings
+  // >> Map
   const [stateSettingsMapShowTooltips, setStateSettingsMapShowTooltips] =
     useState(false);
-  const [
-    stateSettingsMapBaseUrlPathfinder,
-    setStateSettingsMapBaseUrlPathfinder,
-  ] = useState(baseUrlPathfinder);
   const [
     stateSettingsMapBaseUrlSimulation,
     setStateSettingsMapBaseUrlSimulation,
   ] = useState(baseUrlSimulation);
   const [stateSettingsMapUpdateRateInMs, setStateSettingsMapUpdateRateInMs] =
     useState(1000 / 5);
+  const [
+    stateSettingsMapBaseUrlPathfinder,
+    setStateSettingsMapBaseUrlPathfinder,
+  ] = useState(baseUrlPathfinder);
+  // >> Cards
   const [stateSettingsCardUpdateRateInMs, setStateSettingsCardUpdateRateInMs] =
     useState(1000 / 5);
+  // >> Blockchain
   const [
     stateSettingsBlockchainUpdateRateInMs,
     setStateSettingsBlockchainUpdateRateInMs,
   ] = useState(1000 / 5);
+  // >> Debug
   const [stateSettingsGlobalDebug, setStateSettingsGlobalDebug] = useState(
     params.get(UrlParameter.DEBUG) === 'true'
   );
+  // >> UI
+  const [stateSettingsUiGridSpacing, setStateSettingsUiGridSpacing] =
+    useState<number>(2);
+  const [stateSettingsUiMapScroll, setStateSettingsUiMapScroll] =
+    useState<boolean>(false);
   // > Snackbars
   const [stateSnackbarSpectatorOpen, setStateSnackbarSpectatorOpen] =
     useState(false);
@@ -144,11 +152,12 @@ export default function CollectionHome(
     useState<undefined | string>(
       searchParams.get(UrlParameter.SELECTED_SMART_CONTRACT_ID) ?? undefined
     );
-  // > Settings
-  const [stateSettingsUiGridSpacing, setStateSettingsUiGridSpacing] =
-    useState<number>(2);
-  const [stateSettingsUiMapScroll, setStateSettingsUiMapScroll] =
-    useState<boolean>(false);
+  // > Tabpanel
+  const [stateTabIndex, setStateTabIndex] = useState(
+    searchParams.get(UrlParameter.TAB_INDEX)
+      ? Number(searchParams.get(UrlParameter.TAB_INDEX))
+      : 0
+  );
 
   // Props: Functions (depend on created states)
   const fetchJsonSimulation = async <T,>(
@@ -291,7 +300,11 @@ export default function CollectionHome(
     } else {
       params.delete(UrlParameter.DEBUG);
     }
-    params.set(UrlParameter.SPECTATOR, stateSpectator);
+    if (stateSpectator !== 'everything') {
+      params.set(UrlParameter.SPECTATOR, stateSpectator);
+    } else {
+      params.delete(UrlParameter.SPECTATOR);
+    }
     if (stateSelectedSpectator !== undefined) {
       params.set(UrlParameter.SELECTED_SPECTATOR, stateSelectedSpectator);
     } else {
@@ -305,6 +318,12 @@ export default function CollectionHome(
     } else {
       params.delete(UrlParameter.SELECTED_SMART_CONTRACT_ID);
     }
+    if (stateTabIndex !== 0) {
+      params.set(UrlParameter.TAB_INDEX, `${stateTabIndex}`);
+    } else {
+      params.delete(UrlParameter.TAB_INDEX);
+    }
+
     updateRouter();
   }, [
     stateSettingsGlobalDebug,
@@ -314,6 +333,7 @@ export default function CollectionHome(
     params,
     stateSelectedSpectator,
     stateSelectedSmartContractId,
+    stateTabIndex,
   ]);
 
   useEffect(() => {
@@ -539,7 +559,11 @@ export default function CollectionHome(
     <ThemeContainer {...props}>
       {/*<SearchAppBar {...props} />*/}
       <main className={[`mui-theme-${stateThemeMode}`].join(' ')}>
-        <TabPanel {...props} />
+        <TabPanel
+          {...props}
+          initialTabIndex={stateTabIndex}
+          onTabIndexChange={setStateTabIndex}
+        />
       </main>
       <SnackbarContentChange
         stateOpen={stateSnackbarSpectatorOpen}
