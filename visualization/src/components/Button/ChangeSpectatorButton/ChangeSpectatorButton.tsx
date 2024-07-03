@@ -70,7 +70,7 @@ export function ChangeSpectatorButton({
           showError('Simulation fetch participant ID from pseudonym', err)
         );
     }
-  });
+  }, [actorId, fetchJsonSimulation, isPseudonym, showError]);
 
   /** The resolved pseudonym ID */
   const resolvedPseudonymId = stateResolvedPseudonym?.id;
