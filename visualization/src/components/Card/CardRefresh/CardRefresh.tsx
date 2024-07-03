@@ -1,5 +1,5 @@
 // Package imports
-import {memo, useEffect, useState} from 'react';
+import {memo, useEffect, useRef, useState} from 'react';
 // Local imports
 // > Components
 import CardParticipant from '../CardParticipant/CardParticipant';
@@ -73,11 +73,20 @@ export function CardRefresh(props: CardRefreshProps) {
   const [stateRideRequestInformation, setStateRideRequestInformation] =
     useState<SimulationEndpointRideRequestInformation | null>(null);
 
+  const requestBalancer = useRef(false);
+
   /** Fetches the card specific information in set intervals */
   const fetchCardInformation = async () => {
+    if (requestBalancer.current) {
+      console.warn(
+        `Stopped card refresh (${cardType}, ${id}) fetch since a request is already happening`
+      );
+      return;
+    }
     if (pauseRefresh !== undefined && pauseRefresh()) {
       return;
     }
+    requestBalancer.current = true;
     let currentRideRequest: undefined | string = undefined;
     // Get the card information
     if (cardType === 'customer') {
@@ -101,6 +110,7 @@ export function CardRefresh(props: CardRefreshProps) {
         );
       setStateRideRequestInformation(rideRequestInformation);
     }
+    requestBalancer.current = false;
     // Update external ride request ID list
     if (
       currentRideRequest !== undefined &&

@@ -73,10 +73,10 @@ const main = async () => {
       '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
     maxZoom: 19,
   }).addTo(map);
-  map.on('popupopen', e => {
-    const marker = e.popup._source;
-    console.log('A popup was opened', marker, e);
-  });
+  //map.on('popupopen', e => {
+  //  const marker = e.popup._source;
+  //  console.log('A popup was opened', marker, e);
+  //});
 
   /** @type {Array<import("leaflet").Circle|import("leaflet").Marker>} */
   const currentElements = [];
@@ -85,7 +85,7 @@ const main = async () => {
     errorWasThrown = await renderMapElements(map, currentElements);
     // Wait for a little before updating the map information
     await new Promise(resolve => {
-      setTimeout(resolve, 1000 / 2);
+      setTimeout(resolve, 1000 / 10);
     });
   } while (!errorWasThrown);
 };
@@ -232,6 +232,10 @@ const updateOrRenderElement = async (
     element.addTo(map);
     const popup = L.popup();
     element.bindPopup(popup);
+    element.addEventListener('popupopen', () => {
+      // TODO Update content
+      console.debug('TODO Update content for ', jsonObj.id, jsonObj.type);
+    });
     element._custom_id = jsonObj.id;
     currentElements.push(element);
   }

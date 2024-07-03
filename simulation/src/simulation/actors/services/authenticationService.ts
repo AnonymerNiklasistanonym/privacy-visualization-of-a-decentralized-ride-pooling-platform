@@ -1,6 +1,8 @@
+// Package imports
+import {randomInt} from 'crypto';
 // Local imports
-import {getRandomId, getRandomIntFromInterval} from '../../../misc/helpers';
 import {Service} from '../service';
+import {getRandomId} from '../../../misc/helpers';
 // Type imports
 import type {
   SimulationTypeCustomer,
@@ -49,7 +51,7 @@ export class AuthenticationService extends Service<SimulationTypeAuthenticationS
     this.participantDb = [];
   }
 
-  /** Register a customer. */
+  /** Register a customer (with the necessary contact details). */
   getRegisterCustomer(
     id: string,
     fullName: string,
@@ -67,6 +69,7 @@ export class AuthenticationService extends Service<SimulationTypeAuthenticationS
       contactDetails: {
         id,
 
+        // Participant contact details
         dateOfBirth,
         emailAddress,
         fullName,
@@ -78,7 +81,7 @@ export class AuthenticationService extends Service<SimulationTypeAuthenticationS
     });
   }
 
-  /** Register a ride provider. */
+  /** Register a ride provider (with the necessary contact details). */
   getRegisterRideProvider(
     id: string,
     fullName: string,
@@ -98,6 +101,7 @@ export class AuthenticationService extends Service<SimulationTypeAuthenticationS
       contactDetails: {
         id,
 
+        // Participant contact details
         dateOfBirth,
         emailAddress,
         fullName,
@@ -105,6 +109,7 @@ export class AuthenticationService extends Service<SimulationTypeAuthenticationS
         homeAddress,
         phoneNumber,
 
+        // Ride Provider specific contact details
         vehicleIdentificationNumber,
         vehicleNumberPlate,
       } satisfies Omit<
@@ -115,7 +120,7 @@ export class AuthenticationService extends Service<SimulationTypeAuthenticationS
     });
   }
 
-  /** Register a ride provider from a company. */
+  /** Register a ride provider from a company (with the necessary contact details). */
   getRegisterRideProviderCompany(
     id: string,
     vehicleNumberPlate: string,
@@ -131,8 +136,11 @@ export class AuthenticationService extends Service<SimulationTypeAuthenticationS
       contactDetails: {
         id,
 
+        // Company contact details
+        // > Is stored somewhere else -> Ignored here
         company,
 
+        // Ride Provider specific contact details
         vehicleIdentificationNumber,
         vehicleNumberPlate,
       } satisfies Omit<
@@ -143,25 +151,57 @@ export class AuthenticationService extends Service<SimulationTypeAuthenticationS
     });
   }
 
+  /** Verify participant. Returns verified pseudonym if successful. */
   getVerify(id: string): string {
     const participant = this.participantDb.find(
       a => a.contactDetails.id === id
     );
     if (participant) {
-      const newPseudonym = `psuedonym_${getRandomId()}`;
+      // Use prefix to make sure it's never used as actual ID in requests!
+      const newPseudonym = `pseudonym_${getRandomId()}`;
+      // Append pseudonym to participant DB
       participant.pseudonyms.push(newPseudonym);
       return newPseudonym;
     }
     throw Error(
-      `Participant tried to verify but was not in the database (id=${id})`
+      `Participant '${id}' tried to verify but was not in the database!`
     );
   }
 
-  getRating(pseudonym: string): number {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  /** Get the rounded rating from a participant. */
+  getRating(pseudonym: string, simulation: Simulation): number {
     const participant = this.getParticipantFromPseudonym(pseudonym);
-    // TODO: Calculate Rating and round it
-    return getRandomIntFromInterval(3, 5);
+    if (participant === undefined) {
+      throw Error(`Participant '${pseudonym}' was not found!`);
+    }
+    const ratings = [
+      ...simulation.blockchain.rideContracts
+        .filter(
+          a =>
+            participant.pseudonyms.includes(a.customerPseudonym) &&
+            a.customerRating !== undefined
+        )
+        // FIX TypeScript still has problems seeing that this value is defined
+        .map(a => a.customerRating as number),
+      ...simulation.blockchain.rideContracts
+        .filter(
+          a =>
+            participant.pseudonyms.includes(a.rideProviderPseudonym) &&
+            a.rideProviderRating !== undefined
+        )
+        // FIX TypeScript still has problems seeing that this value is defined
+        .map(a => a.rideProviderRating as number),
+    ];
+    // Round to one decimal space and introduce some random values so it can't be used to reverse anything
+    const numberOfFakeValues = 1 + Math.round(ratings.length / 20);
+    return (
+      Math.round(
+        ((randomInt(5 * numberOfFakeValues) +
+          ratings.reduce((a, b) => a + b, 0)) /
+          (numberOfFakeValues + ratings.length)) *
+          10
+      ) / 10
+    );
   }
 
   private getParticipantFromPseudonym(
@@ -175,9 +215,8 @@ export class AuthenticationService extends Service<SimulationTypeAuthenticationS
     return participant?.contactDetails.id;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars, class-methods-use-this
-  run(simulation: Simulation): Promise<void> {
-    throw new Error('Method not implemented.');
+  run(): Promise<void> {
+    throw new Error('Passive actor, do not run!');
   }
 
   get json(): SimulationTypeAuthenticationService {

@@ -59,8 +59,7 @@ async function main() {
   if (getCliFlag('--version')) {
     // eslint-disable-next-line no-console
     console.log(`${NAME} v${VERSION}`);
-    // eslint-disable-next-line no-process-exit
-    process.exit(0);
+    return;
   }
   // > Config
   const customConfig = await getCliOverride(

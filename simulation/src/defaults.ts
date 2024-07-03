@@ -23,12 +23,12 @@ export const defaultConfig: Readonly<SimulationConfig> = {
 
   // Participants
   customer: {
-    count: 200,
+    count: 100,
   },
   rideProvider: {
     countCompany: 3,
-    countCompanyFleet: 10,
-    countPerson: 15,
+    countCompanyFleet: 20,
+    countPerson: 25,
   },
 
   // Location

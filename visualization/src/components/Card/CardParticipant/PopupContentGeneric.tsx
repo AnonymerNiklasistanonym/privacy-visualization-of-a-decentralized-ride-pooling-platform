@@ -89,13 +89,22 @@ export function RenderDataElement(props: RenderDataElementProps) {
     tooltip = 'The current spectator can`t see this data, click to learn more';
   }
   const dataValue = (
-    <>
-      <Tooltip title={tooltip} onClick={() => setStateOpen(true)} arrow>
-        <Typography variant="body2" display="inline" noWrap gutterBottom>
-          {content}
-        </Typography>
-      </Tooltip>
-    </>
+    <Tooltip
+      key={`render-data-element-tooltip-${id}`}
+      title={tooltip}
+      onClick={() => setStateOpen(true)}
+      arrow
+    >
+      <Typography
+        variant="body2"
+        display="inline"
+        component="span"
+        noWrap
+        gutterBottom
+      >
+        {content}
+      </Typography>
+    </Tooltip>
   );
   return (
     <ListItem
@@ -108,6 +117,7 @@ export function RenderDataElement(props: RenderDataElementProps) {
       <Typography
         variant="body2"
         gutterBottom
+        component="span"
         style={{
           margin: 0,
           overflowWrap: 'break-word',

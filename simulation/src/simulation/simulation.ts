@@ -361,7 +361,7 @@ export class Simulation {
       asRouter.route('/rating/:pseudonym').get((req, res) => {
         res.json({
           pseudonym: req.params.pseudonym,
-          rating: as.getRating(req.params.pseudonym),
+          rating: as.getRating(req.params.pseudonym, this),
         });
       });
       routerAuthenticationServers.use(`/${as.json.id}`, asRouter);

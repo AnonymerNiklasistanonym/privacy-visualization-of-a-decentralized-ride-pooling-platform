@@ -6,6 +6,9 @@
   "env": {
     "jest/globals": true
   },
+  "plugins": [
+    "node"
+  ],
   "rules": {
     "sort-keys": [
       "error",

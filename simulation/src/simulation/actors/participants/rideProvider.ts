@@ -128,7 +128,7 @@ export abstract class RideProvider<
         costs.baseCostRide +
           getRandomIntFromInterval(1, 5) +
           (estimatedDistanceToDriveInM / 1000) * costs.avgCostRideKilometer,
-        this.getRating(),
+        this.getRating(simulation),
         this.model,
         new Date(
           new Date().getTime() +

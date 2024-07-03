@@ -1,7 +1,7 @@
 'use client';
 
 // Package imports
-import {useCallback, useEffect, useMemo, useState} from 'react';
+import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {useIntl} from 'react-intl';
 // > Components
 import {Box, ButtonGroup, Chip, Divider, Grid} from '@mui/material';
@@ -355,13 +355,23 @@ export default function TabMap(props: TabMapProps) {
     statePinnedRideProviders,
   };
 
+  const requestBalancer = useRef(false);
+
   // React: Effects
   // > Fetch Participant Coordinates
   useEffect(() => {
-    const interval = setInterval(
-      () => fetchParticipantCoordinates(),
-      stateSettingsMapUpdateRateInMs
-    );
+    const interval = setInterval(() => {
+      if (requestBalancer.current) {
+        console.warn(
+          'Stopped participant coordinates fetch since a request is already happening'
+        );
+        return;
+      }
+      requestBalancer.current = true;
+      fetchParticipantCoordinates().finally(() => {
+        requestBalancer.current = false;
+      });
+    }, stateSettingsMapUpdateRateInMs);
     return () => {
       clearInterval(interval);
     };
@@ -405,8 +415,8 @@ export default function TabMap(props: TabMapProps) {
           id: 'getacar.participant.rideProvider',
         })
       ) {
-        fetchJsonSimulation<SimulationEndpointParticipantInformationCustomer>(
-          simulationEndpoints.apiV1.participantInformationCustomer(
+        fetchJsonSimulation<SimulationEndpointParticipantInformationRideProvider>(
+          simulationEndpoints.apiV1.participantInformationRideProvider(
             stateSelectedSpectator
           )
         ).then(rideProviderInformation => {
@@ -620,7 +630,9 @@ export default function TabMap(props: TabMapProps) {
     }
 
     // > Connected ride requests
-    for (const connectedRideRequest of stateConnectedRideRequests) {
+    for (const connectedRideRequest of Array.from(
+      new Set(stateConnectedRideRequests)
+    )) {
       connectedRideRequests.push(
         <CardRefresh
           {...props}

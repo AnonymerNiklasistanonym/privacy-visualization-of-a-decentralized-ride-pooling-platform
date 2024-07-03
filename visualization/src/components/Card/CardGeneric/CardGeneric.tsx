@@ -11,7 +11,6 @@ import {
   Divider,
   IconButton,
   Stack,
-  Tooltip,
 } from '@mui/material';
 import {
   Fingerprint as FingerprintIcon,
@@ -120,7 +119,11 @@ export default function CardGeneric(props: CardGenericPropsInput) {
       (isPinned === undefined || isPinned === false)
     ) {
       result.push(
-        <IconButton aria-label="pin" onClick={() => pinAction()}>
+        <IconButton
+          key={`generic-card-action-pin-${id}`}
+          aria-label="pin"
+          onClick={() => pinAction()}
+        >
           <PinIcon />
         </IconButton>
       );
@@ -130,13 +133,17 @@ export default function CardGeneric(props: CardGenericPropsInput) {
       (isPinned === undefined || isPinned === true)
     ) {
       result.push(
-        <IconButton aria-label="unpin" onClick={() => unpinAction()}>
+        <IconButton
+          key={`generic-card-action-unpin-${id}`}
+          aria-label="unpin"
+          onClick={() => unpinAction()}
+        >
           <UnpinIcon />
         </IconButton>
       );
     }
     return result;
-  }, [isPinned, pinAction, unpinAction]);
+  }, [id, isPinned, pinAction, unpinAction]);
   return (
     <Card variant="outlined">
       <CardHeader

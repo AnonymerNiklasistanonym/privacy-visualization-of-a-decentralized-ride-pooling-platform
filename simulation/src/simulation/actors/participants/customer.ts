@@ -118,7 +118,7 @@ export class Customer extends ParticipantPerson<SimulationTypeCustomer> {
           h3Resolution
         ),
         latLngToCell(dropoffLocation.lat, dropoffLocation.long, h3Resolution),
-        this.getRating(),
+        this.getRating(simulation),
         this.publicKey,
         maxWaitingTime,
         getRandomFloatFromInterval(3, 4.5),

@@ -97,14 +97,14 @@ export abstract class Participant<JsonType> extends Actor<
     this.publicKey = publicKey;
   }
 
-  getRating(): number {
+  getRating(simulation: Simulation): number {
     if (this.registeredAuthService === null) {
       throw new Error(
         'Participant is not yet registered to an authentication service.'
       );
     }
     const pseudonym = this.registeredAuthService.getVerify(this.id);
-    return this.registeredAuthService.getRating(pseudonym);
+    return this.registeredAuthService.getRating(pseudonym, simulation);
   }
 
   async getRoute(

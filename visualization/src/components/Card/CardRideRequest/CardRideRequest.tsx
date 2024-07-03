@@ -67,13 +67,14 @@ export interface CardRideRequestContentProps
     ChangeViewButtonProps,
     GlobalPropsIntlValues {
   showRideRequest?: boolean;
+  stateRideRequestId: string;
 }
 
 export function cardRideRequestContent(
   props: CardRideRequestContentProps,
   request?: SimulationEndpointRideRequestInformation
 ) {
-  const {intlValues} = props;
+  const {intlValues, stateRideRequestId} = props;
   const result: Array<CardGenericPropsContentElement> = [];
   const showContentSpectatorContactDetails = [
     {
@@ -96,7 +97,7 @@ export function cardRideRequestContent(
   }
   result.push({
     content: (
-      <List>
+      <List key={`ride-request-list-personalData-${stateRideRequestId}`}>
         {request !== undefined
           ? personalData.map((a, index) => (
               <RenderDataElement
