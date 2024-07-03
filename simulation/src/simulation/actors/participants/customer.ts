@@ -1,25 +1,23 @@
-/* eslint-disable max-classes-per-file */
-
 // Package imports
 import {latLngToCell} from 'h3-js';
 import {randomInt} from 'node:crypto';
 // Local imports
-import {ParticipantPerson} from './participant';
+import {ParticipantPerson} from '../participant';
 // > Globals
-import {h3Resolution} from '../../globals/defaults/h3';
+import {h3Resolution} from '../../../globals/defaults/h3';
 // > Libs
-import {wait} from '../../lib/wait';
+import {wait} from '../../../lib/wait';
 // > Misc
 import {
   getRandomElement,
   getRandomFloatFromInterval,
   getRandomIntFromInterval,
-} from '../../misc/helpers';
+} from '../../../misc/helpers';
 // Type imports
-import type {Coordinates} from '../../globals/types/coordinates';
-import type {Simulation} from '../simulation';
-import type {SimulationEndpointParticipantInformationCustomer} from '../../globals/types/simulation';
-import type {SimulationTypeCustomer} from './participant';
+import type {Coordinates} from '../../../globals/types/coordinates';
+import type {Simulation} from '../../simulation';
+import type {SimulationEndpointParticipantInformationCustomer} from '../../../globals/types/simulation';
+import type {SimulationTypeCustomer} from '../participant';
 
 export class Customer extends ParticipantPerson<SimulationTypeCustomer> {
   // Private properties

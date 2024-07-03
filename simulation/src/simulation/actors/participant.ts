@@ -12,16 +12,10 @@ import type {
   SimulationEndpointParticipantInformation,
   SimulationEndpointParticipantPersonInformation,
 } from '../../globals/types/simulation';
-import type {AuthenticationService} from './services';
+import type {AuthenticationService} from './services/authenticationService';
 import type {Coordinates} from '../../globals/types/coordinates';
 import type {GetACarParticipantTypes} from '../../globals/types/participant';
 import type {Simulation} from '../simulation';
-//import {workerCaller} from '../../lib/workerCaller';
-//import {
-//  WorkerDataPathfinder,
-//  WorkerResultPathfinder,
-//  workerFilePathPathfinder,
-//} from '../../worker/pathfinderWorker';
 
 export interface SimulationTypeParticipant {
   id: string;

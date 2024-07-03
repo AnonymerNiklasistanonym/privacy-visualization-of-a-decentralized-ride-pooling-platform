@@ -1,12 +1,7 @@
-/* eslint-disable max-classes-per-file */
-
 // Local imports
 import {Actor} from './actor';
-import {randomInt} from 'crypto';
 // > Misc
 import {getRandomId} from '../../misc/helpers';
-// Type imports
-import type {Simulation} from '../simulation';
 
 export interface SimulationTypeBlockchain {
   id: string;
@@ -14,21 +9,38 @@ export interface SimulationTypeBlockchain {
   rideContracts: SimulationTypeRideContract[];
 }
 
+/** Ride Contract details */
 export interface SimulationTypeRideContract {
+  /** Unique Ride Contract ID (e.g. blockchain wallet ID) */
   walletId: string;
+  /** Customer participant verified pseudonym */
   customerPseudonym: string;
+  /** Ride Provider participant verified pseudonym */
   rideProviderPseudonym: string;
+  /** Deposit amount */
   deposit: number;
+  /** Rating given from the Ride Provider to the Customer */
   customerRating?: number;
+  /** Rating given from the Customer to the Ride Provider */
   rideProviderRating?: number;
 }
 
 export class Blockchain extends Actor<SimulationTypeBlockchain> {
+  /** All created ride contracts */
   public rideContracts: SimulationTypeRideContract[] = [];
+
   constructor(id: string) {
     super(id, 'blockchain');
   }
 
+  /**
+   * Create a Ride Contract on the Blockchain.
+   *
+   * @param customerPseudonym The verified pseudonym from the Customer initiating the contract
+   * @param rideProviderPseudonym The verified pseudonym from the Ride Provider who won the MS auction
+   * @param maximumRideCost The maximum ride cost (deposit)
+   * @returns Unique Ride Contract address
+   */
   createRideContract(
     customerPseudonym: string,
     rideProviderPseudonym: string,
@@ -51,12 +63,23 @@ export class Blockchain extends Actor<SimulationTypeBlockchain> {
     return rideContractId;
   }
 
+  /**
+   * Rate a participant of a Ride Contract.
+   *
+   * @param rideContractId Unique Ride Contract address
+   * @param participantPseudonym The verified pseudonym from the participant
+   * @param rating The rating of the other party
+   */
   rateParticipantRideContract(
     rideContractId: string,
     participantPseudonym: string,
     rating: number
   ) {
-    this.logger.debug('Rate', participantPseudonym, rating);
+    this.logger.debug(
+      'Rate ride contract participant',
+      participantPseudonym,
+      rating
+    );
     const rideContract = this.rideContracts.find(
       a => a.walletId === rideContractId
     );
@@ -65,20 +88,17 @@ export class Blockchain extends Actor<SimulationTypeBlockchain> {
     }
     if (rideContract.customerPseudonym === participantPseudonym) {
       rideContract.rideProviderRating = rating;
-    }
-    if (rideContract.rideProviderPseudonym === participantPseudonym) {
+    } else if (rideContract.rideProviderPseudonym === participantPseudonym) {
       rideContract.customerRating = rating;
-      rideContract.rideProviderRating = Math.max(
-        randomInt(3),
-        randomInt(4),
-        randomInt(5)
+    } else {
+      throw Error(
+        `Ride contract '${rideContractId}' does not contain the participant '${participantPseudonym}'!`
       );
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars, class-methods-use-this
-  run(simulation: Simulation): Promise<void> {
-    throw new Error('Method not implemented.');
+  run(): Promise<void> {
+    throw new Error('Passive actor, do not run!');
   }
 
   get json(): SimulationTypeBlockchain {

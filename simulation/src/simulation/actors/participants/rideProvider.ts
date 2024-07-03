@@ -1,31 +1,34 @@
 // Package imports
 import {cellToLatLng} from 'h3-js';
 // Local imports
-import {Participant} from './participant';
+import {Participant} from '../participant';
 // > Globals
-import {costs} from '../../globals/defaults/costs';
-import {speeds} from '../../globals/defaults/speed';
+import {costs} from '../../../globals/defaults/costs';
+import {speeds} from '../../../globals/defaults/speed';
 // > Libs
-import {getTravelTimeInMsCoordinates} from '../../lib/coordinatesInterpolation';
-import {haversineDistance} from '../../lib/haversineDistance';
-import {wait} from '../../lib/wait';
+import {getTravelTimeInMsCoordinates} from '../../../lib/coordinatesInterpolation';
+import {haversineDistance} from '../../../lib/haversineDistance';
+import {wait} from '../../../lib/wait';
 // > Misc
-import {getRandomElement, getRandomIntFromInterval} from '../../misc/helpers';
+import {
+  getRandomElement,
+  getRandomIntFromInterval,
+} from '../../../misc/helpers';
 // Type imports
 import type {
   SimulationEndpointParticipantInformationRideProvider,
   SimulationEndpointParticipantInformationRideProviderCompany,
   SimulationEndpointParticipantInformationRideProviderPerson,
-} from '../../globals/types/simulation';
+} from '../../../globals/types/simulation';
 import type {
   SimulationTypeRideProvider,
   SimulationTypeRideProviderCompany,
   SimulationTypeRideProviderPerson,
-} from './participant';
-import type {AuthenticationService} from './services';
-import type {Coordinates} from '../../globals/types/coordinates';
-import type {Simulation} from '../simulation';
-import {getH3CellCenter} from '../../globals/lib/h3';
+} from '../participant';
+import type {AuthenticationService} from '../services/authenticationService';
+import type {Coordinates} from '../../../globals/types/coordinates';
+import type {Simulation} from '../../simulation';
+import {getH3CellCenter} from '../../../globals/lib/h3';
 
 export abstract class RideProvider<
   JsonType extends SimulationTypeRideProvider,

@@ -1,10 +1,14 @@
 // Package imports
 import express from 'express';
 // Local imports
-import {AuthenticationService, MatchingService} from './actors/services';
-import {RideProviderCompany, RideProviderPerson} from './actors/rideProvider';
+import {
+  RideProviderCompany,
+  RideProviderPerson,
+} from './actors/participants/rideProvider';
+import {AuthenticationService} from './actors/services/authenticationService';
 import {Blockchain} from './actors/blockchain';
-import {Customer} from './actors/customer';
+import {Customer} from './actors/participants/customer';
+import {MatchingService} from './actors/services/matchingService';
 // > Globals
 import {baseUrlPathfinder} from '../globals/defaults/urls';
 import {fetchText} from '../globals/lib/fetch';
