@@ -51,8 +51,8 @@ export interface SettingsUiProps extends SettingsGlobalPropsSet {
 }
 
 export interface SettingsUiPropsSet extends SettingsGlobalPropsSet {
-  setStateSettingsUiGridSpacing: Dispatch<number>;
-  setStateSettingsUiMapScroll: Dispatch<boolean>;
+  setStateSettingsUiGridSpacing: ReactSetState<number>;
+  setStateSettingsUiMapScroll: ReactSetState<boolean>;
 }
 
 export interface SettingsProps

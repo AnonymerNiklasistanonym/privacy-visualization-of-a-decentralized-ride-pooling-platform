@@ -1,7 +1,7 @@
 'use client';
 
 // Package imports
-import {memo, useEffect, useRef, useState} from 'react';
+import {memo, useCallback, useEffect, useRef, useState} from 'react';
 // > Components
 import {
   Circle,
@@ -218,6 +218,7 @@ export function ParticipantMarker(props: ParticipantMarkerPropsInput) {
       {...props}
       fetchParticipantInformation={fetchParticipantInformation}
       setStatePopupOpen={setStatePopupOpen}
+      statePopupOpen={statePopupOpen}
       highlightParticipant={highlightParticipant}
       showRideRequest={showRideRequest}
       stateCustomerInformation={stateCustomerInformation}
@@ -230,6 +231,7 @@ interface ParticipantMarkerElementProps extends ParticipantMarkerPropsInput {
   highlightParticipant: boolean;
   showRideRequest: boolean;
   setStatePopupOpen: ReactSetState<boolean>;
+  statePopupOpen: ReactState<boolean>;
   fetchParticipantInformation: () => Promise<void>;
   stateCustomerInformation: ReactState<SimulationEndpointParticipantInformationCustomer | null>;
   stateRideProviderInformation: ReactState<SimulationEndpointParticipantInformationRideProvider | null>;
@@ -244,6 +246,7 @@ export function ParticipantMarkerElement(props: ParticipantMarkerElementProps) {
     onPin,
     onUnpin,
     participantType,
+    statePopupOpen,
     setStatePopupOpen,
     setStateSelectedSpectator,
     setStateShowSpectator,
@@ -265,6 +268,16 @@ export function ParticipantMarkerElement(props: ParticipantMarkerElementProps) {
   const intl = useIntl();
   const map = useMap();
   const markerRef = useRef<LMarker>(null);
+
+  const pauseRefresh = useCallback(() => !statePopupOpen, [statePopupOpen]);
+
+  // > Keep track if popup for ride request is open
+  const [statePopupOpenRideRequest, setStatePopupOpenRideRequest] =
+    useState<boolean>(false);
+  const pauseRefreshRideRequest = useCallback(
+    () => !statePopupOpenRideRequest,
+    [statePopupOpenRideRequest]
+  );
 
   useEffect(() => {
     // In case the spectator of this marker is freshly selected open the popup
@@ -358,6 +371,7 @@ export function ParticipantMarkerElement(props: ParticipantMarkerElementProps) {
           onPin={() => onPin()}
           onUnpin={() => onUnpin()}
           isPinned={isPinned}
+          pauseRefresh={pauseRefresh}
         />
       </Popup>
     </Marker>
@@ -394,11 +408,17 @@ export function ParticipantMarkerElement(props: ParticipantMarkerElementProps) {
             }
             sticky
           ></Tooltip>
-          <Popup>
+          <Popup
+            eventHandlers={{
+              popupclose: () => setStatePopupOpenRideRequest(false),
+              popupopen: () => setStatePopupOpenRideRequest(true),
+            }}
+          >
             <CardRefresh
               {...props}
               id={stateRideRequestInformation.id}
               cardType={'ride_request'}
+              pauseRefresh={pauseRefreshRideRequest}
             />
           </Popup>
         </Polygon>

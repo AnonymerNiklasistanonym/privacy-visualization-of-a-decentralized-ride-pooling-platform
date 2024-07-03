@@ -160,11 +160,14 @@ export default function CollectionHome(
   );
 
   // Props: Functions (depend on created states)
-  const fetchJsonSimulation = async <T,>(
-    endpoint: string,
-    options?: Readonly<FetchOptions>
-  ): Promise<T> =>
-    fetchJson<T>(`${stateSettingsMapBaseUrlSimulation}${endpoint}`, options);
+  const fetchJsonSimulation = useCallback(
+    async <T,>(
+      endpoint: string,
+      options?: Readonly<FetchOptions>
+    ): Promise<T> =>
+      fetchJson<T>(`${stateSettingsMapBaseUrlSimulation}${endpoint}`, options),
+    [stateSettingsMapBaseUrlSimulation]
+  );
 
   // > Spectator List
   const [stateSpectators, setStateSpectators] = useState<
@@ -215,68 +218,71 @@ export default function CollectionHome(
   const [stateTabs, setStateTabs] = useState<
     Map<string, GlobalPropsSpectatorElement>
   >(new Map());
-  const updateGlobalSearch = (
-    newSpectators: Array<
-      [
-        string,
-        () =>
-          | Promise<GlobalPropsSpectatorElement>
-          | GlobalPropsSpectatorElement,
-      ]
-    >,
-    newTabs: Array<
-      [
-        string,
-        () =>
-          | Promise<GlobalPropsSpectatorElement>
-          | GlobalPropsSpectatorElement,
-      ]
-    >
-  ) => {
-    const newSpectatorsInformation = newSpectators
-      .filter(([spectatorId]) => !stateSpectators.has(spectatorId))
-      .map<Promise<[string, GlobalPropsSpectatorElement]>>(
-        ([spectatorId, spectatorInformation]) =>
-          Promise.resolve<GlobalPropsSpectatorElement>(
-            spectatorInformation()
-          ).then(spectatorInformationResolved => [
-            spectatorId,
-            spectatorInformationResolved,
-          ])
-      );
-    Promise.all(newSpectatorsInformation)
-      .then(data => {
-        if (data.length > 0) {
-          setStateSpectators(prevState => {
-            for (const [spectatorId, spectatorInformationResolved] of data) {
-              prevState.set(spectatorId, spectatorInformationResolved);
-            }
-            return new Map(prevState);
-          });
-        }
-      })
-      .catch(err => showError('Error getting spectator information', err));
-    const newTabsInformation = newTabs
-      .filter(([tabName]) => !stateTabs.has(tabName))
-      .map<Promise<[string, GlobalPropsSpectatorElement]>>(
-        ([tabName, tabInformation]) =>
-          Promise.resolve<GlobalPropsSpectatorElement>(tabInformation()).then(
-            tabInformationResolved => [tabName, tabInformationResolved]
-          )
-      );
-    Promise.all(newTabsInformation)
-      .then(data => {
-        if (data.length > 0) {
-          setStateTabs(prevState => {
-            for (const [tabName, tabInformation] of data) {
-              prevState.set(tabName, tabInformation);
-            }
-            return new Map(prevState);
-          });
-        }
-      })
-      .catch(err => showError('Error getting tab information', err));
-  };
+  const updateGlobalSearch = useCallback(
+    (
+      newSpectators: Array<
+        [
+          string,
+          () =>
+            | Promise<GlobalPropsSpectatorElement>
+            | GlobalPropsSpectatorElement,
+        ]
+      >,
+      newTabs: Array<
+        [
+          string,
+          () =>
+            | Promise<GlobalPropsSpectatorElement>
+            | GlobalPropsSpectatorElement,
+        ]
+      >
+    ) => {
+      const newSpectatorsInformation = newSpectators
+        .filter(([spectatorId]) => !stateSpectators.has(spectatorId))
+        .map<Promise<[string, GlobalPropsSpectatorElement]>>(
+          ([spectatorId, spectatorInformation]) =>
+            Promise.resolve<GlobalPropsSpectatorElement>(
+              spectatorInformation()
+            ).then(spectatorInformationResolved => [
+              spectatorId,
+              spectatorInformationResolved,
+            ])
+        );
+      Promise.all(newSpectatorsInformation)
+        .then(data => {
+          if (data.length > 0) {
+            setStateSpectators(prevState => {
+              for (const [spectatorId, spectatorInformationResolved] of data) {
+                prevState.set(spectatorId, spectatorInformationResolved);
+              }
+              return new Map(prevState);
+            });
+          }
+        })
+        .catch(err => showError('Error getting spectator information', err));
+      const newTabsInformation = newTabs
+        .filter(([tabName]) => !stateTabs.has(tabName))
+        .map<Promise<[string, GlobalPropsSpectatorElement]>>(
+          ([tabName, tabInformation]) =>
+            Promise.resolve<GlobalPropsSpectatorElement>(tabInformation()).then(
+              tabInformationResolved => [tabName, tabInformationResolved]
+            )
+        );
+      Promise.all(newTabsInformation)
+        .then(data => {
+          if (data.length > 0) {
+            setStateTabs(prevState => {
+              for (const [tabName, tabInformation] of data) {
+                prevState.set(tabName, tabInformation);
+              }
+              return new Map(prevState);
+            });
+          }
+        })
+        .catch(err => showError('Error getting tab information', err));
+    },
+    [showError, stateSpectators, stateTabs]
+  );
 
   // React: Listen for changes in created states
   // > Snackbar listeners

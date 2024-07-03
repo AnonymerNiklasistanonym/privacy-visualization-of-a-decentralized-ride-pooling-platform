@@ -77,6 +77,7 @@ export class Customer extends ParticipantPerson<SimulationTypeCustomer> {
     }
     // Loop:
     let badRouteCounter = 0;
+    let maxWaitingTimeCounter = 0;
     while (simulation.state === 'RUNNING') {
       // If no route is found multiple times disable customer
       if (badRouteCounter >= 10) {
@@ -110,7 +111,7 @@ export class Customer extends ParticipantPerson<SimulationTypeCustomer> {
       this.status = 'find MS';
       const randMatchService = getRandomElement(simulation.matchingServices);
       this.status = 'post ride request to MS';
-      const maxWaitingTime = 15 * 1000;
+      const maxWaitingTime = (5 + maxWaitingTimeCounter * 5) * 1000;
       this.rideRequest = randMatchService.postRequestRide(
         pseudonym,
         latLngToCell(
@@ -132,29 +133,47 @@ export class Customer extends ParticipantPerson<SimulationTypeCustomer> {
           long: dropoffLocation.long,
         }
       );
-      this.status = 'wait for ride request signature';
-      // 3. Wait for the MS to determine the winning bid
-      const waitingTimeSignatureStart = performance.now();
-      while (
-        randMatchService.getRideRequest(this.rideRequest).auctionStatus !==
-          'closed' &&
-        randMatchService.getRideRequest(this.rideRequest).auctionStatus !==
-          'waiting-for-signature'
-      ) {
-        await wait(1 * 1000);
-        this.status = `wait for ride request signature (${Math.round(
-          (performance.now() - waitingTimeSignatureStart) / 1000
-        )}/${Math.round(maxWaitingTime / 1000)}s)`;
-      }
-      if (
-        randMatchService.getRideRequest(this.rideRequest).auctionStatus !==
-        'closed'
-      ) {
-        this.logger.warn('customer ride request auction was closed');
+      try {
+        // 3. Wait until auction is done
+        this.status = 'wait for auction to close';
+        const waitingTimeAuctionStart = randMatchService
+          .getRideRequest(this.rideRequest)
+          .auctionStartedTimestamp.getTime();
+        while (
+          randMatchService.getRideRequest(this.rideRequest).auctionStatus ===
+            'open' ||
+          randMatchService.getRideRequest(this.rideRequest).auctionStatus ===
+            'determining-winner'
+        ) {
+          await wait(1 * 1000);
+          this.status = `wait for auction to close (${Math.round(
+            (new Date().getTime() - waitingTimeAuctionStart) / 1000
+          )}/${Math.round(maxWaitingTime / 1000)}s)`;
+        }
+        // 4. Wait for the ride provider to signature
+        if (
+          randMatchService.getRideRequest(this.rideRequest).auctionStatus ===
+            'closed' ||
+          randMatchService.getRideRequest(this.rideRequest).auctionStatus !==
+            'waiting-for-signature'
+        ) {
+          this.logger.warn('customer ride request auction was closed');
+          this.status = 'ride request auction was closed';
+          maxWaitingTimeCounter++;
+          continue;
+        } else {
+          maxWaitingTimeCounter = 0;
+        }
+      } catch (err) {
+        this.logger.warn(
+          'customer ride request auction was closed',
+          (err as Error).message
+        );
         this.status = 'ride request auction was closed';
+        maxWaitingTimeCounter++;
         continue;
       }
-      // 4. Accept auction result from MS
+      // 5. Accept auction result from MS
       // Create a ride contract through the contract factory that contains the maximum ride cost as a deposit
       // They then need to use the GET setContractAddress/:rideRequestId/:contractAddress endpoint to update their ride request with the contacts address on the blockchain
       // As the creation of the contract is understood as the initial signing of the ride contract, the status of the auction changes from 'waiting-for-signature' to 'closed'.
@@ -180,8 +199,9 @@ export class Customer extends ParticipantPerson<SimulationTypeCustomer> {
       );
       // Check: Contacts Ride Provider
       randMatchService.getSetContractAddress(this.rideRequest, contractAddress);
-      // 5. Be part of the ride and wait until the ride is over
+      // 6. Be part of the ride and wait until the ride is over
       const waitingTimeArrivalStart = performance.now();
+      const waitingTimeArrivalStartD = new Date().getTime();
       this.status = 'wait for ride provider to arrive';
       while (
         randMatchService.getRideRequest(this.rideRequest)
@@ -191,19 +211,20 @@ export class Customer extends ParticipantPerson<SimulationTypeCustomer> {
         this.status = `wait for ride provider to arrive (${Math.round(
           (performance.now() - waitingTimeArrivalStart) / 1000
         )}/${Math.round(
-          winningBid.estimatedArrivalTime.getTime() - waitingTimeArrivalStart
+          (winningBid.estimatedArrivalTime.getTime() -
+            waitingTimeArrivalStartD) /
+            1000
         )}s)`;
       }
       this.passenger = rideRequestInfo.auctionWinner;
-      this.status = 'ride to dropoff location';
-      await this.moveToLocation(simulation, dropoffLocation, true);
+      await this.moveToLocation(simulation, dropoffLocation, true, 'dropoff');
       // > Rate the driver
       simulation.blockchain.rateParticipantRideContract(
         contractAddress,
         pseudonym,
         Math.max(randomInt(3), randomInt(4), randomInt(5))
       );
-      // 6. Stay idle for a random duration
+      // 7. Stay idle for a random duration
       this.status = 'idle';
       await wait(getRandomIntFromInterval(1, 20) * 1000);
     }

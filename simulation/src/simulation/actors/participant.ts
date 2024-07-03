@@ -198,10 +198,10 @@ export abstract class Participant<JsonType> extends Actor<
       simulation.config.customPathfinderProvider === 'all' ||
       simulation.config.customPathfinderProvider === 'internal'
     ) {
-      this.logger.info(
-        'getRoute()',
-        (routeInternal ?? []).map(a => `lat=${a.lat}:long=${a.long}`).join(', ')
-      );
+      //this.logger.debug(
+      //  'getRoute()',
+      //  (routeInternal ?? []).map(a => `lat=${a.lat}:long=${a.long}`).join(', ')
+      //);
       return routeInternal ?? null;
     } else if (
       simulation.config.customPathfinderProvider === 'pathfinder-server'
@@ -214,14 +214,13 @@ export abstract class Participant<JsonType> extends Actor<
   async moveToLocation(
     simulation: Readonly<Simulation>,
     newLocation: Readonly<Coordinates>,
-    isPassenger = false
+    isPassenger = false,
+    locationName: string | undefined = undefined
   ): Promise<void> {
     this.logger.debug('Move to new location', {
       currentLocation: this.currentLocation,
-      newLocation,
-    });
-    this.logger.info('Move to new location', {
-      currentLocation: this.currentLocation,
+      isPassenger,
+      locationName,
       newLocation,
     });
     const routeId = 'current';
@@ -241,6 +240,11 @@ export abstract class Participant<JsonType> extends Actor<
       );
       const startPerformanceTime = performance.now();
       await wait(1000 / 20);
+      this.status = `move to ${locationName ?? 'a'} location ${
+        isPassenger ? '[passenger] ' : ''
+      }(${Math.round(currentTravelTimeInMs / 1000)}/${Math.round(
+        interpolatedCoordinatesInfo.travelTimeInMs / 1000
+      )}s)`;
       currentTravelTimeInMs += performance.now() - startPerformanceTime;
     }
     this.currentRoute = undefined;

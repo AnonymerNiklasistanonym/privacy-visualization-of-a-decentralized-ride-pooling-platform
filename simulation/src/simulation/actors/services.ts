@@ -298,6 +298,7 @@ export class MatchingService extends Service<SimulationTypeMatchingService> {
       // Determine the winner
       for (const auction of this.auctions) {
         if (auction.auctionStatus !== 'determining-winner') {
+          // Ignore auction if it's still running or was closed
           continue;
         }
         if (auction.bids.length === 0) {
@@ -313,7 +314,7 @@ export class MatchingService extends Service<SimulationTypeMatchingService> {
         // Vickery Auction
         let cheapestBid = auction.bids[0];
         let cheapestBidSecond = auction.bids[0];
-        for (const bid of auction.bids) {
+        for (const bid of auction.bids.slice(1)) {
           if (bid.amount < cheapestBidSecond.amount) {
             if (bid.amount < cheapestBid.amount) {
               cheapestBid = bid;
@@ -345,6 +346,17 @@ export class MatchingService extends Service<SimulationTypeMatchingService> {
             {auction}
           );
           auction.auctionStatus = 'determining-winner';
+        }
+      }
+      // Purge auctions that did not result in any contract
+      for (let index = 0; index < this.auctions.length; index++) {
+        const auction = this.auctions[index];
+        if (
+          auction.auctionStatus === 'closed' &&
+          auction.rideContractAddress === undefined
+        ) {
+          this.auctions.splice(index, 1);
+          index--;
         }
       }
     }

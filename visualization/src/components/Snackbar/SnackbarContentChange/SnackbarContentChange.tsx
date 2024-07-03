@@ -5,15 +5,15 @@ import {useState} from 'react';
 // > Components
 import {Alert, Snackbar} from '@mui/material';
 // Type imports
-import type {ReactNode, SyntheticEvent} from 'react';
 import type {ReactSetState, ReactState} from '@misc/react';
+import type {SyntheticEvent} from 'react';
 
 interface SnackbarContentChangeProps<T> {
   stateOpen: ReactState<boolean>;
   setStateOpen: ReactSetState<boolean>;
   stateContent: ReactState<T>;
   bottomOffset?: number;
-  handleChangeStateContent?: (content: T) => ReactNode;
+  handleChangeStateContent?: (content: T) => string;
 }
 
 export default function SnackbarContentChange<T extends string | undefined>({
@@ -49,9 +49,11 @@ export default function SnackbarContentChange<T extends string | undefined>({
         variant="filled"
         sx={{width: '100%'}}
       >
-        {handleChangeStateContent !== undefined
-          ? handleChangeStateContent(stateContent)
-          : stateContent}
+        {handleChangeStateContent !== undefined ? (
+          handleChangeStateContent(stateContent)
+        ) : (
+          <>{stateContent}</>
+        )}
       </Alert>
     </Snackbar>
   );
