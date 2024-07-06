@@ -218,13 +218,23 @@ export abstract class Participant<JsonType> extends Actor<
       newLocation,
     });
     const routeId = 'current';
-    this.currentRoute = await this.getRoute(simulation, newLocation, routeId);
+    let newCurrentRoute = await this.getRoute(simulation, newLocation, routeId);
+    if (newCurrentRoute === null || newCurrentRoute.length < 2) {
+      newCurrentRoute = [this.currentLocation, newLocation];
+      this.logger.warn('Could not get route', {
+        currentLocation: this.currentLocation,
+        isPassenger,
+        locationName,
+        newLocation,
+      });
+    }
     const interpolatedCoordinatesInfo = interpolateCurrentCoordinatesFromPath(
-      this.currentRoute ?? [this.currentLocation, newLocation],
+      newCurrentRoute,
       this.type === 'ride_provider' || isPassenger
         ? speeds.carInKmH
         : speeds.personInKmH
     );
+    this.currentRoute = newCurrentRoute;
     let currentTravelTimeInMs = 0;
     while (
       currentTravelTimeInMs <= interpolatedCoordinatesInfo.travelTimeInMs

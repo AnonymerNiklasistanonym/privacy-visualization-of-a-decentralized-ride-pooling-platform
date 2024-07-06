@@ -1,6 +1,6 @@
 // Package imports
 import {latLngToCell} from 'h3-js';
-import {randomInt} from 'node:crypto';
+import {randomInt} from 'crypto';
 // Local imports
 import {ParticipantPerson} from '../participant';
 // > Globals
@@ -202,8 +202,8 @@ export class Customer extends ParticipantPerson<SimulationTypeCustomer> {
       const waitingTimeArrivalStartD = new Date().getTime();
       this.status = 'wait for ride provider to arrive';
       while (
-        randMatchService.getRideRequest(this.rideRequest)
-          .helperRideProviderArrived !== true
+        simulation.blockchain.getRideContract(contractAddress)
+          .rideProviderArrived !== true
       ) {
         await wait(1 * 1000);
         this.status = `wait for ride provider to arrive (${Math.round(

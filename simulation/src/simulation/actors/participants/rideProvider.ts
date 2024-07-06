@@ -1,5 +1,6 @@
 // Package imports
 import {cellToLatLng} from 'h3-js';
+import {randomInt} from 'crypto';
 // Local imports
 import {Participant} from '../participant';
 // > Globals
@@ -166,15 +167,21 @@ export abstract class RideProvider<
       this.logger.debug('Bid for open ride request was successful', {
         closedRideRequest,
       });
+      const rideContractAddress =
+        randMatchService.helperRideProviderGetRideContractAddress(
+          closestOpenRideRequest.id
+        );
+      this.logger.debug('Get ride contract address', {
+        closedRideRequest,
+      });
       // 4. Drive to customer and drive them to the dropoff location
-      // TODO Fix this to correspond to the driver arriving at location, for now just wait the sky distance multiplied by a car speed
       await this.moveToLocation(
         simulation,
         closedRideRequest.request.pickupLocationReal,
         false,
         'pickup'
       );
-      randMatchService.helperSetRideProviderArrived(closestOpenRideRequest.id);
+      simulation.blockchain.helperSetRideProviderArrived(rideContractAddress);
       this.passengerList.push(closedRideRequest.request.userId);
       await this.moveToLocation(
         simulation,
@@ -183,7 +190,11 @@ export abstract class RideProvider<
         'dropoff'
       );
       this.passengerList.pop();
-      // TODO: Rate the passenger
+      simulation.blockchain.rateParticipantRideContract(
+        rideContractAddress,
+        pseudonym,
+        Math.max(randomInt(3), randomInt(4), randomInt(5))
+      );
       this.rideRequest = undefined;
       // 5. Stay idle for a random duration
       this.status = 'idle';

@@ -32,8 +32,7 @@ export interface MatchingServiceAuction {
     | 'waiting-for-signature'
     | 'closed';
   auctionWinner: null | string;
-  helperRideProviderArrived?: boolean;
-  /** Hmmmm */
+  /** Connection to Ride Contract */
   rideContractAddress?: string;
 }
 
@@ -243,19 +242,21 @@ export class MatchingService extends Service<SimulationTypeMatchingService> {
     });
   }
 
+  /** Get all open ride requests */
   getRideRequests() {
     return this.auctions.filter(a => a.auctionStatus === 'open');
   }
 
-  helperSetRideProviderArrived(rideRequestId: string) {
+  /** Helper method to get the ride contract address to the ride provider */
+  helperRideProviderGetRideContractAddress(rideRequestId: string) {
     const rideRequestAuction = this.auctions.find(a => a.id === rideRequestId);
     if (rideRequestAuction === undefined) {
       throw new Error('Ride request does not exist.');
     }
-    rideRequestAuction.helperRideProviderArrived = true;
-    this.logger.debug('Ride provider arrived at customer location', {
-      rideRequestAuction,
-    });
+    if (rideRequestAuction.rideContractAddress === undefined) {
+      throw new Error('Ride request does not have a rideContractAddress.');
+    }
+    return rideRequestAuction.rideContractAddress;
   }
 
   // TODO: Update

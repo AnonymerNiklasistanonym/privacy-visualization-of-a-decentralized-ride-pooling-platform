@@ -23,6 +23,8 @@ export interface SimulationTypeRideContract {
   customerRating?: number;
   /** Rating given from the Customer to the Ride Provider */
   rideProviderRating?: number;
+  /** [Private message] Ride provider signaling customer that they arrived */
+  rideProviderArrived?: boolean;
 }
 
 export class Blockchain extends Actor<SimulationTypeBlockchain> {
@@ -63,6 +65,17 @@ export class Blockchain extends Actor<SimulationTypeBlockchain> {
     return rideContractId;
   }
 
+  getRideContract(rideContractId: string) {
+    this.logger.debug('Get ride contract', rideContractId);
+    const rideContract = this.rideContracts.find(
+      a => a.walletId === rideContractId
+    );
+    if (rideContract === undefined) {
+      throw Error(`Ride contract '${rideContractId}' does not exist!`);
+    }
+    return rideContract;
+  }
+
   /**
    * Rate a participant of a Ride Contract.
    *
@@ -80,12 +93,7 @@ export class Blockchain extends Actor<SimulationTypeBlockchain> {
       participantPseudonym,
       rating
     );
-    const rideContract = this.rideContracts.find(
-      a => a.walletId === rideContractId
-    );
-    if (rideContract === undefined) {
-      throw Error(`Ride contract '${rideContractId}' does not exist!`);
-    }
+    const rideContract = this.getRideContract(rideContractId);
     if (rideContract.customerPseudonym === participantPseudonym) {
       rideContract.rideProviderRating = rating;
     } else if (rideContract.rideProviderPseudonym === participantPseudonym) {
@@ -95,6 +103,12 @@ export class Blockchain extends Actor<SimulationTypeBlockchain> {
         `Ride contract '${rideContractId}' does not contain the participant '${participantPseudonym}'!`
       );
     }
+  }
+
+  helperSetRideProviderArrived(rideContractId: string) {
+    this.logger.debug('[HELPER] Set ride provider arrived', rideContractId);
+    const rideContract = this.getRideContract(rideContractId);
+    rideContract.rideProviderArrived = true;
   }
 
   run(): Promise<void> {
