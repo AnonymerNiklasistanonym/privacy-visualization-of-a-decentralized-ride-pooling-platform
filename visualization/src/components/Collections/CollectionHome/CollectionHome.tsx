@@ -239,15 +239,9 @@ export default function CollectionHome(
     ) => {
       const newSpectatorsInformation = newSpectators
         .filter(([spectatorId]) => !stateSpectators.has(spectatorId))
-        .map<Promise<[string, GlobalPropsSpectatorElement]>>(
-          ([spectatorId, spectatorInformation]) =>
-            Promise.resolve<GlobalPropsSpectatorElement>(
-              spectatorInformation()
-            ).then(spectatorInformationResolved => [
-              spectatorId,
-              spectatorInformationResolved,
-            ])
-        );
+        .map<
+          Promise<[string, GlobalPropsSpectatorElement]>
+        >(([spectatorId, spectatorInformation]) => Promise.resolve<GlobalPropsSpectatorElement>(spectatorInformation()).then(spectatorInformationResolved => [spectatorId, spectatorInformationResolved]));
       Promise.all(newSpectatorsInformation)
         .then(data => {
           if (data.length > 0) {
@@ -262,12 +256,9 @@ export default function CollectionHome(
         .catch(err => showError('Error getting spectator information', err));
       const newTabsInformation = newTabs
         .filter(([tabName]) => !stateTabs.has(tabName))
-        .map<Promise<[string, GlobalPropsSpectatorElement]>>(
-          ([tabName, tabInformation]) =>
-            Promise.resolve<GlobalPropsSpectatorElement>(tabInformation()).then(
-              tabInformationResolved => [tabName, tabInformationResolved]
-            )
-        );
+        .map<
+          Promise<[string, GlobalPropsSpectatorElement]>
+        >(([tabName, tabInformation]) => Promise.resolve<GlobalPropsSpectatorElement>(tabInformation()).then(tabInformationResolved => [tabName, tabInformationResolved]));
       Promise.all(newTabsInformation)
         .then(data => {
           if (data.length > 0) {

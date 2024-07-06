@@ -15,7 +15,6 @@ import {
   NavigateToLocationIcon,
   ParticipantCustomerIcon,
   ParticipantRideProviderIcon,
-  ParticipantRideRequestIcon,
   PinnedElementsIcon,
 } from '@components/Icons';
 import CardGeneric from '@components/Card/CardGeneric';
@@ -602,7 +601,7 @@ export default function TabMap(props: TabMapProps) {
           id={pinnedCustomerId}
           stateRideRequestList={stateConnectedRideRequests}
           setStateRideRequestList={setStateConnectedRideRequests}
-          onUnpin={() =>
+          unpinAction={() =>
             setStatePinnedCustomers(prev =>
               prev.filter(id => id !== pinnedCustomerId)
             )
@@ -620,7 +619,7 @@ export default function TabMap(props: TabMapProps) {
           id={pinnedRideProviderId}
           stateRideRequestList={stateConnectedRideRequests}
           setStateRideRequestList={setStateConnectedRideRequests}
-          onUnpin={() =>
+          unpinAction={() =>
             setStatePinnedRideProviders(prev =>
               prev.filter(id => id !== pinnedRideProviderId)
             )

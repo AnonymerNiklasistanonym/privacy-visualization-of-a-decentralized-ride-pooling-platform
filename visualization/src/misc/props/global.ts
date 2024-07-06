@@ -3,7 +3,6 @@ import type {ReactSetState, ReactState} from '../react';
 import type {FetchOptions} from '@globals/lib/fetch';
 import type {ReactElement} from 'react';
 import type {ShowError} from '@components/Modal/ErrorModal';
-import type {SimulationEndpointParticipantTypes} from '@globals/types/simulation';
 
 /** Props to get the current spectators/selected elements */
 export interface GlobalPropsSpectatorSelectedElements {

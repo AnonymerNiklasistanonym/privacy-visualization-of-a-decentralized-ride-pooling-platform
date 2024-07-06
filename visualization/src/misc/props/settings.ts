@@ -1,6 +1,5 @@
 // Type imports
 import type {ReactSetState, ReactState} from '../react';
-import type {Dispatch} from 'react';
 
 export interface SettingsGlobalProps {
   stateSettingsGlobalDebug: ReactState<boolean>;

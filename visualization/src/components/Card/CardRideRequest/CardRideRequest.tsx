@@ -5,31 +5,19 @@ import {useMemo} from 'react';
 import {List, Typography} from '@mui/material';
 // Local imports
 // > Components
-import {
-  ParticipantCustomerIcon,
-  ParticipantRideRequestIcon,
-  SettingsDebugIcon,
-} from '@components/Icons';
+import {ParticipantRideRequestIcon, SettingsDebugIcon} from '@components/Icons';
 import CardGeneric from '@components/Card/CardGeneric';
+import {RenderDataElement} from '../CardParticipant/PopupContentGeneric';
 // Type imports
 import type {
   CardGenericProps,
   CardGenericPropsContentElement,
 } from '@components/Card/CardGeneric';
-import type {
-  GlobalPropsIntlValues,
-  GlobalPropsSpectatorSelectedElementsSet,
-} from '@misc/props/global';
 import type {ChangeViewButtonProps} from '@components/Button/ChangeSpectatorButton';
+import type {GlobalPropsIntlValues} from '@misc/props/global';
 import type {ReactState} from '@misc/react';
+import type {SettingsGlobalProps} from '@misc/props/settings';
 import type {SimulationEndpointRideRequestInformation} from '@globals/types/simulation';
-// A
-import {
-  type DataElement,
-  RenderDataElement,
-} from '../CardParticipant/PopupContentGeneric';
-import {ParticipantsCustomer} from '@components/Tab/TabOverview/Elements';
-import {SettingsGlobalProps} from '@misc/props/settings';
 
 export interface CardRideRequestProps
   extends ChangeViewButtonProps,
@@ -103,7 +91,7 @@ export default function CardRideRequest(props: CardRideRequestProps) {
     <CardGeneric
       {...props}
       icon={<ParticipantRideRequestIcon />}
-      name={'Ride Request'}
+      name={intl.formatMessage({id: 'getacar.rideRequest'})}
       id={stateRideRequestId}
       status={stateRideRequestInformation?.auctionStatus}
       content={content}

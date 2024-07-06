@@ -206,10 +206,7 @@ export class MatchingService extends Service<SimulationTypeMatchingService> {
     passengerCount: number,
     vehiclePublicKey: string
   ) {
-    const rideRequestAuction = this.auctions.find(a => a.id === rideRequestId);
-    if (rideRequestAuction === undefined) {
-      throw new Error('Ride request does not exist.');
-    }
+    const rideRequestAuction = this.getRideRequest(rideRequestId);
     if (rideRequestAuction.auctionStatus !== 'open') {
       throw new Error('Ride auction is not open.');
     }
@@ -237,10 +234,7 @@ export class MatchingService extends Service<SimulationTypeMatchingService> {
   // TODO Should the contract address be added somewhere in there?
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   getSetContractAddress(rideRequestId: string, contractAddress: string) {
-    const rideRequestAuction = this.auctions.find(a => a.id === rideRequestId);
-    if (rideRequestAuction === undefined) {
-      throw new Error('Ride request does not exist.');
-    }
+    const rideRequestAuction = this.getRideRequest(rideRequestId);
     rideRequestAuction.rideContractAddress = contractAddress;
     rideRequestAuction.auctionStatus = 'closed';
     this.logger.debug('Ride request auction was closed', {
@@ -256,13 +250,16 @@ export class MatchingService extends Service<SimulationTypeMatchingService> {
 
   /** Helper method to get the ride contract address to the ride provider */
   helperRideProviderGetRideContractAddress(rideRequestId: string) {
-    const rideRequestAuction = this.auctions.find(a => a.id === rideRequestId);
-    if (rideRequestAuction === undefined) {
-      throw new Error('Ride request does not exist.');
-    }
-    if (rideRequestAuction.rideContractAddress === undefined) {
-      throw new Error('Ride request does not have a rideContractAddress.');
-    }
+    this.logger.debug(
+      '[HELPER] Get ride contract address from ride request',
+      rideRequestId
+    );
+    const rideRequestAuction = this.getRideRequest(rideRequestId);
+    this.logger.debug(
+      '[HELPER] Get ride contract address from ride request 2',
+      rideRequestId,
+      rideRequestAuction.rideContractAddress ?? 'undefined'
+    );
     return rideRequestAuction.rideContractAddress;
   }
 

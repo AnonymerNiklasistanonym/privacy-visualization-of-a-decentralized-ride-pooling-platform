@@ -3,6 +3,9 @@
     "next/core-web-vitals",
     "./node_modules/gts/"
   ],
+  "plugins": [
+    "node"
+  ],
   "rules": {
     "sort-keys": [
       "error",

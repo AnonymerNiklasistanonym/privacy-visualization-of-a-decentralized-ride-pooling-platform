@@ -5,6 +5,7 @@ import {randomInt} from 'crypto';
 import {Participant} from '../participant';
 // > Globals
 import {costs} from '../../../globals/defaults/costs';
+import {getH3CellCenter} from '../../../globals/lib/h3';
 import {speeds} from '../../../globals/defaults/speed';
 // > Libs
 import {getTravelTimeInMsCoordinates} from '../../../lib/coordinatesInterpolation';
@@ -29,7 +30,6 @@ import type {
 import type {AuthenticationService} from '../services/authenticationService';
 import type {Coordinates} from '../../../globals/types/coordinates';
 import type {Simulation} from '../../simulation';
-import {getH3CellCenter} from '../../../globals/lib/h3';
 
 export abstract class RideProvider<
   JsonType extends SimulationTypeRideProvider,
@@ -167,13 +167,22 @@ export abstract class RideProvider<
       this.logger.debug('Bid for open ride request was successful', {
         closedRideRequest,
       });
-      const rideContractAddress =
-        randMatchService.helperRideProviderGetRideContractAddress(
-          closestOpenRideRequest.id
-        );
-      this.logger.debug('Get ride contract address', {
-        closedRideRequest,
-      });
+      this.status = 'wait for ride contract address';
+      const waitTimeStartRideContract = performance.now();
+      let rideContract = undefined;
+      while (
+        (rideContract =
+          randMatchService.helperRideProviderGetRideContractAddress(
+            closedRideRequest.id
+          )) === undefined
+      ) {
+        await wait(1 * 1000);
+        this.status = `wait for ride contract address (${Math.round(
+          (performance.now() - waitTimeStartRideContract) / 1000
+        )}s)`;
+      }
+      const rideContractAddress = rideContract;
+      this.status = 'ride contract address received';
       // 4. Drive to customer and drive them to the dropoff location
       await this.moveToLocation(
         simulation,

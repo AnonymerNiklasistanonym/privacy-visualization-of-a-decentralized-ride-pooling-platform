@@ -2,6 +2,7 @@
 
 // Package imports
 import {memo, useCallback, useEffect, useRef, useState} from 'react';
+import {useIntl} from 'react-intl';
 // > Components
 import {
   Circle,
@@ -48,7 +49,6 @@ import type {
 } from '@globals/types/simulation';
 import type {Marker as LMarker} from 'leaflet';
 import type {ReactNode} from 'react';
-import {useIntl} from 'react-intl';
 
 const LOCATION_REAL_RADIUS = 50;
 
@@ -126,7 +126,6 @@ export function ParticipantMarker(props: ParticipantMarkerPropsInput) {
           )
         );
       setStateCustomerInformation(customerInformation);
-      // TODO Add information
       rideRequestId = customerInformation.rideRequest;
     }
     if (participantType === 'ride_provider') {
@@ -137,7 +136,6 @@ export function ParticipantMarker(props: ParticipantMarkerPropsInput) {
           )
         );
       setStateRideProviderInformation(rideProviderInformation);
-      // TODO Add information
       rideRequestId = rideProviderInformation.rideRequest;
     }
     if (rideRequestId !== undefined) {
@@ -154,17 +152,6 @@ export function ParticipantMarker(props: ParticipantMarkerPropsInput) {
             )
           );
         setStateRideRequestAuctionRideProviderId(rideRequestAuctionWinnerId.id);
-        // TODO Add information
-        if (participantType === 'customer') {
-          // Get connected ride provider information for global state:
-          const rideProviderInformation =
-            await fetchJsonSimulation<SimulationEndpointParticipantInformationRideProvider>(
-              simulationEndpoints.apiV1.participantInformationRideProvider(
-                rideRequestAuctionWinnerId.id
-              )
-            );
-          // TODO Add information
-        }
       }
       const rideRequestUserId =
         await fetchJsonSimulation<SimulationEndpointParticipantIdFromPseudonym>(
@@ -173,16 +160,6 @@ export function ParticipantMarker(props: ParticipantMarkerPropsInput) {
           )
         );
       setStateRideRequestAuctionCustomerId(rideRequestUserId.id);
-      if (participantType === 'ride_provider') {
-        // Get connected customer information for global state:
-        const customerInformation =
-          await fetchJsonSimulation<SimulationEndpointParticipantInformationCustomer>(
-            simulationEndpoints.apiV1.participantInformationCustomer(
-              rideRequestUserId.id
-            )
-          );
-        // TODO Add information
-      }
     }
   };
 
@@ -369,8 +346,8 @@ export function ParticipantMarkerElement(props: ParticipantMarkerElementProps) {
           {...props}
           id={stateParticipantId}
           cardType={participantType}
-          onPin={() => onPin()}
-          onUnpin={() => onUnpin()}
+          pinAction={onPin}
+          unpinAction={onUnpin}
           isPinned={isPinned}
           pauseRefresh={pauseRefresh}
         />
