@@ -12,6 +12,7 @@ import {
   ParticipantPersonalDataIcon,
   ParticipantQueriesIcon,
   ParticipantRideProviderIcon,
+  SettingsDebugIcon,
 } from '@components/Icons';
 import {
   ParticipantsCustomer,
@@ -61,8 +62,8 @@ export function CardParticipant(props: CardParticipantProps) {
     intlValues,
   } = props;
   const intl = useIntl();
-  const content: CardGenericPropsContentElement[] = useMemo(() => {
-    const result: Array<CardGenericPropsContentElement> = [];
+  const content = useMemo<Array<CardGenericPropsContentElement>>(() => {
+    const contentList: Array<CardGenericPropsContentElement> = [];
     if (participantType === 'customer') {
       const showContentSpectatorContactDetails = [
         {
@@ -133,7 +134,7 @@ export function CardParticipant(props: CardParticipantProps) {
           ]
         );
       }
-      result.push({
+      contentList.push({
         content: (
           <List key={`participant-list-personalData-${stateParticipantId}`}>
             {stateCustomerInformation
@@ -159,7 +160,7 @@ export function CardParticipant(props: CardParticipantProps) {
         labelIcon: <ParticipantPersonalDataIcon />,
       });
       // TODO
-      result.push({
+      contentList.push({
         content: (
           <List key={`participant-list-queries-${stateParticipantId}`}>
             {stateCustomerInformation ? (
@@ -188,7 +189,7 @@ export function CardParticipant(props: CardParticipantProps) {
         labelIcon: <ParticipantQueriesIcon />,
       });
       if (stateCustomerInformation?.passenger !== undefined) {
-        result.push({
+        contentList.push({
           content: (
             <ChangeSpectatorButton
               {...props}
@@ -254,7 +255,7 @@ export function CardParticipant(props: CardParticipantProps) {
             },
           ]
         );
-        result.push({
+        contentList.push({
           content: (
             <List key={`participant-list-carData-${stateParticipantId}`}>
               {carData.map((a, index) => (
@@ -329,7 +330,7 @@ export function CardParticipant(props: CardParticipantProps) {
             ]
           );
         }
-        result.push({
+        contentList.push({
           content: (
             <List
               key={`participant-list-personalCarData-${stateParticipantId}`}
@@ -359,7 +360,7 @@ export function CardParticipant(props: CardParticipantProps) {
         stateRideProviderInformation?.passengerList !== undefined &&
         stateRideProviderInformation?.passengerList.length > 0
       ) {
-        result.push({
+        contentList.push({
           content: (
             <List key={`participant-list-passengers-${stateParticipantId}`}>
               {stateRideProviderInformation.passengerList.map(
@@ -412,7 +413,65 @@ export function CardParticipant(props: CardParticipantProps) {
       //  });
       //}
     }
-    return result;
+    if (stateSettingsGlobalDebug === true) {
+      contentList.push({
+        content: (
+          <List key={`debug-list-${stateParticipantId}`}>
+            {Object.entries(stateRideProviderInformation ?? {}).map(
+              ([key, value]) => (
+                <RenderDataElement
+                  {...props}
+                  key={`debug-data-element-ride-provider-${stateParticipantId}-${key}`}
+                  element={{
+                    content:
+                      typeof value === 'string' ? value : JSON.stringify(value),
+                    dataAccessInformation: [],
+                    label: key,
+                    showContentSpectator: [],
+                  }}
+                  id={stateParticipantId}
+                  dataOriginName={`Debug Participant [Ride Provider] (${stateParticipantId})`}
+                  dataOriginId={stateParticipantId}
+                  dataOriginIcon={<ParticipantRideProviderIcon />}
+                  dataOriginInformation={
+                    <ParticipantsRideProvider intlValues={intlValues} />
+                  }
+                  dataAccessInformation={[]}
+                />
+              )
+            )}
+            {Object.entries(stateCustomerInformation ?? {}).map(
+              ([key, value]) => (
+                <RenderDataElement
+                  {...props}
+                  key={`debug-data-element-customer-${stateParticipantId}-${key}`}
+                  element={{
+                    content:
+                      typeof value === 'string' ? value : JSON.stringify(value),
+                    dataAccessInformation: [],
+                    label: key,
+                    showContentSpectator: [],
+                  }}
+                  id={stateParticipantId}
+                  dataOriginName={`Debug Participant [Customer] (${stateParticipantId})`}
+                  dataOriginId={stateParticipantId}
+                  dataOriginIcon={<ParticipantCustomerIcon />}
+                  dataOriginInformation={
+                    <ParticipantsCustomer intlValues={intlValues} />
+                  }
+                  dataAccessInformation={[]}
+                />
+              )
+            )}
+          </List>
+        ),
+        label: intl.formatMessage({
+          id: 'page.home.tab.settings.card.debug.title',
+        }),
+        labelIcon: <SettingsDebugIcon />,
+      });
+    }
+    return contentList;
   }, [
     intl,
     intlValues,
@@ -421,6 +480,7 @@ export function CardParticipant(props: CardParticipantProps) {
     stateCustomerInformation,
     stateParticipantId,
     stateRideProviderInformation,
+    stateSettingsGlobalDebug,
   ]);
 
   /** Action buttons based on global state */

@@ -156,14 +156,22 @@ export default function CardGeneric(props: CardGenericPropsInput) {
           </Stack>
         }
         sx={{
+          // Hide overflow in the header part
           '& .MuiCardHeader-content': {
             overflow: 'hidden',
           },
         }}
       />
-      <CardContent>
+      <CardContent
+        sx={{
+          // Hide overflow in the content part
+          maxHeight: '40vh',
+          overflowX: 'hidden',
+          overflowY: 'scroll',
+        }}
+      >
         {content.map((a, index) => (
-          <div key={`content-${a.label ?? index}`}>
+          <Box key={`content-${a.label ?? index}`}>
             {a.label ? (
               <Divider>
                 <Chip
@@ -183,7 +191,7 @@ export default function CardGeneric(props: CardGenericPropsInput) {
             ) : (
               a.content
             )}
-          </div>
+          </Box>
         ))}
       </CardContent>
       {actions !== undefined && actions.length > 0 ? (

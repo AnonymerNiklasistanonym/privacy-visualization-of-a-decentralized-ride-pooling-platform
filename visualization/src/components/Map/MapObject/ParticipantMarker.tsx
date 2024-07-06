@@ -269,13 +269,16 @@ export function ParticipantMarkerElement(props: ParticipantMarkerElementProps) {
   const map = useMap();
   const markerRef = useRef<LMarker>(null);
 
-  const pauseRefresh = useCallback(() => !statePopupOpen, [statePopupOpen]);
-
   // > Keep track if popup for ride request is open
   const [statePopupOpenRideRequest, setStatePopupOpenRideRequest] =
     useState<boolean>(false);
+
+  /** Stop unnecessary refresh jobs of the participant popup card */
+  const pauseRefresh = useCallback(() => !statePopupOpen, [statePopupOpen]);
+
+  /** Stop unnecessary refresh jobs of the ride request popup card */
   const pauseRefreshRideRequest = useCallback(
-    () => !statePopupOpenRideRequest,
+    () => statePopupOpenRideRequest,
     [statePopupOpenRideRequest]
   );
 
@@ -286,7 +289,7 @@ export function ParticipantMarkerElement(props: ParticipantMarkerElementProps) {
       map.panTo([stateParticipantLat, stateParticipantLong], {
         duration: 2,
       });
-      // Open marker popup
+      // Open marker popup (or close it if already open)
       const marker = markerRef.current;
       if (marker) {
         if (marker.isPopupOpen()) {
@@ -301,11 +304,9 @@ export function ParticipantMarkerElement(props: ParticipantMarkerElementProps) {
   }, [
     stateShowSpectator,
     setStateShowSpectator,
-    setStatePopupOpen,
     stateParticipantLat,
     stateParticipantLong,
     map,
-    participantType,
     stateParticipantId,
   ]);
 

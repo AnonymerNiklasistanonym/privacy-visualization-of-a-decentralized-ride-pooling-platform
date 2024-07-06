@@ -1,12 +1,14 @@
 // Package imports
+import {useIntl} from 'react-intl';
+import {useMemo} from 'react';
 // > Components
 import {List, Typography} from '@mui/material';
 // Local imports
 // > Components
 import {
   ParticipantCustomerIcon,
-  ParticipantPersonalDataIcon,
   ParticipantRideRequestIcon,
+  SettingsDebugIcon,
 } from '@components/Icons';
 import CardGeneric from '@components/Card/CardGeneric';
 // Type imports
@@ -27,9 +29,11 @@ import {
   RenderDataElement,
 } from '../CardParticipant/PopupContentGeneric';
 import {ParticipantsCustomer} from '@components/Tab/TabOverview/Elements';
+import {SettingsGlobalProps} from '@misc/props/settings';
 
 export interface CardRideRequestProps
   extends ChangeViewButtonProps,
+    SettingsGlobalProps,
     CardGenericProps,
     GlobalPropsIntlValues {
   stateRideRequestInformation: ReactState<SimulationEndpointRideRequestInformation | null>;
@@ -37,7 +41,64 @@ export interface CardRideRequestProps
 }
 
 export default function CardRideRequest(props: CardRideRequestProps) {
-  const {stateRideRequestInformation, stateRideRequestId} = props;
+  const {
+    stateRideRequestInformation,
+    stateRideRequestId,
+    stateSettingsGlobalDebug,
+  } = props;
+
+  const intl = useIntl();
+
+  const content = useMemo<Array<CardGenericPropsContentElement>>(() => {
+    const contentList: Array<CardGenericPropsContentElement> = [];
+    contentList.push({
+      content: (
+        <Typography variant="body1" gutterBottom>
+          TODO: Add ride request information
+        </Typography>
+      ),
+    });
+    if (stateSettingsGlobalDebug === true) {
+      contentList.push({
+        content: (
+          <List key={`debug-list-ride-request-${stateRideRequestId}`}>
+            {Object.entries(stateRideRequestInformation ?? {}).map(
+              ([key, value]) => (
+                <RenderDataElement
+                  {...props}
+                  key={`debug-data-element-ride-provider-${stateRideRequestId}-${key}`}
+                  element={{
+                    content:
+                      typeof value === 'string' ? value : JSON.stringify(value),
+                    dataAccessInformation: [],
+                    label: key,
+                    showContentSpectator: [],
+                  }}
+                  id={stateRideRequestId}
+                  dataOriginName={`Debug Ride Request (${stateRideRequestId})`}
+                  dataOriginId={stateRideRequestId}
+                  dataOriginIcon={<ParticipantRideRequestIcon />}
+                  dataAccessInformation={[]}
+                />
+              )
+            )}
+          </List>
+        ),
+        label: intl.formatMessage({
+          id: 'page.home.tab.settings.card.debug.title',
+        }),
+        labelIcon: <SettingsDebugIcon />,
+      });
+    }
+    return contentList;
+  }, [
+    intl,
+    props,
+    stateRideRequestId,
+    stateRideRequestInformation,
+    stateSettingsGlobalDebug,
+  ]);
+
   return (
     <CardGeneric
       {...props}
@@ -45,80 +106,7 @@ export default function CardRideRequest(props: CardRideRequestProps) {
       name={'Ride Request'}
       id={stateRideRequestId}
       status={stateRideRequestInformation?.auctionStatus}
-      content={[
-        ...cardRideRequestContent(
-          props,
-          stateRideRequestInformation ?? undefined
-        ),
-        {
-          content: (
-            <Typography variant="body1" gutterBottom>
-              TODO: Add ride request information
-            </Typography>
-          ),
-        },
-      ]}
+      content={content}
     />
   );
-}
-
-export interface CardRideRequestContentProps
-  extends GlobalPropsSpectatorSelectedElementsSet,
-    ChangeViewButtonProps,
-    GlobalPropsIntlValues {
-  showRideRequest?: boolean;
-  stateRideRequestId: string;
-}
-
-export function cardRideRequestContent(
-  props: CardRideRequestContentProps,
-  request?: SimulationEndpointRideRequestInformation
-) {
-  const {intlValues, stateRideRequestId} = props;
-  const result: Array<CardGenericPropsContentElement> = [];
-  const showContentSpectatorContactDetails = [
-    {
-      description: 'registered authentication service',
-      spectator: 'auth',
-    },
-  ];
-  const personalData: DataElement[] = [];
-  if (request !== undefined) {
-    personalData.push(
-      ...[
-        {
-          content: request.id,
-          dataAccessInformation: [],
-          label: 'ID',
-          showContentSpectator: [...showContentSpectatorContactDetails],
-        },
-      ]
-    );
-  }
-  result.push({
-    content: (
-      <List key={`ride-request-list-personalData-${stateRideRequestId}`}>
-        {request !== undefined
-          ? personalData.map((a, index) => (
-              <RenderDataElement
-                {...props}
-                key={`render-data-element-${index}`}
-                element={a}
-                id={request.id}
-                dataOriginName={`Customer (${request.id})`}
-                dataOriginId={request.id}
-                dataOriginIcon={<ParticipantCustomerIcon />}
-                dataOriginInformation={
-                  <ParticipantsCustomer intlValues={intlValues} />
-                }
-                dataAccessInformation={a.dataAccessInformation}
-              />
-            ))
-          : null}
-      </List>
-    ),
-    label: 'Personal Details',
-    labelIcon: <ParticipantPersonalDataIcon />,
-  });
-  return result;
 }

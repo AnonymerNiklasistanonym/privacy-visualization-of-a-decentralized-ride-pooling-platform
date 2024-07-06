@@ -135,8 +135,15 @@ export class MatchingService extends Service<SimulationTypeMatchingService> {
         const auction = this.auctions[index];
         if (
           auction.auctionStatus === 'closed' &&
-          auction.rideContractAddress === undefined
+          auction.rideContractAddress === undefined &&
+          currentTime >
+            auction.auctionStartedTimestamp.getTime() +
+              auction.request.maxWaitingTime * 2
         ) {
+          this.logger.debug(
+            'Ride request auction was closed and has no connected ride contract',
+            {auction}
+          );
           this.auctions.splice(index, 1);
           index--;
         }

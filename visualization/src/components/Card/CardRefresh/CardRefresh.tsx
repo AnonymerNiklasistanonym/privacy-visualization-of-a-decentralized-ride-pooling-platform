@@ -1,5 +1,5 @@
 // Package imports
-import {memo, useEffect, useRef, useState} from 'react';
+import {memo, useCallback, useEffect, useRef, useState} from 'react';
 // Local imports
 // > Components
 import CardParticipant from '../CardParticipant/CardParticipant';
@@ -73,11 +73,12 @@ export function CardRefresh(props: CardRefreshProps) {
   const [stateRideRequestInformation, setStateRideRequestInformation] =
     useState<SimulationEndpointRideRequestInformation | null>(null);
 
-  const requestBalancer = useRef(false);
+  /** Keep track of if there is a fetch happening to not double fetch at the same time */
+  const currentlyFetching = useRef(false);
 
   /** Fetches the card specific information in set intervals */
-  const fetchCardInformation = async () => {
-    if (requestBalancer.current) {
+  const fetchCardInformation = useCallback(async () => {
+    if (currentlyFetching.current) {
       console.warn(
         `Stopped card refresh (${cardType}, ${id}) fetch since a request is already happening`
       );
@@ -86,7 +87,7 @@ export function CardRefresh(props: CardRefreshProps) {
     if (pauseRefresh !== undefined && pauseRefresh()) {
       return;
     }
-    requestBalancer.current = true;
+    currentlyFetching.current = true;
     let currentRideRequest: undefined | string = undefined;
     // Get the card information
     if (cardType === 'customer') {
@@ -110,7 +111,7 @@ export function CardRefresh(props: CardRefreshProps) {
         );
       setStateRideRequestInformation(rideRequestInformation);
     }
-    requestBalancer.current = false;
+    currentlyFetching.current = false;
     // Update external ride request ID list
     if (
       currentRideRequest !== undefined &&
@@ -120,7 +121,14 @@ export function CardRefresh(props: CardRefreshProps) {
     ) {
       setStateRideRequestList(prev => [...prev, currentRideRequest]);
     }
-  };
+  }, [
+    cardType,
+    fetchJsonSimulation,
+    id,
+    pauseRefresh,
+    setStateRideRequestList,
+    stateRideRequestList,
+  ]);
 
   // React: Effects
   // > Fetch data in interval
@@ -156,6 +164,11 @@ export function CardRefresh(props: CardRefreshProps) {
       {...props}
       stateRideRequestInformation={stateRideRequestInformation}
       stateRideRequestId={id}
+      label={label}
+      pinAction={onPin}
+      isPinned={isPinned}
+      unpinAction={onUnpin}
+      intlValues={intlValues}
     />
   ) : (
     <>Unknown card type: {cardType}</>
