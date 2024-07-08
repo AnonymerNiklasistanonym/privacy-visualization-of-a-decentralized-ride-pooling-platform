@@ -57,7 +57,7 @@ export function RenderDataElement(props: RenderDataElementProps) {
 
   const [stateOpen, setStateOpen] = useState(false);
 
-  const dataModalContent: Array<DataModalInformation> = useMemo(
+  const dataAccessDataModal: Array<DataModalInformation> = useMemo(
     () => [
       {
         accessType: 'owner',
@@ -80,9 +80,10 @@ export function RenderDataElement(props: RenderDataElementProps) {
 
   let content = element.content;
   let tooltip = '';
+  // TODO If spectatorId in data access is a pseudonym this is not resolved in here!
   if (
     stateSpectator !== SpectatorId.EVERYTHING &&
-    !element.dataAccessInformation.some(
+    !dataAccessDataModal.some(
       a =>
         a.spectatorId === stateSpectator &&
         (a.accessType === 'local_storage' ||
@@ -137,7 +138,7 @@ export function RenderDataElement(props: RenderDataElementProps) {
           key={element.label}
           stateDataModalOpen={stateOpen}
           setStateDataModalOpen={setStateOpen}
-          stateDataModalContent={dataModalContent}
+          stateDataModalContent={dataAccessDataModal}
           dataLabel={element.label}
           dataValue={element.content}
           dataValueSpectator={content}

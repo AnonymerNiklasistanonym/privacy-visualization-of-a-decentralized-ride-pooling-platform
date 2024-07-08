@@ -34,6 +34,8 @@ export interface ButtonChangeSpectatorPropsInput
   label: string;
   /** In case the supplied ID is a pseudonym some extra logic is required */
   isPseudonym?: boolean;
+  /** Ignore that per default this ID cannot be resolved */
+  ignoreUnableToResolve?: boolean;
   /** A custom icon that should be displayed on the button */
   icon?: ReactNode;
 }
@@ -42,6 +44,7 @@ export default memo(ButtonChangeSpectator);
 
 export function ButtonChangeSpectator({
   spectatorId,
+  ignoreUnableToResolve,
   isPseudonym,
   icon,
   label,
@@ -85,6 +88,7 @@ export function ButtonChangeSpectator({
     stateSpectator === stateResolvedPseudonym?.id;
 
   const spectatorCanSeePseudonym =
+    ignoreUnableToResolve === true ||
     stateSpectator === SpectatorId.EVERYTHING ||
     // !!! This only works when there is only a single auth service!
     stateSpectator === SpectatorId.AUTHENTICATION_SERVICE ||

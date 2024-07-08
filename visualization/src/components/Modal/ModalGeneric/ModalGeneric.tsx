@@ -45,6 +45,7 @@ export function GenericModal({
               xs: '90%',
             },
             maxWidth: 1200,
+            overflowY: 'scroll',
             p: 4,
             position: 'absolute' as const,
             top: '50%',

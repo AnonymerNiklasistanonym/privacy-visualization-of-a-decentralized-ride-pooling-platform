@@ -119,6 +119,7 @@ export function CardParticipant(props: CardParticipantProps) {
             id: 'getacar.spectator.message.driver.dataAccess',
           }),
           icon: <ParticipantRideProviderIcon />,
+          isPseudonym: true,
           name: intl.formatMessage(
             {id: 'current'},
             {
@@ -275,6 +276,7 @@ export function CardParticipant(props: CardParticipantProps) {
                 id: 'getacar.spectator.message.passenger.dataAccess',
               }),
               icon: <ParticipantRideProviderIcon />,
+              isPseudonym: true,
               name: intl.formatMessage(
                 {id: 'current'},
                 {

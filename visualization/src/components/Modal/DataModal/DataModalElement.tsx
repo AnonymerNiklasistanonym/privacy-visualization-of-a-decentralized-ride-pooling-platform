@@ -83,6 +83,7 @@ export function DataModelListElement(props: DataModalPropsElement) {
                 icon={stateDataModalContentElement.icon ?? <QuestionMarkIcon />}
                 label={stateDataModalContentElement.name}
                 isPseudonym={stateDataModalContentElement.isPseudonym ?? false}
+                ignoreUnableToResolve={true}
               />
             </CardActions>
           </Card>

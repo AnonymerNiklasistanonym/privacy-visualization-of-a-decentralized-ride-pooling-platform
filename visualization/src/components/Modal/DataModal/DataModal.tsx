@@ -1,5 +1,6 @@
 // Package imports
-import {memo} from 'react';
+import {memo, useMemo} from 'react';
+import {useIntl} from 'react-intl';
 // > Components
 import {
   Box,
@@ -24,6 +25,7 @@ import type {
 import type {ReactElement, ReactNode} from 'react';
 import type {ReactSetState, ReactState} from '@misc/react';
 import type {ButtonChangeSpectatorProps} from '@components/Button/ButtonChangeSpectator';
+
 export interface DataModalPropsSetStates {
   setStateDataModalOpen: ReactSetState<boolean>;
 }
@@ -82,16 +84,19 @@ export function DataModal(props: DataModalProps) {
     dataOriginIcon,
     dataValueSpectator,
   } = props;
-  const listInformation: ReadonlyArray<
-    [string, DataModalInformationAccessType]
-  > = [
-    ['Data Owner', 'owner'],
-    ['Stores this data', 'local_storage'],
-    ['Can request this data', 'transitive'],
-    ['Has no access', 'none'],
-  ];
-  // TODO: Add what data and from whom is inspected!
-  // TODO: Make this better
+  const intl = useIntl();
+  const listInformation = useMemo<
+    Array<[string, DataModalInformationAccessType]>
+  >(
+    () => [
+      [intl.formatMessage({id: 'data.access.owner'}), 'owner'],
+      [intl.formatMessage({id: 'data.access.localStorage'}), 'local_storage'],
+      [intl.formatMessage({id: 'data.access.transitive'}), 'transitive'],
+      [intl.formatMessage({id: 'data.access.none'}), 'none'],
+    ],
+    [intl]
+  );
+  // TODO: Add Button to show the data if hidden!
   const dataValueHidden = dataValueSpectator === '******';
   return (
     <GenericModal
