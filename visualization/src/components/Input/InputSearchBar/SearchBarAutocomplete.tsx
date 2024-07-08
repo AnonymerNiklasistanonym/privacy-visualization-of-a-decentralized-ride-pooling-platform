@@ -1,8 +1,7 @@
 'use client';
 
 // Package imports
-import {memo} from 'react';
-import {useIntl} from 'react-intl';
+import {memo, useCallback} from 'react';
 // > Components
 import {Autocomplete, Box, TextField} from '@mui/material';
 // Local imports
@@ -12,6 +11,9 @@ import {debugComponentUpdate, debugMemoHelper} from '@misc/debug';
 import type {GlobalPropsSearch, GlobalSearchElement} from '@misc/props/global';
 
 export interface SearchBarAutocompleteProps extends GlobalPropsSearch {
+  /** Primary filter */
+  primaryFilter?: string;
+  /** Placeholder text */
   placeholder: string;
 }
 
@@ -22,13 +24,17 @@ export default memo(SearchBarAutocomplete, (prev, next) =>
 export function SearchBarAutocomplete({
   globalSearch,
   placeholder,
+  primaryFilter,
 }: SearchBarAutocompleteProps) {
   debugComponentUpdate('SearchBarAutocomplete');
-  const intl = useIntl();
 
-  const changeSpectatorInfo = intl.formatMessage({
-    id: 'getacar.spectator.change',
-  });
+  const filterOptions = useCallback(
+    (option: Readonly<GlobalSearchElement>): boolean =>
+      primaryFilter !== undefined
+        ? option.keywords.includes(primaryFilter)
+        : true,
+    [primaryFilter]
+  );
 
   return (
     <Autocomplete
@@ -47,16 +53,15 @@ export function SearchBarAutocomplete({
       filterOptions={(options, state) => {
         // Per default search for the whole input
         let searchString: string = state.inputValue.toLowerCase();
-        // Per default just show the change spectator related options
+        // Per default just show a specific type of options
         let optionsFilter: (
           option: Readonly<GlobalSearchElement>
-        ) => boolean = option => option.keywords.includes(changeSpectatorInfo);
+        ) => boolean = option => filterOptions(option);
 
-        // If a special substring is found show non map related options a update the search query
+        // If a special substring is found show the other options
         if (state.inputValue.startsWith('> ')) {
           searchString = searchString.substring(2);
-          optionsFilter = option =>
-            !option.keywords.includes(changeSpectatorInfo);
+          optionsFilter = option => !filterOptions(option);
         }
         return options
           .filter(optionsFilter)

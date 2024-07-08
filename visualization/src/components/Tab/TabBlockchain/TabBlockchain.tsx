@@ -20,6 +20,8 @@ import InputChangeSpectator from '@components/Input/InputChangeSpectator';
 import InputSearchBar from '@components/Input/InputSearchBar';
 import TabContainer from '@components/Tab/TabContainer';
 import TableBlockchain from '@components/Table/TableBlockchain';
+// > Misc
+import {searchBarIds} from '@misc/searchBarIds';
 // Type imports
 import type {
   ConnectedElementSection,
@@ -254,11 +256,12 @@ export default function TabBlockchain(props: TabBlockchainProps) {
         <Grid container spacing={stateSettingsUiGridSpacing}>
           <Grid item xs={12}>
             <InputSearchBar
+              {...props}
               key={'search-bar-blockchain'}
               placeholder={intl.formatMessage({
                 id: 'page.home.tab.blockchain.search',
               })}
-              {...props}
+              primaryFilter={searchBarIds.filter}
             />
           </Grid>
           <Grid item xs={12}>

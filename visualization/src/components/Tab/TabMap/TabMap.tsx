@@ -31,6 +31,8 @@ import {
   pathfinderEndpoints,
   simulationEndpoints,
 } from '@globals/defaults/endpoints';
+// > Misc
+import {searchBarIds} from '@misc/searchBarIds';
 // > Styles
 import '@styles/Map.module.scss';
 import styles from '@styles/Map.module.scss';
@@ -803,6 +805,7 @@ export default function TabMap(props: TabMapProps) {
                 placeholder={intl.formatMessage({
                   id: 'page.home.tab.map.search',
                 })}
+                primaryFilter={searchBarIds.show}
               />
             </Grid>
             <Grid item xs={12}>

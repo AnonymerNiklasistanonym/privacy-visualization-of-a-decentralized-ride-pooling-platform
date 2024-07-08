@@ -39,6 +39,7 @@ import {
 } from '@globals/defaults/urls';
 // > Misc
 import {LocalStorageKey} from '@misc/localStorage';
+import {searchBarIds} from '@misc/searchBarIds';
 // Type imports
 import type {
   GlobalPropsFetch,
@@ -437,6 +438,59 @@ export default function CollectionHome(
           actorInformation.callback();
         },
       });
+      const categoryCustomer = intl.formatMessage({
+        id: 'getacar.participant.customer',
+      });
+      const categoryRideProvider = intl.formatMessage({
+        id: 'getacar.participant.rideProvider',
+      });
+      if (
+        actorInformation.category === categoryCustomer ||
+        actorInformation.category === categoryRideProvider
+      ) {
+        tempGlobalSearch.push({
+          icon: actorInformation.icon,
+          keywords: [
+            actorId,
+            actorInformation.name,
+            searchBarIds.show,
+            ...(actorInformation.keywords ?? []),
+          ],
+          name: intl.formatMessage(
+            {
+              id: 'getacar.spectator.show',
+            },
+            {
+              name: `${actorInformation.name} (${actorId})`,
+            }
+          ),
+          onClick: () => {
+            setStateShowSpectator(actorId);
+            actorInformation.callback();
+          },
+        });
+        tempGlobalSearch.push({
+          icon: actorInformation.icon,
+          keywords: [
+            actorId,
+            actorInformation.name,
+            searchBarIds.filter,
+            ...(actorInformation.keywords ?? []),
+          ],
+          name: intl.formatMessage(
+            {
+              id: 'getacar.spectator.filter',
+            },
+            {
+              name: `${actorInformation.name} (${actorId})`,
+            }
+          ),
+          onClick: () => {
+            setStateSelectedSpectator(actorId);
+            actorInformation.callback();
+          },
+        });
+      }
     }
     return tempGlobalSearch.sort((a, b) => {
       if (a.name < b.name) {

@@ -14,6 +14,7 @@ import type {
   CardGenericPropsContentElement,
 } from '@components/Card/CardGeneric';
 import type {ButtonChangeSpectatorProps} from '@components/Button/ButtonChangeSpectator';
+import type {DataModalInformation} from '@components/Modal/DataModal';
 import type {GlobalPropsIntlValues} from '@misc/props/global';
 import type {ReactState} from '@misc/react';
 import type {SettingsGlobalProps} from '@misc/props/settings';
@@ -46,6 +47,7 @@ export default function CardRideRequest(props: CardRideRequestProps) {
         </Typography>
       ),
     });
+    const dataAccessInformation: Array<DataModalInformation> = [];
     if (stateSettingsGlobalDebug === true) {
       contentList.push({
         content: (
@@ -58,7 +60,7 @@ export default function CardRideRequest(props: CardRideRequestProps) {
                   element={{
                     content:
                       typeof value === 'string' ? value : JSON.stringify(value),
-                    dataAccessInformation: [],
+                    dataAccessInformation,
                     label: key,
                     showContentSpectator: [],
                   }}
@@ -66,7 +68,7 @@ export default function CardRideRequest(props: CardRideRequestProps) {
                   dataOriginName={`Debug Ride Request (${stateRideRequestId})`}
                   dataOriginId={stateRideRequestId}
                   dataOriginIcon={<ParticipantRideRequestIcon />}
-                  dataAccessInformation={[]}
+                  dataAccessInformation={dataAccessInformation}
                 />
               )
             )}

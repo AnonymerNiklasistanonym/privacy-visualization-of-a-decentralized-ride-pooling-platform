@@ -89,9 +89,10 @@ export function debugMemoHelper<T, TYPE = Record<keyof T, unknown>>(
             console.log(
               `Memo component ${name} key '${String(
                 key[0]
-              )}'[${index}] not the same because '${JSON.stringify(
-                prevElements[index]
-              )}' !== '${JSON.stringify(nextElements[index])}'`
+              )}'[${index}] not the same because`,
+              prevElements[index],
+              '!==',
+              nextElements[index]
             );
             return false;
           }
@@ -107,9 +108,10 @@ export function debugMemoHelper<T, TYPE = Record<keyof T, unknown>>(
     } else if (prev[key] !== next[key]) {
       if (debug.componentUpdates) {
         console.log(
-          `Memo component ${name} key '${String(key)}' not the same because '${
-            prev[key]
-          }' !== '${next[key]}'`
+          `Memo component ${name} key '${String(key)}' not the same because`,
+          prev[key],
+          '!==',
+          next[key]
         );
       }
       return false;

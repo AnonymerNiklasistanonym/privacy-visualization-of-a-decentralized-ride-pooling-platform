@@ -46,6 +46,7 @@
   "getacar.spectator.change": "Change spectator",
   "getacar.spectator.spectate": "Spectate {name}",
   "getacar.spectator.show": "Show {name}",
+  "getacar.spectator.filter": "Filter {name}",
   "getacar.spectator.current": "Current spectator",
   "getacar.spectator.selected": "Selected spectator",
   "getacar.spectator.alreadySelected": "Already selected",
