@@ -30,14 +30,25 @@ export interface DataModalPropsSetStates {
 
 export interface DataModalProps
   extends DataModalPropsSetStates,
-    ButtonChangeSpectatorProps {
+    ButtonChangeSpectatorProps,
+    DataOrigin {
   stateDataModalOpen: ReactState<boolean>;
+  /** Lists all entities that have in some way access to this information */
   stateDataModalContent: ReactState<Array<DataModalInformation>>;
+  /** The data label */
   dataLabel: string;
+  /** The data value element */
   dataValue: ReactNode;
+  /** The data value element as rendered by the current spectator */
   dataValueSpectator: ReactNode;
+}
+
+export interface DataOrigin {
+  /** The data owner icon */
   dataOriginIcon: ReactElement;
+  /** The data owner ID */
   dataOriginId: string;
+  /** The data owner name */
   dataOriginName: string;
 }
 

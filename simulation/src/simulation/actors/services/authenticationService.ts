@@ -1,8 +1,6 @@
-// Package imports
-import {randomInt} from 'crypto';
 // Local imports
+import {getRandomFloatFromInterval, getRandomId} from '../../../misc/helpers';
 import {Service} from '../service';
-import {getRandomId} from '../../../misc/helpers';
 // Type imports
 import type {
   SimulationTypeCustomer,
@@ -193,15 +191,16 @@ export class AuthenticationService extends Service<SimulationTypeAuthenticationS
         .map(a => a.rideProviderRating as number),
     ];
     // Round to one decimal space and introduce some random values so it can't be used to reverse anything
-    const numberOfFakeValues = 1 + Math.round(ratings.length / 20);
-    return (
-      Math.round(
-        ((randomInt(5 * numberOfFakeValues) +
-          ratings.reduce((a, b) => a + b, 0)) /
-          (numberOfFakeValues + ratings.length)) *
-          10
-      ) / 10
-    );
+    if (ratings.length === 0) {
+      return -1;
+    }
+    const numberOfFakeValues = 1 + Math.round(ratings.length / 10);
+    const actualRating = ratings.reduce((a, b) => a + b, 0) / ratings.length;
+    const fakeRating =
+      Array.from({length: numberOfFakeValues}, () =>
+        getRandomFloatFromInterval(actualRating - 0.5, actualRating + 0.5)
+      ).reduce((a, b) => a + b, 0) / numberOfFakeValues;
+    return Math.round(((actualRating + fakeRating) / 2) * 10) / 10;
   }
 
   private getParticipantFromPseudonym(
@@ -213,6 +212,11 @@ export class AuthenticationService extends Service<SimulationTypeAuthenticationS
   simulationGetParticipantId(pseudonym: string): undefined | string {
     const participant = this.getParticipantFromPseudonym(pseudonym);
     return participant?.contactDetails.id;
+  }
+
+  simulationGetPseudonyms(participantId: string): undefined | Array<string> {
+    return this.participantDb.find(a => a.contactDetails.id === participantId)
+      ?.pseudonyms;
   }
 
   run(): Promise<void> {

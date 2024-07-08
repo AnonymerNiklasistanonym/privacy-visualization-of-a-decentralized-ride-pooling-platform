@@ -1,8 +1,9 @@
 // Package imports
+import {useEffect, useMemo} from 'react';
 import {useIntl} from 'react-intl';
 // > Components
 import {Box, Rating} from '@mui/material';
-import {DataGrid, GridToolbar} from '@mui/x-data-grid';
+import {DataGrid, GridLogicOperator, GridToolbar} from '@mui/x-data-grid';
 // > Icons
 import {Error as ErrorIcon} from '@mui/icons-material';
 // Local imports
@@ -17,6 +18,7 @@ import {
 import type {
   GridColDef,
   GridEventListener,
+  GridFilterModel,
   GridRowModel,
 } from '@mui/x-data-grid';
 import type {
@@ -40,6 +42,7 @@ export interface TableDebugDataProps {
   debugDataType: DebugDataType;
   onRowClick?: (type: DebugDataType, id: string) => void;
   height?: string;
+  filterData?: Array<[field: string, values: Array<string>]>;
 }
 
 const renderTypeIcon = (type: DebugDataType) =>
@@ -61,9 +64,11 @@ export default function TableDebugData({
   stateDebugData,
   debugDataType,
   height,
+  filterData,
   onRowClick,
 }: TableDebugDataProps) {
   const intl = useIntl();
+
   const rows: GridRowModel[] = [];
   const columns: GridColDef[] = [
     {
@@ -288,6 +293,27 @@ export default function TableDebugData({
     console.log('cellClick', debugDataType, params.row, params);
   };
 
+  const filterModel = useMemo<GridFilterModel | undefined>(() => {
+    if (filterData === undefined) {
+      return undefined;
+    }
+    return {
+      items: filterData.flatMap(([field, values], index) =>
+        values.map((value, index2) => ({
+          field,
+          id: index * 10000 + index2,
+          operator: 'is',
+          value,
+        }))
+      ),
+      logicOperator: GridLogicOperator.Or,
+    };
+  }, [filterData]);
+
+  useEffect(() => {
+    console.warn('Updated filterModel', filterModel);
+  }, [filterModel]);
+
   return (
     <Box
       sx={{
@@ -315,6 +341,7 @@ export default function TableDebugData({
         slots={{toolbar: GridToolbar}}
         onRowClick={handleEventRowClick}
         onCellClick={handleEventCellClick}
+        filterModel={filterModel}
       />
     </Box>
   );

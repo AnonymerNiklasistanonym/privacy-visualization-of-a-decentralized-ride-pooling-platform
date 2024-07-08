@@ -17,6 +17,7 @@ import {
   ParticipantRideProviderIcon,
   ServiceAuthenticationIcon,
   ServiceMatchingIcon,
+  SpectatorPublicIcon,
 } from '@components/Icons';
 // Type imports
 import type {OverviewElementProps} from './TabOverviewElements';
@@ -255,6 +256,32 @@ export function ServiceMatching(props: OverviewElementProps) {
         {intl.formatMessage(
           {
             id: 'page.home.tab.guide.section.ms.content',
+          },
+          intlValues
+        )}
+      </Typography>
+    </>
+  );
+}
+
+export function Public(props: OverviewElementProps) {
+  const {intlValues} = props;
+  const intl = useIntl();
+  return (
+    <>
+      <OverviewElementSectionHeadingTitle
+        {...props}
+        icon={<SpectatorPublicIcon fontSize="small" />}
+        id="anchor-ms"
+      >
+        {intl.formatMessage({
+          id: 'getacar.spectator.public',
+        })}
+      </OverviewElementSectionHeadingTitle>
+      <Typography variant="body1" gutterBottom>
+        {intl.formatMessage(
+          {
+            id: 'page.home.tab.guide.section.public.content',
           },
           intlValues
         )}

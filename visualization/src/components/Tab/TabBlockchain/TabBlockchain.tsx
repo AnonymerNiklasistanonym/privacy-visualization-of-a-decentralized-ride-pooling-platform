@@ -1,10 +1,11 @@
 'use client';
 
 // Package imports
-import {useEffect, useMemo, useState} from 'react';
+import {useCallback, useEffect, useMemo, useState} from 'react';
 import {useIntl} from 'react-intl';
 // > Components
-import {Box, Grid} from '@mui/material';
+import {Box, ButtonGroup, Grid, Paper} from '@mui/material';
+import {Clear as DeleteIcon} from '@mui/icons-material';
 // Local imports
 import {simulationEndpoints} from '@globals/defaults/endpoints';
 // > Components
@@ -15,33 +16,48 @@ import {
 } from '@components/Icons';
 import CardGeneric from '@components/Card/CardGeneric';
 import CardRefresh from '@components/Card/CardRefresh';
+import GenericButton from '@components/Button/GenericButton';
 import GridConnectedElementsLayout from '@components/Grid/GridConnectedElementsLayout';
 import InputChangeSpectator from '@components/Input/InputChangeSpectator';
 import InputSearchBar from '@components/Input/InputSearchBar';
 import TabContainer from '@components/Tab/TabContainer';
-import TableBlockchain from '@components/Table/TableBlockchain';
+import TableDebugData from '@components/Table/TableDebugData';
 // > Misc
-import {searchBarIds} from '@misc/searchBarIds';
+import {SearchBarId} from '@misc/searchBarIds';
+import {SpectatorId} from '@misc/spectatorIds';
 // Type imports
 import type {
   ConnectedElementSection,
   InfoElement,
 } from '@components/Grid/GridConnectedElementsLayout';
 import type {
+  GlobalPropsFetch,
   GlobalPropsIntlValues,
   GlobalPropsSearch,
+  GlobalPropsShowError,
   GlobalPropsSpectatorMap,
+  GlobalPropsSpectatorSelectedElements,
+  GlobalPropsSpectatorSelectedElementsSet,
 } from '@misc/props/global';
 import type {
+  SettingsBlockchainProps,
   SettingsConnectedElementsProps,
   SettingsUiProps,
 } from '@misc/props/settings';
+import type {
+  SimulationEndpointParticipantIdFromPseudonym,
+  SimulationEndpointParticipantPseudonymsFromId,
+  SimulationEndpointSmartContractInformation,
+  SimulationEndpointSmartContracts,
+} from '@globals/types/simulation';
 import type {ReactElement} from 'react';
-import type {SimulationEndpointParticipantIdFromPseudonym} from '@globals/types/simulation';
-import type {TableBlockchainProps} from '@components/Table/TableBlockchain';
 
 export interface TabBlockchainProps
-  extends TableBlockchainProps,
+  extends SettingsBlockchainProps,
+    GlobalPropsFetch,
+    GlobalPropsShowError,
+    GlobalPropsSpectatorSelectedElements,
+    GlobalPropsSpectatorSelectedElementsSet,
     SettingsUiProps,
     GlobalPropsSpectatorMap,
     GlobalPropsIntlValues,
@@ -54,7 +70,13 @@ export default function TabBlockchain(props: TabBlockchainProps) {
     fetchJsonSimulation,
     showError,
     stateSettingsUiGridSpacing,
+    stateSelectedSmartContractId,
     setStateSelectedSmartContractId,
+    stateSelectedSpectator,
+    setStateSelectedSpectator,
+    stateSettingsBlockchainUpdateRateInMs,
+    setStateSpectator,
+    stateSpectator,
   } = props;
   const intl = useIntl();
 
@@ -229,10 +251,73 @@ export default function TabBlockchain(props: TabBlockchainProps) {
     stateSelectedRideProviderResolved,
   ]);
 
-  const stateInfoElements = useMemo<Array<InfoElement>>(
-    () => [
+  const stateInfoElements = useMemo<Array<InfoElement>>(() => {
+    const buttonCurrentSpectatorClear = (
+      <GenericButton
+        disabled={stateSpectator === SpectatorId.EVERYTHING}
+        icon={<DeleteIcon />}
+        onClick={() => setStateSpectator(SpectatorId.EVERYTHING)}
+        secondaryColor={true}
+      >
+        {intl.formatMessage(
+          {
+            id: 'reset',
+          },
+          {
+            name: intl.formatMessage(
+              {
+                id: 'current',
+              },
+              {
+                name: intl.formatMessage({
+                  id: 'getacar.spectator',
+                }),
+              }
+            ),
+          }
+        )}
+      </GenericButton>
+    );
+    const buttonSelectedSmartContractClear = (
+      <GenericButton
+        disabled={stateSelectedSmartContractId === undefined}
+        icon={<DeleteIcon />}
+        onClick={() => setStateSelectedSmartContractId(undefined)}
+      >
+        {intl.formatMessage(
+          {
+            id: 'reset',
+          },
+          {
+            name: intl.formatMessage(
+              {
+                id: 'selected',
+              },
+              {
+                name: intl.formatMessage({
+                  id: 'getacar.smartContract',
+                }),
+              }
+            ),
+          }
+        )}
+      </GenericButton>
+    );
+    return [
       {
-        content: <InputChangeSpectator {...props} />,
+        content: (
+          <>
+            <InputChangeSpectator key="change-spectator" {...props} />
+            <ButtonGroup
+              sx={{
+                marginTop: `${stateSettingsUiGridSpacing / 2}rem`,
+              }}
+            >
+              {buttonCurrentSpectatorClear}
+              {buttonSelectedSmartContractClear}
+            </ButtonGroup>
+          </>
+        ),
       },
       {
         content: intl.formatMessage({
@@ -242,8 +327,99 @@ export default function TabBlockchain(props: TabBlockchainProps) {
           id: 'page.home.tab.blockchain.section.info.title',
         }),
       },
-    ],
-    [intl, props]
+    ];
+  }, [
+    intl,
+    props,
+    setStateSelectedSmartContractId,
+    setStateSpectator,
+    stateSelectedSmartContractId,
+    stateSettingsUiGridSpacing,
+    stateSpectator,
+  ]);
+
+  const [stateFilterPseudonyms, setStateFilterPseudonyms] = useState<
+    Array<string>
+  >([]);
+
+  useEffect(() => {
+    if (stateSelectedSpectator !== undefined) {
+      fetchJsonSimulation<SimulationEndpointParticipantPseudonymsFromId>(
+        simulationEndpoints.apiV1.participantPseudonymsFromId(
+          stateSelectedSpectator
+        )
+      )
+        .then(data => {
+          console.warn(
+            'Update pseudonyms to look for:',
+            stateSelectedSpectator,
+            data.pseudonyms
+          );
+          setStateFilterPseudonyms(data.pseudonyms);
+        })
+        .catch(err =>
+          showError('Simulation fetch pseudonyms from participant ID', err)
+        );
+    }
+    setStateFilterPseudonyms([]);
+  }, [fetchJsonSimulation, showError, stateSelectedSpectator]);
+
+  const [stateSmartContracts, setStateSmartContracts] = useState<
+    Array<SimulationEndpointSmartContractInformation>
+  >([]);
+
+  const fetchSmartContracts = () =>
+    fetchJsonSimulation<SimulationEndpointSmartContracts>(
+      simulationEndpoints.apiV1.smartContracts
+    )
+      .then(data =>
+        Promise.all(
+          data.smartContracts.map(smartContractId =>
+            fetchJsonSimulation<SimulationEndpointSmartContractInformation>(
+              simulationEndpoints.apiV1.smartContract(smartContractId)
+            )
+          )
+        )
+      )
+      .then(data => {
+        // TODO Fetch for all current participating participants and add their entries to the global search
+        // TODO Give their entries special IDs so that they are not overriding map entries
+        console.log(data);
+        setStateSmartContracts(data);
+      })
+      .catch(err => showError('Fetch simulation smart contracts', err));
+
+  // React: Effects
+  useEffect(() => {
+    const interval = setInterval(
+      () => fetchSmartContracts(),
+      stateSettingsBlockchainUpdateRateInMs
+    );
+    return () => {
+      clearInterval(interval);
+    };
+  });
+
+  const filterData = useMemo<
+    Array<[field: string, values: Array<string>]>
+  >(() => {
+    return [
+      ['customerId', stateFilterPseudonyms.slice()],
+      ['rideProviderId', stateFilterPseudonyms.slice()],
+    ];
+  }, [stateFilterPseudonyms]);
+
+  const onRowSelect = useCallback(
+    (
+      smartContractId: string,
+      customerPseudonym: string,
+      rideProviderPseudonym: string
+    ) => {
+      setStateSelectedSmartContractId(smartContractId);
+      setStateSelectedCustomerPseudonym(customerPseudonym);
+      setStateSelectedRideProviderPseudonym(rideProviderPseudonym);
+    },
+    [setStateSelectedSmartContractId]
   );
 
   return (
@@ -261,7 +437,7 @@ export default function TabBlockchain(props: TabBlockchainProps) {
               placeholder={intl.formatMessage({
                 id: 'page.home.tab.blockchain.search',
               })}
-              primaryFilter={searchBarIds.filter}
+              primaryFilter={SearchBarId.FILTER_SMART_CONTRACT_PARTICIPANT}
             />
           </Grid>
           <Grid item xs={12}>
@@ -272,18 +448,38 @@ export default function TabBlockchain(props: TabBlockchainProps) {
                 }rem)`,
               }}
             >
-              <TableBlockchain
-                {...props}
-                onRowSelect={(
-                  smartContractId,
-                  customerPseudonym,
-                  rideProviderPseudonym
-                ) => {
-                  setStateSelectedSmartContractId(smartContractId);
-                  setStateSelectedCustomerPseudonym(customerPseudonym);
-                  setStateSelectedRideProviderPseudonym(rideProviderPseudonym);
+              <Paper
+                sx={{
+                  height: '100%',
+                  width: '100%',
                 }}
-              />
+                elevation={2}
+              >
+                <TableDebugData
+                  height={'100%'}
+                  stateDebugData={{
+                    customers: [],
+                    rideProviders: [],
+                    rideRequests: [],
+                    smartContracts: stateSmartContracts,
+                  }}
+                  debugDataType="smart_contract"
+                  onRowClick={(type, id) => {
+                    console.log(type, id);
+                    const smartContract = stateSmartContracts.find(
+                      a => a.walletId === id
+                    );
+                    if (smartContract) {
+                      onRowSelect(
+                        smartContract.walletId,
+                        smartContract.customerId,
+                        smartContract.rideProviderId
+                      );
+                    }
+                  }}
+                  filterData={filterData}
+                />
+              </Paper>
             </Box>
           </Grid>
         </Grid>

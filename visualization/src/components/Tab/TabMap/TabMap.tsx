@@ -11,13 +11,11 @@ import {fetchJsonEndpoint, fetchTextEndpoint} from '@misc/fetch';
 // > Components
 import {
   ConnectedElementsIcon,
-  MiscRideContractSmartContractIcon,
   NavigateToLocationIcon,
   ParticipantCustomerIcon,
   ParticipantRideProviderIcon,
   PinnedElementsIcon,
 } from '@components/Icons';
-import CardGeneric from '@components/Card/CardGeneric';
 import CardRefresh from '@components/Card/CardRefresh';
 import GenericButton from '@components/Button/GenericButton';
 import GridConnectedElementsLayout from '@components/Grid/GridConnectedElementsLayout';
@@ -32,7 +30,8 @@ import {
   simulationEndpoints,
 } from '@globals/defaults/endpoints';
 // > Misc
-import {searchBarIds} from '@misc/searchBarIds';
+import {SearchBarId} from '@misc/searchBarIds';
+import {SpectatorId} from '@misc/spectatorIds';
 // > Styles
 import '@styles/Map.module.scss';
 import styles from '@styles/Map.module.scss';
@@ -400,15 +399,13 @@ export default function TabMap(props: TabMapProps) {
           )
         ).then(customerInformation => {
           const connectedRideRequest = customerInformation.rideRequest;
-          if (
-            connectedRideRequest !== undefined &&
-            !stateConnectedRideRequests.includes(connectedRideRequest)
-          ) {
-            setStateConnectedRideRequests(prev => [
-              ...prev,
-              connectedRideRequest,
-            ]);
+          if (connectedRideRequest !== undefined) {
+            if (!stateConnectedRideRequests.includes(connectedRideRequest))
+              setStateConnectedRideRequests([connectedRideRequest]);
+          } else {
+            setStateConnectedRideRequests([]);
           }
+          setStateConnectedDriver(customerInformation.passenger);
         });
       } else if (
         selectedSpectator.category ===
@@ -422,14 +419,23 @@ export default function TabMap(props: TabMapProps) {
           )
         ).then(rideProviderInformation => {
           const connectedRideRequest = rideProviderInformation.rideRequest;
-          if (
-            connectedRideRequest !== undefined &&
-            !stateConnectedRideRequests.includes(connectedRideRequest)
-          ) {
-            setStateConnectedRideRequests(prev => [
-              ...prev,
-              connectedRideRequest,
-            ]);
+          if (connectedRideRequest !== undefined) {
+            if (!stateConnectedRideRequests.includes(connectedRideRequest))
+              setStateConnectedRideRequests([connectedRideRequest]);
+          } else {
+            setStateConnectedRideRequests([]);
+          }
+          const connectedPassengers = rideProviderInformation.passengerList;
+          if (connectedPassengers !== undefined) {
+            if (
+              connectedPassengers.some(
+                a => !stateConnectedPassengers.includes(a)
+              )
+            ) {
+              setStateConnectedPassengers(connectedPassengers);
+            }
+          } else {
+            setStateConnectedPassengers([]);
           }
         });
       }
@@ -471,9 +477,9 @@ export default function TabMap(props: TabMapProps) {
     );
     const buttonCurrentSpectatorClear = (
       <GenericButton
-        disabled={stateSpectator === 'everything'}
+        disabled={stateSpectator === SpectatorId.EVERYTHING}
         icon={<DeleteIcon />}
-        onClick={() => setStateSpectator('everything')}
+        onClick={() => setStateSpectator(SpectatorId.EVERYTHING)}
         secondaryColor={true}
       />
     );
@@ -510,7 +516,7 @@ export default function TabMap(props: TabMapProps) {
       {
         content: (
           <>
-            <InputChangeSpectator {...props} />
+            <InputChangeSpectator key="change-spectator" {...props} />
             <ButtonGroup
               sx={{
                 display: {sm: 'flex', xs: 'none'},
@@ -576,6 +582,14 @@ export default function TabMap(props: TabMapProps) {
     Array<string>
   >([]);
 
+  const [stateConnectedPassengers, setStateConnectedPassengers] = useState<
+    Array<string>
+  >([]);
+
+  const [stateConnectedDriver, setStateConnectedDriver] = useState<
+    string | undefined
+  >(undefined);
+
   /** Specify which connected elements should be displayed */
   const stateConnectedElements = useMemo<Array<ConnectedElementSection>>(() => {
     /** The pinned participant cards */
@@ -601,8 +615,8 @@ export default function TabMap(props: TabMapProps) {
           key={`connected-element-pinned-customer-${pinnedCustomerId}`}
           cardType={'customer'}
           id={pinnedCustomerId}
-          stateRideRequestList={stateConnectedRideRequests}
-          setStateRideRequestList={setStateConnectedRideRequests}
+          //stateRideRequestList={stateConnectedRideRequests}
+          //setStateRideRequestList={setStateConnectedRideRequests}
           unpinAction={() =>
             setStatePinnedCustomers(prev =>
               prev.filter(id => id !== pinnedCustomerId)
@@ -619,8 +633,8 @@ export default function TabMap(props: TabMapProps) {
           key={`connected-element-pinned-rideProvider-${pinnedRideProviderId}`}
           cardType={'ride_provider'}
           id={pinnedRideProviderId}
-          stateRideRequestList={stateConnectedRideRequests}
-          setStateRideRequestList={setStateConnectedRideRequests}
+          //stateRideRequestList={stateConnectedRideRequests}
+          //setStateRideRequestList={setStateConnectedRideRequests}
           unpinAction={() =>
             setStatePinnedRideProviders(prev =>
               prev.filter(id => id !== pinnedRideProviderId)
@@ -654,8 +668,9 @@ export default function TabMap(props: TabMapProps) {
       );
     }
     // > Connected smart contracts
+    // TODO?
+    /*
     if (currentSelectedSpectator) {
-      // TODO
       connectedSmartContracts.push(
         <CardGeneric
           {...props}
@@ -678,51 +693,49 @@ export default function TabMap(props: TabMapProps) {
         />
       );
     }
+    */
     // > Connected passengers
     if (
       currentSelectedSpectator &&
       currentSelectedSpectator.category ===
         intl.formatMessage({id: 'getacar.participant.rideProvider'})
     ) {
-      // TODO
-      connectedParticipants.push(
-        <CardGeneric
-          {...props}
-          key={`connected-element-passenger-${'TODO'}`}
-          name={intl.formatMessage({
-            id: 'getacar.participant.customer',
-          })}
-          content={[{content: 'TODO'}]}
-          icon={<ParticipantCustomerIcon />}
-          label={intl.formatMessage(
-            {
-              id: 'getacar.spectator.message.connected',
-            },
-            {
-              name: intl.formatMessage({
-                id: 'getacar.spectator.message.passenger',
-              }),
-            }
-          )}
-        />
-      );
+      for (const stateConnectedPassenger of stateConnectedPassengers) {
+        connectedParticipants.push(
+          <CardRefresh
+            {...props}
+            key={`connected-element-passenger-${stateConnectedPassenger}`}
+            cardType={'customer'}
+            id={stateConnectedPassenger}
+            isPseudonym={true}
+            label={intl.formatMessage(
+              {
+                id: 'getacar.spectator.message.connected',
+              },
+              {
+                name: intl.formatMessage({
+                  id: 'getacar.spectator.message.passenger',
+                }),
+              }
+            )}
+          />
+        );
+      }
     }
     // > Connected driver
     if (
       currentSelectedSpectator &&
       currentSelectedSpectator.category ===
-        intl.formatMessage({id: 'getacar.participant.customer'})
+        intl.formatMessage({id: 'getacar.participant.customer'}) &&
+      stateConnectedDriver !== undefined
     ) {
-      // TODO
       connectedParticipants.push(
-        <CardGeneric
+        <CardRefresh
           {...props}
-          key={`connected-element-driver-${'TODO'}`}
-          name={intl.formatMessage({
-            id: 'getacar.participant.rideProvider',
-          })}
-          content={[{content: 'TODO'}]}
-          icon={<ParticipantRideProviderIcon />}
+          key={`connected-element-driver-${stateConnectedDriver}`}
+          cardType={'customer'}
+          id={stateConnectedDriver}
+          isPseudonym={true}
           label={intl.formatMessage(
             {
               id: 'getacar.spectator.message.connected',
@@ -764,7 +777,14 @@ export default function TabMap(props: TabMapProps) {
         title: intl.formatMessage(
           {id: 'getacar.spectator.message.connected'},
           {
-            name: intl.formatMessage({id: 'getacar.rideRequest.plural'}),
+            name: intl.formatMessage(
+              {
+                id: 'active',
+              },
+              {
+                name: intl.formatMessage({id: 'getacar.rideRequest.plural'}),
+              }
+            ),
           }
         ),
       },
@@ -782,6 +802,8 @@ export default function TabMap(props: TabMapProps) {
   }, [
     intl,
     props,
+    stateConnectedDriver,
+    stateConnectedPassengers,
     stateConnectedRideRequests,
     statePinnedCustomers,
     statePinnedRideProviders,
@@ -805,7 +827,7 @@ export default function TabMap(props: TabMapProps) {
                 placeholder={intl.formatMessage({
                   id: 'page.home.tab.map.search',
                 })}
-                primaryFilter={searchBarIds.show}
+                primaryFilter={SearchBarId.SHOW_PARTICIPANT}
               />
             </Grid>
             <Grid item xs={12}>
@@ -824,6 +846,7 @@ export default function TabMap(props: TabMapProps) {
             </Grid>
           </Grid>
         </GridConnectedElementsLayout>
+        {/** Debug Section */}
         <Box
           sx={{
             '& > *': {m: 1},

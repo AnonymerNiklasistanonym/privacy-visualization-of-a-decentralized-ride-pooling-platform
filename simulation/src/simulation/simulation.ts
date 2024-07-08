@@ -32,6 +32,7 @@ import type {
   SimulationEndpointGraphInformation,
   SimulationEndpointParticipantCoordinates,
   SimulationEndpointParticipantIdFromPseudonym,
+  SimulationEndpointParticipantPseudonymsFromId,
   SimulationEndpointRideRequestInformation,
   SimulationEndpointRideRequests,
   SimulationEndpointSmartContractInformation,
@@ -431,7 +432,10 @@ export class Simulation {
       .get((req, res) => {
         const customer = this.customers.find(a => a.id === req.params.id);
         if (customer) {
-          res.json(customer.endpointCustomer);
+          res.json({
+            ...customer.endpointCustomer,
+            roundedRating: customer.getRating(this),
+          });
           return;
         }
         res.status(404);
@@ -445,7 +449,10 @@ export class Simulation {
           a => a.id === req.params.id
         );
         if (rideProvider) {
-          res.json(rideProvider.endpointRideProvider);
+          res.json({
+            ...rideProvider.endpointRideProvider,
+            roundedRating: rideProvider.getRating(this),
+          });
           return;
         }
         res.status(404);
@@ -526,6 +533,24 @@ export class Simulation {
         }
         res.status(404);
       });
+    router
+      .route(simulationEndpointRoutes.apiV1.participantPseudonymsFromId(':id'))
+      .get((req, res) => {
+        const pseudonymsAs = this.authenticationServices.find(
+          a => a.simulationGetPseudonyms(req.params.id) !== undefined
+        );
+        if (pseudonymsAs !== undefined) {
+          res.json({
+            // TODO Stupid code
+            pseudonyms: pseudonymsAs.simulationGetPseudonyms(
+              req.params.id
+            ) as string[],
+          } as SimulationEndpointParticipantPseudonymsFromId);
+          return;
+        }
+        res.status(404);
+      });
+
     // DEBUG: Created route graph
     router
       .route(simulationEndpointRoutes.apiV1.graphInformation)

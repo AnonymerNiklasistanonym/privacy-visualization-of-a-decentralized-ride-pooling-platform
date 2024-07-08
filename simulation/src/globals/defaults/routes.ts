@@ -13,6 +13,8 @@ export const simulationEndpointRoutes = Object.freeze({
       `/participant_customer/${id}`,
     participantInformationRideProvider: (id: string) =>
       `/participant_ride_provider/${id}`,
+    participantPseudonymsFromId: (id: string) =>
+      `/participant_pseudonyms_from_id/${id}`,
     rideRequestInformation: (id: string) => `/ride_request/${id}`,
     rideRequests: '/ride_requests',
     shortestPath: '/shortest_path',

@@ -14,32 +14,32 @@ import {
   SpectatorPublicIcon,
 } from '@components/Icons';
 import DataModal from '@components/Modal/DataModal';
+// > Misc
+import {SpectatorId} from '@misc/spectatorIds';
 // Type imports
+import type {
+  DataModalInformation,
+  DataOrigin,
+} from '@components/Modal/DataModal';
 import type {ReactElement, ReactNode} from 'react';
 import type {ButtonChangeSpectatorProps} from '@components/Button/ButtonChangeSpectator';
-import type {DataModalInformation} from '@components/Modal/DataModal';
-
-export interface ShowContentSpectatorElement {
-  spectator: string;
-  description: string;
-}
 
 export interface DataElement {
   label: string;
   content: ReactNode;
-  /** Show content only for the specified spectators. */
-  showContentSpectator: ShowContentSpectatorElement[];
   /** Information about who can see this data besides the owner */
   dataAccessInformation: DataModalInformation[];
 }
 
-export interface RenderDataElementProps extends ButtonChangeSpectatorProps {
+export interface RenderDataElementProps
+  extends ButtonChangeSpectatorProps,
+    DataOrigin {
+  /** The rendered information */
   element: Readonly<DataElement>;
   id: string;
-  dataOriginId: string;
-  dataOriginName: string;
-  dataOriginIcon: ReactElement;
+  /** The data owner information element */
   dataOriginInformation?: ReactElement;
+  /** Lists all entities that have in some way access to this information */
   dataAccessInformation: Array<DataModalInformation>;
 }
 
@@ -81,9 +81,14 @@ export function RenderDataElement(props: RenderDataElementProps) {
   let content = element.content;
   let tooltip = '';
   if (
-    stateSpectator !== id &&
-    stateSpectator !== 'everything' &&
-    !element.showContentSpectator.some(a => a.spectator === stateSpectator)
+    stateSpectator !== SpectatorId.EVERYTHING &&
+    !element.dataAccessInformation.some(
+      a =>
+        a.spectatorId === stateSpectator &&
+        (a.accessType === 'local_storage' ||
+          a.accessType === 'transitive' ||
+          a.accessType === 'owner')
+    )
   ) {
     content = '******';
     tooltip = 'The current spectator can`t see this data, click to learn more';
@@ -150,7 +155,7 @@ export const dataModalInformationPersonalData: DataModalInformation[] = [
       'Stores it locally to prevent multiple accounts and to contact this participant',
     icon: <ServiceAuthenticationIcon />,
     name: 'Authentication Service',
-    spectatorId: 'auth',
+    spectatorId: SpectatorId.AUTHENTICATION_SERVICE,
     spectatorInformation: <ServiceAuthentication intlValues={{}} />,
   },
   {
@@ -159,7 +164,7 @@ export const dataModalInformationPersonalData: DataModalInformation[] = [
       'Only knows the participants pseudonym but no personal information',
     icon: <ServiceMatchingIcon />,
     name: 'Matching Service',
-    spectatorId: 'match',
+    spectatorId: SpectatorId.MATCHING_SERVICE,
     spectatorInformation: <ServiceMatching intlValues={{}} />,
   },
   {
@@ -167,7 +172,7 @@ export const dataModalInformationPersonalData: DataModalInformation[] = [
     description: 'This data is not publicly available',
     icon: <SpectatorPublicIcon />,
     name: 'Public',
-    spectatorId: 'public',
+    spectatorId: SpectatorId.PUBLIC,
     spectatorInformation: (
       <Typography variant="body1" gutterBottom>
         TODO Add spectator section to overview

@@ -58,6 +58,8 @@ export interface SimulationEndpointParticipantInformation
   rideRequest?: SimulationEndpointRideRequestId;
   /** Simulation status (to debug what the actor is doing) */
   simulationStatus: string;
+  /** Rounded rating of participant. */
+  roundedRating?: number;
 }
 
 export interface SimulationEndpointParticipantInformationCustomer
@@ -128,4 +130,8 @@ export interface SimulationEndpointSmartContractInformation
 export interface SimulationEndpointParticipantIdFromPseudonym {
   id: string;
   authServiceId: string;
+}
+
+export interface SimulationEndpointParticipantPseudonymsFromId {
+  pseudonyms: Array<string>;
 }

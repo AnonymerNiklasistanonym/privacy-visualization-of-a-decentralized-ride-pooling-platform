@@ -39,7 +39,8 @@ import {
 } from '@globals/defaults/urls';
 // > Misc
 import {LocalStorageKey} from '@misc/localStorage';
-import {searchBarIds} from '@misc/searchBarIds';
+import {SearchBarId} from '@misc/searchBarIds';
+import {SpectatorId} from '@misc/spectatorIds';
 // Type imports
 import type {
   GlobalPropsFetch,
@@ -139,7 +140,7 @@ export default function CollectionHome(
   ] = useState(false);
   // > Spectator
   const [stateSpectator, setStateSpectator] = useState(
-    searchParams.get(UrlParameter.SPECTATOR) ?? 'everything'
+    searchParams.get(UrlParameter.SPECTATOR) ?? SpectatorId.EVERYTHING
   );
   const [stateShowSpectator, setStateShowSpectator] = useState<
     undefined | string
@@ -179,19 +180,19 @@ export default function CollectionHome(
         {
           category: intl.formatMessage({id: 'other'}),
           icon: <SpectatorPublicIcon />,
-          id: 'public',
+          id: SpectatorId.PUBLIC,
           name: intl.formatMessage({id: 'getacar.spectator.public'}),
         },
         {
           category: intl.formatMessage({id: 'other'}),
           icon: <SpectatorEverythingIcon />,
-          id: 'everything',
+          id: SpectatorId.EVERYTHING,
           name: intl.formatMessage({id: 'getacar.spectator.everything'}),
         },
         {
           category: intl.formatMessage({id: 'getacar.service'}),
           icon: <ServiceAuthenticationIcon />,
-          id: 'auth',
+          id: SpectatorId.AUTHENTICATION_SERVICE,
           name: intl.formatMessage({
             id: 'getacar.spectator.service.authentication',
           }),
@@ -199,7 +200,7 @@ export default function CollectionHome(
         {
           category: intl.formatMessage({id: 'getacar.service'}),
           icon: <ServiceMatchingIcon />,
-          id: 'match',
+          id: SpectatorId.MATCHING_SERVICE,
           name: intl.formatMessage({id: 'getacar.spectator.service.matching'}),
         },
       ].map(a => [
@@ -298,7 +299,7 @@ export default function CollectionHome(
     } else {
       params.delete(UrlParameter.DEBUG);
     }
-    if (stateSpectator !== 'everything') {
+    if (stateSpectator !== SpectatorId.EVERYTHING) {
       params.set(UrlParameter.SPECTATOR, stateSpectator);
     } else {
       params.delete(UrlParameter.SPECTATOR);
@@ -453,7 +454,7 @@ export default function CollectionHome(
           keywords: [
             actorId,
             actorInformation.name,
-            searchBarIds.show,
+            SearchBarId.SHOW_PARTICIPANT,
             ...(actorInformation.keywords ?? []),
           ],
           name: intl.formatMessage(
@@ -474,7 +475,7 @@ export default function CollectionHome(
           keywords: [
             actorId,
             actorInformation.name,
-            searchBarIds.filter,
+            SearchBarId.FILTER_SMART_CONTRACT_PARTICIPANT,
             ...(actorInformation.keywords ?? []),
           ],
           name: intl.formatMessage(

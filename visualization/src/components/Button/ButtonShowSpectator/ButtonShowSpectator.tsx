@@ -8,6 +8,7 @@ import {Lock as LockIcon} from '@mui/icons-material';
 // > Globals
 import {simulationEndpoints} from '@globals/defaults/endpoints';
 // > Misc
+import {SpectatorId} from '@misc/spectatorIds';
 import {debugComponentUpdate} from '@misc/debug';
 // Type imports
 import type {
@@ -86,7 +87,9 @@ export function ButtonShowSpectator({
     stateSelectedSpectator === stateResolvedPseudonym?.id;
 
   const spectatorCanSeePseudonym =
-    stateSpectator === 'everything' ||
+    stateSpectator === SpectatorId.EVERYTHING ||
+    // !!! This only works when there is only a single auth service!
+    stateSpectator === SpectatorId.AUTHENTICATION_SERVICE ||
     stateSpectator === stateResolvedPseudonym?.id ||
     stateSpectator === stateResolvedPseudonym?.authServiceId;
 

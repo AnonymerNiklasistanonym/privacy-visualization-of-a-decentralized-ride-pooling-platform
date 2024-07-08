@@ -11,6 +11,8 @@ export const simulationEndpoints = Object.freeze({
       `${ser.apiV1.route}${ser.apiV1.participantInformationCustomer(id)}`,
     participantInformationRideProvider: (id: string) =>
       `${ser.apiV1.route}${ser.apiV1.participantInformationRideProvider(id)}`,
+    participantPseudonymsFromId: (id: string) =>
+      `${ser.apiV1.route}${ser.apiV1.participantPseudonymsFromId(id)}`,
     rideRequestInformation: (id: string) =>
       `${ser.apiV1.route}${ser.apiV1.rideRequestInformation(id)}`,
     rideRequests: `${ser.apiV1.route}${ser.apiV1.rideRequests}`,

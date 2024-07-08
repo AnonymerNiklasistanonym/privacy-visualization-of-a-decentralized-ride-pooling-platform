@@ -9,6 +9,7 @@ import {simulationEndpoints} from '@globals/defaults/endpoints';
 // Type imports
 import type {ReactSetState, ReactState} from '@misc/react';
 import type {
+  SimulationEndpointParticipantIdFromPseudonym,
   SimulationEndpointParticipantInformationCustomer,
   SimulationEndpointParticipantInformationRideProvider,
   SimulationEndpointRideRequestInformation,
@@ -34,6 +35,8 @@ export interface CardRefreshProps
   setStateRideRequestList?: ReactSetState<Array<string>>;
   /** Optional state to not unnecessarily update the ride request ID list */
   stateRideRequestList?: ReactState<Array<string>>;
+  /** Optional declare that the ID is actually a pseudonym and needs to be fetched */
+  isPseudonym?: boolean;
 }
 
 export default memo(CardRefresh);
@@ -46,6 +49,7 @@ export function CardRefresh(props: CardRefreshProps) {
     cardType,
     fetchJsonSimulation,
     id,
+    isPseudonym,
     pauseRefresh,
     setStateRideRequestList,
     showError,
@@ -62,8 +66,35 @@ export function CardRefresh(props: CardRefreshProps) {
   const [stateRideRequestInformation, setStateRideRequestInformation] =
     useState<SimulationEndpointRideRequestInformation | null>(null);
 
+  // > Fetching of actual actor ID in case it was a pseudonym
+  const [stateResolvedPseudonym, setStateResolvedPseudonym] = useState<
+    string | undefined
+  >(undefined);
+
+  // React: Run on first render
+  // > In case the actor ID is a pseudonym fetch the actual actor ID
+  useEffect(() => {
+    if (
+      isPseudonym &&
+      (cardType === 'customer' || cardType === 'ride_provider')
+    ) {
+      fetchJsonSimulation<SimulationEndpointParticipantIdFromPseudonym>(
+        simulationEndpoints.apiV1.participantIdFromPseudonym(id)
+      )
+        .then(data => setStateResolvedPseudonym(data.id))
+        .catch(err =>
+          showError(
+            'Simulation fetch participant ID from pseudonym [CardRefresh]',
+            err
+          )
+        );
+    }
+  }, [fetchJsonSimulation, isPseudonym, showError, id, cardType]);
+
   /** Keep track of if there is a fetch happening to not double fetch at the same time */
   const currentlyFetching = useRef(false);
+
+  const participantId = isPseudonym === true ? stateResolvedPseudonym : id;
 
   /** Fetches the card specific information in set intervals */
   const fetchCardInformation = useCallback(async () => {
@@ -79,17 +110,21 @@ export function CardRefresh(props: CardRefreshProps) {
     currentlyFetching.current = true;
     let currentRideRequest: undefined | string = undefined;
     // Get the card information
-    if (cardType === 'customer') {
+    if (cardType === 'customer' && participantId !== undefined) {
       const customerInformation =
         await fetchJsonSimulation<SimulationEndpointParticipantInformationCustomer>(
-          simulationEndpoints.apiV1.participantInformationCustomer(id)
+          simulationEndpoints.apiV1.participantInformationCustomer(
+            participantId
+          )
         );
       setStateCustomerInformation(customerInformation);
       currentRideRequest = customerInformation.rideRequest;
-    } else if (cardType === 'ride_provider') {
+    } else if (cardType === 'ride_provider' && participantId !== undefined) {
       const rideProviderInformation =
         await fetchJsonSimulation<SimulationEndpointParticipantInformationRideProvider>(
-          simulationEndpoints.apiV1.participantInformationRideProvider(id)
+          simulationEndpoints.apiV1.participantInformationRideProvider(
+            participantId
+          )
         );
       setStateRideProviderInformation(rideProviderInformation);
       currentRideRequest = rideProviderInformation.rideRequest;
@@ -114,6 +149,7 @@ export function CardRefresh(props: CardRefreshProps) {
     cardType,
     fetchJsonSimulation,
     id,
+    participantId,
     pauseRefresh,
     setStateRideRequestList,
     stateRideRequestList,
@@ -141,7 +177,7 @@ export function CardRefresh(props: CardRefreshProps) {
       participantType={cardType}
       stateCustomerInformation={stateCustomerInformation}
       stateRideProviderInformation={stateRideProviderInformation}
-      stateParticipantId={id}
+      stateParticipantId={participantId ?? id}
     />
   ) : cardType === 'ride_request' ? (
     <CardRideRequest

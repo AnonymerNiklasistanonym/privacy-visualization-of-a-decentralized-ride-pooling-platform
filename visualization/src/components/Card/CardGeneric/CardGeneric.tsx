@@ -167,7 +167,6 @@ export default function CardGeneric(props: CardGenericPropsInput) {
         sx={{
           // Hide overflow in the content part
           maxHeight: '40vh',
-          overflowX: 'hidden',
           overflowY: 'scroll',
         }}
       >
@@ -179,6 +178,7 @@ export default function CardGeneric(props: CardGenericPropsInput) {
                   icon={a.labelIcon ?? undefined}
                   label={a.label}
                   size="small"
+                  sx={{marginBottom: '0.5rem', marginTop: '0.5rem'}}
                 />
               </Divider>
             ) : undefined}
