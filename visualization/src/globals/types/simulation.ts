@@ -124,6 +124,9 @@ export interface SimulationEndpointSmartContracts {
 
 export interface SimulationEndpointSmartContractInformation
   extends GetACarSmartContract {
+  // Helper
+  customerIdResolved: string;
+  rideProviderIdResolved: string;
   type: 'smart_contract';
 }
 

@@ -8,6 +8,7 @@
   "data.access.transitive": "Can either request the data or deduce it because of it's situation",
   "data.access.none": "Has no access",
   "data.id": "ID",
+  "data.pseudonym": "Pseudonym",
   "data.rating": "Rating",
   "data.section.personalDetails": "Personal Details",
   "data.section.queries": "Queries",

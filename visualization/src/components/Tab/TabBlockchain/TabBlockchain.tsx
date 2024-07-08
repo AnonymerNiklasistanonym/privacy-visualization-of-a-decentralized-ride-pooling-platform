@@ -1,7 +1,7 @@
 'use client';
 
 // Package imports
-import {useCallback, useEffect, useMemo, useState} from 'react';
+import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {useIntl} from 'react-intl';
 // > Components
 import {Box, ButtonGroup, Grid, Paper} from '@mui/material';
@@ -76,6 +76,7 @@ export default function TabBlockchain(props: TabBlockchainProps) {
     setStateSelectedSpectator,
     stateSettingsBlockchainUpdateRateInMs,
     setStateSpectator,
+    stateSpectators,
     stateSpectator,
   } = props;
   const intl = useIntl();
@@ -93,6 +94,37 @@ export default function TabBlockchain(props: TabBlockchainProps) {
     stateSelectedRideProviderResolved,
     setStateSelectedRideProviderResolved,
   ] = useState<string | undefined>(undefined);
+
+  const [stateConnectedRideRequests, setStateConnectedRideRequests] = useState<
+    Array<string>
+  >([]);
+
+  useEffect(() => {
+    if (stateSelectedSmartContractId !== undefined) {
+      console.warn(
+        'Fetch connected ride requests of smart contract...',
+        stateSelectedSmartContractId
+      );
+      fetchJsonSimulation<any>(
+        simulationEndpoints.apiV1.smartContractConnectedRideRequests(
+          stateSelectedSmartContractId
+        )
+      )
+        .then(data => {
+          // TODO Not working
+          console.warn(
+            'Fetched connected ride requests of smart contract',
+            data
+          );
+          setStateConnectedRideRequests(data.connectedRideRequests);
+        })
+        .catch(err =>
+          showError('Simulation fetch customer ID from pseudonym', err)
+        );
+    } else {
+      setStateConnectedRideRequests([]);
+    }
+  }, [fetchJsonSimulation, stateSelectedSmartContractId, showError]);
 
   useEffect(() => {
     if (stateSelectedCustomerPseudonym !== undefined) {
@@ -131,6 +163,18 @@ export default function TabBlockchain(props: TabBlockchainProps) {
     showError,
     stateSelectedRideProviderPseudonym,
   ]);
+
+  useEffect(() => {
+    if (stateSelectedRideProviderPseudonym === undefined) {
+      setStateSelectedRideProviderResolved(undefined);
+    }
+  }, [stateSelectedRideProviderPseudonym]);
+
+  useEffect(() => {
+    if (stateSelectedCustomerPseudonym === undefined) {
+      setStateSelectedCustomerResolved(undefined);
+    }
+  }, [stateSelectedCustomerPseudonym]);
 
   const stateConnectedElements = useMemo<Array<ConnectedElementSection>>(() => {
     const selectedParticipants: Array<ReactElement> = [];
@@ -173,55 +217,15 @@ export default function TabBlockchain(props: TabBlockchainProps) {
         />
       );
     }
-    if (stateSelectedRideProviderResolved !== undefined) {
-      selectedParticipants.push(
-        <CardGeneric
-          {...props}
-          icon={<ParticipantCustomerIcon />}
-          name={intl.formatMessage({
-            id: 'getacar.participant.customer',
-          })}
-          label={intl.formatMessage(
-            {
-              id: 'getacar.spectator.message.connected',
-            },
-            {
-              name: intl.formatMessage({
-                id: 'getacar.spectator.message.passenger',
-              }),
-            }
-          )}
-          id={'TODO'}
-          status={'TODO'}
-          content={[]}
-        />
-      );
-    }
-    if (stateSelectedRideProviderResolved !== undefined) {
+    for (const stateConnectedRideRequest of stateConnectedRideRequests) {
       selectedRideRequests.push(
-        <CardGeneric
+        <CardRefresh
           {...props}
-          icon={<ParticipantRideRequestIcon />}
-          name={intl.formatMessage({
-            id: 'getacar.rideRequest',
-          })}
-          label={intl.formatMessage(
-            {
-              id: 'getacar.spectator.message.connected',
-            },
-            {
-              name: intl.formatMessage({
-                id: 'getacar.rideRequest',
-              }),
-            }
-          )}
-          id={'TODO'}
-          status={'TODO'}
-          content={[]}
+          id={stateConnectedRideRequest}
+          cardType={'ride_request'}
         />
       );
     }
-    // TODO Show connected Ride Request
     return [
       {
         elements: selectedParticipants,
@@ -247,6 +251,7 @@ export default function TabBlockchain(props: TabBlockchainProps) {
   }, [
     intl,
     props,
+    stateConnectedRideRequests,
     stateSelectedCustomerResolved,
     stateSelectedRideProviderResolved,
   ]);
@@ -303,6 +308,31 @@ export default function TabBlockchain(props: TabBlockchainProps) {
         )}
       </GenericButton>
     );
+    const buttonSelectedSpectatorClear = (
+      <GenericButton
+        disabled={stateSelectedSpectator === undefined}
+        icon={<DeleteIcon />}
+        onClick={() => setStateSelectedSpectator(undefined)}
+      >
+        {intl.formatMessage(
+          {
+            id: 'reset',
+          },
+          {
+            name: intl.formatMessage(
+              {
+                id: 'selected',
+              },
+              {
+                name: intl.formatMessage({
+                  id: 'getacar.spectator',
+                }),
+              }
+            ),
+          }
+        )}
+      </GenericButton>
+    );
     return [
       {
         content: (
@@ -315,6 +345,13 @@ export default function TabBlockchain(props: TabBlockchainProps) {
             >
               {buttonCurrentSpectatorClear}
               {buttonSelectedSmartContractClear}
+            </ButtonGroup>
+            <ButtonGroup
+              sx={{
+                marginTop: `${stateSettingsUiGridSpacing / 2}rem`,
+              }}
+            >
+              {buttonSelectedSpectatorClear}
             </ButtonGroup>
           </>
         ),
@@ -332,8 +369,10 @@ export default function TabBlockchain(props: TabBlockchainProps) {
     intl,
     props,
     setStateSelectedSmartContractId,
+    setStateSelectedSpectator,
     setStateSpectator,
     stateSelectedSmartContractId,
+    stateSelectedSpectator,
     stateSettingsUiGridSpacing,
     stateSpectator,
   ]);
@@ -368,6 +407,32 @@ export default function TabBlockchain(props: TabBlockchainProps) {
     Array<SimulationEndpointSmartContractInformation>
   >([]);
 
+  const stateSmartContractsFinal = useMemo<
+    Array<SimulationEndpointSmartContractInformation>
+  >(() => {
+    if (stateSelectedSpectator !== undefined) {
+      const spectator = stateSpectators.get(stateSelectedSpectator);
+      if (spectator !== undefined) {
+        const categoryCustomer = intl.formatMessage({
+          id: 'getacar.participant.customer',
+        });
+        const categoryRideProvider = intl.formatMessage({
+          id: 'getacar.participant.rideProvider',
+        });
+        return stateSmartContracts.filter(a =>
+          spectator.category === categoryCustomer
+            ? a.customerIdResolved === stateSelectedSpectator
+            : spectator.category === categoryRideProvider
+              ? a.rideProviderIdResolved === stateSelectedSpectator
+              : true
+        );
+      }
+    }
+    return stateSmartContracts;
+  }, [stateSelectedSpectator, stateSmartContracts, stateSpectators, intl]);
+
+  const pseudoCache = useRef<Map<string, string>>(new Map());
+
   const fetchSmartContracts = () =>
     fetchJsonSimulation<SimulationEndpointSmartContracts>(
       simulationEndpoints.apiV1.smartContracts
@@ -400,15 +465,6 @@ export default function TabBlockchain(props: TabBlockchainProps) {
     };
   });
 
-  const filterData = useMemo<
-    Array<[field: string, values: Array<string>]>
-  >(() => {
-    return [
-      ['customerId', stateFilterPseudonyms.slice()],
-      ['rideProviderId', stateFilterPseudonyms.slice()],
-    ];
-  }, [stateFilterPseudonyms]);
-
   const onRowSelect = useCallback(
     (
       smartContractId: string,
@@ -421,6 +477,13 @@ export default function TabBlockchain(props: TabBlockchainProps) {
     },
     [setStateSelectedSmartContractId]
   );
+
+  useEffect(() => {
+    if (stateSelectedSmartContractId === undefined) {
+      setStateSelectedCustomerPseudonym(undefined);
+      setStateSelectedRideProviderPseudonym(undefined);
+    }
+  }, [stateSelectedSmartContractId]);
 
   return (
     <TabContainer fullPage={true}>
@@ -461,7 +524,7 @@ export default function TabBlockchain(props: TabBlockchainProps) {
                     customers: [],
                     rideProviders: [],
                     rideRequests: [],
-                    smartContracts: stateSmartContracts,
+                    smartContracts: stateSmartContractsFinal,
                   }}
                   debugDataType="smart_contract"
                   onRowClick={(type, id) => {
@@ -477,7 +540,6 @@ export default function TabBlockchain(props: TabBlockchainProps) {
                       );
                     }
                   }}
-                  filterData={filterData}
                 />
               </Paper>
             </Box>

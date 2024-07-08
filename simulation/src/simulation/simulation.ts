@@ -505,9 +505,53 @@ export class Simulation {
           res.json({
             ...smartContract,
             customerId: smartContract.customerPseudonym,
+            customerIdResolved:
+              this.authenticationServices.reduce<string | undefined>(
+                (prev, curr) =>
+                  prev ??
+                  curr.simulationGetParticipantId(
+                    smartContract.customerPseudonym
+                  ),
+                undefined
+              ) ?? 'error',
             rideProviderId: smartContract.rideProviderPseudonym,
+            rideProviderIdResolved:
+              this.authenticationServices.reduce<string | undefined>(
+                (prev, curr) =>
+                  prev ??
+                  curr.simulationGetParticipantId(
+                    smartContract.rideProviderPseudonym
+                  ),
+                undefined
+              ) ?? 'error',
             type: 'smart_contract',
           } as SimulationEndpointSmartContractInformation);
+          return;
+        }
+        res.status(404);
+      });
+    router
+      .route(
+        simulationEndpointRoutes.apiV1.smartContractConnectedRideRequests(':id')
+      )
+      .get((req, res) => {
+        logger.warn('Got request for connected ride requests!', req.params.id);
+        const smartContracts = this.blockchain.rideContracts;
+        const smartContract = smartContracts.find(
+          a => a.walletId === req.params.id
+        );
+        if (smartContract) {
+          const connectedRideRequests = this.matchingServices
+            .flatMap(a =>
+              a
+                .getAuctions()
+                .filter(a => a.rideContractAddress === req.params.id)
+            )
+            .map(a => a.id);
+          logger.warn('Respond with!', {connectedRideRequests});
+          res.json({
+            connectedRideRequests,
+          });
           return;
         }
         res.status(404);
@@ -536,15 +580,15 @@ export class Simulation {
     router
       .route(simulationEndpointRoutes.apiV1.participantPseudonymsFromId(':id'))
       .get((req, res) => {
-        const pseudonymsAs = this.authenticationServices.find(
-          a => a.simulationGetPseudonyms(req.params.id) !== undefined
+        const pseudonyms = this.authenticationServices.reduce<
+          Array<string> | undefined
+        >(
+          (prev, curr) => prev ?? curr.simulationGetPseudonyms(req.params.id),
+          undefined
         );
-        if (pseudonymsAs !== undefined) {
+        if (pseudonyms !== undefined) {
           res.json({
-            // TODO Stupid code
-            pseudonyms: pseudonymsAs.simulationGetPseudonyms(
-              req.params.id
-            ) as string[],
+            pseudonyms,
           } as SimulationEndpointParticipantPseudonymsFromId);
           return;
         }

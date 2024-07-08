@@ -21,6 +21,8 @@ export const simulationEndpoints = Object.freeze({
     shortestPath: `${ser.apiV1.route}${ser.apiV1.shortestPath}`,
     smartContract: (id: string) =>
       `${ser.apiV1.route}${ser.apiV1.smartContract(id)}`,
+    smartContractConnectedRideRequests: (id: string) =>
+      `${ser.apiV1.route}${ser.apiV1.smartContractConnectedRideRequests(id)}`,
     smartContracts: `${ser.apiV1.route}${ser.apiV1.smartContracts}`,
   }),
   internal: Object.freeze({

@@ -17,6 +17,8 @@ export const simulationEndpointRoutes = Object.freeze({
     rideRequests: '/ride_requests',
     shortestPath: '/shortest_path',
     smartContract: (id: string) => `/smart_contract/${id}`,
+    smartContractConnectedRideRequests: (id: string) =>
+      `/smart_contract_connected_ride_requests/${id}`,
     smartContracts: '/smart_contracts',
   }),
 

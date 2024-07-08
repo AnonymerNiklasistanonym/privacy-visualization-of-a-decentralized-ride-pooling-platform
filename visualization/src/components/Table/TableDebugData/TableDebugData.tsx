@@ -1,9 +1,8 @@
 // Package imports
-import {useEffect, useMemo} from 'react';
 import {useIntl} from 'react-intl';
 // > Components
 import {Box, Rating} from '@mui/material';
-import {DataGrid, GridLogicOperator, GridToolbar} from '@mui/x-data-grid';
+import {DataGrid, GridToolbar} from '@mui/x-data-grid';
 // > Icons
 import {Error as ErrorIcon} from '@mui/icons-material';
 // Local imports
@@ -18,7 +17,6 @@ import {
 import type {
   GridColDef,
   GridEventListener,
-  GridFilterModel,
   GridRowModel,
 } from '@mui/x-data-grid';
 import type {
@@ -42,7 +40,6 @@ export interface TableDebugDataProps {
   debugDataType: DebugDataType;
   onRowClick?: (type: DebugDataType, id: string) => void;
   height?: string;
-  filterData?: Array<[field: string, values: Array<string>]>;
 }
 
 const renderTypeIcon = (type: DebugDataType) =>
@@ -58,13 +55,14 @@ const renderTypeIcon = (type: DebugDataType) =>
     <ErrorIcon />
   );
 
-const ID_LENGTH = 150;
+const ID_LENGTH = 120;
+const PSEUDO_LENGTH = 190;
+const RATING_LENGTH = 150;
 
 export default function TableDebugData({
   stateDebugData,
   debugDataType,
   height,
-  filterData,
   onRowClick,
 }: TableDebugDataProps) {
   const intl = useIntl();
@@ -218,9 +216,11 @@ export default function TableDebugData({
             id: a.walletId,
             type: a.type,
 
-            customerId: a.customerId,
+            customerId: a.customerIdResolved,
+            customerPseudonym: a.customerId,
             customerRating: a.customerRating,
-            rideProviderId: a.rideProviderId,
+            rideProviderId: a.rideProviderIdResolved,
+            rideProviderPseudonym: a.rideProviderId,
             rideProviderRating: a.rideProviderRating,
           }) satisfies GridRowModel &
             Partial<SimulationEndpointSmartContractInformation>
@@ -244,6 +244,22 @@ export default function TableDebugData({
         width: ID_LENGTH,
       },
       {
+        field: 'customerPseudonym',
+        headerName:
+          intl.formatMessage({id: 'getacar.participant.customer'}) +
+          ' ' +
+          intl.formatMessage({id: 'data.pseudonym'}),
+        width: PSEUDO_LENGTH,
+      },
+      {
+        field: 'rideProviderPseudonym',
+        headerName:
+          intl.formatMessage({id: 'getacar.participant.rideProvider'}) +
+          ' ' +
+          intl.formatMessage({id: 'data.pseudonym'}),
+        width: PSEUDO_LENGTH,
+      },
+      {
         field: 'customerRating',
         headerName:
           intl.formatMessage({id: 'getacar.participant.customer'}) +
@@ -256,10 +272,11 @@ export default function TableDebugData({
               precision={0.5}
               disabled={a.value === undefined}
               value={a.value ?? 0}
+              readOnly
             />
           </Box>
         ),
-        width: 150,
+        width: RATING_LENGTH,
       },
       {
         field: 'rideProviderRating',
@@ -274,10 +291,11 @@ export default function TableDebugData({
               precision={0.5}
               disabled={a.value === undefined}
               value={a.value ?? 0}
+              readOnly
             />
           </Box>
         ),
-        width: 150,
+        width: RATING_LENGTH,
       }
     );
   }
@@ -293,27 +311,6 @@ export default function TableDebugData({
     console.log('cellClick', debugDataType, params.row, params);
   };
 
-  const filterModel = useMemo<GridFilterModel | undefined>(() => {
-    if (filterData === undefined) {
-      return undefined;
-    }
-    return {
-      items: filterData.flatMap(([field, values], index) =>
-        values.map((value, index2) => ({
-          field,
-          id: index * 10000 + index2,
-          operator: 'is',
-          value,
-        }))
-      ),
-      logicOperator: GridLogicOperator.Or,
-    };
-  }, [filterData]);
-
-  useEffect(() => {
-    console.warn('Updated filterModel', filterModel);
-  }, [filterModel]);
-
   return (
     <Box
       sx={{
@@ -325,6 +322,13 @@ export default function TableDebugData({
         rows={rows}
         columns={columns}
         initialState={{
+          columns: {
+            columnVisibilityModel: {
+              customerId: false,
+              rideProviderId: false,
+              type: false,
+            },
+          },
           density: 'compact',
           pagination: {
             rowCount: 25,
@@ -341,7 +345,6 @@ export default function TableDebugData({
         slots={{toolbar: GridToolbar}}
         onRowClick={handleEventRowClick}
         onCellClick={handleEventCellClick}
-        filterModel={filterModel}
       />
     </Box>
   );
