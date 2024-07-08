@@ -1,7 +1,7 @@
 'use client';
 
 // Package imports
-import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import {useCallback, useEffect, useMemo, useState} from 'react';
 import {useIntl} from 'react-intl';
 // > Components
 import {Box, ButtonGroup, Grid, Paper} from '@mui/material';
@@ -9,13 +9,8 @@ import {Clear as DeleteIcon} from '@mui/icons-material';
 // Local imports
 import {simulationEndpoints} from '@globals/defaults/endpoints';
 // > Components
-import {
-  ConnectedElementsIcon,
-  ParticipantCustomerIcon,
-  ParticipantRideRequestIcon,
-} from '@components/Icons';
-import CardGeneric from '@components/Card/CardGeneric';
 import CardRefresh from '@components/Card/CardRefresh';
+import {ConnectedElementsIcon} from '@components/Icons';
 import GenericButton from '@components/Button/GenericButton';
 import GridConnectedElementsLayout from '@components/Grid/GridConnectedElementsLayout';
 import InputChangeSpectator from '@components/Input/InputChangeSpectator';
@@ -430,8 +425,6 @@ export default function TabBlockchain(props: TabBlockchainProps) {
     }
     return stateSmartContracts;
   }, [stateSelectedSpectator, stateSmartContracts, stateSpectators, intl]);
-
-  const pseudoCache = useRef<Map<string, string>>(new Map());
 
   const fetchSmartContracts = () =>
     fetchJsonSimulation<SimulationEndpointSmartContracts>(
