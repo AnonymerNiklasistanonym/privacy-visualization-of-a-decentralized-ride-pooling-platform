@@ -1,4 +1,5 @@
 // Package imports
+import {useMemo} from 'react';
 // > Components
 import {
   Box,
@@ -19,7 +20,7 @@ import {
   Remove as UnpinIcon,
 } from '@mui/icons-material';
 // Type imports
-import {type ReactElement, type ReactNode, useMemo} from 'react';
+import type {ReactElement, ReactNode} from 'react';
 
 export interface CardGenericPropsContentElement {
   /** Label of the content element */
@@ -181,15 +182,13 @@ export default function CardGeneric(props: CardGenericPropsInput) {
                 />
               </Divider>
             ) : undefined}
-            {a.content === null ? (
+            {a.content ?? (
               <Box
                 sx={{display: 'flex', width: '100%'}}
                 justifyContent="center"
               >
                 <CircularProgress />
               </Box>
-            ) : (
-              a.content
             )}
           </Box>
         ))}

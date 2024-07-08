@@ -19,16 +19,16 @@ import type {
 import type {ReactNode} from 'react';
 import type {SimulationEndpointParticipantIdFromPseudonym} from '@globals/types/simulation';
 
-/** Props necessary to render the 'Change View Button' */
-export interface ChangeViewButtonProps
+export interface ButtonShowSpectatorProps
   extends GlobalPropsSpectatorSelectedElements,
     GlobalPropsSpectatorSelectedElementsSet,
     GlobalPropsShowError,
     GlobalPropsFetch {}
 
-export interface ChangeViewButtonPropsInput extends ChangeViewButtonProps {
-  /** The ID of the actor that the view should be changed to on clicking it */
-  actorId: string;
+export interface ButtonShowSpectatorPropsInput
+  extends ButtonShowSpectatorProps {
+  /** The ID of the spectator that the should be shown on clicking it */
+  spectatorId: string;
   /** A custom label that should be displayed on the button */
   label: string;
   /** In case the supplied ID is a pseudonym some extra logic is required */
@@ -37,19 +37,21 @@ export interface ChangeViewButtonPropsInput extends ChangeViewButtonProps {
   icon?: ReactNode;
 }
 
-export default memo(ChangeSpectatorButton);
+export default memo(ButtonShowSpectator);
 
-export function ChangeSpectatorButton({
-  actorId,
+export function ButtonShowSpectator({
+  spectatorId,
   isPseudonym,
   icon,
   label,
   stateSpectator,
-  setStateSpectator,
+  stateSelectedSpectator,
+  setStateSelectedSpectator,
+  setStateShowSpectator,
   fetchJsonSimulation,
   showError,
-}: ChangeViewButtonPropsInput) {
-  debugComponentUpdate('ChangeSpectatorButton', true);
+}: ButtonShowSpectatorPropsInput) {
+  debugComponentUpdate('ButtonShowSpectator', true);
   const intl = useIntl();
 
   // React: States
@@ -63,21 +65,25 @@ export function ChangeSpectatorButton({
   useEffect(() => {
     if (isPseudonym) {
       fetchJsonSimulation<SimulationEndpointParticipantIdFromPseudonym>(
-        simulationEndpoints.apiV1.participantIdFromPseudonym(actorId)
+        simulationEndpoints.apiV1.participantIdFromPseudonym(spectatorId)
       )
         .then(data => setStateResolvedPseudonym(data))
         .catch(err =>
-          showError('Simulation fetch participant ID from pseudonym', err)
+          showError(
+            'Simulation fetch participant ID from pseudonym [ButtonShowSpectator]',
+            err
+          )
         );
     }
-  }, [actorId, fetchJsonSimulation, isPseudonym, showError]);
+  }, [spectatorId, fetchJsonSimulation, isPseudonym, showError]);
 
   /** The resolved pseudonym ID */
   const resolvedPseudonymId = stateResolvedPseudonym?.id;
 
   /** If true it means that the actor is already selected */
   const isAlreadySelected =
-    stateSpectator === actorId || stateSpectator === stateResolvedPseudonym?.id;
+    stateSelectedSpectator === spectatorId ||
+    stateSelectedSpectator === stateResolvedPseudonym?.id;
 
   const spectatorCanSeePseudonym =
     stateSpectator === 'everything' ||
@@ -91,7 +97,7 @@ export function ChangeSpectatorButton({
   /** The button label */
   const buttonLabel = useMemo<string>(() => {
     const buttonLabelSpectate = intl.formatMessage(
-      {id: 'getacar.spectator.spectate'},
+      {id: 'getacar.spectator.show'},
       {
         name: label,
       }
@@ -101,7 +107,7 @@ export function ChangeSpectatorButton({
       buttonLabelInfo.push(
         intl.formatMessage({
           id: 'pseudonym',
-        }) + ` [${actorId}]`
+        }) + ` [${spectatorId}]`
       );
     }
     if (isPseudonym && spectatorCanSeePseudonym) {
@@ -122,7 +128,7 @@ export function ChangeSpectatorButton({
       buttonLabelInfo.length > 0 ? ` (${buttonLabelInfo.join(', ')})` : ''
     }`;
   }, [
-    actorId,
+    spectatorId,
     intl,
     isAlreadySelected,
     isPseudonym,
@@ -138,39 +144,23 @@ export function ChangeSpectatorButton({
     }
     // Update global spectator to the resolved actor ID from the supplied pseudonym
     if (isPseudonym && resolvedPseudonymId !== undefined) {
-      setStateSpectator(resolvedPseudonymId);
+      setStateSelectedSpectator(resolvedPseudonymId);
+      setStateShowSpectator(resolvedPseudonymId);
     }
     // Update global spectator to the supplied actor ID
     if (isPseudonym !== true) {
-      setStateSpectator(actorId);
+      setStateSelectedSpectator(spectatorId);
+      setStateShowSpectator(spectatorId);
     }
-  }, [actorId, disabled, isPseudonym, setStateSpectator, resolvedPseudonymId]);
+  }, [
+    spectatorId,
+    disabled,
+    isPseudonym,
+    setStateSelectedSpectator,
+    setStateShowSpectator,
+    resolvedPseudonymId,
+  ]);
 
-  return (
-    <ButtonComponentMemo
-      disabled={disabled}
-      icon={icon}
-      buttonOnClick={buttonOnClick}
-      buttonLabel={buttonLabel}
-    />
-  );
-}
-
-export const ButtonComponentMemo = memo(ButtonComponent);
-
-export interface ButtonComponentProps {
-  disabled: boolean | undefined;
-  icon: ReactNode | undefined;
-  buttonOnClick: () => void;
-  buttonLabel: string;
-}
-
-export function ButtonComponent({
-  disabled,
-  icon,
-  buttonOnClick,
-  buttonLabel,
-}: ButtonComponentProps) {
   return (
     <Button
       variant="contained"

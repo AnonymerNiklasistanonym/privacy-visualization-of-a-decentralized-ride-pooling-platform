@@ -18,8 +18,9 @@ import {
   ParticipantsCustomer,
   ParticipantsRideProvider,
 } from '@components/Tab/TabOverview/Elements';
+import ButtonChangeSpectator from '@components/Button/ButtonChangeSpectator';
+import ButtonShowSpectator from '@components/Button/ButtonShowSpectator';
 import CardGeneric from '@components/Card/CardGeneric';
-import ChangeSpectatorButton from '@components/Button/ChangeSpectatorButton';
 // Type imports
 import type {
   CardGenericProps,
@@ -30,14 +31,16 @@ import type {
   SimulationEndpointParticipantInformationRideProvider,
   SimulationEndpointParticipantTypes,
 } from '@globals/types/simulation';
-import type {ChangeViewButtonProps} from '@components/Button/ChangeSpectatorButton';
+import type {ButtonChangeSpectatorProps} from '@components/Button/ButtonChangeSpectator';
+import type {ButtonShowSpectatorProps} from '@components/Button/ButtonShowSpectator';
 import type {DataModalInformation} from '@components/Modal/DataModal';
 import type {GlobalPropsIntlValues} from '@misc/props/global';
 import type {ReactState} from '@misc/react';
-import {SettingsGlobalProps} from '@misc/props/settings';
+import type {SettingsGlobalProps} from '@misc/props/settings';
 
 export interface CardParticipantProps
-  extends ChangeViewButtonProps,
+  extends ButtonChangeSpectatorProps,
+    ButtonShowSpectatorProps,
     CardGenericProps,
     GlobalPropsIntlValues,
     SettingsGlobalProps {
@@ -191,16 +194,20 @@ export function CardParticipant(props: CardParticipantProps) {
       if (stateCustomerInformation?.passenger !== undefined) {
         contentList.push({
           content: (
-            <ChangeSpectatorButton
+            <ButtonShowSpectator
               {...props}
               key={`participant-change-spectator-rideProvider-${stateParticipantId}`}
-              actorId={stateCustomerInformation.passenger}
+              spectatorId={stateCustomerInformation.passenger}
               icon={<ParticipantRideProviderIcon />}
-              label={'the current ride provider'}
+              label={intl.formatMessage({
+                id: 'getacar.spectator.message.driver',
+              })}
               isPseudonym={true}
             />
           ),
-          label: 'Passenger of Ride Provider',
+          label: intl.formatMessage({
+            id: 'getacar.spectator.message.driver',
+          }),
           labelIcon: <ParticipantRideProviderIcon />,
         });
       }
@@ -365,10 +372,10 @@ export function CardParticipant(props: CardParticipantProps) {
             <List key={`participant-list-passengers-${stateParticipantId}`}>
               {stateRideProviderInformation.passengerList.map(
                 (passengerId, index) => (
-                  <ChangeSpectatorButton
+                  <ButtonShowSpectator
                     {...props}
                     key={`passenger-${passengerId}-${stateParticipantId}`}
-                    actorId={passengerId}
+                    spectatorId={passengerId}
                     icon={<ParticipantCustomerIcon />}
                     label={intl.formatMessage(
                       {id: 'getacar.participant.rideProvider.passengerNumber'},
@@ -486,10 +493,10 @@ export function CardParticipant(props: CardParticipantProps) {
   /** Action buttons based on global state */
   const actions = useMemo<Array<ReactElement>>(() => {
     const actionsList = [
-      <ChangeSpectatorButton
+      <ButtonChangeSpectator
         {...props}
         key={`action-change-spectator-${stateParticipantId}`}
-        actorId={stateParticipantId}
+        spectatorId={stateParticipantId}
         icon={
           participantType === 'customer' ? (
             <ParticipantCustomerIcon />

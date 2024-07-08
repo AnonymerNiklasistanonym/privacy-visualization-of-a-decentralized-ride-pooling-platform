@@ -24,16 +24,16 @@ import {
   ParticipantCustomerIcon,
   ParticipantRideProviderIcon,
 } from '@components/Icons';
-import ChangeSpectatorButton from '@components/Button/ChangeSpectatorButton';
+import ButtonChangeSpectator from '@components/Button/ButtonChangeSpectator';
 // Type imports
-import type {ChangeViewButtonProps} from '@components/Button/ChangeSpectatorButton';
+import type {ButtonChangeSpectatorProps} from '@components/Button/ButtonChangeSpectator';
 import type {GlobalPropsSpectatorSelectedElementsSet} from '@misc/props/global';
 import type {ReactState} from '@misc/react';
 import type {SimulationEndpointSmartContractInformation} from '@globals/types/simulation';
 
 export interface TableBlockchainElementProps
   extends GlobalPropsSpectatorSelectedElementsSet,
-    ChangeViewButtonProps {
+    ButtonChangeSpectatorProps {
   stateSmartContract: ReactState<SimulationEndpointSmartContractInformation>;
 }
 
@@ -114,14 +114,14 @@ export default function TableBlockchainElement(
             TODO: Use button to select? Or should the user be able to change the
             spectator from this tab/modal?
           </Typography>
-          <ChangeSpectatorButton
-            actorId={stateSmartContract.customerId}
+          <ButtonChangeSpectator
+            spectatorId={stateSmartContract.customerId}
             label="Customer"
             isPseudonym={true}
             {...props}
           />
-          <ChangeSpectatorButton
-            actorId={stateSmartContract.rideProviderId}
+          <ButtonChangeSpectator
+            spectatorId={stateSmartContract.rideProviderId}
             label="Ride Provider"
             isPseudonym={true}
             {...props}

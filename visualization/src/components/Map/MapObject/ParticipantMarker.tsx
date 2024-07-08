@@ -451,5 +451,6 @@ export function ParticipantMarkerElement(props: ParticipantMarkerElementProps) {
       )
     );
   }
-  return <>{elementsToRender}</>;
+
+  return elementsToRender;
 }

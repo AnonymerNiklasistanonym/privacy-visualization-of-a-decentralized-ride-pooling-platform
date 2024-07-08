@@ -13,14 +13,14 @@ import type {
   SimulationEndpointParticipantInformationRideProvider,
   SimulationEndpointRideRequestInformation,
 } from '@globals/types/simulation';
+import type {ButtonChangeSpectatorProps} from '@components/Button/ButtonChangeSpectator';
 import type {CardGenericProps} from '../CardGeneric';
-import type {ChangeViewButtonProps} from '@components/Button/ChangeSpectatorButton';
 import type {GetACarParticipantTypes} from '@globals/types/participant';
 import type {GlobalPropsIntlValues} from '@misc/props/global';
 import type {SettingsConnectedElementsProps} from '@misc/props/settings';
 
 export interface CardRefreshProps
-  extends ChangeViewButtonProps,
+  extends ButtonChangeSpectatorProps,
     SettingsConnectedElementsProps,
     CardGenericProps,
     GlobalPropsIntlValues {

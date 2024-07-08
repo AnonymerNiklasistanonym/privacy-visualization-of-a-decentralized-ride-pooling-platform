@@ -13,14 +13,14 @@ import type {
   CardGenericProps,
   CardGenericPropsContentElement,
 } from '@components/Card/CardGeneric';
-import type {ChangeViewButtonProps} from '@components/Button/ChangeSpectatorButton';
+import type {ButtonChangeSpectatorProps} from '@components/Button/ButtonChangeSpectator';
 import type {GlobalPropsIntlValues} from '@misc/props/global';
 import type {ReactState} from '@misc/react';
 import type {SettingsGlobalProps} from '@misc/props/settings';
 import type {SimulationEndpointRideRequestInformation} from '@globals/types/simulation';
 
 export interface CardRideRequestProps
-  extends ChangeViewButtonProps,
+  extends ButtonChangeSpectatorProps,
     SettingsGlobalProps,
     CardGenericProps,
     GlobalPropsIntlValues {

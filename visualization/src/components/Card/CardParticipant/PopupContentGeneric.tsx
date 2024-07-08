@@ -16,7 +16,7 @@ import {
 import DataModal from '@components/Modal/DataModal';
 // Type imports
 import type {ReactElement, ReactNode} from 'react';
-import type {ChangeViewButtonProps} from '@components/Button/ChangeSpectatorButton';
+import type {ButtonChangeSpectatorProps} from '@components/Button/ButtonChangeSpectator';
 import type {DataModalInformation} from '@components/Modal/DataModal';
 
 export interface ShowContentSpectatorElement {
@@ -33,7 +33,7 @@ export interface DataElement {
   dataAccessInformation: DataModalInformation[];
 }
 
-export interface RenderDataElementProps extends ChangeViewButtonProps {
+export interface RenderDataElementProps extends ButtonChangeSpectatorProps {
   element: Readonly<DataElement>;
   id: string;
   dataOriginId: string;

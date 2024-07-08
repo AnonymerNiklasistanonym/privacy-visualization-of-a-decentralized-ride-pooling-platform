@@ -1,18 +1,23 @@
 // Package imports
-import {memo} from 'react';
+import {memo, useCallback} from 'react';
 // > Components
-import {Tooltip} from '@mui/material';
+import {Button, Tooltip} from '@mui/material';
 // Local imports
-// > Components
-import GenericButtonComponent from './GenericButtonComponent';
 // > Misc
 import {debugComponentUpdate} from '@misc/debug';
 // Type imports
-import type {GenericButtonComponentProps} from './GenericButtonComponent';
-import type {PropsWithChildren} from 'react';
+import type {PropsWithChildren, ReactElement} from 'react';
 
 /** Props necessary to render the 'Generic Button' */
-export interface GenericButtonProps extends GenericButtonComponentProps {
+export interface GenericButtonProps {
+  /** Function that should be run when button is clicked */
+  onClick?: () => void;
+  /** Icon that should be rendered on the button */
+  icon?: ReactElement;
+  /** Disable button usage */
+  disabled?: boolean;
+  /** Use secondary color */
+  secondaryColor?: boolean;
   /** Optional tooltip message */
   tooltip?: string;
 }
@@ -28,19 +33,25 @@ export function GenericButton({
   tooltip,
 }: PropsWithChildren<GenericButtonProps>) {
   debugComponentUpdate('GenericButton', true);
+  const onClickFinal = useCallback(() => {
+    if (onClick !== undefined) {
+      onClick();
+    }
+  }, [onClick]);
   const button = (
-    <GenericButtonComponent
-      disabled={disabled}
-      icon={icon}
-      onClick={onClick}
-      secondaryColor={secondaryColor}
+    <Button
+      startIcon={icon}
+      variant="contained"
+      color={secondaryColor === true ? 'secondary' : 'primary'}
+      disabled={disabled ?? false}
+      onClick={onClickFinal}
     >
       {children}
-    </GenericButtonComponent>
+    </Button>
   );
   return disabled !== true && tooltip !== undefined ? (
     <Tooltip title={tooltip}>{button}</Tooltip>
   ) : (
-    <>{button}</>
+    button
   );
 }

@@ -23,14 +23,14 @@ import type {
 } from './DataModalInformation';
 import type {ReactElement, ReactNode} from 'react';
 import type {ReactSetState, ReactState} from '@misc/react';
-import type {ChangeViewButtonProps} from '@components/Button/ChangeSpectatorButton';
+import type {ButtonChangeSpectatorProps} from '@components/Button/ButtonChangeSpectator';
 export interface DataModalPropsSetStates {
   setStateDataModalOpen: ReactSetState<boolean>;
 }
 
 export interface DataModalProps
   extends DataModalPropsSetStates,
-    ChangeViewButtonProps {
+    ButtonChangeSpectatorProps {
   stateDataModalOpen: ReactState<boolean>;
   stateDataModalContent: ReactState<Array<DataModalInformation>>;
   dataLabel: string;
