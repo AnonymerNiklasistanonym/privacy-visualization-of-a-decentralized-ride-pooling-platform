@@ -5,16 +5,17 @@ import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {useIntl} from 'react-intl';
 // > Components
 import {Box, ButtonGroup, Chip, Divider, Grid} from '@mui/material';
-import {Clear as DeleteIcon} from '@mui/icons-material';
 // Local imports
 import {fetchJsonEndpoint, fetchTextEndpoint} from '@misc/fetch';
 // > Components
 import {
   ConnectedElementsIcon,
+  DisableSelectedParticipantIcon,
   NavigateToLocationIcon,
   ParticipantCustomerIcon,
   ParticipantRideProviderIcon,
   PinnedElementsIcon,
+  ResetSpectatorIcon,
 } from '@components/Icons';
 import CardRefresh from '@components/Card/CardRefresh';
 import GenericButton from '@components/Button/GenericButton';
@@ -66,6 +67,7 @@ import type {
   SimulationEndpointSmartContracts,
 } from '@globals/types/simulation';
 import type {DebugData} from '@components/Table/DebugData';
+import type {InputExtraActionsAction} from '@components/Input/InputExtraActions';
 import type {MapProps} from '@components/Map';
 import type {PathfinderEndpointGraphInformation} from '@globals/types/pathfinder';
 import type {ReactElement} from 'react';
@@ -136,6 +138,29 @@ export default function TabMap(props: TabMapProps) {
   const [statePinnedRideProviders, setStatePinnedRideProviders] = useState<
     Array<string>
   >([]);
+
+  const searchActions = useMemo<Array<InputExtraActionsAction>>(
+    () => [
+      {
+        callback: () => setStateSelectedSpectator(undefined),
+        disabled: stateSelectedSpectator === undefined,
+        icon: <DisableSelectedParticipantIcon />,
+        text: intl.formatMessage({id: 'getacar.participant.clearSelected'}),
+      },
+      {
+        callback: () => setStateShowSpectator(stateSelectedSpectator),
+        disabled: stateSelectedSpectator === undefined,
+        icon: <NavigateToLocationIcon />,
+        text: intl.formatMessage({id: 'getacar.participant.showSelected'}),
+      },
+    ],
+    [
+      intl,
+      stateSelectedSpectator,
+      setStateSelectedSpectator,
+      setStateShowSpectator,
+    ]
+  );
 
   const fetchGraphs = useCallback(
     (clear = false) => {
@@ -445,16 +470,20 @@ export default function TabMap(props: TabMapProps) {
     };
   });
 
-  /** Specify dismissible cards that should be displayed */
-  const stateInfoElements = useMemo<Array<InfoElement>>(() => {
+  const spectatorActions = useMemo<Array<InputExtraActionsAction>>(() => {
     const currentSpectator = stateSpectators.get(stateSpectator);
-    const currentSelectedSpectator =
-      stateSelectedSpectator !== undefined
-        ? stateSpectators.get(stateSelectedSpectator)
-        : undefined;
-    const buttonCurrentSpectator = (
-      <GenericButton
-        disabled={
+    return [
+      {
+        callback: () => setStateSpectator(SpectatorId.EVERYTHING),
+        disabled: stateSpectator === SpectatorId.EVERYTHING,
+        icon: <ResetSpectatorIcon />,
+        text: intl.formatMessage({
+          id: 'getacar.spectator.reset',
+        }),
+      },
+      {
+        callback: () => setStateShowSpectator(stateSpectator),
+        disabled:
           currentSpectator?.category !== undefined
             ? ![
                 intl.formatMessage({
@@ -464,96 +493,29 @@ export default function TabMap(props: TabMapProps) {
                   id: 'getacar.participant.rideProvider',
                 }),
               ].includes(currentSpectator?.category)
-            : true
-        }
-        icon={<NavigateToLocationIcon />}
-        onClick={() => setStateShowSpectator(stateSpectator)}
-        secondaryColor={true}
-      >
-        {intl.formatMessage({
-          id: 'getacar.spectator.showCurrent',
-        })}
-      </GenericButton>
-    );
-    const buttonCurrentSpectatorClear = (
-      <GenericButton
-        disabled={stateSpectator === SpectatorId.EVERYTHING}
-        icon={<DeleteIcon />}
-        onClick={() => setStateSpectator(SpectatorId.EVERYTHING)}
-        secondaryColor={true}
-      />
-    );
-    const buttonCurrentSelectedSpectator = (
-      <GenericButton
-        disabled={
-          currentSelectedSpectator?.category !== undefined
-            ? ![
-                intl.formatMessage({
-                  id: 'getacar.participant.customer',
-                }),
-                intl.formatMessage({
-                  id: 'getacar.participant.rideProvider',
-                }),
-              ].includes(currentSelectedSpectator?.category)
-            : true
-        }
-        icon={<NavigateToLocationIcon />}
-        onClick={() => setStateShowSpectator(stateSelectedSpectator)}
-      >
-        {intl.formatMessage({
-          id: 'getacar.participant.showSelected',
-        })}
-      </GenericButton>
-    );
-    const buttonCurrentSelectedSpectatorClear = (
-      <GenericButton
-        disabled={currentSelectedSpectator?.category === undefined}
-        icon={<DeleteIcon />}
-        onClick={() => setStateSelectedSpectator(undefined)}
-      />
-    );
+            : true,
+        icon: <NavigateToLocationIcon />,
+        text: intl.formatMessage({id: 'getacar.spectator.showMap'}),
+      },
+    ];
+  }, [
+    stateSpectators,
+    stateSpectator,
+    intl,
+    setStateShowSpectator,
+    setStateSpectator,
+  ]);
+
+  /** Specify dismissible cards that should be displayed */
+  const stateInfoElements = useMemo<Array<InfoElement>>(() => {
     return [
       {
         content: (
-          <>
-            <InputChangeSpectator key="change-spectator" {...props} />
-            <ButtonGroup
-              sx={{
-                display: {sm: 'flex', xs: 'none'},
-                marginTop: `${stateSettingsUiGridSpacing / 2}rem`,
-              }}
-            >
-              {buttonCurrentSpectator}
-              {buttonCurrentSpectatorClear}
-              {buttonCurrentSelectedSpectator}
-              {buttonCurrentSelectedSpectatorClear}
-            </ButtonGroup>
-            <ButtonGroup
-              sx={{
-                display: {sm: 'none', xs: 'flex'},
-                marginTop: `${stateSettingsUiGridSpacing / 2}rem`,
-              }}
-            >
-              <Grid
-                container
-                spacing={stateSettingsUiGridSpacing}
-                justifyContent="center"
-              >
-                <Grid item xs={12} sm={6}>
-                  <ButtonGroup sx={{width: '100%'}}>
-                    {buttonCurrentSpectator}
-                    {buttonCurrentSpectatorClear}
-                  </ButtonGroup>
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <ButtonGroup sx={{width: '100%'}}>
-                    {buttonCurrentSelectedSpectator}
-                    {buttonCurrentSelectedSpectatorClear}
-                  </ButtonGroup>
-                </Grid>
-              </Grid>
-            </ButtonGroup>
-          </>
+          <InputChangeSpectator
+            key="change-spectator-map"
+            {...props}
+            actions={spectatorActions}
+          />
         ),
       },
       {
@@ -566,17 +528,7 @@ export default function TabMap(props: TabMapProps) {
         }),
       },
     ];
-  }, [
-    intl,
-    props,
-    setStateShowSpectator,
-    setStateSelectedSpectator,
-    setStateSpectator,
-    stateSelectedSpectator,
-    stateSettingsUiGridSpacing,
-    stateSpectator,
-    stateSpectators,
-  ]);
+  }, [intl, props, spectatorActions]);
 
   const [stateConnectedRideRequests, setStateConnectedRideRequests] = useState<
     Array<string>
@@ -827,7 +779,11 @@ export default function TabMap(props: TabMapProps) {
                 placeholder={intl.formatMessage({
                   id: 'page.home.tab.map.search',
                 })}
+                searchActionTooltip={intl.formatMessage({
+                  id: 'page.home.tab.map.search',
+                })}
                 primaryFilter={SearchBarId.SHOW_PARTICIPANT}
+                actions={searchActions}
               />
             </Grid>
             <Grid item xs={12}>

@@ -6,7 +6,7 @@ import Masonry, {ResponsiveMasonry} from 'react-responsive-masonry';
 // > Components
 import {GridConnectedElementsCard} from './GridConnectedElementsCard';
 // > Misc
-import {debugComponentUpdate} from '@misc/debug';
+import {debugComponentRender} from '@misc/debug';
 // Type imports
 import type {PropsWithChildren, ReactElement} from 'react';
 
@@ -41,7 +41,7 @@ export default function GridConnectedElementsLayout({
   stateInfoElements,
   stateSettingsUiGridSpacing,
 }: PropsWithChildren<GridConnectedElementsLayoutProps>) {
-  debugComponentUpdate('GridConnectedElementsLayout');
+  debugComponentRender('GridConnectedElementsLayout');
 
   return (
     <Box

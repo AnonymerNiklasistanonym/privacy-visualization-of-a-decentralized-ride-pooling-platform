@@ -16,7 +16,7 @@ import {DataHiddenIcon, DataVisibleIcon} from '@components/Icons';
 import DataModelListElement from './DataModalElement';
 import GenericModal from '@components/Modal/ModalGeneric';
 // > Misc
-import {debugComponentUpdate, debugMemoHelper} from '@misc/debug';
+import {debugComponentRender, debugMemoHelper} from '@misc/debug';
 // Type imports
 import type {
   DataModalInformation,
@@ -73,7 +73,7 @@ export default memo(DataModal, (prev, next) =>
 
 /** Modal that showcases data access and ownership */
 export function DataModal(props: DataModalProps) {
-  debugComponentUpdate('DataModal', true);
+  debugComponentRender('DataModal', true);
   const {
     stateSpectator,
     stateDataModalOpen,

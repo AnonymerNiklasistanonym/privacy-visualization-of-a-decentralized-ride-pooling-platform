@@ -4,7 +4,7 @@ import {memo, useCallback} from 'react';
 import {Button, Tooltip} from '@mui/material';
 // Local imports
 // > Misc
-import {debugComponentUpdate} from '@misc/debug';
+import {debugComponentRender} from '@misc/debug';
 // Type imports
 import type {PropsWithChildren, ReactElement} from 'react';
 
@@ -32,7 +32,7 @@ export function GenericButton({
   secondaryColor,
   tooltip,
 }: PropsWithChildren<GenericButtonProps>) {
-  debugComponentUpdate('GenericButton', true);
+  debugComponentRender('GenericButton', true);
   const onClickFinal = useCallback(() => {
     if (onClick !== undefined) {
       onClick();

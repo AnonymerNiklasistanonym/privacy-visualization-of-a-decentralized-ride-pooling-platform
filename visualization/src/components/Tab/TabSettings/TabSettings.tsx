@@ -41,7 +41,7 @@ import NumericFormatGeneric from '@components/Input/NumericFormatGeneric';
 import NumericFormatMs from '@components/Input/NumericFormatMs';
 import TabContainer from '@components/Tab/TabContainer';
 // > Misc
-import {debugComponentUpdate, debugMemoHelper} from '@misc/debug';
+import {debugComponentRender, debugMemoHelper} from '@misc/debug';
 import {stringComparator} from '@misc/compare';
 // Type imports
 import type {ReactSetState, ReactState} from '@misc/react';
@@ -119,7 +119,7 @@ export const RenderSettingsElementMemo = memo(
 );
 
 export function RenderSettingsElement({element}: RenderSettingsElementProps) {
-  debugComponentUpdate(
+  debugComponentRender(
     `RenderSettingsElement ${element.label} (${element.type})`,
     true
   );
@@ -238,7 +238,7 @@ export const RenderSettingsMemo = memo(RenderSettings, (prev, next) =>
 );
 
 export function RenderSettings({title, icon, elements}: RenderSettingsProps) {
-  debugComponentUpdate(`RenderSettings ${title}`, true);
+  debugComponentRender(`RenderSettings ${title}`, true);
   return (
     <Grid item xs={12} sm={6} md={4}>
       <Card>
@@ -290,7 +290,7 @@ export function TabSettings({
   setStateThemeMode,
   stateThemeMode,
 }: TabSettingsProps) {
-  debugComponentUpdate('TabSettings', true);
+  debugComponentRender('TabSettings', true);
   const intl = useIntl();
   const {locales, defaultLocale} = i18n;
   const router = useRouter();

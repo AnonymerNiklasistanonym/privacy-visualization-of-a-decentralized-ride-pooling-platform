@@ -9,7 +9,7 @@ import {Lock as LockIcon} from '@mui/icons-material';
 import {simulationEndpoints} from '@globals/defaults/endpoints';
 // > Misc
 import {SpectatorId} from '@misc/spectatorIds';
-import {debugComponentUpdate} from '@misc/debug';
+import {debugComponentRender} from '@misc/debug';
 // Type imports
 import type {
   GlobalPropsFetch,
@@ -53,7 +53,7 @@ export function ButtonChangeSpectator({
   fetchJsonSimulation,
   showError,
 }: ButtonChangeSpectatorPropsInput) {
-  debugComponentUpdate('ButtonChangeSpectator', true);
+  debugComponentRender('ButtonChangeSpectator', true);
   const intl = useIntl();
 
   // React: States

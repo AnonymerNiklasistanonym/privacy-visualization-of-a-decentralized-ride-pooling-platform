@@ -22,7 +22,7 @@ import {
 // > Components
 import ButtonChangeSpectator from '@components/Button/ButtonChangeSpectator';
 // > Misc
-import {debugComponentUpdate} from '@misc/debug';
+import {debugComponentRender} from '@misc/debug';
 // Type imports
 import type {ButtonChangeSpectatorProps} from '@components/Button/ButtonChangeSpectator';
 import type {DataModalInformation} from './DataModalInformation';
@@ -35,7 +35,7 @@ export interface DataModalPropsElement extends ButtonChangeSpectatorProps {
 export default memo(DataModelListElement);
 
 export function DataModelListElement(props: DataModalPropsElement) {
-  debugComponentUpdate('DataModelListElement', true);
+  debugComponentRender('DataModelListElement', true);
 
   const {stateDataModalContentElement} = props;
 

@@ -6,7 +6,7 @@ import {memo, useCallback} from 'react';
 import {Autocomplete, Box, TextField} from '@mui/material';
 // Local imports
 // > Misc
-import {debugComponentUpdate, debugMemoHelper} from '@misc/debug';
+import {debugComponentRender, debugMemoHelper} from '@misc/debug';
 // Type imports
 import type {GlobalPropsSearch, GlobalSearchElement} from '@misc/props/global';
 
@@ -26,7 +26,7 @@ export function SearchBarAutocomplete({
   placeholder,
   primaryFilter,
 }: SearchBarAutocompleteProps) {
-  debugComponentUpdate('SearchBarAutocomplete');
+  debugComponentRender('SearchBarAutocomplete');
 
   const filterOptions = useCallback(
     (option: Readonly<GlobalSearchElement>): boolean =>

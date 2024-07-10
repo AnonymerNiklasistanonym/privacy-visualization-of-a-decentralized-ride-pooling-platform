@@ -1,15 +1,27 @@
 // Package imports
-// Components
-import {IconButton, Paper} from '@mui/material';
+// > Components
+import {Divider, IconButton, Paper, Tooltip} from '@mui/material';
 import {Search as SearchIcon} from '@mui/icons-material';
 // Local imports
-// Misc
-import {debugComponentUpdate} from '@misc/debug';
+// > Components
+import InputExtraActions from '@components/Input/InputExtraActions';
+// > Misc
+import {debugComponentRender} from '@misc/debug';
 // Type imports
+import type {InputExtraActionsProps} from '@components/Input/InputExtraActions';
 import type {PropsWithChildren} from 'react';
 
-export default function SearchBarContainer({children}: PropsWithChildren) {
-  debugComponentUpdate('SearchBarContainer', true);
+export interface SearchBarContainerProps extends InputExtraActionsProps {
+  /** Text for search button tooltip */
+  searchActionTooltip: string;
+}
+
+export default function SearchBarContainer({
+  actions,
+  children,
+  searchActionTooltip,
+}: PropsWithChildren<SearchBarContainerProps>) {
+  debugComponentRender('SearchBarContainer', true);
   return (
     <Paper
       component="form"
@@ -21,9 +33,20 @@ export default function SearchBarContainer({children}: PropsWithChildren) {
       }}
     >
       {children}
-      <IconButton type="button" sx={{p: '10px'}} aria-label="search">
-        <SearchIcon />
-      </IconButton>
+      <Tooltip key={'search-bar-action-search'} title={searchActionTooltip}>
+        <IconButton
+          type="button"
+          sx={{p: '10px'}}
+          aria-label={searchActionTooltip}
+          disableRipple={true}
+        >
+          <SearchIcon />
+        </IconButton>
+      </Tooltip>
+      {actions !== undefined && actions.length > 0 ? (
+        <Divider orientation="vertical" flexItem />
+      ) : undefined}
+      <InputExtraActions actions={actions} />
     </Paper>
   );
 }

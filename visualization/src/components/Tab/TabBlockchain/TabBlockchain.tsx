@@ -493,6 +493,9 @@ export default function TabBlockchain(props: TabBlockchainProps) {
               placeholder={intl.formatMessage({
                 id: 'page.home.tab.blockchain.search',
               })}
+              searchActionTooltip={intl.formatMessage({
+                id: 'page.home.tab.blockchain.search',
+              })}
               primaryFilter={SearchBarId.FILTER_SMART_CONTRACT_PARTICIPANT}
             />
           </Grid>

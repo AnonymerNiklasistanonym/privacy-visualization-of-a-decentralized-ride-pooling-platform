@@ -1,18 +1,18 @@
 export const debug = Object.freeze({
   /** Log component updates */
-  componentUpdates: process.env.NODE_ENV === 'development',
+  componentUpdates: false, //process.env.NODE_ENV === 'development',
   /** Show generic logs */
   logs: process.env.NODE_ENV === 'development',
   /** Use custom memo helper */
   useMemoHelper: true,
 });
 
-const debugComponentUpdateCounter = new Map<string, number>();
+export const debugComponentUpdateCounter = new Map<string, number>();
 
-export function debugComponentUpdate(name: string, date = false) {
+export function debugComponentRender(name: string, date = false) {
+  const count = debugComponentUpdateCounter.get(name) ?? 0;
+  debugComponentUpdateCounter.set(name, count + 1);
   if (debug.componentUpdates) {
-    const count = debugComponentUpdateCounter.get(name) ?? 0;
-    debugComponentUpdateCounter.set(name, count + 1);
     console.log(
       `Render component ${name} (${count})${
         date ? ' ' + new Date().toLocaleTimeString() : ''

@@ -1,8 +1,8 @@
 'use client';
 
 // Package imports
-import {memo, useState} from 'react';
 import {useIntl} from 'react-intl';
+import {useState} from 'react';
 // > Components
 import {
   Circle,
@@ -13,9 +13,7 @@ import {
   Polyline,
   TileLayer,
   Tooltip,
-  useMap,
 } from 'react-leaflet';
-import Control from 'react-leaflet-custom-control';
 import {FullscreenControl} from 'react-leaflet-fullscreen';
 import {Paper} from '@mui/material';
 // > Styles
@@ -25,10 +23,8 @@ import 'react-leaflet-fullscreen/styles.css';
 import '@styles/leaflet.module.css';
 import styles from '@styles/Map.module.scss';
 // > Components
-import {FindLocationIcon} from '@components/Icons';
-import ParticipantMarker from '@components/Map/MapObject/ParticipantMarker';
-// > Misc
-import {debugComponentUpdate} from '@misc/debug';
+import ControlShowYourLocation from './MapObject/ControlShowYourLocation';
+import ParticipantMarker from './MapObject/ParticipantMarker';
 // > Styles
 import '@styles/Map.module.scss';
 // Type imports
@@ -49,7 +45,6 @@ import type {
   SimulationEndpointGraphInformation,
   SimulationEndpointParticipantCoordinates,
 } from '@globals/types/simulation';
-import type {Dispatch} from 'react';
 import type {ParticipantMarkerProps} from '@components/Map/MapObject/ParticipantMarker';
 import type {PathfinderEndpointGraphInformation} from '@globals/types/pathfinder';
 
@@ -125,7 +120,7 @@ export default function Map(props: MapPropsInput) {
         className={styles.map}
       >
         <FullscreenControl position="bottomright" />
-        <ControlFindLocationMemo
+        <ControlShowYourLocation
           setStateCurrentPosLat={setStateCurrentPosLat}
           setStateCurrentPosLong={setStateCurrentPosLong}
         />
@@ -332,43 +327,5 @@ export default function Map(props: MapPropsInput) {
         </LayersControl>
       </MapContainer>
     </Paper>
-  );
-}
-
-export const ControlFindLocationMemo = memo(ControlFindLocation);
-
-export interface ControlFindLocationProps {
-  setStateCurrentPosLat: Dispatch<undefined | number>;
-  setStateCurrentPosLong: Dispatch<undefined | number>;
-}
-
-export function ControlFindLocation({
-  setStateCurrentPosLat,
-  setStateCurrentPosLong,
-}: ControlFindLocationProps) {
-  debugComponentUpdate('ControlFindLocation');
-
-  const map = useMap();
-
-  return (
-    <Control prepend position="bottomright">
-      <div className="leaflet-bar ">
-        <a
-          onClick={() => {
-            map
-              .locate({setView: true})
-              .on('locationerror', () => {
-                alert('Location access has been denied.');
-              })
-              .on('locationfound', a => {
-                setStateCurrentPosLat(a.latlng.lat);
-                setStateCurrentPosLong(a.latlng.lng);
-              });
-          }}
-        >
-          <FindLocationIcon style={{marginTop: '3px'}} />
-        </a>
-      </div>
-    </Control>
   );
 }

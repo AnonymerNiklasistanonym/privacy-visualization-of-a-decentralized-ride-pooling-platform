@@ -4,7 +4,7 @@ import {memo} from 'react';
 import {Box, Modal} from '@mui/material';
 // Local imports
 // > Misc
-import {debugComponentUpdate} from '@misc/debug';
+import {debugComponentRender} from '@misc/debug';
 // Type imports
 import type {ReactSetState, ReactState} from '@misc/react';
 import type {PropsWithChildren} from 'react';
@@ -22,7 +22,7 @@ export function GenericModal({
   setStateModalOpen,
   stateModalOpen,
 }: PropsWithChildren<GenericModalProps>) {
-  debugComponentUpdate('GenericModal', true);
+  debugComponentRender('GenericModal', true);
 
   return (
     <div>

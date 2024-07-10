@@ -5,18 +5,21 @@ import {memo} from 'react';
 import SearchBarAutocomplete from './SearchBarAutocomplete';
 import SearchBarBetaContainer from './SearchBarContainer';
 // > Misc
-import {debugComponentUpdate, debugMemoHelper} from '@misc/debug';
+import {debugComponentRender, debugMemoHelper} from '@misc/debug';
 // Type imports
 import type {SearchBarAutocompleteProps} from './SearchBarAutocomplete';
+import type {SearchBarContainerProps} from './SearchBarContainer';
 
-export type SearchBarProps = SearchBarAutocompleteProps;
+export interface SearchBarProps
+  extends SearchBarAutocompleteProps,
+    SearchBarContainerProps {}
 
 export default memo(SearchBar, (prev, next) =>
   debugMemoHelper('SearchBar', ['globalSearch'], prev, next)
 );
 
 export function SearchBar(props: SearchBarProps) {
-  debugComponentUpdate('SearchBar', true);
+  debugComponentRender('SearchBar', true);
   return (
     <SearchBarBetaContainer {...props}>
       <SearchBarAutocomplete {...props} />
