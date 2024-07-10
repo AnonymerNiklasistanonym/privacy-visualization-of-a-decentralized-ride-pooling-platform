@@ -25,42 +25,59 @@ export function debugMemoHelper<T, TYPE = Record<keyof T, unknown>>(
   /** Component name */
   name: string,
   /** Keys to check */
-  keys: ReadonlyArray<
-    | keyof TYPE
-    | [
-        keyof TYPE,
-        // Compare single element of array
-        (prev: Readonly<unknown>, next: Readonly<unknown>) => boolean,
-        // Optional sorting function
-        (
-          | ((
-              elementA: Readonly<unknown>,
-              elementB: Readonly<unknown>
-            ) => 0 | 1 | -1)
-          | undefined
-        ),
-      ]
-  >,
+  keys:
+    | ReadonlyArray<
+        | keyof TYPE
+        | [
+            keyof TYPE,
+            // Compare single element of array
+            (prev: Readonly<unknown>, next: Readonly<unknown>) => boolean,
+            // Optional sorting function
+            (
+              | ((
+                  elementA: Readonly<unknown>,
+                  elementB: Readonly<unknown>
+                ) => 0 | 1 | -1)
+              | undefined
+            ),
+          ]
+      >
+    | undefined,
   /** Previous version */
   prev: Readonly<TYPE>,
   /** Next version */
   next: Readonly<TYPE>
 ) {
+  const defaultCompare = Object.is(prev, next);
   if (!debug.useMemoHelper) {
-    return Object.is(prev, next);
+    return defaultCompare;
   }
   if (keys === undefined) {
-    // TODO
-    //for (const keyNext of Object.keys(next)) {
-    //  if (!Object.is(prev[keyNext], next//[keyNext])) {
-    //    return false;
-    //  }
-    //}
-    //for (const keyPrev of Object.keys(prev)) {
-    //  if (!Object.is(prev[keyPrev], next//[keyPrev])) {
-    //    return false;
-    //  }
-    //}
+    if (defaultCompare) {
+      return true;
+    }
+    if (typeof prev !== 'object' || typeof next !== 'object') {
+      console.log(
+        `Memo component ${name} not an object but different '${prev}' !== ${next} not the same because arrays differ in length`
+      );
+      return defaultCompare;
+    }
+    const keyList = [...Object.keys(prev), ...Object.keys(next)];
+    for (const key of keyList) {
+      const prevValue = Object.hasOwn(prev, key)
+        ? (prev as {[key: string]: any})[key]
+        : undefined;
+      const nextValue = Object.hasOwn(next, key)
+        ? (next as {[key: string]: any})[key]
+        : undefined;
+      const sameObject = Object.is(prevValue, nextValue);
+      if (!sameObject) {
+        console.log(
+          `Memo component ${name} key '${key}' not the same ${prevValue} !== ${nextValue}`
+        );
+        return false;
+      }
+    }
     return true;
   }
   for (const key of keys) {

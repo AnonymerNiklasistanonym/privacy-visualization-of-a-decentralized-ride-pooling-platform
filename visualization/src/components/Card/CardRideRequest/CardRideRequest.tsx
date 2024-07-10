@@ -38,7 +38,7 @@ import type {
   SimulationEndpointRideRequestInformation,
 } from '@globals/types/simulation';
 import type {ButtonChangeSpectatorProps} from '@components/Button/ButtonChangeSpectator';
-import type {DataModalInformation} from '@components/Modal/DataModal';
+import type {DataModalInformation} from '@components/Modal/ModalData';
 import type {GlobalPropsIntlValues} from '@misc/props/global';
 import type {ReactState} from '@misc/react';
 import type {SettingsGlobalProps} from '@misc/props/settings';

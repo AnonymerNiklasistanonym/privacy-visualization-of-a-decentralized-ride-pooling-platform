@@ -21,7 +21,7 @@ import {
   OverviewElementSectionContent,
   OverviewElementSectionTitle,
 } from './TabOverviewElements';
-import ImageModal from '@components/Modal/ImageModal';
+import ModalImage from '@components/Modal/ModalImage';
 import TabContainer from '../TabContainer';
 // Type imports
 import type {
@@ -29,7 +29,7 @@ import type {
   SettingsUiProps,
 } from '@misc/props/settings';
 import type {GlobalPropsIntlValues} from '@misc/props/global';
-import type {ImageModalProps} from '@components/Modal/ImageModal';
+import type {ModalImageProps} from '@components/Modal/ModalImage';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface TabOverviewProps
@@ -49,7 +49,7 @@ export default function TabOverview(propsInput: TabOverviewProps) {
   const props: TabOverviewProps &
     OverviewElementImageProps &
     OverviewElementProps &
-    ImageModalProps = {
+    ModalImageProps = {
     ...propsInput,
     setStateImgAlt,
     setStateImgBg,
@@ -113,7 +113,7 @@ export default function TabOverview(propsInput: TabOverviewProps) {
           <Other {...props} />
         </CardContent>
       </Card>
-      <ImageModal {...props} />
+      <ModalImage {...props} />
     </TabContainer>
   );
 }

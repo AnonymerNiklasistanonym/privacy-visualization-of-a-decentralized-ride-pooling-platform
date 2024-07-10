@@ -13,14 +13,14 @@ import {
   ServiceMatchingIcon,
   SpectatorPublicIcon,
 } from '@components/Icons';
-import DataModal from '@components/Modal/DataModal';
+import ModalData from '@components/Modal/ModalData';
 // > Misc
 import {SpectatorId} from '@misc/spectatorIds';
 // Type imports
 import type {
   DataModalInformation,
   DataOrigin,
-} from '@components/Modal/DataModal';
+} from '@components/Modal/ModalData';
 import type {ReactElement, ReactNode} from 'react';
 import type {ButtonChangeSpectatorProps} from '@components/Button/ButtonChangeSpectator';
 
@@ -46,7 +46,7 @@ export interface RenderDataElementProps
 export function RenderDataElement(props: RenderDataElementProps) {
   const {
     element,
-    stateSpectator,
+    stateSpectatorId,
     id,
     dataOriginId,
     dataOriginName,
@@ -82,10 +82,10 @@ export function RenderDataElement(props: RenderDataElementProps) {
   let tooltip = '';
   // TODO If spectatorId in data access is a pseudonym this is not resolved in here!
   if (
-    stateSpectator !== SpectatorId.EVERYTHING &&
+    stateSpectatorId !== SpectatorId.EVERYTHING &&
     !dataAccessDataModal.some(
       a =>
-        a.spectatorId === stateSpectator &&
+        a.spectatorId === stateSpectatorId &&
         (a.accessType === 'local_storage' ||
           a.accessType === 'transitive' ||
           a.accessType === 'owner')
@@ -133,7 +133,7 @@ export function RenderDataElement(props: RenderDataElementProps) {
           {element.label}:{' '}
         </Box>
         {dataValue}
-        <DataModal
+        <ModalData
           {...props}
           key={element.label}
           stateDataModalOpen={stateOpen}

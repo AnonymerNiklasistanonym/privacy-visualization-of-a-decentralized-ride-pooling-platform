@@ -56,13 +56,13 @@ import type {
   GlobalSearchElement,
 } from '@misc/props/global';
 import type {PropsWithChildren, ReactElement} from 'react';
-import type {ErrorModalProps} from '@components/Modal/ErrorModal';
 import type {FetchOptions} from '@globals/lib/fetch';
+import type {ModalErrorProps} from '@components/Modal/ModalError';
 import type {SettingsProps} from '@misc/props/settings';
 
 /** Home page collection */
 export default function CollectionHome(
-  propsError: PropsWithChildren<GlobalPropsShowError & ErrorModalProps>
+  propsError: PropsWithChildren<GlobalPropsShowError & ModalErrorProps>
 ) {
   const {children, showError} = propsError;
 
@@ -139,16 +139,16 @@ export default function CollectionHome(
     setStateSnackbarSelectedSmartContractOpen,
   ] = useState(false);
   // > Spectator
-  const [stateSpectator, setStateSpectator] = useState(
+  const [stateSpectatorId, setStateSpectatorId] = useState(
     searchParams.get(UrlParameter.SPECTATOR) ?? SpectatorId.EVERYTHING
   );
-  const [stateShowSpectator, setStateShowSpectator] = useState<
+  const [stateShowParticipantId, setStateShowParticipantId] = useState<
     undefined | string
-  >(stateSpectator);
+  >(stateSpectatorId);
   // > Selected participant
-  const [stateSelectedSpectator, setStateSelectedSpectator] = useState<
+  const [stateSelectedParticipantId, setStateSelectedParticipantId] = useState<
     undefined | string
-  >(searchParams.get(UrlParameter.SELECTED_SPECTATOR) ?? undefined);
+  >(searchParams.get(UrlParameter.SELECTED_PARTICIPANT) ?? undefined);
   // > Selected smart contract
   const [stateSelectedSmartContractId, setStateSelectedSmartContractId] =
     useState<undefined | string>(
@@ -207,7 +207,7 @@ export default function CollectionHome(
         a.id,
         {
           callback: () => {
-            setStateSpectator(a.id);
+            setStateSpectatorId(a.id);
           },
           category: a.category,
           icon: a.icon,
@@ -281,12 +281,12 @@ export default function CollectionHome(
   // > Snackbar listeners
   useEffect(() => {
     setStateSnackbarSpectatorOpen(true);
-  }, [stateSpectator, setStateSnackbarSpectatorOpen]);
+  }, [stateSpectatorId, setStateSnackbarSpectatorOpen]);
   useEffect(() => {
-    if (stateSelectedSpectator !== undefined) {
+    if (stateSelectedParticipantId !== undefined) {
       setStateSnackbarSelectedParticipantOpen(true);
     }
-  }, [stateSelectedSpectator, setStateSnackbarSelectedParticipantOpen]);
+  }, [stateSelectedParticipantId, setStateSnackbarSelectedParticipantOpen]);
   useEffect(() => {
     if (stateSelectedSmartContractId !== undefined) {
       setStateSnackbarSelectedSmartContractOpen(true);
@@ -299,15 +299,15 @@ export default function CollectionHome(
     } else {
       params.delete(UrlParameter.DEBUG);
     }
-    if (stateSpectator !== SpectatorId.EVERYTHING) {
-      params.set(UrlParameter.SPECTATOR, stateSpectator);
+    if (stateSpectatorId !== SpectatorId.EVERYTHING) {
+      params.set(UrlParameter.SPECTATOR, stateSpectatorId);
     } else {
       params.delete(UrlParameter.SPECTATOR);
     }
-    if (stateSelectedSpectator !== undefined) {
-      params.set(UrlParameter.SELECTED_SPECTATOR, stateSelectedSpectator);
+    if (stateSelectedParticipantId !== undefined) {
+      params.set(UrlParameter.SELECTED_PARTICIPANT, stateSelectedParticipantId);
     } else {
-      params.delete(UrlParameter.SELECTED_SPECTATOR);
+      params.delete(UrlParameter.SELECTED_PARTICIPANT);
     }
     if (stateSelectedSmartContractId !== undefined) {
       params.set(
@@ -326,11 +326,11 @@ export default function CollectionHome(
     updateRouter();
   }, [
     stateSettingsGlobalDebug,
-    stateSpectator,
+    stateSpectatorId,
     updateRouter,
     pathname,
     params,
-    stateSelectedSpectator,
+    stateSelectedParticipantId,
     stateSelectedSmartContractId,
     stateTabIndex,
   ]);
@@ -411,7 +411,7 @@ export default function CollectionHome(
           }
         ),
         onClick: () => {
-          setStateSpectator(tabName);
+          setStateSpectatorId(tabName);
           tabInformation.callback();
         },
       });
@@ -435,7 +435,7 @@ export default function CollectionHome(
           }
         ),
         onClick: () => {
-          setStateSpectator(actorId);
+          setStateSpectatorId(actorId);
           actorInformation.callback();
         },
       });
@@ -466,7 +466,7 @@ export default function CollectionHome(
             }
           ),
           onClick: () => {
-            setStateShowSpectator(actorId);
+            setStateShowParticipantId(actorId);
             actorInformation.callback();
           },
         });
@@ -487,7 +487,7 @@ export default function CollectionHome(
             }
           ),
           onClick: () => {
-            setStateSelectedSpectator(actorId);
+            setStateSelectedParticipantId(actorId);
             actorInformation.callback();
           },
         });
@@ -565,7 +565,7 @@ export default function CollectionHome(
     GlobalPropsSpectatorSelectedElements &
     GlobalPropsSpectatorSelectedElementsSet &
     SettingsProps &
-    ErrorModalProps &
+    ModalErrorProps &
     GlobalPropsTheming &
     GlobalPropsSpectatorsSet &
     GlobalPropsSearch &
@@ -575,8 +575,8 @@ export default function CollectionHome(
     fetchJsonSimulation,
     globalSearch,
     intlValues,
+    setStateSelectedParticipantId,
     setStateSelectedSmartContractId,
-    setStateSelectedSpectator,
     setStateSettingsBlockchainUpdateRateInMs,
     setStateSettingsCardUpdateRateInMs,
     setStateSettingsGlobalDebug,
@@ -586,11 +586,11 @@ export default function CollectionHome(
     setStateSettingsMapUpdateRateInMs,
     setStateSettingsUiGridSpacing,
     setStateSettingsUiMapScroll,
-    setStateShowSpectator,
-    setStateSpectator,
+    setStateShowParticipantId,
+    setStateSpectatorId,
     setStateThemeMode,
+    stateSelectedParticipantId,
     stateSelectedSmartContractId,
-    stateSelectedSpectator,
     stateSettingsBlockchainUpdateRateInMs,
     stateSettingsCardUpdateRateInMs,
     stateSettingsGlobalDebug,
@@ -600,8 +600,8 @@ export default function CollectionHome(
     stateSettingsMapUpdateRateInMs,
     stateSettingsUiGridSpacing,
     stateSettingsUiMapScroll,
-    stateShowSpectator,
-    stateSpectator,
+    stateShowParticipantId,
+    stateSpectatorId,
     stateSpectators,
     stateThemeMode,
     updateGlobalSearch,
@@ -619,7 +619,7 @@ export default function CollectionHome(
       </main>
       <SnackbarContentChange
         stateOpen={stateSnackbarSpectatorOpen}
-        stateContent={stateSpectator}
+        stateContent={stateSpectatorId}
         setStateOpen={setStateSnackbarSpectatorOpen}
         handleChangeStateContent={a =>
           intl.formatMessage({id: 'getacar.spectator.changed'}, {name: a})
@@ -628,11 +628,11 @@ export default function CollectionHome(
       />
       <SnackbarContentChange
         stateOpen={stateSnackbarSelectedParticipantOpen}
-        stateContent={stateSelectedSpectator}
+        stateContent={stateSelectedParticipantId}
         setStateOpen={setStateSnackbarSelectedParticipantOpen}
         handleChangeStateContent={a =>
           intl.formatMessage(
-            {id: 'getacar.selectedParticipant.changed'},
+            {id: 'getacar.participant.selectedChanged'},
             {name: a}
           )
         }
@@ -644,7 +644,7 @@ export default function CollectionHome(
         setStateOpen={setStateSnackbarSelectedSmartContractOpen}
         handleChangeStateContent={a =>
           intl.formatMessage(
-            {id: 'getacar.selectedSmartContract.changed'},
+            {id: 'getacar.blockchain.smartContract.selectedChanged'},
             {name: a}
           )
         }

@@ -89,8 +89,8 @@ export default memo(ParticipantMarker);
 export function ParticipantMarker(props: ParticipantMarkerPropsInput) {
   const {
     stateParticipantId,
-    stateSpectator,
-    stateSelectedSpectator,
+    stateSpectatorId,
+    stateSelectedParticipantId,
     participantType,
     showError,
     fetchJsonSimulation,
@@ -179,11 +179,11 @@ export function ParticipantMarker(props: ParticipantMarkerPropsInput) {
   });
 
   /** Show ride requests for the currently selected spectator */
-  const showRideRequest = stateSelectedSpectator === stateParticipantId;
+  const showRideRequest = stateSelectedParticipantId === stateParticipantId;
   /** Highlight participants that are in any way connected to the current/selected spectator */
   const highlightParticipant =
-    stateSpectator === stateParticipantId ||
-    stateSelectedSpectator === stateParticipantId ||
+    stateSpectatorId === stateParticipantId ||
+    stateSelectedParticipantId === stateParticipantId ||
     showRideRequest ||
     (showRideRequest &&
       stateRideRequestAuctionRideProviderId === stateParticipantId) ||
@@ -225,8 +225,8 @@ export function ParticipantMarkerElement(props: ParticipantMarkerElementProps) {
     participantType,
     statePopupOpen,
     setStatePopupOpen,
-    setStateSelectedSpectator,
-    setStateShowSpectator,
+    setStateSelectedParticipantId,
+    setStateShowParticipantId,
     showError,
     showRideRequest,
     stateCustomerInformation,
@@ -236,9 +236,9 @@ export function ParticipantMarkerElement(props: ParticipantMarkerElementProps) {
     stateRideProviderInformation,
     stateRideRequestInformation,
     stateSettingsMapShowTooltips,
-    stateShowSpectator,
-    stateSpectator,
-    stateSelectedSpectator,
+    stateShowParticipantId,
+    stateSpectatorId,
+    stateSelectedParticipantId,
   } = props;
   const elementsToRender: Array<ReactNode> = [];
 
@@ -261,7 +261,7 @@ export function ParticipantMarkerElement(props: ParticipantMarkerElementProps) {
 
   useEffect(() => {
     // In case the spectator of this marker is freshly selected open the popup
-    if (stateShowSpectator === stateParticipantId) {
+    if (stateShowParticipantId === stateParticipantId) {
       // Fly to marker
       map.panTo([stateParticipantLat, stateParticipantLong], {
         duration: 2,
@@ -276,11 +276,11 @@ export function ParticipantMarkerElement(props: ParticipantMarkerElementProps) {
         }
       }
       // Reset selected spectator
-      setStateShowSpectator(undefined);
+      setStateShowParticipantId(undefined);
     }
   }, [
-    stateShowSpectator,
-    setStateShowSpectator,
+    stateShowParticipantId,
+    setStateShowParticipantId,
     stateParticipantLat,
     stateParticipantLong,
     map,
@@ -306,14 +306,14 @@ export function ParticipantMarkerElement(props: ParticipantMarkerElementProps) {
       eventHandlers={{
         click: () => {
           // Select this participant
-          setStateSelectedSpectator(stateParticipantId);
+          setStateSelectedParticipantId(stateParticipantId);
         },
         popupclose: () => setStatePopupOpen(false),
         popupopen: () => {
           // Store that popup is open
           setStatePopupOpen(true);
           // Select this participant
-          setStateSelectedSpectator(stateParticipantId);
+          setStateSelectedParticipantId(stateParticipantId);
           // Fetch participant information when popup is opened
           fetchParticipantInformation().catch(err =>
             showError('Simulation fetch participant information', err)
@@ -322,15 +322,15 @@ export function ParticipantMarkerElement(props: ParticipantMarkerElementProps) {
       }}
     >
       {stateSettingsMapShowTooltips ||
-      stateSpectator === stateParticipantId ||
-      stateSelectedSpectator === stateParticipantId ? (
+      stateSpectatorId === stateParticipantId ||
+      stateSelectedParticipantId === stateParticipantId ? (
         // Show tooltip message for specific cases
         <Tooltip direction="bottom" offset={[0, 15]} opacity={0.8} permanent>
           {[
-            stateSpectator === stateParticipantId
+            stateSpectatorId === stateParticipantId
               ? intl.formatMessage({id: 'getacar.spectator.current'})
               : undefined,
-            stateSelectedSpectator === stateParticipantId
+            stateSelectedParticipantId === stateParticipantId
               ? intl.formatMessage({id: 'getacar.spectator.selected'})
               : undefined,
             stateSettingsMapShowTooltips

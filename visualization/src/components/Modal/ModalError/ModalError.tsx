@@ -34,7 +34,7 @@ export interface ErrorModalContentElement {
   count: number;
 }
 
-export interface ErrorModalProps
+export interface ModalErrorProps
   extends ErrorModalPropsGet,
     ErrorModalPropsSet,
     ErrorModalPropsErrorBuilder {}
@@ -101,7 +101,7 @@ export function showErrorBuilder(
 }
 
 /** Modal that displays errors */
-export default function ErrorModal(props: ErrorModalProps) {
+export default function ModalError(props: ModalErrorProps) {
   const {stateErrorModalOpen, stateErrorModalContent, setStateErrorModalOpen} =
     props;
   const intl = useIntl();
@@ -139,7 +139,7 @@ export default function ErrorModal(props: ErrorModalProps) {
   );
 }
 
-export interface ErrorModalListElementProps extends ErrorModalProps {
+export interface ErrorModalListElementProps extends ModalErrorProps {
   element: ErrorModalContentElement;
 }
 

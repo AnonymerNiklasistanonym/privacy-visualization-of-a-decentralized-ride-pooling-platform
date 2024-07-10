@@ -31,7 +31,7 @@ import type {
   GlobalPropsSpectatorsSet,
 } from '@misc/props/global';
 import type {PropsWithChildren, ReactElement} from 'react';
-import type {ErrorModalProps} from '@components/Modal/ErrorModal';
+import type {ModalErrorProps} from '@components/Modal/ModalError';
 import type {SettingsProps} from '@misc/props/settings';
 
 interface CustomTabPanelProps {
@@ -77,7 +77,7 @@ export interface TabPanelProps
     GlobalPropsSpectatorSelectedElementsSet,
     SettingsProps,
     GlobalPropsSpectatorMap,
-    ErrorModalProps,
+    ModalErrorProps,
     GlobalPropsSpectatorsSet,
     GlobalPropsIntlValues,
     GlobalPropsSearch {

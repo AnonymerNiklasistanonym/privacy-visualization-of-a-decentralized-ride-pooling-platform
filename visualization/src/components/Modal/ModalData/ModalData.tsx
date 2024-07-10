@@ -13,30 +13,30 @@ import {
 // Local imports
 // > Components
 import {DataHiddenIcon, DataVisibleIcon} from '@components/Icons';
-import DataModelListElement from './DataModalElement';
+import DataModelListElement from './ModalDataElement';
 import GenericModal from '@components/Modal/ModalGeneric';
 // > Misc
 import {debugComponentRender, debugMemoHelper} from '@misc/debug';
 // Type imports
 import type {
-  DataModalInformation,
-  DataModalInformationAccessType,
-} from './DataModalInformation';
+  ModalDataInformation,
+  ModalDataInformationAccessType,
+} from './ModalDataInformation';
 import type {ReactElement, ReactNode} from 'react';
 import type {ReactSetState, ReactState} from '@misc/react';
 import type {ButtonChangeSpectatorProps} from '@components/Button/ButtonChangeSpectator';
 
-export interface DataModalPropsSetStates {
+export interface ModalDataPropsSetStates {
   setStateDataModalOpen: ReactSetState<boolean>;
 }
 
-export interface DataModalProps
-  extends DataModalPropsSetStates,
+export interface ModalDataProps
+  extends ModalDataPropsSetStates,
     ButtonChangeSpectatorProps,
     DataOrigin {
   stateDataModalOpen: ReactState<boolean>;
   /** Lists all entities that have in some way access to this information */
-  stateDataModalContent: ReactState<Array<DataModalInformation>>;
+  stateDataModalContent: ReactState<Array<ModalDataInformation>>;
   /** The data label */
   dataLabel: string;
   /** The data value element */
@@ -54,28 +54,15 @@ export interface DataOrigin {
   dataOriginName: string;
 }
 
-export default memo(DataModal, (prev, next) =>
-  debugMemoHelper(
-    'DataModal',
-    [
-      'stateSpectator',
-      'stateDataModalOpen',
-      'stateDataModalContent',
-      'dataLabel',
-      'dataOriginName',
-      'dataOriginIcon',
-      'dataValueSpectator',
-    ],
-    prev,
-    next
-  )
+export default memo(ModalData, (prev, next) =>
+  debugMemoHelper('ModalData', undefined, prev, next)
 );
 
 /** Modal that showcases data access and ownership */
-export function DataModal(props: DataModalProps) {
-  debugComponentRender('DataModal', true);
+export function ModalData(props: ModalDataProps) {
+  debugComponentRender('ModalData', true);
   const {
-    stateSpectator,
+    stateSpectatorId,
     stateDataModalOpen,
     stateDataModalContent,
     setStateDataModalOpen,
@@ -86,7 +73,7 @@ export function DataModal(props: DataModalProps) {
   } = props;
   const intl = useIntl();
   const listInformation = useMemo<
-    Array<[string, DataModalInformationAccessType]>
+    Array<[string, ModalDataInformationAccessType]>
   >(
     () => [
       [intl.formatMessage({id: 'data.access.owner'}), 'owner'],
@@ -132,7 +119,7 @@ export function DataModal(props: DataModalProps) {
         color={dataValueHidden ? 'error' : 'success'}
         label={`${
           dataValueHidden ? 'Hidden' : 'Visible'
-        } for ${stateSpectator}`}
+        } for ${stateSpectatorId}`}
       />
       <Divider sx={{paddingTop: '1rem'}} />
       {listInformation.map(([title, accessType]) => {

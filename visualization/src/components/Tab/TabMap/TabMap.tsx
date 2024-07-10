@@ -91,12 +91,12 @@ export default function TabMap(props: TabMapProps) {
   const {
     fetchJsonSimulation,
     showError,
-    setStateShowSpectator,
-    setStateSelectedSpectator,
-    setStateSpectator,
-    stateSpectator,
+    setStateShowParticipantId,
+    setStateSelectedParticipantId,
+    setStateSpectatorId,
+    stateSpectatorId,
     stateSpectators,
-    stateSelectedSpectator,
+    stateSelectedParticipantId,
     stateSettingsGlobalDebug,
     stateSettingsMapBaseUrlPathfinder,
     stateSettingsMapBaseUrlSimulation,
@@ -142,23 +142,23 @@ export default function TabMap(props: TabMapProps) {
   const searchActions = useMemo<Array<InputExtraActionsAction>>(
     () => [
       {
-        callback: () => setStateSelectedSpectator(undefined),
-        disabled: stateSelectedSpectator === undefined,
+        callback: () => setStateSelectedParticipantId(undefined),
+        disabled: stateSelectedParticipantId === undefined,
         icon: <DisableSelectedParticipantIcon />,
         text: intl.formatMessage({id: 'getacar.participant.clearSelected'}),
       },
       {
-        callback: () => setStateShowSpectator(stateSelectedSpectator),
-        disabled: stateSelectedSpectator === undefined,
+        callback: () => setStateShowParticipantId(stateSelectedParticipantId),
+        disabled: stateSelectedParticipantId === undefined,
         icon: <NavigateToLocationIcon />,
         text: intl.formatMessage({id: 'getacar.participant.showSelected'}),
       },
     ],
     [
       intl,
-      stateSelectedSpectator,
-      setStateSelectedSpectator,
-      setStateShowSpectator,
+      stateSelectedParticipantId,
+      setStateSelectedParticipantId,
+      setStateShowParticipantId,
     ]
   );
 
@@ -405,10 +405,10 @@ export default function TabMap(props: TabMapProps) {
   // TODO Make this better
   useEffect(() => {
     const interval = setInterval(() => {
-      if (stateSelectedSpectator === undefined) {
+      if (stateSelectedParticipantId === undefined) {
         return;
       }
-      const selectedSpectator = stateSpectators.get(stateSelectedSpectator);
+      const selectedSpectator = stateSpectators.get(stateSelectedParticipantId);
       if (selectedSpectator === undefined) {
         return;
       }
@@ -420,7 +420,7 @@ export default function TabMap(props: TabMapProps) {
       ) {
         fetchJsonSimulation<SimulationEndpointParticipantInformationCustomer>(
           simulationEndpoints.apiV1.participantInformationCustomer(
-            stateSelectedSpectator
+            stateSelectedParticipantId
           )
         ).then(customerInformation => {
           const connectedRideRequest = customerInformation.rideRequest;
@@ -440,7 +440,7 @@ export default function TabMap(props: TabMapProps) {
       ) {
         fetchJsonSimulation<SimulationEndpointParticipantInformationRideProvider>(
           simulationEndpoints.apiV1.participantInformationRideProvider(
-            stateSelectedSpectator
+            stateSelectedParticipantId
           )
         ).then(rideProviderInformation => {
           const connectedRideRequest = rideProviderInformation.rideRequest;
@@ -471,18 +471,18 @@ export default function TabMap(props: TabMapProps) {
   });
 
   const spectatorActions = useMemo<Array<InputExtraActionsAction>>(() => {
-    const currentSpectator = stateSpectators.get(stateSpectator);
+    const currentSpectator = stateSpectators.get(stateSpectatorId);
     return [
       {
-        callback: () => setStateSpectator(SpectatorId.EVERYTHING),
-        disabled: stateSpectator === SpectatorId.EVERYTHING,
+        callback: () => setStateSpectatorId(SpectatorId.EVERYTHING),
+        disabled: stateSpectatorId === SpectatorId.EVERYTHING,
         icon: <ResetSpectatorIcon />,
         text: intl.formatMessage({
           id: 'getacar.spectator.reset',
         }),
       },
       {
-        callback: () => setStateShowSpectator(stateSpectator),
+        callback: () => setStateShowParticipantId(stateSpectatorId),
         disabled:
           currentSpectator?.category !== undefined
             ? ![
@@ -500,10 +500,10 @@ export default function TabMap(props: TabMapProps) {
     ];
   }, [
     stateSpectators,
-    stateSpectator,
+    stateSpectatorId,
     intl,
-    setStateShowSpectator,
-    setStateSpectator,
+    setStateShowParticipantId,
+    setStateSpectatorId,
   ]);
 
   /** Specify dismissible cards that should be displayed */
@@ -554,8 +554,8 @@ export default function TabMap(props: TabMapProps) {
     const connectedSmartContracts: Array<ReactElement> = [];
 
     const currentSelectedSpectator =
-      stateSelectedSpectator !== undefined
-        ? stateSpectators.get(stateSelectedSpectator)
+      stateSelectedParticipantId !== undefined
+        ? stateSpectators.get(stateSelectedParticipantId)
         : undefined;
 
     // Pinned participants
@@ -759,7 +759,7 @@ export default function TabMap(props: TabMapProps) {
     stateConnectedRideRequests,
     statePinnedCustomers,
     statePinnedRideProviders,
-    stateSelectedSpectator,
+    stateSelectedParticipantId,
     stateSpectators,
   ]);
 

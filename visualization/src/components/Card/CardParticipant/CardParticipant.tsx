@@ -40,7 +40,7 @@ import type {
 } from '@globals/types/simulation';
 import type {ButtonChangeSpectatorProps} from '@components/Button/ButtonChangeSpectator';
 import type {ButtonShowSpectatorProps} from '@components/Button/ButtonShowSpectator';
-import type {DataModalInformation} from '@components/Modal/DataModal';
+import type {DataModalInformation} from '@components/Modal/ModalData';
 import type {GlobalPropsIntlValues} from '@misc/props/global';
 import type {ReactState} from '@misc/react';
 import type {SettingsGlobalProps} from '@misc/props/settings';
@@ -62,8 +62,8 @@ export default memo(CardParticipant);
 
 export function CardParticipant(props: CardParticipantProps) {
   const {
-    stateSpectator,
-    stateSelectedSpectator,
+    stateSpectatorId,
+    stateSelectedParticipantId,
     stateParticipantId,
     stateCustomerInformation,
     stateRideProviderInformation,
@@ -632,16 +632,22 @@ export function CardParticipant(props: CardParticipantProps) {
   /** Additional information label based on global state */
   const finalLabel = useMemo<string | undefined>(() => {
     const labels = [
-      stateSpectator === stateParticipantId
+      stateSpectatorId === stateParticipantId
         ? intl.formatMessage({id: 'getacar.spectator.current'})
         : undefined,
-      stateSelectedSpectator === stateParticipantId
+      stateSelectedParticipantId === stateParticipantId
         ? intl.formatMessage({id: 'getacar.spectator.selected'})
         : undefined,
       label,
     ].filter(a => a !== undefined);
     return labels.length > 0 ? labels.join('/') : undefined;
-  }, [intl, label, stateParticipantId, stateSelectedSpectator, stateSpectator]);
+  }, [
+    intl,
+    label,
+    stateParticipantId,
+    stateSelectedParticipantId,
+    stateSpectatorId,
+  ]);
 
   return (
     <CardGeneric

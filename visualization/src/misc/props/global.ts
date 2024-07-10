@@ -2,29 +2,29 @@
 import type {ReactSetState, ReactState} from '../react';
 import type {FetchOptions} from '@globals/lib/fetch';
 import type {ReactElement} from 'react';
-import type {ShowError} from '@components/Modal/ErrorModal';
+import type {ShowError} from '@components/Modal/ModalError';
 
-/** Props to get the current spectators/selected elements */
+/** Props to get the current spectator/selected elements */
 export interface GlobalPropsSpectatorSelectedElements {
   /** The current spectator from which POV everything should be shown */
-  stateSpectator: ReactState<string>;
-  /** The spectator that should be shown */
-  stateShowSpectator: ReactState<undefined | string>;
-  /** The currently selected participant ID */
-  stateSelectedSpectator: ReactState<undefined | string>;
-  /** The currently selected smart contract ID */
+  stateSpectatorId: ReactState<string>;
+  /** The participant that should be shown */
+  stateShowParticipantId: ReactState<undefined | string>;
+  /** The currently selected participant */
+  stateSelectedParticipantId: ReactState<undefined | string>;
+  /** The currently selected smart contract */
   stateSelectedSmartContractId: ReactState<undefined | string>;
 }
 
 /** Props to set the current spectators/selected elements */
 export interface GlobalPropsSpectatorSelectedElementsSet {
-  /** Set the spectator from which POV everything should be shown */
-  setStateSpectator: ReactSetState<string>;
-  /** Set to spectator that should be shown */
-  setStateShowSpectator: ReactSetState<undefined | string>;
-  /** Set the currently selected participant ID */
-  setStateSelectedSpectator: ReactSetState<undefined | string>;
-  /** Set the currently selected smart contract ID */
+  /** Set the current spectator from which POV everything should be shown */
+  setStateSpectatorId: ReactSetState<string>;
+  /** Set the participant that should be shown */
+  setStateShowParticipantId: ReactSetState<undefined | string>;
+  /** Set the currently selected participant */
+  setStateSelectedParticipantId: ReactSetState<undefined | string>;
+  /** Set the currently selected smart contract */
   setStateSelectedSmartContractId: ReactSetState<undefined | string>;
 }
 

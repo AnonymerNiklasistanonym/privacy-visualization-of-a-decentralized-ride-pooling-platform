@@ -1,10 +1,11 @@
 // Package imports
+import {useCallback} from 'react';
 // > Components
 import {Box, Fade, Modal} from '@mui/material';
 // Type imports
 import type {ReactSetState, ReactState} from '@misc/react';
 
-export interface ImageModalProps {
+export interface ModalImageProps {
   stateImgModalOpen: ReactState<boolean>;
   stateImgUrl: ReactState<string | undefined>;
   stateImgBg: ReactState<string | undefined>;
@@ -12,16 +13,16 @@ export interface ImageModalProps {
   setStateImgModalOpen: ReactSetState<boolean>;
 }
 
-export default function ImageModal({
+export default function ModalImage({
   setStateImgModalOpen,
   stateImgAlt,
   stateImgBg,
   stateImgModalOpen,
   stateImgUrl,
-}: ImageModalProps) {
-  const handleClick = () => {
+}: ModalImageProps) {
+  const handleClick = useCallback(() => {
     setStateImgModalOpen(false);
-  };
+  }, [setStateImgModalOpen]);
   return (
     <Modal
       open={stateImgModalOpen}

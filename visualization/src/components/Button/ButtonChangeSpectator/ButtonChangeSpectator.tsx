@@ -48,8 +48,8 @@ export function ButtonChangeSpectator({
   isPseudonym,
   icon,
   label,
-  stateSpectator,
-  setStateSpectator,
+  stateSpectatorId,
+  setStateSpectatorId,
   fetchJsonSimulation,
   showError,
 }: ButtonChangeSpectatorPropsInput) {
@@ -84,16 +84,16 @@ export function ButtonChangeSpectator({
 
   /** If true it means that the actor is already selected */
   const isAlreadySelected =
-    stateSpectator === spectatorId ||
-    stateSpectator === stateResolvedPseudonym?.id;
+    stateSpectatorId === spectatorId ||
+    stateSpectatorId === stateResolvedPseudonym?.id;
 
   const spectatorCanSeePseudonym =
     ignoreUnableToResolve === true ||
-    stateSpectator === SpectatorId.EVERYTHING ||
+    stateSpectatorId === SpectatorId.EVERYTHING ||
     // !!! This only works when there is only a single auth service!
-    stateSpectator === SpectatorId.AUTHENTICATION_SERVICE ||
-    stateSpectator === stateResolvedPseudonym?.id ||
-    stateSpectator === stateResolvedPseudonym?.authServiceId;
+    stateSpectatorId === SpectatorId.AUTHENTICATION_SERVICE ||
+    stateSpectatorId === stateResolvedPseudonym?.id ||
+    stateSpectatorId === stateResolvedPseudonym?.authServiceId;
 
   /** If true disable the button from being pressed */
   const disabled =
@@ -149,17 +149,17 @@ export function ButtonChangeSpectator({
     }
     // Update global spectator to the resolved actor ID from the supplied pseudonym
     if (isPseudonym && resolvedPseudonymId !== undefined) {
-      setStateSpectator(resolvedPseudonymId);
+      setStateSpectatorId(resolvedPseudonymId);
     }
     // Update global spectator to the supplied actor ID
     if (isPseudonym !== true) {
-      setStateSpectator(spectatorId);
+      setStateSpectatorId(spectatorId);
     }
   }, [
     spectatorId,
     disabled,
     isPseudonym,
-    setStateSpectator,
+    setStateSpectatorId,
     resolvedPseudonymId,
   ]);
 

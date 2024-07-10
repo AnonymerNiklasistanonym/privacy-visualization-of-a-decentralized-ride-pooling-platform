@@ -35,7 +35,8 @@ export default memo(InputChangeSpectator);
 
 export function InputChangeSpectator(props: InputChangeSpectatorProps) {
   debugComponentRender('InputChangeSpectator');
-  const {actions, setStateSpectator, stateSpectator, stateSpectators} = props;
+  const {actions, setStateSpectatorId, stateSpectatorId, stateSpectators} =
+    props;
   const intl = useIntl();
   const spectatorsList = useMemo(
     () => Array.from(stateSpectators),
@@ -56,8 +57,8 @@ export function InputChangeSpectator(props: InputChangeSpectatorProps) {
           <Select
             labelId="inputLabel.changeSpectator"
             label={intl.formatMessage({id: 'getacar.spectator.change'})}
-            value={stateSpectator}
-            onChange={event => setStateSpectator(event.target.value)}
+            value={stateSpectatorId}
+            onChange={event => setStateSpectatorId(event.target.value)}
             renderValue={value => {
               const info = stateSpectators.get(value);
               if (info === undefined) {

@@ -45,10 +45,10 @@ export function ButtonShowSpectator({
   isPseudonym,
   icon,
   label,
-  stateSpectator,
-  stateSelectedSpectator,
-  setStateSelectedSpectator,
-  setStateShowSpectator,
+  stateSpectatorId,
+  stateSelectedParticipantId,
+  setStateSelectedParticipantId,
+  setStateShowParticipantId,
   fetchJsonSimulation,
   showError,
 }: ButtonShowSpectatorPropsInput) {
@@ -83,15 +83,15 @@ export function ButtonShowSpectator({
 
   /** If true it means that the actor is already selected */
   const isAlreadySelected =
-    stateSelectedSpectator === spectatorId ||
-    stateSelectedSpectator === stateResolvedPseudonym?.id;
+    stateSelectedParticipantId === spectatorId ||
+    stateSelectedParticipantId === stateResolvedPseudonym?.id;
 
   const spectatorCanSeePseudonym =
-    stateSpectator === SpectatorId.EVERYTHING ||
+    stateSpectatorId === SpectatorId.EVERYTHING ||
     // !!! This only works when there is only a single auth service!
-    stateSpectator === SpectatorId.AUTHENTICATION_SERVICE ||
-    stateSpectator === stateResolvedPseudonym?.id ||
-    stateSpectator === stateResolvedPseudonym?.authServiceId;
+    stateSpectatorId === SpectatorId.AUTHENTICATION_SERVICE ||
+    stateSpectatorId === stateResolvedPseudonym?.id ||
+    stateSpectatorId === stateResolvedPseudonym?.authServiceId;
 
   /** If true disable the button from being pressed */
   const disabled =
@@ -147,20 +147,20 @@ export function ButtonShowSpectator({
     }
     // Update global spectator to the resolved actor ID from the supplied pseudonym
     if (isPseudonym && resolvedPseudonymId !== undefined) {
-      setStateSelectedSpectator(resolvedPseudonymId);
-      setStateShowSpectator(resolvedPseudonymId);
+      setStateSelectedParticipantId(resolvedPseudonymId);
+      setStateShowParticipantId(resolvedPseudonymId);
     }
     // Update global spectator to the supplied actor ID
     if (isPseudonym !== true) {
-      setStateSelectedSpectator(spectatorId);
-      setStateShowSpectator(spectatorId);
+      setStateSelectedParticipantId(spectatorId);
+      setStateShowParticipantId(spectatorId);
     }
   }, [
     spectatorId,
     disabled,
     isPseudonym,
-    setStateSelectedSpectator,
-    setStateShowSpectator,
+    setStateSelectedParticipantId,
+    setStateShowParticipantId,
     resolvedPseudonymId,
   ]);
 

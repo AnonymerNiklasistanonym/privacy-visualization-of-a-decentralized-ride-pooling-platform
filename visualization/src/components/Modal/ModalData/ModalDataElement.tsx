@@ -25,11 +25,11 @@ import ButtonChangeSpectator from '@components/Button/ButtonChangeSpectator';
 import {debugComponentRender} from '@misc/debug';
 // Type imports
 import type {ButtonChangeSpectatorProps} from '@components/Button/ButtonChangeSpectator';
-import type {DataModalInformation} from './DataModalInformation';
+import type {ModalDataInformation} from './ModalDataInformation';
 import type {ReactState} from '@misc/react';
 
 export interface DataModalPropsElement extends ButtonChangeSpectatorProps {
-  stateDataModalContentElement: ReactState<DataModalInformation>;
+  stateDataModalContentElement: ReactState<ModalDataInformation>;
 }
 
 export default memo(DataModelListElement);

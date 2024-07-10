@@ -4,10 +4,10 @@ export enum UrlParameter {
   TAB_INDEX = 'tab',
   /** Stores if in debug mode */
   DEBUG = 'debug',
-  /** Stores the currently selected spectator */
+  /** Stores the spectator */
   SPECTATOR = 'spectator',
-  /** Stores the currently selected spectator */
-  SELECTED_SPECTATOR = 'selected_spectator',
+  /** Stores the currently selected participant */
+  SELECTED_PARTICIPANT = 'selected_participant',
   /** Stores the currently selected smart contract ID */
   SELECTED_SMART_CONTRACT_ID = 'smart_contract_id',
 }

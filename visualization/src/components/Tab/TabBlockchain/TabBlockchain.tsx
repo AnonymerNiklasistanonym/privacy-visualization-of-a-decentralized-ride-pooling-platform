@@ -67,12 +67,12 @@ export default function TabBlockchain(props: TabBlockchainProps) {
     stateSettingsUiGridSpacing,
     stateSelectedSmartContractId,
     setStateSelectedSmartContractId,
-    stateSelectedSpectator,
-    setStateSelectedSpectator,
+    stateSelectedParticipantId,
+    setStateSelectedParticipantId,
     stateSettingsBlockchainUpdateRateInMs,
-    setStateSpectator,
+    setStateSpectatorId,
     stateSpectators,
-    stateSpectator,
+    stateSpectatorId,
   } = props;
   const intl = useIntl();
 
@@ -254,9 +254,9 @@ export default function TabBlockchain(props: TabBlockchainProps) {
   const stateInfoElements = useMemo<Array<InfoElement>>(() => {
     const buttonCurrentSpectatorClear = (
       <GenericButton
-        disabled={stateSpectator === SpectatorId.EVERYTHING}
+        disabled={stateSpectatorId === SpectatorId.EVERYTHING}
         icon={<DeleteIcon />}
-        onClick={() => setStateSpectator(SpectatorId.EVERYTHING)}
+        onClick={() => setStateSpectatorId(SpectatorId.EVERYTHING)}
         secondaryColor={true}
       >
         {intl.formatMessage(
@@ -305,9 +305,9 @@ export default function TabBlockchain(props: TabBlockchainProps) {
     );
     const buttonSelectedSpectatorClear = (
       <GenericButton
-        disabled={stateSelectedSpectator === undefined}
+        disabled={stateSelectedParticipantId === undefined}
         icon={<DeleteIcon />}
-        onClick={() => setStateSelectedSpectator(undefined)}
+        onClick={() => setStateSelectedParticipantId(undefined)}
       >
         {intl.formatMessage(
           {
@@ -364,12 +364,12 @@ export default function TabBlockchain(props: TabBlockchainProps) {
     intl,
     props,
     setStateSelectedSmartContractId,
-    setStateSelectedSpectator,
-    setStateSpectator,
+    setStateSelectedParticipantId,
+    setStateSpectatorId,
     stateSelectedSmartContractId,
-    stateSelectedSpectator,
+    stateSelectedParticipantId,
     stateSettingsUiGridSpacing,
-    stateSpectator,
+    stateSpectatorId,
   ]);
 
   const [stateFilterPseudonyms, setStateFilterPseudonyms] = useState<
@@ -377,16 +377,16 @@ export default function TabBlockchain(props: TabBlockchainProps) {
   >([]);
 
   useEffect(() => {
-    if (stateSelectedSpectator !== undefined) {
+    if (stateSelectedParticipantId !== undefined) {
       fetchJsonSimulation<SimulationEndpointParticipantPseudonymsFromId>(
         simulationEndpoints.apiV1.participantPseudonymsFromId(
-          stateSelectedSpectator
+          stateSelectedParticipantId
         )
       )
         .then(data => {
           console.warn(
             'Update pseudonyms to look for:',
-            stateSelectedSpectator,
+            stateSelectedParticipantId,
             data.pseudonyms
           );
           setStateFilterPseudonyms(data.pseudonyms);
@@ -396,7 +396,7 @@ export default function TabBlockchain(props: TabBlockchainProps) {
         );
     }
     setStateFilterPseudonyms([]);
-  }, [fetchJsonSimulation, showError, stateSelectedSpectator]);
+  }, [fetchJsonSimulation, showError, stateSelectedParticipantId]);
 
   const [stateSmartContracts, setStateSmartContracts] = useState<
     Array<SimulationEndpointSmartContractInformation>
@@ -405,8 +405,8 @@ export default function TabBlockchain(props: TabBlockchainProps) {
   const stateSmartContractsFinal = useMemo<
     Array<SimulationEndpointSmartContractInformation>
   >(() => {
-    if (stateSelectedSpectator !== undefined) {
-      const spectator = stateSpectators.get(stateSelectedSpectator);
+    if (stateSelectedParticipantId !== undefined) {
+      const spectator = stateSpectators.get(stateSelectedParticipantId);
       if (spectator !== undefined) {
         const categoryCustomer = intl.formatMessage({
           id: 'getacar.participant.customer',
@@ -416,15 +416,15 @@ export default function TabBlockchain(props: TabBlockchainProps) {
         });
         return stateSmartContracts.filter(a =>
           spectator.category === categoryCustomer
-            ? a.customerIdResolved === stateSelectedSpectator
+            ? a.customerIdResolved === stateSelectedParticipantId
             : spectator.category === categoryRideProvider
-              ? a.rideProviderIdResolved === stateSelectedSpectator
+              ? a.rideProviderIdResolved === stateSelectedParticipantId
               : true
         );
       }
     }
     return stateSmartContracts;
-  }, [stateSelectedSpectator, stateSmartContracts, stateSpectators, intl]);
+  }, [stateSelectedParticipantId, stateSmartContracts, stateSpectators, intl]);
 
   const fetchSmartContracts = () =>
     fetchJsonSimulation<SimulationEndpointSmartContracts>(
