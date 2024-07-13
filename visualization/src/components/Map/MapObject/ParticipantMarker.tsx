@@ -331,7 +331,7 @@ export function ParticipantMarkerElement(props: ParticipantMarkerElementProps) {
               ? intl.formatMessage({id: 'getacar.spectator.current'})
               : undefined,
             stateSelectedParticipantId === stateParticipantId
-              ? intl.formatMessage({id: 'getacar.spectator.selected'})
+              ? intl.formatMessage({id: 'getacar.participant.selected'})
               : undefined,
             stateSettingsMapShowTooltips
               ? `${participantType} ${stateParticipantId}`

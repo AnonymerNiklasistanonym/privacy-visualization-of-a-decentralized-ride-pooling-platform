@@ -151,7 +151,7 @@ export default function TabMap(props: TabMapProps) {
         callback: () => setStateShowParticipantId(stateSelectedParticipantId),
         disabled: stateSelectedParticipantId === undefined,
         icon: <NavigateToLocationIcon />,
-        text: intl.formatMessage({id: 'getacar.participant.showSelected'}),
+        text: intl.formatMessage({id: 'getacar.participant.selectedShow'}),
       },
     ],
     [
