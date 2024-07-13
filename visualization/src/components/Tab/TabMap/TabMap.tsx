@@ -315,7 +315,6 @@ export default function TabMap(props: TabMapProps) {
                 };
               },
             ]),
-            [],
             []
           );
           updateGlobalSearch(
@@ -352,7 +351,6 @@ export default function TabMap(props: TabMapProps) {
                 };
               },
             ]),
-            [],
             []
           );
         })

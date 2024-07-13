@@ -44,7 +44,7 @@ export interface GlobalPropsShowError {
 }
 
 /** Information of spectator */
-export interface GlobalPropsSpectatorElement {
+export interface GlobalPropsSpectatorInfo {
   /** Name of the spectator */
   name: string;
   /** Callback to run when being clicked in a search */
@@ -64,25 +64,13 @@ export interface GlobalPropsSpectatorsSet {
     newSpectators: Array<
       [
         string,
-        () =>
-          | Promise<GlobalPropsSpectatorElement>
-          | GlobalPropsSpectatorElement,
+        () => Promise<GlobalPropsSpectatorInfo> | GlobalPropsSpectatorInfo,
       ]
     >,
     newTabs: Array<
       [
         string,
-        () =>
-          | Promise<GlobalPropsSpectatorElement>
-          | GlobalPropsSpectatorElement,
-      ]
-    >,
-    newada: Array<
-      [
-        string,
-        () =>
-          | Promise<GlobalPropsSpectatorElement>
-          | GlobalPropsSpectatorElement,
+        () => Promise<GlobalPropsSpectatorInfo> | GlobalPropsSpectatorInfo,
       ]
     >
   ) => void;
@@ -116,7 +104,7 @@ export interface GlobalPropsTheming {
 /** Props for global spectator map */
 export interface GlobalPropsSpectatorMap {
   /** A map that contains all current spectators */
-  stateSpectators: ReactState<Map<string, GlobalPropsSpectatorElement>>;
+  stateSpectators: ReactState<Map<string, GlobalPropsSpectatorInfo>>;
 }
 
 /** Props for values in translated strings */

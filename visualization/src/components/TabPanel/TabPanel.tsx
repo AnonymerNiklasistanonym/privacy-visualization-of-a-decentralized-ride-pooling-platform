@@ -156,8 +156,7 @@ export default function TabPanel(props: TabPanelProps) {
         keywords: ['tab', 'switch', tabTitle, `${tabIndex}`],
         name: tabTitle,
       }),
-    ]),
-    []
+    ])
   );
 
   return (

@@ -47,7 +47,7 @@ import type {
   GlobalPropsIntlValues,
   GlobalPropsSearch,
   GlobalPropsShowError,
-  GlobalPropsSpectatorElement,
+  GlobalPropsSpectatorInfo,
   GlobalPropsSpectatorMap,
   GlobalPropsSpectatorSelectedElements,
   GlobalPropsSpectatorSelectedElementsSet,
@@ -88,24 +88,6 @@ export default function CollectionHome(
   );
   const [stateThemeModeInitialized, setStateThemeModeInitialized] =
     useState<boolean>(false);
-
-  // React: Effect (Run once on the first render)
-  // > Local storage data fetching
-  useEffect(() => {
-    // Theme Mode
-    const localStorageThemeMode =
-      localStorage !== undefined
-        ? localStorage.getItem(LocalStorageKey.THEME_MODE)
-        : null;
-    console.info(
-      'Initialization localStorage themeMode:',
-      localStorageThemeMode
-    );
-    if (localStorageThemeMode === 'dark' || localStorageThemeMode === 'light') {
-      setStateThemeMode(localStorageThemeMode);
-    }
-    setStateThemeModeInitialized(true);
-  }, []);
 
   // React: States
   // > Settings
@@ -185,7 +167,7 @@ export default function CollectionHome(
 
   // > Spectator List
   const [stateSpectators, setStateSpectators] = useState<
-    Map<string, GlobalPropsSpectatorElement>
+    Map<string, GlobalPropsSpectatorInfo>
   >(
     new Map(
       [
@@ -230,32 +212,28 @@ export default function CollectionHome(
     )
   );
   const [stateTabs, setStateTabs] = useState<
-    Map<string, GlobalPropsSpectatorElement>
+    Map<string, GlobalPropsSpectatorInfo>
   >(new Map());
   const updateGlobalSearch = useCallback(
     (
       newSpectators: Array<
         [
           string,
-          () =>
-            | Promise<GlobalPropsSpectatorElement>
-            | GlobalPropsSpectatorElement,
+          () => Promise<GlobalPropsSpectatorInfo> | GlobalPropsSpectatorInfo,
         ]
       >,
       newTabs: Array<
         [
           string,
-          () =>
-            | Promise<GlobalPropsSpectatorElement>
-            | GlobalPropsSpectatorElement,
+          () => Promise<GlobalPropsSpectatorInfo> | GlobalPropsSpectatorInfo,
         ]
       >
     ) => {
       const newSpectatorsInformation = newSpectators
         .filter(([spectatorId]) => !stateSpectators.has(spectatorId))
         .map<
-          Promise<[string, GlobalPropsSpectatorElement]>
-        >(([spectatorId, spectatorInformation]) => Promise.resolve<GlobalPropsSpectatorElement>(spectatorInformation()).then(spectatorInformationResolved => [spectatorId, spectatorInformationResolved]));
+          Promise<[string, GlobalPropsSpectatorInfo]>
+        >(([spectatorId, spectatorInformation]) => Promise.resolve<GlobalPropsSpectatorInfo>(spectatorInformation()).then(spectatorInformationResolved => [spectatorId, spectatorInformationResolved]));
       Promise.all(newSpectatorsInformation)
         .then(data => {
           if (data.length > 0) {
@@ -271,8 +249,8 @@ export default function CollectionHome(
       const newTabsInformation = newTabs
         .filter(([tabName]) => !stateTabs.has(tabName))
         .map<
-          Promise<[string, GlobalPropsSpectatorElement]>
-        >(([tabName, tabInformation]) => Promise.resolve<GlobalPropsSpectatorElement>(tabInformation()).then(tabInformationResolved => [tabName, tabInformationResolved]));
+          Promise<[string, GlobalPropsSpectatorInfo]>
+        >(([tabName, tabInformation]) => Promise.resolve<GlobalPropsSpectatorInfo>(tabInformation()).then(tabInformationResolved => [tabName, tabInformationResolved]));
       Promise.all(newTabsInformation)
         .then(data => {
           if (data.length > 0) {
@@ -289,18 +267,36 @@ export default function CollectionHome(
     [showError, stateSpectators, stateTabs]
   );
 
-  // React: Listen for changes in created states
+  // React: Run once on the first render (twice in debug mode)
+  // > Local storage data fetching
+  useEffect(() => {
+    // Theme Mode
+    const localStorageThemeMode =
+      localStorage !== undefined
+        ? localStorage.getItem(LocalStorageKey.THEME_MODE)
+        : null;
+    console.info(
+      'Initialization localStorage themeMode:',
+      localStorageThemeMode
+    );
+    if (localStorageThemeMode === 'dark' || localStorageThemeMode === 'light') {
+      setStateThemeMode(localStorageThemeMode);
+    }
+    setStateThemeModeInitialized(true);
+  }, []);
+
+  // React: Run every time a state changes
   // > Snackbar listeners
   useEffect(() => {
     setStateSnackbarSpectatorOpen(true);
   }, [stateSpectatorId, setStateSnackbarSpectatorOpen]);
   useEffect(() => {
-    if (stateSelectedParticipantId !== undefined) {
+    if (stateSelectedParticipantId) {
       setStateSnackbarSelectedParticipantOpen(true);
     }
   }, [stateSelectedParticipantId, setStateSnackbarSelectedParticipantOpen]);
   useEffect(() => {
-    if (stateSelectedSmartContractId !== undefined) {
+    if (stateSelectedSmartContractId) {
       setStateSnackbarSelectedSmartContractOpen(true);
     }
   }, [stateSelectedSmartContractId, setStateSnackbarSelectedSmartContractOpen]);
@@ -624,7 +620,6 @@ export default function CollectionHome(
 
   return (
     <ThemeContainer {...props}>
-      {/*<SearchAppBar {...props} />*/}
       <main className={[`mui-theme-${stateThemeMode}`].join(' ')}>
         <TabPanel
           {...props}
