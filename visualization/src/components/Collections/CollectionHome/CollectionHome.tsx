@@ -60,7 +60,7 @@ import type {FetchOptions} from '@globals/lib/fetch';
 import type {ModalErrorProps} from '@components/Modal/ModalError';
 import type {SettingsProps} from '@misc/props/settings';
 
-/** Home page collection */
+/** Home page collection (top level component) */
 export default function CollectionHome(
   propsError: PropsWithChildren<GlobalPropsShowError & ModalErrorProps>
 ) {
@@ -83,17 +83,29 @@ export default function CollectionHome(
 
   // MUI: Theming
   const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
-  const localStorageThemeMode =
-    typeof window !== 'undefined' && window.localStorage !== undefined
-      ? window.localStorage.getItem(LocalStorageKey.THEME_MODE)
-      : null;
   const [stateThemeMode, setStateThemeMode] = useState<'light' | 'dark'>(
-    localStorageThemeMode === 'dark' || localStorageThemeMode === 'light'
-      ? localStorageThemeMode
-      : prefersDarkMode
-        ? 'dark'
-        : 'light'
+    prefersDarkMode ? 'dark' : 'light'
   );
+  const [stateThemeModeInitialized, setStateThemeModeInitialized] =
+    useState<boolean>(false);
+
+  // React: Effect (Run once on the first render)
+  // > Local storage data fetching
+  useEffect(() => {
+    // Theme Mode
+    const localStorageThemeMode =
+      localStorage !== undefined
+        ? localStorage.getItem(LocalStorageKey.THEME_MODE)
+        : null;
+    console.info(
+      'Initialization localStorage themeMode:',
+      localStorageThemeMode
+    );
+    if (localStorageThemeMode === 'dark' || localStorageThemeMode === 'light') {
+      setStateThemeMode(localStorageThemeMode);
+    }
+    setStateThemeModeInitialized(true);
+  }, []);
 
   // React: States
   // > Settings
@@ -336,8 +348,11 @@ export default function CollectionHome(
   ]);
 
   useEffect(() => {
+    if (!stateThemeModeInitialized) {
+      return;
+    }
     localStorage.setItem(LocalStorageKey.THEME_MODE, stateThemeMode);
-  }, [stateThemeMode]);
+  }, [stateThemeMode, stateThemeModeInitialized]);
 
   // Global search bar
   const globalSearch = useMemo(() => {
