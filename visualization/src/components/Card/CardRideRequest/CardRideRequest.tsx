@@ -38,8 +38,8 @@ import type {
   SimulationEndpointRideRequestInformation,
 } from '@globals/types/simulation';
 import type {ButtonChangeSpectatorProps} from '@components/Button/ButtonChangeSpectator';
-import type {DataModalInformation} from '@components/Modal/ModalData';
 import type {GlobalPropsIntlValues} from '@misc/props/global';
+import type {ModalDataInformation} from '@components/Modal/ModalData';
 import type {ReactState} from '@misc/react';
 import type {SettingsGlobalProps} from '@misc/props/settings';
 
@@ -112,7 +112,7 @@ export default function CardRideRequest(props: CardRideRequestProps) {
     }
   }, [rideRequestAuctionWinner, fetchJsonSimulation, showError]);
 
-  const dataAccessPseudonyms = useMemo<Array<DataModalInformation>>(
+  const dataAccessPseudonyms = useMemo<Array<ModalDataInformation>>(
     () => [
       {
         accessType: 'transitive',
@@ -146,8 +146,8 @@ export default function CardRideRequest(props: CardRideRequestProps) {
     [intl, intlValues]
   );
 
-  const dataAccessInformation = useMemo<Array<DataModalInformation>>(() => {
-    const dataAccessInformationList: Array<DataModalInformation> = [
+  const dataAccessInformation = useMemo<Array<ModalDataInformation>>(() => {
+    const dataAccessInformationList: Array<ModalDataInformation> = [
       ...dataAccessPseudonyms,
     ];
 
@@ -186,7 +186,7 @@ export default function CardRideRequest(props: CardRideRequestProps) {
     stateResolvedPseudonymCustomer,
   ]);
 
-  const dataAccessInformationDebug = useMemo<Array<DataModalInformation>>(
+  const dataAccessInformationDebug = useMemo<Array<ModalDataInformation>>(
     () => [],
     []
   );

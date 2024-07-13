@@ -11,6 +11,11 @@
   - [Ticks](#ticks)
   - [Flamegraph](#flamegraph)
 
+> [!WARNING]
+> Running `npm install` will display 5 high severity vulnerabilities coming from `madge`.
+> When you don't wanna use this tool just run `npm uninstall madge` or remove the line in the `package.json`.
+> Besides the check entry nothing is using this package.
+
 Simulate the following parts of the GETACAR platform:
 
 - Invisible stakeholders: These actors can normally not be queried

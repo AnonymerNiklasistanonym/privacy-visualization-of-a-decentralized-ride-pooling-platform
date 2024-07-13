@@ -18,8 +18,8 @@ import ModalData from '@components/Modal/ModalData';
 import {SpectatorId} from '@misc/spectatorIds';
 // Type imports
 import type {
-  DataModalInformation,
   DataOrigin,
+  ModalDataInformation,
 } from '@components/Modal/ModalData';
 import type {ReactElement, ReactNode} from 'react';
 import type {ButtonChangeSpectatorProps} from '@components/Button/ButtonChangeSpectator';
@@ -28,7 +28,7 @@ export interface DataElement {
   label: string;
   content: ReactNode;
   /** Information about who can see this data besides the owner */
-  dataAccessInformation: DataModalInformation[];
+  dataAccessInformation: ModalDataInformation[];
 }
 
 export interface RenderDataElementProps
@@ -40,7 +40,7 @@ export interface RenderDataElementProps
   /** The data owner information element */
   dataOriginInformation?: ReactElement;
   /** Lists all entities that have in some way access to this information */
-  dataAccessInformation: Array<DataModalInformation>;
+  dataAccessInformation: Array<ModalDataInformation>;
 }
 
 export function RenderDataElement(props: RenderDataElementProps) {
@@ -57,7 +57,7 @@ export function RenderDataElement(props: RenderDataElementProps) {
 
   const [stateOpen, setStateOpen] = useState(false);
 
-  const dataAccessDataModal: Array<DataModalInformation> = useMemo(
+  const dataAccessDataModal: Array<ModalDataInformation> = useMemo(
     () => [
       {
         accessType: 'owner',
@@ -149,7 +149,7 @@ export function RenderDataElement(props: RenderDataElementProps) {
 }
 
 // TODO Fix this
-export const dataModalInformationPersonalData: DataModalInformation[] = [
+export const dataModalInformationPersonalData: ModalDataInformation[] = [
   {
     accessType: 'local_storage',
     description:

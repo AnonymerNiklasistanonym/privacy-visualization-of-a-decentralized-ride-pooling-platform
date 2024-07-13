@@ -13,6 +13,11 @@
 - [Profiling](#profiling)
   - [React](#react)
 
+> [!WARNING]
+> Running `npm install` will display 5 high severity vulnerabilities coming from `madge`.
+> When you don't wanna use this tool just run `npm uninstall madge` or remove the line in the `package.json`.
+> Besides the check entry nothing is using this package.
+
 ## Run
 
 Per default running it will create a web server on the port `3000`.
@@ -123,10 +128,19 @@ Furthermore:
 | Command | Description |
 | --- | --- |
 | `npm run check:circular` | Check for circular dependencies |
+| `npm run check:dependencies_unused` | Check for unused dependencies |
 | `npm run check:exports` | Check for unused exports |
+| `npm run check:i18n_missed` | Check for missing translations |
+| `npm run check:i18n_unused` | Check for unused translations |
 | `npm run fix` | Fix code style based on [`eslint` rules](.eslintrc.json) |
 | `npm run lint` | Check code style based on [`eslint` rules](.eslintrc.json) and on `next` internals |
 | `npm run test` | Run tests defined in [`src/__tests__`](src/__tests__) |
+
+To create graphs of internal dependencies use the command (and make sure [GraphViz `dot`](https://www.graphviz.org/download/) is installed):
+
+```sh
+npx depcruise src --include-only "^src/components" --output-type dot | dot -T svg > dependency-graph.svg
+```
 
 ## Profiling
 

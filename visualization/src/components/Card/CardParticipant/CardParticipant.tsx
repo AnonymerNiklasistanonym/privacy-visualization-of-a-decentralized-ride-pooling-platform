@@ -40,8 +40,8 @@ import type {
 } from '@globals/types/simulation';
 import type {ButtonChangeSpectatorProps} from '@components/Button/ButtonChangeSpectator';
 import type {ButtonShowSpectatorProps} from '@components/Button/ButtonShowSpectator';
-import type {DataModalInformation} from '@components/Modal/ModalData';
 import type {GlobalPropsIntlValues} from '@misc/props/global';
+import type {ModalDataInformation} from '@components/Modal/ModalData';
 import type {ReactState} from '@misc/react';
 import type {SettingsGlobalProps} from '@misc/props/settings';
 
@@ -74,7 +74,7 @@ export function CardParticipant(props: CardParticipantProps) {
   } = props;
   const intl = useIntl();
 
-  const dataAccessPersonalData = useMemo<Array<DataModalInformation>>(
+  const dataAccessPersonalData = useMemo<Array<ModalDataInformation>>(
     () => [
       {
         accessType: 'local_storage',
@@ -111,7 +111,7 @@ export function CardParticipant(props: CardParticipantProps) {
   const content = useMemo<Array<CardGenericPropsContentElement>>(() => {
     const contentList: Array<CardGenericPropsContentElement> = [];
     if (participantType === 'customer') {
-      const dataAccessDriver: DataModalInformation[] = [];
+      const dataAccessDriver: ModalDataInformation[] = [];
       if (stateCustomerInformation?.passenger) {
         dataAccessDriver.push({
           accessType: 'transitive',
@@ -267,7 +267,7 @@ export function CardParticipant(props: CardParticipantProps) {
     }
     if (participantType === 'ride_provider') {
       if (stateRideProviderInformation) {
-        const dataAccessPassenger: DataModalInformation[] = [];
+        const dataAccessPassenger: ModalDataInformation[] = [];
         if (stateRideProviderInformation.passengerList !== undefined) {
           for (const passenger of stateRideProviderInformation.passengerList) {
             dataAccessPassenger.push({

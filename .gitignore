@@ -310,3 +310,6 @@ dist*
 
 # Do not ignore log files of bash scripts
 !*.sh.log
+
+# Ignore default dependency graphs
+dependency-graph.svg
