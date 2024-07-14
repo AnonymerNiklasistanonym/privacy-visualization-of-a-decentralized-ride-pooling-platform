@@ -35,6 +35,7 @@ import type {
   SimulationEndpointParticipantPseudonymsFromId,
   SimulationEndpointRideRequestInformation,
   SimulationEndpointRideRequests,
+  SimulationEndpointSmartContractConnectedRideRequests,
   SimulationEndpointSmartContractInformation,
   SimulationEndpointSmartContracts,
 } from '../globals/types/simulation';
@@ -551,7 +552,7 @@ export class Simulation {
           logger.warn('Respond with!', {connectedRideRequests});
           res.json({
             connectedRideRequests,
-          });
+          } as SimulationEndpointSmartContractConnectedRideRequests);
           return;
         }
         res.status(404);

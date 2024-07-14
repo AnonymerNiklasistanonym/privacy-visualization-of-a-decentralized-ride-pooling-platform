@@ -29,6 +29,7 @@ import {i18n, i18nGetLanguageName} from '../../../../i18n-config';
 // > Components
 import {
   ConnectedElementsIcon,
+  ParticipantQueriesIcon,
   SettingsBrightnessIcon,
   SettingsDebugIcon,
   SettingsLanguageIcon,
@@ -123,7 +124,8 @@ export function RenderSettingsElement({element}: RenderSettingsElementProps) {
     `RenderSettingsElement ${element.label} (${element.type})`,
     true
   );
-  if (element.type === 'toggle') {
+  const {label, type} = element;
+  if (type === 'toggle') {
     return (
       <FormControlLabel
         control={
@@ -132,24 +134,24 @@ export function RenderSettingsElement({element}: RenderSettingsElementProps) {
             onChange={(event, checked) => element.setStateValue(checked)}
           />
         }
-        label={element.label}
+        label={label}
       />
     );
   }
-  if (element.type === 'text') {
+  if (type === 'text') {
     return (
       <TextField
-        label={element.label}
+        label={label}
         variant="outlined"
         value={element.stateValue}
         onChange={event => element.setStateValue(event.target.value)}
       />
     );
   }
-  if (element.type === 'number') {
+  if (type === 'number') {
     return (
       <TextField
-        label={element.label}
+        label={label}
         value={element.stateValue}
         onChange={event => element.setStateValue(Number(event.target.value))}
         InputProps={{
@@ -160,10 +162,10 @@ export function RenderSettingsElement({element}: RenderSettingsElementProps) {
       />
     );
   }
-  if (element.type === 'ms') {
+  if (type === 'ms') {
     return (
       <TextField
-        label={element.label}
+        label={label}
         value={element.stateValue}
         onChange={event => element.setStateValue(Number(event.target.value))}
         InputProps={{
@@ -174,12 +176,10 @@ export function RenderSettingsElement({element}: RenderSettingsElementProps) {
       />
     );
   }
-  if (element.type === 'radio') {
+  if (type === 'radio') {
     return (
       <FormControl>
-        <FormLabel id="demo-radio-buttons-group-label">
-          {element.label}
-        </FormLabel>
+        <FormLabel id="demo-radio-buttons-group-label">{label}</FormLabel>
         <RadioGroup
           aria-labelledby="demo-radio-buttons-group-label"
           value={element.stateValue}
@@ -198,10 +198,10 @@ export function RenderSettingsElement({element}: RenderSettingsElementProps) {
       </FormControl>
     );
   }
-  if (element.type === 'button') {
+  if (type === 'button') {
     return (
       <Button variant="contained" onClick={element.onClick}>
-        {element.label}
+        {label}
       </Button>
     );
   }
@@ -215,26 +215,7 @@ export interface RenderSettingsProps {
 }
 
 export const RenderSettingsMemo = memo(RenderSettings, (prev, next) =>
-  debugMemoHelper(
-    `RenderSettings ${next.title}`,
-    [
-      'title',
-      [
-        'elements',
-        (prev2, next2) =>
-          (prev2 as SettingsElement).label ===
-            (next2 as SettingsElement).label &&
-          (prev2 as SettingsElement).stateValue ===
-            (next2 as SettingsElement).stateValue &&
-          (prev2 as SettingsElement).setStateValue ===
-            (next2 as SettingsElement).setStateValue &&
-          (prev2 as SettingsElement).type === (next2 as SettingsElement).type,
-        undefined,
-      ],
-    ],
-    prev,
-    next
-  )
+  debugMemoHelper(`RenderSettings ${next.title}`, undefined, prev, next)
 );
 
 export function RenderSettings({title, icon, elements}: RenderSettingsProps) {
@@ -272,19 +253,19 @@ export function TabSettings({
   setStateSettingsBlockchainUpdateRateInMs,
   setStateSettingsGlobalDebug,
   setStateSettingsMapBaseUrlPathfinder,
-  setStateSettingsMapBaseUrlSimulation,
+  setStateSettingsFetchBaseUrlSimulation,
+  setStateSettingsFetchCacheUpdateRateInMs,
   setStateSettingsMapShowTooltips,
   setStateSettingsMapUpdateRateInMs,
   stateSettingsBlockchainUpdateRateInMs,
   stateSettingsGlobalDebug,
   stateSettingsMapBaseUrlPathfinder,
-  stateSettingsMapBaseUrlSimulation,
+  stateSettingsFetchBaseUrlSimulation,
+  stateSettingsFetchCacheUpdateRateInMs,
   stateSettingsMapShowTooltips,
   stateSettingsMapUpdateRateInMs,
   setStateSettingsUiGridSpacing,
   stateSettingsUiGridSpacing,
-  setStateSettingsUiMapScroll,
-  stateSettingsUiMapScroll,
   stateSettingsCardUpdateRateInMs,
   setStateSettingsCardUpdateRateInMs,
   setStateThemeMode,
@@ -327,8 +308,8 @@ export function TabSettings({
     }
   }, [stateSettingsBrightnessLocal, setStateThemeMode]);
 
-  const settingsCards = useMemo<RenderSettingsProps[]>(
-    () => [
+  const settingsCards = useMemo<Array<RenderSettingsProps>>(() => {
+    const settingsCardsList: Array<RenderSettingsProps> = [
       {
         elements: [
           {
@@ -431,21 +412,6 @@ export function TabSettings({
             type: 'text',
           },
           {
-            label: intl.formatMessage(
-              {
-                id: 'page.home.tab.settings.card.generic.baseUrl',
-              },
-              {
-                name: intl.formatMessage({
-                  id: 'simulation',
-                }),
-              }
-            ),
-            setStateValue: setStateSettingsMapBaseUrlSimulation,
-            stateValue: stateSettingsMapBaseUrlSimulation,
-            type: 'text',
-          },
-          {
             label: intl.formatMessage({
               id: 'page.home.tab.settings.card.generic.updateRate',
             }),
@@ -457,6 +423,37 @@ export function TabSettings({
         icon: <TabMapIcon />,
         title: intl.formatMessage({
           id: 'page.home.tab.map.title',
+        }),
+      },
+      {
+        elements: [
+          {
+            label: intl.formatMessage(
+              {
+                id: 'page.home.tab.settings.card.generic.baseUrl',
+              },
+              {
+                name: intl.formatMessage({
+                  id: 'simulation',
+                }),
+              }
+            ),
+            setStateValue: setStateSettingsFetchBaseUrlSimulation,
+            stateValue: stateSettingsFetchBaseUrlSimulation,
+            type: 'text',
+          },
+          {
+            label: intl.formatMessage({
+              id: 'page.home.tab.settings.card.generic.cacheTimeout',
+            }),
+            setStateValue: setStateSettingsFetchCacheUpdateRateInMs,
+            stateValue: stateSettingsFetchCacheUpdateRateInMs,
+            type: 'ms',
+          },
+        ],
+        icon: <ParticipantQueriesIcon />,
+        title: intl.formatMessage({
+          id: 'page.home.tab.settings.card.fetch.title',
         }),
       },
       {
@@ -501,14 +498,6 @@ export function TabSettings({
             stateValue: stateSettingsUiGridSpacing,
             type: 'number',
           },
-          {
-            label: intl.formatMessage({
-              id: 'page.home.tab.settings.card.ui.mapPopupVerticalScroll',
-            }),
-            setStateValue: setStateSettingsUiMapScroll,
-            stateValue: stateSettingsUiMapScroll,
-            type: 'toggle',
-          },
         ],
         icon: <SettingsUiIcon />,
         title: intl.formatMessage({
@@ -541,32 +530,32 @@ export function TabSettings({
           id: 'page.home.tab.settings.card.storage.title',
         }),
       },
-    ],
-    [
-      intl,
-      locales,
-      stateSettingsLanguage,
-      stateSettingsBrightnessLocal,
-      setStateSettingsBlockchainUpdateRateInMs,
-      stateSettingsBlockchainUpdateRateInMs,
-      setStateSettingsMapShowTooltips,
-      stateSettingsMapShowTooltips,
-      setStateSettingsMapBaseUrlPathfinder,
-      stateSettingsMapBaseUrlPathfinder,
-      setStateSettingsMapBaseUrlSimulation,
-      stateSettingsMapBaseUrlSimulation,
-      setStateSettingsMapUpdateRateInMs,
-      stateSettingsMapUpdateRateInMs,
-      setStateSettingsCardUpdateRateInMs,
-      stateSettingsCardUpdateRateInMs,
-      setStateSettingsGlobalDebug,
-      stateSettingsGlobalDebug,
-      setStateSettingsUiGridSpacing,
-      stateSettingsUiGridSpacing,
-      setStateSettingsUiMapScroll,
-      stateSettingsUiMapScroll,
-    ]
-  );
+    ];
+    return settingsCardsList.sort((a, b) => stringComparator(a.title, b.title));
+  }, [
+    intl,
+    locales,
+    stateSettingsLanguage,
+    stateSettingsBrightnessLocal,
+    setStateSettingsBlockchainUpdateRateInMs,
+    stateSettingsBlockchainUpdateRateInMs,
+    setStateSettingsMapShowTooltips,
+    stateSettingsMapShowTooltips,
+    setStateSettingsMapBaseUrlPathfinder,
+    stateSettingsMapBaseUrlPathfinder,
+    setStateSettingsMapUpdateRateInMs,
+    stateSettingsMapUpdateRateInMs,
+    setStateSettingsFetchBaseUrlSimulation,
+    stateSettingsFetchBaseUrlSimulation,
+    setStateSettingsFetchCacheUpdateRateInMs,
+    stateSettingsFetchCacheUpdateRateInMs,
+    setStateSettingsCardUpdateRateInMs,
+    stateSettingsCardUpdateRateInMs,
+    setStateSettingsGlobalDebug,
+    stateSettingsGlobalDebug,
+    setStateSettingsUiGridSpacing,
+    stateSettingsUiGridSpacing,
+  ]);
 
   return (
     <TabContainer>

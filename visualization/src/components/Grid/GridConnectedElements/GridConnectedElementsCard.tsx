@@ -1,7 +1,7 @@
 'use client';
 
 // Package imports
-import {memo, useState} from 'react';
+import {memo, useMemo, useState} from 'react';
 // > Components
 import {
   Card,
@@ -40,33 +40,37 @@ export function GridConnectedElementsCard({
 }: PropsWithChildren<GridConnectedElementsCardProps>) {
   const [stateShow, setStateShow] = useState<boolean>(true);
   const [stateExtend, setStateExtend] = useState<boolean>(true);
-  const actions: Array<ReactElement> = [];
-  if (onDismiss !== undefined) {
-    actions.push(
-      <IconButton
-        aria-label="dismiss"
-        onClick={() => {
-          setStateShow(false);
-          onDismiss();
-        }}
-      >
-        <DismissIcon />
-      </IconButton>
-    );
-  }
-  if (onExtend !== undefined) {
-    actions.push(
-      <IconButton
-        aria-label="expand"
-        onClick={() => {
-          setStateExtend(prev => !prev);
-          onExtend(stateExtend);
-        }}
-      >
-        {stateExtend ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-      </IconButton>
-    );
-  }
+
+  const actions = useMemo<Array<ReactElement>>(() => {
+    const actionsList: Array<ReactElement> = [];
+    if (onDismiss !== undefined) {
+      actionsList.push(
+        <IconButton
+          aria-label="dismiss"
+          onClick={() => {
+            setStateShow(false);
+            onDismiss();
+          }}
+        >
+          <DismissIcon />
+        </IconButton>
+      );
+    }
+    if (onExtend !== undefined) {
+      actionsList.push(
+        <IconButton
+          aria-label="expand"
+          onClick={() => {
+            setStateExtend(prev => !prev);
+            onExtend(stateExtend);
+          }}
+        >
+          {stateExtend ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+        </IconButton>
+      );
+    }
+    return actionsList;
+  }, [onDismiss, onExtend, stateExtend]);
 
   const card = (
     <Card>

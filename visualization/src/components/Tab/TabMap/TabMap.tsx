@@ -19,7 +19,7 @@ import {
 } from '@components/Icons';
 import CardRefresh from '@components/Card/CardRefresh';
 import GenericButton from '@components/Input/InputButton/InputButtonGeneric';
-import GridConnectedElementsLayout from '@components/Grid/GridConnectedElements';
+import GridConnectedElements from '@components/Grid/GridConnectedElements';
 import InputChangeSpectator from '@components/Input/InputChangeSpectator';
 import InputSearchBar from '@components/Input/InputSearchBar';
 import Map from '@components/Map';
@@ -38,10 +38,6 @@ import '@styles/Map.module.scss';
 import styles from '@styles/Map.module.scss';
 // Type imports
 import type {
-  ConnectedElementSection,
-  InfoElement,
-} from '@components/Grid/GridConnectedElements';
-import type {
   GlobalPropsFetch,
   GlobalPropsIntlValues,
   GlobalPropsSearch,
@@ -52,7 +48,12 @@ import type {
   GlobalPropsSpectatorsSet,
 } from '@misc/props/global';
 import type {
+  GridConnectedElementsSectionCards,
+  GridConnectedElementsSectionInfoElement,
+} from '@components/Grid/GridConnectedElements';
+import type {
   SettingsConnectedElementsProps,
+  SettingsFetchProps,
   SettingsMapProps,
   SettingsUiProps,
 } from '@misc/props/settings';
@@ -73,18 +74,19 @@ import type {PathfinderEndpointGraphInformation} from '@globals/types/pathfinder
 import type {ReactElement} from 'react';
 
 export interface TabMapProps
-  extends SettingsMapProps,
-    SettingsUiProps,
-    SettingsConnectedElementsProps,
-    MapProps,
-    GlobalPropsSpectatorsSet,
+  extends GlobalPropsFetch,
+    GlobalPropsIntlValues,
+    GlobalPropsSearch,
+    GlobalPropsShowError,
     GlobalPropsSpectatorMap,
     GlobalPropsSpectatorSelectedElements,
     GlobalPropsSpectatorSelectedElementsSet,
-    GlobalPropsSearch,
-    GlobalPropsShowError,
-    GlobalPropsIntlValues,
-    GlobalPropsFetch {}
+    GlobalPropsSpectatorsSet,
+    MapProps,
+    SettingsConnectedElementsProps,
+    SettingsFetchProps,
+    SettingsMapProps,
+    SettingsUiProps {}
 
 export default function TabMap(props: TabMapProps) {
   const intl = useIntl();
@@ -99,7 +101,7 @@ export default function TabMap(props: TabMapProps) {
     stateSelectedParticipantId,
     stateSettingsGlobalDebug,
     stateSettingsMapBaseUrlPathfinder,
-    stateSettingsMapBaseUrlSimulation,
+    stateSettingsFetchBaseUrlSimulation,
     stateSettingsMapUpdateRateInMs,
     stateSettingsUiGridSpacing,
     updateGlobalSearch,
@@ -505,7 +507,9 @@ export default function TabMap(props: TabMapProps) {
   ]);
 
   /** Specify dismissible cards that should be displayed */
-  const stateInfoElements = useMemo<Array<InfoElement>>(() => {
+  const stateInfoElements = useMemo<
+    Array<GridConnectedElementsSectionInfoElement>
+  >(() => {
     return [
       {
         content: (
@@ -516,17 +520,17 @@ export default function TabMap(props: TabMapProps) {
           />
         ),
       },
-      {
-        content: intl.formatMessage({
-          id: 'page.home.tab.map.section.info.content',
-        }),
-        dismissible: true,
-        title: intl.formatMessage({
-          id: 'page.home.tab.map.section.info.title',
-        }),
-      },
+      //{
+      //  content: intl.formatMessage({
+      //    id: 'page.home.tab.map.section.info.content',
+      //  }),
+      //  dismissible: true,
+      //  title: intl.formatMessage({
+      //    id: 'page.home.tab.map.section.info.title',
+      //  }),
+      //},
     ];
-  }, [intl, props, spectatorActions]);
+  }, [props, spectatorActions]);
 
   const [stateConnectedRideRequests, setStateConnectedRideRequests] = useState<
     Array<string>
@@ -541,7 +545,9 @@ export default function TabMap(props: TabMapProps) {
   >(undefined);
 
   /** Specify which connected elements should be displayed */
-  const stateConnectedElements = useMemo<Array<ConnectedElementSection>>(() => {
+  const stateConnectedElements = useMemo<
+    Array<GridConnectedElementsSectionCards>
+  >(() => {
     /** The pinned participant cards */
     const pinnedParticipants: Array<ReactElement> = [];
     /** The connected participants */
@@ -606,7 +612,7 @@ export default function TabMap(props: TabMapProps) {
           id={connectedRideRequest}
           label={intl.formatMessage(
             {
-              id: 'getacar.spectator.message.connected',
+              id: 'connected',
             },
             {
               name: intl.formatMessage({
@@ -632,7 +638,7 @@ export default function TabMap(props: TabMapProps) {
           icon={<MiscRideContractSmartContractIcon />}
           label={intl.formatMessage(
             {
-              id: 'getacar.spectator.message.connected',
+              id: 'connected',
             },
             {
               name: intl.formatMessage({
@@ -660,7 +666,7 @@ export default function TabMap(props: TabMapProps) {
             isPseudonym={true}
             label={intl.formatMessage(
               {
-                id: 'getacar.spectator.message.connected',
+                id: 'connected',
               },
               {
                 name: intl.formatMessage({
@@ -688,7 +694,7 @@ export default function TabMap(props: TabMapProps) {
           isPseudonym={true}
           label={intl.formatMessage(
             {
-              id: 'getacar.spectator.message.connected',
+              id: 'connected',
             },
             {
               name: intl.formatMessage({
@@ -702,7 +708,7 @@ export default function TabMap(props: TabMapProps) {
 
     return [
       {
-        elements: pinnedParticipants,
+        cards: pinnedParticipants,
         icon: <PinnedElementsIcon fontSize="large" />,
         title: intl.formatMessage(
           {id: 'getacar.spectator.message.pinned'},
@@ -712,20 +718,20 @@ export default function TabMap(props: TabMapProps) {
         ),
       },
       {
-        elements: connectedParticipants,
+        cards: connectedParticipants,
         icon: <ConnectedElementsIcon fontSize="large" />,
         title: intl.formatMessage(
-          {id: 'getacar.spectator.message.connected'},
+          {id: 'connected'},
           {
             name: intl.formatMessage({id: 'getacar.participant.plural'}),
           }
         ),
       },
       {
-        elements: connectedRideRequests,
+        cards: connectedRideRequests,
         icon: <ConnectedElementsIcon fontSize="large" />,
         title: intl.formatMessage(
-          {id: 'getacar.spectator.message.connected'},
+          {id: 'connected'},
           {
             name: intl.formatMessage(
               {
@@ -739,10 +745,10 @@ export default function TabMap(props: TabMapProps) {
         ),
       },
       {
-        elements: connectedSmartContracts,
+        cards: connectedSmartContracts,
         icon: <ConnectedElementsIcon fontSize="large" />,
         title: intl.formatMessage(
-          {id: 'getacar.spectator.message.connected'},
+          {id: 'connected'},
           {
             name: intl.formatMessage({id: 'getacar.smartContract.plural'}),
           }
@@ -764,10 +770,11 @@ export default function TabMap(props: TabMapProps) {
   return (
     <TabContainer fullPage={true}>
       <Box component="section" className={styles['tab-map']}>
-        <GridConnectedElementsLayout
+        <GridConnectedElements
           stateSettingsUiGridSpacing={stateSettingsUiGridSpacing}
           stateConnectedElements={stateConnectedElements}
           stateInfoElements={stateInfoElements}
+          stateSettingsGlobalDebug={stateSettingsGlobalDebug}
         >
           <Grid container spacing={stateSettingsUiGridSpacing}>
             <Grid item xs={12}>
@@ -799,7 +806,7 @@ export default function TabMap(props: TabMapProps) {
               </Box>
             </Grid>
           </Grid>
-        </GridConnectedElementsLayout>
+        </GridConnectedElements>
         {/** Debug Section */}
         <Box
           sx={{
@@ -819,7 +826,7 @@ export default function TabMap(props: TabMapProps) {
                 <GenericButton
                   onClick={() =>
                     fetchTextEndpoint(
-                      stateSettingsMapBaseUrlSimulation,
+                      stateSettingsFetchBaseUrlSimulation,
                       simulationEndpoints.simulation.state
                     )
                       .then(a => alert(`Simulation state: ${a}`))
@@ -831,7 +838,7 @@ export default function TabMap(props: TabMapProps) {
                 <GenericButton
                   onClick={() =>
                     fetchTextEndpoint(
-                      stateSettingsMapBaseUrlSimulation,
+                      stateSettingsFetchBaseUrlSimulation,
                       simulationEndpoints.simulation.pause
                     ).catch(err =>
                       showError('Fetch simulation state pause', err)
@@ -843,7 +850,7 @@ export default function TabMap(props: TabMapProps) {
                 <GenericButton
                   onClick={() =>
                     fetchTextEndpoint(
-                      stateSettingsMapBaseUrlSimulation,
+                      stateSettingsFetchBaseUrlSimulation,
                       simulationEndpoints.simulation.run
                     ).catch(err => showError('Fetch simulation state run', err))
                   }

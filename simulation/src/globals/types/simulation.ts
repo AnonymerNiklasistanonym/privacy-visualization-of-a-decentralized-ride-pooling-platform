@@ -138,3 +138,7 @@ export interface SimulationEndpointParticipantIdFromPseudonym {
 export interface SimulationEndpointParticipantPseudonymsFromId {
   pseudonyms: Array<string>;
 }
+
+export interface SimulationEndpointSmartContractConnectedRideRequests {
+  connectedRideRequests: Array<SimulationEndpointRideRequestId>;
+}

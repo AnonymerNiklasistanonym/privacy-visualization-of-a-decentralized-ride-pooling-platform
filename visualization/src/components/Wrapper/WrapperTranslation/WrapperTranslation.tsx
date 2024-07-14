@@ -8,7 +8,10 @@ import {IntlProvider} from 'react-intl';
 import type {PropsWithChildren} from 'react';
 import type {ReactPropsI18n} from '@misc/react';
 
-export default function TranslationWrapper({
+/**
+ * All children inside this wrapper support using the intl client hook
+ */
+export default function WrapperTranslation({
   locale,
   messages,
   children,

@@ -6,26 +6,30 @@ import {useMemo} from 'react';
 // > Components
 import {Box, CssBaseline} from '@mui/material';
 import {ThemeProvider} from '@mui/material/styles';
+// Local imports
+// > Misc
+import {colors} from '@misc/colors';
 // Type imports
 import type {PropsWithChildren} from 'react';
-import type {ReactState} from '@misc/react';
+import type {SettingsThemeProps} from '@misc/props/settings';
 
-export interface ThemeContainerProps {
-  stateThemeMode: ReactState<'light' | 'dark'>;
-}
+export type WrapperThemeProviderProps = SettingsThemeProps;
 
-export default function ThemeContainer({
+/**
+ * All children inside this wrapper support the MUI theme hook
+ */
+export default function WrapperThemeProvider({
   children,
-  stateThemeMode: mode,
-}: PropsWithChildren<ThemeContainerProps>) {
+  stateThemeMode,
+}: PropsWithChildren<WrapperThemeProviderProps>) {
   const theme = useMemo(
     () =>
       createTheme({
         palette: {
-          mode,
+          mode: stateThemeMode,
         },
       }),
-    [mode]
+    [stateThemeMode]
   );
 
   return (
@@ -35,8 +39,8 @@ export default function ThemeContainer({
         sx={{
           backgroundColor: theme =>
             theme.palette.mode === 'light'
-              ? 'hsla(215, 15%, 97%, 0.5)'
-              : 'rgba(29, 33, 38, 0.4)',
+              ? colors.backgroundColor.light
+              : colors.backgroundColor.dark,
           height: '100%',
           margin: 0,
           padding: 0,

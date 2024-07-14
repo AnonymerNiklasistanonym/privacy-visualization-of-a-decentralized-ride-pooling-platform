@@ -1,7 +1,7 @@
 'use client';
 
 // Package imports
-import {useCallback, useEffect, useMemo, useState} from 'react';
+import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {usePathname, useRouter, useSearchParams} from 'next/navigation';
 import {useIntl} from 'react-intl';
 import {useMediaQuery} from '@mui/material';
@@ -29,7 +29,7 @@ import {
 } from '@components/Icons';
 import SnackbarContentChange from '@components/Snackbar/SnackbarContentChange';
 import TabPanel from '@components/TabPanel';
-import ThemeContainer from '@components/ThemeContainer';
+import WrapperThemeProvider from '@components/Wrapper/WrapperThemeProvider';
 // > Globals
 import {
   baseUrlPathfinder,
@@ -52,7 +52,6 @@ import type {
   GlobalPropsSpectatorSelectedElements,
   GlobalPropsSpectatorSelectedElementsSet,
   GlobalPropsSpectatorsSet,
-  GlobalPropsTheming,
   GlobalSearchElement,
 } from '@misc/props/global';
 import type {PropsWithChildren, ReactElement} from 'react';
@@ -95,8 +94,8 @@ export default function CollectionHome(
   const [stateSettingsMapShowTooltips, setStateSettingsMapShowTooltips] =
     useState(false);
   const [
-    stateSettingsMapBaseUrlSimulation,
-    setStateSettingsMapBaseUrlSimulation,
+    stateSettingsFetchBaseUrlSimulation,
+    setStateSettingsFetchBaseUrlSimulation,
   ] = useState(baseUrlSimulation);
   const [stateSettingsMapUpdateRateInMs, setStateSettingsMapUpdateRateInMs] =
     useState(1000 / 5);
@@ -119,8 +118,6 @@ export default function CollectionHome(
   // >> UI
   const [stateSettingsUiGridSpacing, setStateSettingsUiGridSpacing] =
     useState<number>(2);
-  const [stateSettingsUiMapScroll, setStateSettingsUiMapScroll] =
-    useState<boolean>(false);
   // > Snackbars
   const [stateSnackbarSpectatorOpen, setStateSnackbarSpectatorOpen] =
     useState(false);
@@ -154,15 +151,44 @@ export default function CollectionHome(
       ? Number(searchParams.get(UrlParameter.TAB_INDEX))
       : 0
   );
+  // > Fetching
+  const [
+    stateSettingsFetchCacheUpdateRateInMs,
+    setStateSettingsFetchCacheUpdateRateInMs,
+  ] = useState(1000 / 20);
+
+  /** Caches requests with a time so multiple requests won't be made in the same time frame */
+  const requestCache = useRef(new Map<string, {time: Date; data: unknown}>());
 
   // Props: Functions (depend on created states)
   const fetchJsonSimulation = useCallback(
     async <T,>(
       endpoint: string,
       options?: Readonly<FetchOptions>
-    ): Promise<T> =>
-      fetchJson<T>(`${stateSettingsMapBaseUrlSimulation}${endpoint}`, options),
-    [stateSettingsMapBaseUrlSimulation]
+    ): Promise<T> => {
+      const cacheEntry = requestCache.current.get(endpoint);
+      const currentTime = new Date();
+      // In case the current time and cache time are sufficiently close ignore request and return cached data instead
+      if (
+        cacheEntry !== undefined &&
+        currentTime.getTime() - cacheEntry.time.getTime() <
+          stateSettingsFetchCacheUpdateRateInMs
+      ) {
+        console.warn(
+          `Stopped request '${endpoint}' since it was cached recently`
+        );
+        return cacheEntry.data as T;
+      }
+      const data = await fetchJson<T>(
+        `${stateSettingsFetchBaseUrlSimulation}${endpoint}`,
+        options
+      );
+      // If a request is made update the cache
+      requestCache.current.set(endpoint, {data, time: currentTime});
+      // TODO Cache only gets bigger, nothing is purged - clean routine
+      return data;
+    },
+    [stateSettingsFetchBaseUrlSimulation, stateSettingsFetchCacheUpdateRateInMs]
   );
 
   // > Spectator List
@@ -577,7 +603,6 @@ export default function CollectionHome(
     GlobalPropsSpectatorSelectedElementsSet &
     SettingsProps &
     ModalErrorProps &
-    GlobalPropsTheming &
     GlobalPropsSpectatorsSet &
     GlobalPropsSearch &
     GlobalPropsSpectatorMap &
@@ -590,13 +615,13 @@ export default function CollectionHome(
     setStateSelectedSmartContractId,
     setStateSettingsBlockchainUpdateRateInMs,
     setStateSettingsCardUpdateRateInMs,
+    setStateSettingsFetchBaseUrlSimulation,
+    setStateSettingsFetchCacheUpdateRateInMs,
     setStateSettingsGlobalDebug,
     setStateSettingsMapBaseUrlPathfinder,
-    setStateSettingsMapBaseUrlSimulation,
     setStateSettingsMapShowTooltips,
     setStateSettingsMapUpdateRateInMs,
     setStateSettingsUiGridSpacing,
-    setStateSettingsUiMapScroll,
     setStateShowParticipantId,
     setStateSpectatorId,
     setStateThemeMode,
@@ -604,13 +629,13 @@ export default function CollectionHome(
     stateSelectedSmartContractId,
     stateSettingsBlockchainUpdateRateInMs,
     stateSettingsCardUpdateRateInMs,
+    stateSettingsFetchBaseUrlSimulation,
+    stateSettingsFetchCacheUpdateRateInMs,
     stateSettingsGlobalDebug,
     stateSettingsMapBaseUrlPathfinder,
-    stateSettingsMapBaseUrlSimulation,
     stateSettingsMapShowTooltips,
     stateSettingsMapUpdateRateInMs,
     stateSettingsUiGridSpacing,
-    stateSettingsUiMapScroll,
     stateShowParticipantId,
     stateSpectatorId,
     stateSpectators,
@@ -619,7 +644,7 @@ export default function CollectionHome(
   };
 
   return (
-    <ThemeContainer {...props}>
+    <WrapperThemeProvider {...props}>
       <main className={[`mui-theme-${stateThemeMode}`].join(' ')}>
         <TabPanel
           {...props}
@@ -661,6 +686,6 @@ export default function CollectionHome(
         bottomOffset={60 * 2}
       />
       {children}
-    </ThemeContainer>
+    </WrapperThemeProvider>
   );
 }

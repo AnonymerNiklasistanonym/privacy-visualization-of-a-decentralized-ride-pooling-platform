@@ -1,6 +1,7 @@
 {
   "active": "Aktiv {name}",
   "common.footer": "Abteilung Service Computing > Institut für Architektur von Anwendungssystemen > Universität Stuttgart",
+  "connected": "Verbundene {name}",
   "current": "Aktueller {name}",
   "data.access.localStorage": "Speichert diese Daten",
   "data.access.none": "Hat keinen Zugriff",
@@ -56,13 +57,14 @@
   "page.home.tab.settings.card.generic.baseUrl": "Basis-URL ({name})",
   "page.home.tab.settings.card.generic.updateRate": "Datenaktualisierungsinterval",
   "page.home.tab.settings.card.map.showTooltips": "Zeige Tooltips",
-  "page.home.tab.settings.card.map.title": "KARTE",
   "page.home.tab.settings.title": "Einstellungen",
   "page.home.title": "Visualisierung der GETACAR Platform",
   "pathfinder": "Pfadfinder",
   "project.description": "Visualisierung der Datenschutzaspekte des dezentralen, datenschutzfreundlichen Fahrgemeinschaftsplattformkonzepts {GETACAR}",
   "project.name": "Visualisierung eines auf den Schutz der Privatsphäre ausgerichteten Plattformkonzepts für Fahrtenvermittlung ({GETACAR})",
+  "reset": "{name} widerherstellen",
+  "selected": "Ausgewählter {name}",
   "simulation": "Simulation",
-  "theme.dark": "dunklen",
-  "theme.light": "hellen"
+  "theme.dark": "Dunklen",
+  "theme.light": "Hellen"
 }

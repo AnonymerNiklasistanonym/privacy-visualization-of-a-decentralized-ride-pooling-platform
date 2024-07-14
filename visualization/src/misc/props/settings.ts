@@ -12,13 +12,11 @@ export interface SettingsMapProps extends SettingsGlobalProps {
   stateSettingsMapUpdateRateInMs: ReactState<number>;
   stateSettingsMapShowTooltips: ReactState<boolean>;
   stateSettingsMapBaseUrlPathfinder: ReactState<string>;
-  stateSettingsMapBaseUrlSimulation: ReactState<string>;
 }
 export interface SettingsMapPropsSet extends SettingsGlobalPropsSet {
   setStateSettingsMapUpdateRateInMs: ReactSetState<number>;
   setStateSettingsMapShowTooltips: ReactSetState<boolean>;
   setStateSettingsMapBaseUrlPathfinder: ReactSetState<string>;
-  setStateSettingsMapBaseUrlSimulation: ReactSetState<string>;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
@@ -32,8 +30,11 @@ export interface SettingsBlockchainProps extends SettingsGlobalProps {
 export interface SettingsBlockchainPropsSet extends SettingsGlobalPropsSet {
   setStateSettingsBlockchainUpdateRateInMs: ReactSetState<number>;
 }
-export interface SettingsThemePropsSet extends SettingsGlobalPropsSet {
+export interface SettingsThemeProps extends SettingsGlobalProps {
+  /** The current theme state (dark/light mode) */
   stateThemeMode: ReactState<'light' | 'dark'>;
+}
+export interface SettingsThemePropsSet extends SettingsGlobalPropsSet {
   setStateThemeMode: ReactSetState<'light' | 'dark'>;
 }
 export interface SettingsConnectedElementsProps extends SettingsGlobalProps {
@@ -44,27 +45,39 @@ export interface SettingsConnectedElementsPropsSet
   setStateSettingsCardUpdateRateInMs: ReactSetState<number>;
 }
 
-export interface SettingsUiProps extends SettingsGlobalPropsSet {
+export interface SettingsUiProps extends SettingsGlobalProps {
+  /** The spacing between elements */
   stateSettingsUiGridSpacing: number;
-  stateSettingsUiMapScroll: boolean;
 }
 
 export interface SettingsUiPropsSet extends SettingsGlobalPropsSet {
   setStateSettingsUiGridSpacing: ReactSetState<number>;
-  setStateSettingsUiMapScroll: ReactSetState<boolean>;
+}
+
+export interface SettingsFetchProps extends SettingsGlobalProps {
+  stateSettingsFetchBaseUrlSimulation: ReactState<string>;
+  stateSettingsFetchCacheUpdateRateInMs: ReactState<number>;
+}
+
+export interface SettingsFetchPropsSet extends SettingsGlobalPropsSet {
+  setStateSettingsFetchBaseUrlSimulation: ReactSetState<string>;
+  setStateSettingsFetchCacheUpdateRateInMs: ReactSetState<number>;
 }
 
 export interface SettingsProps
-  extends SettingsGlobalProps,
+  extends SettingsBlockchainProps,
+    SettingsBlockchainPropsSet,
+    SettingsConnectedElementsProps,
+    SettingsConnectedElementsPropsSet,
+    SettingsFetchProps,
+    SettingsFetchPropsSet,
+    SettingsGlobalProps,
     SettingsGlobalPropsSet,
     SettingsMapProps,
     SettingsMapPropsSet,
     SettingsOverviewProps,
     SettingsOverviewPropsSet,
-    SettingsBlockchainProps,
-    SettingsBlockchainPropsSet,
+    SettingsThemeProps,
     SettingsThemePropsSet,
-    SettingsConnectedElementsProps,
-    SettingsConnectedElementsPropsSet,
     SettingsUiProps,
     SettingsUiPropsSet {}

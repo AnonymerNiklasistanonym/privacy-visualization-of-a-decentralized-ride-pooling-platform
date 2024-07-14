@@ -65,37 +65,41 @@ export const compareErrorModalContent = (
 export type ShowError = (message: string, error: Error) => void;
 
 export function showErrorBuilder(
-  props: ErrorModalPropsErrorBuilder,
+  {
+    stateErrorModalContent,
+    setStateErrorModalContent,
+    setStateErrorModalOpen,
+  }: ErrorModalPropsErrorBuilder,
   logError = true
 ): ShowError {
-  return (title: string, error: Error) => {
+  return (message: string, error: Error) => {
     if (logError) {
       console.error(error);
     }
     // Append error or increase count
-    const errorAlreadyInList = props.stateErrorModalContent.find(a =>
-      compareErrorModalContent(title, error, a)
+    const errorAlreadyInList = stateErrorModalContent.find(a =>
+      compareErrorModalContent(message, error, a)
     );
     if (errorAlreadyInList) {
-      props.setStateErrorModalContent(
-        props.stateErrorModalContent.map(a => {
-          if (compareErrorModalContent(title, error, a)) {
+      setStateErrorModalContent(
+        stateErrorModalContent.map(a => {
+          if (compareErrorModalContent(message, error, a)) {
             a.count += 1;
           }
           return a;
         })
       );
     } else {
-      props.setStateErrorModalContent([
-        ...props.stateErrorModalContent,
+      setStateErrorModalContent([
+        ...stateErrorModalContent,
         {
           count: 1,
           error,
-          title,
+          title: message,
         },
       ]);
       // Only open modal if new error is found
-      props.setStateErrorModalOpen(true);
+      setStateErrorModalOpen(true);
     }
   };
 }
@@ -190,7 +194,10 @@ export function ErrorModalListElement({
             width: '100%',
           }}
         >
-          <InputButtonGeneric icon={<DeleteIcon />} onClick={removeErrorMessage}>
+          <InputButtonGeneric
+            icon={<DeleteIcon />}
+            onClick={removeErrorMessage}
+          >
             Remove Error
           </InputButtonGeneric>
           <Typography variant="body2" sx={{marginTop: '1rem'}} gutterBottom>

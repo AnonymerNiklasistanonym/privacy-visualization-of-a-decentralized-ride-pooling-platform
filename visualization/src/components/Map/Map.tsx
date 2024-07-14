@@ -125,7 +125,12 @@ export default function Map(props: MapPropsInput) {
           setStateCurrentPosLong={setStateCurrentPosLong}
         />
         <LayersControl position="bottomleft">
-          <LayersControl.BaseLayer checked name="Map">
+          <LayersControl.BaseLayer
+            checked
+            name={intl.formatMessage({
+              id: 'page.home.tab.map.title',
+            })}
+          >
             <TileLayer
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

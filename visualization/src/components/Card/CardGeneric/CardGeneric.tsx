@@ -60,19 +60,18 @@ export interface CardGenericPropsInput extends CardGenericProps {
   actions?: Array<ReactNode>;
 }
 
-export default function CardGeneric(props: CardGenericPropsInput) {
-  const {
-    label,
-    icon,
-    name,
-    status,
-    id,
-    content,
-    pinAction,
-    unpinAction,
-    actions,
-    isPinned,
-  } = props;
+export default function CardGeneric({
+  label,
+  icon,
+  name,
+  status,
+  id,
+  content,
+  pinAction,
+  unpinAction,
+  actions,
+  isPinned,
+}: CardGenericPropsInput) {
   const titleStackList = useMemo(() => {
     const result: Array<ReactElement> = [];
     if (label !== undefined) {
@@ -113,6 +112,7 @@ export default function CardGeneric(props: CardGenericPropsInput) {
     }
     return result;
   }, [label, id, status]);
+
   const iconActions = useMemo(() => {
     const result = [];
     if (
@@ -145,6 +145,7 @@ export default function CardGeneric(props: CardGenericPropsInput) {
     }
     return result;
   }, [id, isPinned, pinAction, unpinAction]);
+
   return (
     <Card variant="outlined">
       <CardHeader
@@ -170,20 +171,21 @@ export default function CardGeneric(props: CardGenericPropsInput) {
           overflowY: 'scroll',
         }}
       >
-        {content.map((a, index) => (
-          <Box key={`content-${a.label ?? index}`}>
-            {a.label ? (
-              <Divider>
+        {content.map(({content, label, labelIcon}, index) => (
+          <Box key={`content-${label ?? index}`}>
+            {label ? (
+              <Divider key={`content-${label ?? index}-divider`}>
                 <Chip
-                  icon={a.labelIcon ?? undefined}
-                  label={a.label}
+                  icon={labelIcon ?? undefined}
+                  label={label}
                   size="small"
                   sx={{marginBottom: '0.5rem', marginTop: '0.5rem'}}
                 />
               </Divider>
             ) : undefined}
-            {a.content ?? (
+            {content ?? (
               <Box
+                key={`content-${label ?? index}-content`}
                 sx={{display: 'flex', width: '100%'}}
                 justifyContent="center"
               >

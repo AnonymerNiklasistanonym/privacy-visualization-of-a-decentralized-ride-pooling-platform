@@ -68,10 +68,10 @@ export function debugMemoHelper<T, TYPE = Record<keyof T, unknown>>(
     const keyList = [...Object.keys(prev), ...Object.keys(next)];
     for (const key of keyList) {
       const prevValue = Object.hasOwn(prev, key)
-        ? (prev as {[key: string]: any})[key]
+        ? (prev as {[key: string]: unknown})[key]
         : undefined;
       const nextValue = Object.hasOwn(next, key)
-        ? (next as {[key: string]: any})[key]
+        ? (next as {[key: string]: unknown})[key]
         : undefined;
       const sameObject = Object.is(prevValue, nextValue);
       if (!sameObject) {

@@ -94,7 +94,7 @@ export default function TabPanel(props: TabPanelProps) {
     stateErrorModalContent,
     stateSettingsGlobalDebug,
     setStateErrorModalOpen,
-    stateSettingsMapBaseUrlSimulation,
+    stateSettingsFetchBaseUrlSimulation,
     stateSettingsMapBaseUrlPathfinder,
     stateSettingsUiGridSpacing,
     updateGlobalSearch,
@@ -245,7 +245,7 @@ export default function TabPanel(props: TabPanelProps) {
               >
                 Open Error Modal
               </GenericButton>
-              <Link target="_blank" href={stateSettingsMapBaseUrlSimulation}>
+              <Link target="_blank" href={stateSettingsFetchBaseUrlSimulation}>
                 <GenericButton>Open Simulation Website</GenericButton>
               </Link>
               <Link target="_blank" href={stateSettingsMapBaseUrlPathfinder}>

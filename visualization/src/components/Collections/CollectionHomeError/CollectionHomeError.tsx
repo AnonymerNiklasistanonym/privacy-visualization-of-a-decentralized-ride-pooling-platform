@@ -1,7 +1,7 @@
 'use client';
 
 // Package imports
-import {useState} from 'react';
+import {useCallback, useState} from 'react';
 // Local imports
 import {showErrorBuilder} from '@components/Modal/ModalError';
 // > Components
@@ -25,12 +25,16 @@ export default function ErrorModalWrapperCollectionHome() {
   >([]);
 
   // Props: Functions (depend on created states)
-  const showError = showErrorBuilder({
-    setStateErrorModalContent,
-    setStateErrorModalOpen,
-    stateErrorModalContent,
-    stateErrorModalOpen,
-  });
+  const showError = useCallback(
+    (message: string, error: Error) =>
+      showErrorBuilder({
+        setStateErrorModalContent,
+        setStateErrorModalOpen,
+        stateErrorModalContent,
+        stateErrorModalOpen,
+      })(message, error),
+    [stateErrorModalContent, stateErrorModalOpen]
+  );
 
   // Group all props
   const props: GlobalPropsShowError & ModalErrorProps = {

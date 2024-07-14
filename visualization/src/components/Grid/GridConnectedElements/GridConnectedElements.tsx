@@ -1,4 +1,5 @@
 // Package imports
+import {memo, useCallback} from 'react';
 // > Components
 import {Badge, Box, Grid, Typography} from '@mui/material';
 import Masonry, {ResponsiveMasonry} from 'react-responsive-masonry';
@@ -9,39 +10,49 @@ import {GridConnectedElementsCard} from './GridConnectedElementsCard';
 import {debugComponentRender} from '@misc/debug';
 // Type imports
 import type {PropsWithChildren, ReactElement} from 'react';
+import type {SettingsUiProps} from '@misc/props/settings';
 
-export interface ConnectedElementSection {
-  /** Title of the connected element section */
+/** A collapsible card section with a title and element count indicator */
+export interface GridConnectedElementsSectionCards {
   title: string;
   icon: ReactElement;
-  /** The elements of the connected elements */
-  elements: Array<ReactElement>;
+  /** The connected elements (cards/components) */
+  cards: Array<ReactElement>;
 }
 
-export interface InfoElement {
+export interface GridConnectedElementsSectionInfoElement {
   title?: string;
   icon?: ReactElement;
+  /** Content can either be a raw string or a custom element (component) */
   content: string | ReactElement;
   /** Card can be dismissed */
   dismissible?: boolean;
 }
 
-export interface GridConnectedElementsLayoutProps {
+export interface GridConnectedElementsProps extends SettingsUiProps {
   /** Content related connected elements */
-  stateConnectedElements: Array<ConnectedElementSection>;
+  stateConnectedElements: Array<GridConnectedElementsSectionCards>;
   /** Content related temporary elements that can be dismissed */
-  stateInfoElements: Array<InfoElement>;
-  /** The spacing between elements */
-  stateSettingsUiGridSpacing: number;
+  stateInfoElements: Array<GridConnectedElementsSectionInfoElement>;
 }
 
-export default function GridConnectedElementsLayout({
+export default memo(GridConnectedElements);
+
+export function GridConnectedElements({
   children,
   stateConnectedElements,
   stateInfoElements,
   stateSettingsUiGridSpacing,
-}: PropsWithChildren<GridConnectedElementsLayoutProps>) {
-  debugComponentRender('GridConnectedElementsLayout');
+}: PropsWithChildren<GridConnectedElementsProps>) {
+  debugComponentRender('GridConnectedElements');
+
+  const callbackOnDismiss = useCallback(() => {
+    console.log('ACTION: DISMISS', stateInfoElements);
+  }, [stateInfoElements]);
+
+  const callbackOnExtend = useCallback((extend: boolean) => {
+    console.log('ACTION: EXTEND', extend);
+  }, []);
 
   return (
     <Box
@@ -74,38 +85,34 @@ export default function GridConnectedElementsLayout({
                 justifyContent="left"
                 alignItems="stretch"
               >
-                {stateInfoElements.map((element, index) => (
-                  <GridConnectedElementsCard
-                    key={`connected-elements-info-card-dismissible-${
-                      element.title ?? index
-                    }`}
-                    muiGridItemSize={12}
-                    icon={element.icon}
-                    title={element.title}
-                    onDismiss={
-                      element.dismissible === true
-                        ? () => {
-                            console.log('ACTION: DISMISS', stateInfoElements);
-                          }
-                        : undefined
-                    }
-                  >
-                    {typeof element.content === 'string' ? (
-                      <Typography variant="body2">{element.content}</Typography>
-                    ) : (
-                      element.content
-                    )}
-                  </GridConnectedElementsCard>
-                ))}
+                {stateInfoElements.map(
+                  ({content, title, icon, dismissible}, index) => (
+                    <GridConnectedElementsCard
+                      key={`connected-elements-card-info-${title ?? index}`}
+                      muiGridItemSize={12}
+                      icon={icon}
+                      title={title}
+                      onDismiss={
+                        dismissible === true ? callbackOnDismiss : undefined
+                      }
+                    >
+                      {typeof content === 'string' ? (
+                        <Typography variant="body2">{content}</Typography>
+                      ) : (
+                        content
+                      )}
+                    </GridConnectedElementsCard>
+                  )
+                )}
                 {stateConnectedElements
-                  .filter(a => a.elements.length > 0)
+                  .filter(a => a.cards.length > 0)
                   .map(stateConnectedElement => (
                     <GridConnectedElementsCard
-                      key={`connected-elements-info-card-${stateConnectedElement.title}`}
+                      key={`connected-elements-card-${stateConnectedElement.title}`}
                       icon={
                         <Badge
                           color="secondary"
-                          badgeContent={stateConnectedElement.elements.length}
+                          badgeContent={stateConnectedElement.cards.length}
                           showZero
                         >
                           {stateConnectedElement.icon}
@@ -113,9 +120,7 @@ export default function GridConnectedElementsLayout({
                       }
                       muiGridItemSize={12}
                       title={stateConnectedElement.title}
-                      onExtend={extend => {
-                        console.log('ACTION: EXTEND', extend);
-                      }}
+                      onExtend={callbackOnExtend}
                     >
                       <ResponsiveMasonry
                         columnsCountBreakPoints={{
@@ -128,7 +133,7 @@ export default function GridConnectedElementsLayout({
                         <Masonry
                           gutter={`${stateSettingsUiGridSpacing / 2}rem`}
                         >
-                          {stateConnectedElement.elements}
+                          {stateConnectedElement.cards}
                         </Masonry>
                       </ResponsiveMasonry>
                     </GridConnectedElementsCard>

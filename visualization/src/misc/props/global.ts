@@ -93,14 +93,6 @@ export interface GlobalPropsSearch {
   globalSearch: Array<GlobalSearchElement>;
 }
 
-/** Props for global theming */
-export interface GlobalPropsTheming {
-  /** Indicator if the current theme mode is light or dark */
-  stateThemeMode: ReactState<'light' | 'dark'>;
-  /** Update the current theme mode */
-  setStateThemeMode: ReactSetState<'light' | 'dark'>;
-}
-
 /** Props for global spectator map */
 export interface GlobalPropsSpectatorMap {
   /** A map that contains all current spectators */

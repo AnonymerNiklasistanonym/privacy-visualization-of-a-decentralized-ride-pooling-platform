@@ -12,7 +12,7 @@ import {simulationEndpoints} from '@globals/defaults/endpoints';
 import CardRefresh from '@components/Card/CardRefresh';
 import {ConnectedElementsIcon} from '@components/Icons';
 import GenericButton from '@components/Input/InputButton/InputButtonGeneric';
-import GridConnectedElementsLayout from '@components/Grid/GridConnectedElements';
+import GridConnectedElements from '@components/Grid/GridConnectedElements';
 import InputChangeSpectator from '@components/Input/InputChangeSpectator';
 import InputSearchBar from '@components/Input/InputSearchBar';
 import TabContainer from '@components/Tab/TabContainer';
@@ -21,10 +21,6 @@ import TableDebugData from '@components/Table/TableDebugData';
 import {SearchBarId} from '@misc/searchBarIds';
 import {SpectatorId} from '@misc/spectatorIds';
 // Type imports
-import type {
-  ConnectedElementSection,
-  InfoElement,
-} from '@components/Grid/GridConnectedElements';
 import type {
   GlobalPropsFetch,
   GlobalPropsIntlValues,
@@ -35,13 +31,17 @@ import type {
   GlobalPropsSpectatorSelectedElementsSet,
 } from '@misc/props/global';
 import type {
+  GridConnectedElementsSectionCards,
+  GridConnectedElementsSectionInfoElement,
+} from '@components/Grid/GridConnectedElements';
+import type {
   SettingsBlockchainProps,
   SettingsConnectedElementsProps,
   SettingsUiProps,
 } from '@misc/props/settings';
 import type {
   SimulationEndpointParticipantIdFromPseudonym,
-  SimulationEndpointParticipantPseudonymsFromId,
+  SimulationEndpointSmartContractConnectedRideRequests,
   SimulationEndpointSmartContractInformation,
   SimulationEndpointSmartContracts,
 } from '@globals/types/simulation';
@@ -63,16 +63,17 @@ export interface TabBlockchainProps
 export default function TabBlockchain(props: TabBlockchainProps) {
   const {
     fetchJsonSimulation,
-    showError,
-    stateSettingsUiGridSpacing,
-    stateSelectedSmartContractId,
-    setStateSelectedSmartContractId,
-    stateSelectedParticipantId,
     setStateSelectedParticipantId,
-    stateSettingsBlockchainUpdateRateInMs,
+    setStateSelectedSmartContractId,
     setStateSpectatorId,
-    stateSpectators,
+    showError,
+    stateSelectedParticipantId,
+    stateSelectedSmartContractId,
+    stateSettingsBlockchainUpdateRateInMs,
+    stateSettingsGlobalDebug,
+    stateSettingsUiGridSpacing,
     stateSpectatorId,
+    stateSpectators,
   } = props;
   const intl = useIntl();
 
@@ -100,7 +101,7 @@ export default function TabBlockchain(props: TabBlockchainProps) {
         'Fetch connected ride requests of smart contract...',
         stateSelectedSmartContractId
       );
-      fetchJsonSimulation<any>(
+      fetchJsonSimulation<SimulationEndpointSmartContractConnectedRideRequests>(
         simulationEndpoints.apiV1.smartContractConnectedRideRequests(
           stateSelectedSmartContractId
         )
@@ -171,7 +172,9 @@ export default function TabBlockchain(props: TabBlockchainProps) {
     }
   }, [stateSelectedCustomerPseudonym]);
 
-  const stateConnectedElements = useMemo<Array<ConnectedElementSection>>(() => {
+  const stateConnectedElements = useMemo<
+    Array<GridConnectedElementsSectionCards>
+  >(() => {
     const selectedParticipants: Array<ReactElement> = [];
     const selectedRideRequests: Array<ReactElement> = [];
     if (stateSelectedCustomerResolved !== undefined) {
@@ -182,7 +185,7 @@ export default function TabBlockchain(props: TabBlockchainProps) {
           id={stateSelectedCustomerResolved}
           label={intl.formatMessage(
             {
-              id: 'getacar.spectator.message.connected',
+              id: 'connected',
             },
             {
               name: intl.formatMessage({
@@ -201,7 +204,7 @@ export default function TabBlockchain(props: TabBlockchainProps) {
           id={stateSelectedRideProviderResolved}
           label={intl.formatMessage(
             {
-              id: 'getacar.spectator.message.connected',
+              id: 'connected',
             },
             {
               name: intl.formatMessage({
@@ -223,20 +226,20 @@ export default function TabBlockchain(props: TabBlockchainProps) {
     }
     return [
       {
-        elements: selectedParticipants,
+        cards: selectedParticipants,
         icon: <ConnectedElementsIcon fontSize="large" />,
         title: intl.formatMessage(
-          {id: 'getacar.spectator.message.connected'},
+          {id: 'connected'},
           {
             name: intl.formatMessage({id: 'getacar.participant.plural'}),
           }
         ),
       },
       {
-        elements: selectedRideRequests,
+        cards: selectedRideRequests,
         icon: <ConnectedElementsIcon fontSize="large" />,
         title: intl.formatMessage(
-          {id: 'getacar.spectator.message.connected'},
+          {id: 'connected'},
           {
             name: intl.formatMessage({id: 'getacar.rideRequest.plural'}),
           }
@@ -251,7 +254,9 @@ export default function TabBlockchain(props: TabBlockchainProps) {
     stateSelectedRideProviderResolved,
   ]);
 
-  const stateInfoElements = useMemo<Array<InfoElement>>(() => {
+  const stateInfoElements = useMemo<
+    Array<GridConnectedElementsSectionInfoElement>
+  >(() => {
     const buttonCurrentSpectatorClear = (
       <GenericButton
         disabled={stateSpectatorId === SpectatorId.EVERYTHING}
@@ -372,32 +377,6 @@ export default function TabBlockchain(props: TabBlockchainProps) {
     stateSpectatorId,
   ]);
 
-  const [stateFilterPseudonyms, setStateFilterPseudonyms] = useState<
-    Array<string>
-  >([]);
-
-  useEffect(() => {
-    if (stateSelectedParticipantId !== undefined) {
-      fetchJsonSimulation<SimulationEndpointParticipantPseudonymsFromId>(
-        simulationEndpoints.apiV1.participantPseudonymsFromId(
-          stateSelectedParticipantId
-        )
-      )
-        .then(data => {
-          console.warn(
-            'Update pseudonyms to look for:',
-            stateSelectedParticipantId,
-            data.pseudonyms
-          );
-          setStateFilterPseudonyms(data.pseudonyms);
-        })
-        .catch(err =>
-          showError('Simulation fetch pseudonyms from participant ID', err)
-        );
-    }
-    setStateFilterPseudonyms([]);
-  }, [fetchJsonSimulation, showError, stateSelectedParticipantId]);
-
   const [stateSmartContracts, setStateSmartContracts] = useState<
     Array<SimulationEndpointSmartContractInformation>
   >([]);
@@ -480,10 +459,11 @@ export default function TabBlockchain(props: TabBlockchainProps) {
 
   return (
     <TabContainer fullPage={true}>
-      <GridConnectedElementsLayout
+      <GridConnectedElements
         stateSettingsUiGridSpacing={stateSettingsUiGridSpacing}
         stateConnectedElements={stateConnectedElements}
         stateInfoElements={stateInfoElements}
+        stateSettingsGlobalDebug={stateSettingsGlobalDebug}
       >
         <Grid container spacing={stateSettingsUiGridSpacing}>
           <Grid item xs={12}>
@@ -541,7 +521,7 @@ export default function TabBlockchain(props: TabBlockchainProps) {
             </Box>
           </Grid>
         </Grid>
-      </GridConnectedElementsLayout>
+      </GridConnectedElements>
     </TabContainer>
   );
 }
