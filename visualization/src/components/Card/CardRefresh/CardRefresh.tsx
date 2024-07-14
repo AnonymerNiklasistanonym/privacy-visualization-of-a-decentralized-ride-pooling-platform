@@ -14,7 +14,7 @@ import type {
   SimulationEndpointParticipantInformationRideProvider,
   SimulationEndpointRideRequestInformation,
 } from '@globals/types/simulation';
-import type {ButtonChangeSpectatorProps} from '@components/Button/ButtonChangeSpectator';
+import type {ButtonChangeSpectatorProps} from '@components/Input/InputButton/InputButtonSpectatorChange';
 import type {CardGenericProps} from '../CardGeneric';
 import type {GetACarParticipantTypes} from '@globals/types/participant';
 import type {GlobalPropsIntlValues} from '@misc/props/global';

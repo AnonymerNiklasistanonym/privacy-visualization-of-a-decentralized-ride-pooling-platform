@@ -24,7 +24,7 @@ import type {
 } from './ModalDataInformation';
 import type {ReactElement, ReactNode} from 'react';
 import type {ReactSetState, ReactState} from '@misc/react';
-import type {ButtonChangeSpectatorProps} from '@components/Button/ButtonChangeSpectator';
+import type {ButtonChangeSpectatorProps} from '@components/Input/InputButton/InputButtonSpectatorChange';
 
 export interface ModalDataPropsSetStates {
   setStateDataModalOpen: ReactSetState<boolean>;

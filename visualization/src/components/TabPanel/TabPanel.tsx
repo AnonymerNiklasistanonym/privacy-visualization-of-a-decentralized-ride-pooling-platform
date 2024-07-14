@@ -14,7 +14,7 @@ import {
   TabSettingsIcon,
 } from '@components/Icons';
 import Footer from '@components/Footer';
-import GenericButton from '@components/Button/GenericButton';
+import GenericButton from '@components/Input/InputButton/InputButtonGeneric';
 import TabBlockchain from '@components/Tab/TabBlockchain';
 import TabMap from '@components/Tab/TabMap';
 import TabOverview from '@components/Tab/TabOverview';

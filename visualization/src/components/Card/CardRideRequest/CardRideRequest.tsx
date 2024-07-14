@@ -21,7 +21,7 @@ import {
   ServiceAuthentication,
   ServiceMatching,
 } from '@components/Tab/TabOverview/Elements';
-import ButtonShowSpectator from '@components/Button/ButtonShowSpectator';
+import ButtonShowSpectator from '@components/Input/InputButton/InputButtonSpectatorShow';
 import CardGeneric from '@components/Card/CardGeneric';
 import {RenderDataElement} from '../CardParticipant/PopupContentGeneric';
 // > Globals
@@ -37,7 +37,7 @@ import type {
   SimulationEndpointParticipantIdFromPseudonym,
   SimulationEndpointRideRequestInformation,
 } from '@globals/types/simulation';
-import type {ButtonChangeSpectatorProps} from '@components/Button/ButtonChangeSpectator';
+import type {ButtonChangeSpectatorProps} from '@components/Input/InputButton/InputButtonSpectatorChange';
 import type {GlobalPropsIntlValues} from '@misc/props/global';
 import type {ModalDataInformation} from '@components/Modal/ModalData';
 import type {ReactState} from '@misc/react';

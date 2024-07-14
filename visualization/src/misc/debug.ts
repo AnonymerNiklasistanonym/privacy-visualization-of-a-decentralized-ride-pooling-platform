@@ -58,7 +58,10 @@ export function debugMemoHelper<T, TYPE = Record<keyof T, unknown>>(
     }
     if (typeof prev !== 'object' || typeof next !== 'object') {
       console.log(
-        `Memo component ${name} not an object but different '${prev}' !== ${next} not the same because arrays differ in length`
+        `Memo component ${name} not an object but different`,
+        prev,
+        '!==',
+        next
       );
       return defaultCompare;
     }
@@ -73,7 +76,10 @@ export function debugMemoHelper<T, TYPE = Record<keyof T, unknown>>(
       const sameObject = Object.is(prevValue, nextValue);
       if (!sameObject) {
         console.log(
-          `Memo component ${name} key '${key}' not the same ${prevValue} !== ${nextValue}`
+          `Memo component ${name} key '${key}' not the same`,
+          prevValue,
+          '!==',
+          nextValue
         );
         return false;
       }
@@ -89,7 +95,10 @@ export function debugMemoHelper<T, TYPE = Record<keyof T, unknown>>(
           console.log(
             `Memo component ${name} key '${String(
               key[0]
-            )}' not the same because arrays differ in length`
+            )}' not the same because arrays differ in length`,
+            prevElementsTemp,
+            '!==',
+            nextElementsTemp
           );
           return false;
         }

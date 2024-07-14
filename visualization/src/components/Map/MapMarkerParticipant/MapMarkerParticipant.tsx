@@ -21,7 +21,7 @@ import {
   iconCustomerGray,
   iconRideProvider,
   iconRideProviderGray,
-} from './LIcons/ParticipantIcons';
+} from '../MapMarkerIcons';
 import CardRefresh from '@components/Card/CardRefresh';
 // > Globals
 import {getH3Polygon} from '@globals/lib/h3';
@@ -52,7 +52,7 @@ import type {ReactNode} from 'react';
 
 const LOCATION_REAL_RADIUS = 50;
 
-export interface ParticipantMarkerProps
+export interface MapMarkerParticipantProps
   extends GlobalPropsSpectatorSelectedElementsSet,
     GlobalPropsSpectatorSelectedElements,
     GlobalPropsFetch,
@@ -62,7 +62,7 @@ export interface ParticipantMarkerProps
     SettingsConnectedElementsProps,
     SettingsUiProps {}
 
-export interface ParticipantMarkerPropsInput extends ParticipantMarkerProps {
+export interface MapMarkerParticipantInput extends MapMarkerParticipantProps {
   /** The participant ID and current coordinates */
   stateParticipantId: string;
   stateParticipantLong: number;
@@ -79,14 +79,14 @@ export interface ParticipantMarkerPropsInput extends ParticipantMarkerProps {
 //const colorActiveRideProvider = 'blue';
 const rideRequestColor = 'blue';
 
-export default memo(ParticipantMarker);
+export default memo(MapMarkerParticipant);
 
 /**
  * Marker that represents a participant on the map.
  * On click it opens a popup element which allows further interaction and prints detailed information.
  * The displayed content changes depending on who the current spectator is.
  */
-export function ParticipantMarker(props: ParticipantMarkerPropsInput) {
+export function MapMarkerParticipant(props: MapMarkerParticipantInput) {
   const {
     stateParticipantId,
     stateSpectatorId,
@@ -204,7 +204,7 @@ export function ParticipantMarker(props: ParticipantMarkerPropsInput) {
     />
   );
 }
-interface ParticipantMarkerElementProps extends ParticipantMarkerPropsInput {
+interface ParticipantMarkerElementProps extends MapMarkerParticipantInput {
   highlightParticipant: boolean;
   showRideRequest: boolean;
   setStatePopupOpen: ReactSetState<boolean>;

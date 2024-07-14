@@ -20,11 +20,11 @@ import {
 } from '@mui/icons-material';
 // Local imports
 // > Components
-import ButtonChangeSpectator from '@components/Button/ButtonChangeSpectator';
+import ButtonChangeSpectator from '@components/Input/InputButton/InputButtonSpectatorChange';
 // > Misc
 import {debugComponentRender} from '@misc/debug';
 // Type imports
-import type {ButtonChangeSpectatorProps} from '@components/Button/ButtonChangeSpectator';
+import type {ButtonChangeSpectatorProps} from '@components/Input/InputButton/InputButtonSpectatorChange';
 import type {ModalDataInformation} from './ModalDataInformation';
 import type {ReactState} from '@misc/react';
 

@@ -11,8 +11,8 @@ import {simulationEndpoints} from '@globals/defaults/endpoints';
 // > Components
 import CardRefresh from '@components/Card/CardRefresh';
 import {ConnectedElementsIcon} from '@components/Icons';
-import GenericButton from '@components/Button/GenericButton';
-import GridConnectedElementsLayout from '@components/Grid/GridConnectedElementsLayout';
+import GenericButton from '@components/Input/InputButton/InputButtonGeneric';
+import GridConnectedElementsLayout from '@components/Grid/GridConnectedElements';
 import InputChangeSpectator from '@components/Input/InputChangeSpectator';
 import InputSearchBar from '@components/Input/InputSearchBar';
 import TabContainer from '@components/Tab/TabContainer';
@@ -24,7 +24,7 @@ import {SpectatorId} from '@misc/spectatorIds';
 import type {
   ConnectedElementSection,
   InfoElement,
-} from '@components/Grid/GridConnectedElementsLayout';
+} from '@components/Grid/GridConnectedElements';
 import type {
   GlobalPropsFetch,
   GlobalPropsIntlValues,

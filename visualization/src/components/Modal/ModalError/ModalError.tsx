@@ -23,10 +23,10 @@ import {
 } from '@mui/icons-material';
 // Local imports
 // > Components
-import GenericModal from '@components/Modal/ModalGeneric';
+import InputButtonGeneric from '@components/Input/InputButton/InputButtonGeneric';
+import ModalGeneric from '@components/Modal/ModalGeneric';
 // Type imports
 import type {ReactSetState, ReactState} from '@misc/react';
-import {GenericButton} from '@components/Button/GenericButton/GenericButton';
 
 export interface ErrorModalContentElement {
   title: string;
@@ -114,7 +114,7 @@ export default function ModalError(props: ModalErrorProps) {
   }, [stateErrorModalContent, setStateErrorModalOpen]);
 
   return (
-    <GenericModal
+    <ModalGeneric
       setStateModalOpen={setStateErrorModalOpen}
       stateModalOpen={stateErrorModalOpen}
     >
@@ -135,7 +135,7 @@ export default function ModalError(props: ModalErrorProps) {
           <ErrorModalListElement key={a.title} {...props} element={a} />
         ))}
       </List>
-    </GenericModal>
+    </ModalGeneric>
   );
 }
 
@@ -190,9 +190,9 @@ export function ErrorModalListElement({
             width: '100%',
           }}
         >
-          <GenericButton icon={<DeleteIcon />} onClick={removeErrorMessage}>
+          <InputButtonGeneric icon={<DeleteIcon />} onClick={removeErrorMessage}>
             Remove Error
-          </GenericButton>
+          </InputButtonGeneric>
           <Typography variant="body2" sx={{marginTop: '1rem'}} gutterBottom>
             {element.error.stack ?? 'No stack found'}
           </Typography>

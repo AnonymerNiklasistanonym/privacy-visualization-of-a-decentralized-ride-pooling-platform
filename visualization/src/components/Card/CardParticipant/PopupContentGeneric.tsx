@@ -22,7 +22,7 @@ import type {
   ModalDataInformation,
 } from '@components/Modal/ModalData';
 import type {ReactElement, ReactNode} from 'react';
-import type {ButtonChangeSpectatorProps} from '@components/Button/ButtonChangeSpectator';
+import type {ButtonChangeSpectatorProps} from '@components/Input/InputButton/InputButtonSpectatorChange';
 
 export interface DataElement {
   label: string;

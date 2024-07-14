@@ -24,7 +24,7 @@ import '@styles/leaflet.module.css';
 import styles from '@styles/Map.module.scss';
 // > Components
 import ControlShowYourLocation from './MapObject/ControlShowYourLocation';
-import ParticipantMarker from './MapObject/ParticipantMarker';
+import MapMarkerParticipant from './MapMarkerParticipant';
 // > Styles
 import '@styles/Map.module.scss';
 // Type imports
@@ -45,7 +45,7 @@ import type {
   SimulationEndpointGraphInformation,
   SimulationEndpointParticipantCoordinates,
 } from '@globals/types/simulation';
-import type {ParticipantMarkerProps} from '@components/Map/MapObject/ParticipantMarker';
+import type {MapMarkerParticipantProps} from './MapMarkerParticipant';
 import type {PathfinderEndpointGraphInformation} from '@globals/types/pathfinder';
 
 export interface StatPos {
@@ -89,7 +89,7 @@ export default function Map(props: MapPropsInput) {
     ...rest
   } = props;
 
-  const propsParticipantMarker: ParticipantMarkerProps = {
+  const propsParticipantMarker: MapMarkerParticipantProps = {
     ...rest,
     stateSettingsGlobalDebug,
   };
@@ -156,7 +156,7 @@ export default function Map(props: MapPropsInput) {
           >
             <LayerGroup>
               {stateParticipantCoordinatesList.customers.map(customer => (
-                <ParticipantMarker
+                <MapMarkerParticipant
                   {...propsParticipantMarker}
                   key={`customer_marker_${customer.id}`}
                   stateParticipantId={customer.id}
@@ -188,7 +188,7 @@ export default function Map(props: MapPropsInput) {
             <LayerGroup>
               {stateParticipantCoordinatesList.rideProviders.map(
                 rideProvider => (
-                  <ParticipantMarker
+                  <MapMarkerParticipant
                     {...propsParticipantMarker}
                     key={`ride_provider_marker_${rideProvider.id}`}
                     stateParticipantId={rideProvider.id}

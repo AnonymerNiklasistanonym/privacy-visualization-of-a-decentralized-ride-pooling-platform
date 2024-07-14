@@ -18,8 +18,8 @@ import {
   ResetSpectatorIcon,
 } from '@components/Icons';
 import CardRefresh from '@components/Card/CardRefresh';
-import GenericButton from '@components/Button/GenericButton';
-import GridConnectedElementsLayout from '@components/Grid/GridConnectedElementsLayout';
+import GenericButton from '@components/Input/InputButton/InputButtonGeneric';
+import GridConnectedElementsLayout from '@components/Grid/GridConnectedElements';
 import InputChangeSpectator from '@components/Input/InputChangeSpectator';
 import InputSearchBar from '@components/Input/InputSearchBar';
 import Map from '@components/Map';
@@ -40,7 +40,7 @@ import styles from '@styles/Map.module.scss';
 import type {
   ConnectedElementSection,
   InfoElement,
-} from '@components/Grid/GridConnectedElementsLayout';
+} from '@components/Grid/GridConnectedElements';
 import type {
   GlobalPropsFetch,
   GlobalPropsIntlValues,
