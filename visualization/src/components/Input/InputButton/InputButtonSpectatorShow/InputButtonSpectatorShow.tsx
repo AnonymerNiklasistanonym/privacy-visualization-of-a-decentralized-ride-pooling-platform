@@ -52,7 +52,7 @@ export function ButtonShowSpectator({
   fetchJsonSimulation,
   showError,
 }: ButtonShowSpectatorPropsInput) {
-  debugComponentRender('ButtonShowSpectator', true);
+  debugComponentRender('ButtonShowSpectator');
   const intl = useIntl();
 
   // React: States
@@ -164,11 +164,17 @@ export function ButtonShowSpectator({
     resolvedPseudonymId,
   ]);
 
+  // Use custom icon if supplied
+  const startIcon = useMemo<ReactNode>(
+    () => (disabled ? <LockIcon /> : icon),
+    [disabled, icon]
+  );
+
   return (
     <Button
       variant="contained"
       // Use custom icon if supplied
-      startIcon={disabled ? <LockIcon /> : icon}
+      startIcon={startIcon}
       disabled={disabled}
       onClick={buttonOnClick}
     >

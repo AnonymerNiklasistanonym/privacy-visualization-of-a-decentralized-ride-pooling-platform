@@ -1,8 +1,8 @@
 'use client';
 
 // Package imports
+import {useCallback, useMemo, useState} from 'react';
 import {useIntl} from 'react-intl';
-import {useState} from 'react';
 // > Components
 import {
   Circle,
@@ -23,7 +23,7 @@ import 'react-leaflet-fullscreen/styles.css';
 import '@styles/leaflet.module.css';
 import styles from '@styles/Map.module.scss';
 // > Components
-import ControlShowYourLocation from './MapObject/ControlShowYourLocation';
+import MapControlShowYourLocation from './MapControlShowYourLocation';
 import MapMarkerParticipant from './MapMarkerParticipant';
 // > Styles
 import '@styles/Map.module.scss';
@@ -45,6 +45,8 @@ import type {
   SimulationEndpointGraphInformation,
   SimulationEndpointParticipantCoordinates,
 } from '@globals/types/simulation';
+import type {Coordinates} from '@globals/types/coordinates';
+import type {LatLngExpression} from 'leaflet';
 import type {MapMarkerParticipantProps} from './MapMarkerParticipant';
 import type {PathfinderEndpointGraphInformation} from '@globals/types/pathfinder';
 
@@ -96,12 +98,65 @@ export default function Map(props: MapPropsInput) {
 
   const intl = useIntl();
 
-  const [stateCurrentPosLat, setStateCurrentPosLat] = useState<
-    undefined | number
+  const [stateCurrentPos, setStateCurrentPos] = useState<
+    undefined | Coordinates
   >(undefined);
-  const [stateCurrentPosLong, setStateCurrentPosLong] = useState<
-    undefined | number
-  >(undefined);
+
+  const onPinParticipant = useCallback(
+    (participantId?: string) => {
+      if (participantId !== undefined) {
+        setStatePinnedCustomers([
+          ...statePinnedCustomers.filter(id => id !== participantId),
+          participantId,
+        ]);
+      }
+    },
+    [setStatePinnedCustomers, statePinnedCustomers]
+  );
+
+  const onUnpinParticipant = useCallback(
+    (participantId?: string) => {
+      if (participantId !== undefined) {
+        setStatePinnedCustomers(
+          statePinnedCustomers.filter(id => id !== participantId)
+        );
+      }
+    },
+    [setStatePinnedCustomers, statePinnedCustomers]
+  );
+
+  const onPinRideRequest = useCallback(
+    (participantId?: string) => {
+      if (participantId !== undefined) {
+        setStatePinnedRideProviders([
+          ...statePinnedRideProviders.filter(id => id !== participantId),
+          participantId,
+        ]);
+      }
+    },
+    [setStatePinnedRideProviders, statePinnedRideProviders]
+  );
+
+  const onUnpinRideRequest = useCallback(
+    (participantId?: string) => {
+      if (participantId !== undefined) {
+        setStatePinnedRideProviders(
+          statePinnedRideProviders.filter(id => id !== participantId)
+        );
+      }
+    },
+    [setStatePinnedRideProviders, statePinnedRideProviders]
+  );
+
+  const showYourLocation = useMemo<undefined | LatLngExpression>(() => {
+    if (
+      stateCurrentPos?.lat === undefined ||
+      stateCurrentPos?.long === undefined
+    ) {
+      return undefined;
+    }
+    return [stateCurrentPos.lat, stateCurrentPos.long];
+  }, [stateCurrentPos?.lat, stateCurrentPos?.long]);
 
   return (
     <Paper
@@ -120,10 +175,7 @@ export default function Map(props: MapPropsInput) {
         className={styles.map}
       >
         <FullscreenControl position="bottomright" />
-        <ControlShowYourLocation
-          setStateCurrentPosLat={setStateCurrentPosLat}
-          setStateCurrentPosLong={setStateCurrentPosLong}
-        />
+        <MapControlShowYourLocation setStateCurrentPos={setStateCurrentPos} />
         <LayersControl position="bottomleft">
           <LayersControl.BaseLayer
             checked
@@ -143,10 +195,9 @@ export default function Map(props: MapPropsInput) {
             })}
           >
             <LayerGroup>
-              {stateCurrentPosLat !== undefined &&
-              stateCurrentPosLong !== undefined ? (
+              {showYourLocation !== undefined ? (
                 <CircleMarker
-                  center={[stateCurrentPosLat, stateCurrentPosLong]}
+                  center={showYourLocation}
                   radius={10}
                   color="blue"
                 />
@@ -169,17 +220,8 @@ export default function Map(props: MapPropsInput) {
                   stateParticipantLong={customer.long}
                   participantType="customer"
                   isPinned={statePinnedCustomers.includes(customer.id)}
-                  onPin={() =>
-                    setStatePinnedCustomers([
-                      ...statePinnedCustomers.filter(id => id !== customer.id),
-                      customer.id,
-                    ])
-                  }
-                  onUnpin={() =>
-                    setStatePinnedCustomers(
-                      statePinnedCustomers.filter(id => id !== customer.id)
-                    )
-                  }
+                  onPin={onPinParticipant}
+                  onUnpin={onUnpinParticipant}
                 />
               ))}
             </LayerGroup>
@@ -203,21 +245,8 @@ export default function Map(props: MapPropsInput) {
                     isPinned={statePinnedRideProviders.includes(
                       rideProvider.id
                     )}
-                    onPin={() =>
-                      setStatePinnedRideProviders([
-                        ...statePinnedRideProviders.filter(
-                          id => id !== rideProvider.id
-                        ),
-                        rideProvider.id,
-                      ])
-                    }
-                    onUnpin={() =>
-                      setStatePinnedRideProviders(
-                        statePinnedRideProviders.filter(
-                          id => id !== rideProvider.id
-                        )
-                      )
-                    }
+                    onPin={onPinRideRequest}
+                    onUnpin={onUnpinRideRequest}
                   />
                 )
               )}

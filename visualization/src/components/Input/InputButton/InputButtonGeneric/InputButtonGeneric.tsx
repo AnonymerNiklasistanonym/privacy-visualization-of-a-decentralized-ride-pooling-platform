@@ -42,15 +42,17 @@ export function InputButtonGeneric({
   }, [onClick]);
   return (
     <Tooltip title={disabled === true ? undefined : tooltip}>
-      <Button
-        startIcon={icon}
-        variant="contained"
-        color={secondaryColor === true ? 'secondary' : 'primary'}
-        disabled={disabled ?? false}
-        onClick={onClickFinal}
-      >
-        {children}
-      </Button>
+      <span>
+        <Button
+          startIcon={icon}
+          variant="contained"
+          color={secondaryColor === true ? 'secondary' : 'primary'}
+          disabled={disabled ?? false}
+          onClick={onClickFinal}
+        >
+          {children}
+        </Button>
+      </span>
     </Tooltip>
   );
 }

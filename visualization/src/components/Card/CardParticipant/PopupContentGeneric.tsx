@@ -78,40 +78,52 @@ export function RenderDataElement(props: RenderDataElementProps) {
     ]
   );
 
-  let content = element.content;
-  let tooltip = '';
-  // TODO If spectatorId in data access is a pseudonym this is not resolved in here!
-  if (
-    stateSpectatorId !== SpectatorId.EVERYTHING &&
-    !dataAccessDataModal.some(
-      a =>
-        a.spectatorId === stateSpectatorId &&
-        (a.accessType === 'local_storage' ||
-          a.accessType === 'transitive' ||
-          a.accessType === 'owner')
-    )
-  ) {
-    content = '******';
-    tooltip = 'The current spectator can`t see this data, click to learn more';
-  }
-  const dataValue = (
-    <Tooltip
-      key={`render-data-element-tooltip-${id}`}
-      title={tooltip}
-      onClick={() => setStateOpen(true)}
-      arrow
-    >
-      <Typography
-        variant="body2"
-        display="inline"
-        component="span"
-        noWrap
-        gutterBottom
+  const [content, tooltip] = useMemo<[ReactNode | string, string]>(() => {
+    let contentTemp = element.content;
+    let tooltipTemp = '';
+    // TODO If spectatorId in data access is a pseudonym this is not resolved in here!
+    if (
+      stateSpectatorId !== SpectatorId.EVERYTHING &&
+      !dataAccessDataModal.some(
+        a =>
+          a.spectatorId === stateSpectatorId &&
+          (a.accessType === 'local_storage' ||
+            a.accessType === 'transitive' ||
+            a.accessType === 'owner')
+      )
+    ) {
+      contentTemp = '******';
+      tooltipTemp =
+        'The current spectator can`t see this data, click to learn more';
+    }
+
+    return [contentTemp, tooltipTemp];
+  }, [dataAccessDataModal, element.content, stateSpectatorId]);
+
+  const dataValue = useMemo<ReactElement>(
+    () => (
+      <Tooltip
+        key={`render-data-element-tooltip-${id}`}
+        title={tooltip}
+        onClick={() => setStateOpen(true)}
+        arrow
       >
-        {content}
-      </Typography>
-    </Tooltip>
+        <Typography
+          variant="body2"
+          display="inline"
+          component="span"
+          noWrap
+          gutterBottom
+        >
+          {content}
+        </Typography>
+      </Tooltip>
+    ),
+    [content, id, tooltip]
   );
+
+  // TODO Convert data modal to single global modal!
+
   return (
     <ListItem
       key={element.label}

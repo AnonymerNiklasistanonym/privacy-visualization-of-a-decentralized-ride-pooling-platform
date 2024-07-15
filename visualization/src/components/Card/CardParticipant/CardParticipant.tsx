@@ -172,41 +172,39 @@ export function CardParticipant(props: CardParticipantProps) {
         );
       }
       contentList.push({
-        content: (
+        content: stateCustomerInformation ? (
           <List key={`participant-list-personalData-${stateParticipantId}`}>
-            {stateCustomerInformation
-              ? personalData.map(a => (
-                  <RenderDataElement
-                    {...props}
-                    key={`render-data-element-${a.label}-${stateParticipantId}`}
-                    element={a}
-                    id={stateCustomerInformation.id}
-                    dataOriginName={intl.formatMessage(
-                      {
-                        id: 'getacar.participant.customer.name',
-                      },
-                      {
-                        name: stateCustomerInformation.id,
-                      }
-                    )}
-                    dataOriginId={stateCustomerInformation.id}
-                    dataOriginIcon={<ParticipantCustomerIcon />}
-                    dataOriginInformation={
-                      <ParticipantsCustomer intlValues={intlValues} />
-                    }
-                    dataAccessInformation={a.dataAccessInformation}
-                  />
-                ))
-              : null}
+            {personalData.map(a => (
+              <RenderDataElement
+                {...props}
+                key={`render-data-element-${a.label}-${stateParticipantId}`}
+                element={a}
+                id={stateCustomerInformation.id}
+                dataOriginName={intl.formatMessage(
+                  {
+                    id: 'getacar.participant.customer.name',
+                  },
+                  {
+                    name: stateCustomerInformation.id,
+                  }
+                )}
+                dataOriginId={stateCustomerInformation.id}
+                dataOriginIcon={<ParticipantCustomerIcon />}
+                dataOriginInformation={
+                  <ParticipantsCustomer intlValues={intlValues} />
+                }
+                dataAccessInformation={a.dataAccessInformation}
+              />
+            ))}
           </List>
-        ),
+        ) : null,
         label: intl.formatMessage({id: 'data.section.personalDetails'}),
         labelIcon: <ParticipantPersonalDataIcon />,
       });
       contentList.push({
-        content: (
+        content: stateCustomerInformation ? (
           <List key={`participant-list-queries-${stateParticipantId}`}>
-            {stateCustomerInformation ? (
+            {
               <RenderDataElement
                 {...props}
                 key={'render-data-element-queries'}
@@ -238,9 +236,9 @@ export function CardParticipant(props: CardParticipantProps) {
                 }
                 dataAccessInformation={dataAccessPersonalData}
               />
-            ) : null}
+            }
           </List>
-        ),
+        ) : null,
         label: intl.formatMessage({id: 'data.section.queries'}),
         labelIcon: <ParticipantQueriesIcon />,
       });
@@ -266,31 +264,31 @@ export function CardParticipant(props: CardParticipantProps) {
       }
     }
     if (participantType === 'ride_provider') {
-      if (stateRideProviderInformation) {
-        const dataAccessPassenger: ModalDataInformation[] = [];
-        if (stateRideProviderInformation.passengerList !== undefined) {
-          for (const passenger of stateRideProviderInformation.passengerList) {
-            dataAccessPassenger.push({
-              accessType: 'transitive',
-              description: intl.formatMessage({
-                id: 'getacar.spectator.message.passenger.dataAccess',
-              }),
-              icon: <ParticipantRideProviderIcon />,
-              isPseudonym: true,
-              name: intl.formatMessage(
-                {id: 'current'},
-                {
-                  name: intl.formatMessage({
-                    id: 'getacar.spectator.message.passenger',
-                  }),
-                }
-              ),
-              spectatorId: passenger,
-            });
-          }
+      const dataAccessPassenger: ModalDataInformation[] = [];
+      if (stateRideProviderInformation?.passengerList !== undefined) {
+        for (const passenger of stateRideProviderInformation.passengerList) {
+          dataAccessPassenger.push({
+            accessType: 'transitive',
+            description: intl.formatMessage({
+              id: 'getacar.spectator.message.passenger.dataAccess',
+            }),
+            icon: <ParticipantRideProviderIcon />,
+            isPseudonym: true,
+            name: intl.formatMessage(
+              {id: 'current'},
+              {
+                name: intl.formatMessage({
+                  id: 'getacar.spectator.message.passenger',
+                }),
+              }
+            ),
+            spectatorId: passenger,
+          });
         }
+      }
 
-        const carData: DataElement[] = [];
+      const carData: DataElement[] = [];
+      if (stateRideProviderInformation) {
         carData.push(
           ...[
             {
@@ -308,8 +306,10 @@ export function CardParticipant(props: CardParticipantProps) {
             },
           ]
         );
-        contentList.push({
-          content: (
+      }
+      contentList.push({
+        content:
+          carData.length > 0 ? (
             <List key={`participant-list-carData-${stateParticipantId}`}>
               {carData.map((a, index) => (
                 <RenderDataElement
@@ -327,11 +327,12 @@ export function CardParticipant(props: CardParticipantProps) {
                 />
               ))}
             </List>
-          ),
-          label: 'Car Details',
-          labelIcon: <ParticipantRideProviderIcon />,
-        });
-        const personalData: DataElement[] = [];
+          ) : null,
+        label: 'Car Details',
+        labelIcon: <ParticipantRideProviderIcon />,
+      });
+      const personalData: DataElement[] = [];
+      if (stateRideProviderInformation) {
         if ('company' in stateRideProviderInformation) {
           personalData.push({
             content: stateRideProviderInformation.company,
@@ -377,8 +378,10 @@ export function CardParticipant(props: CardParticipantProps) {
             ]
           );
         }
-        contentList.push({
-          content: (
+      }
+      contentList.push({
+        content:
+          personalData.length > 0 ? (
             <List
               key={`participant-list-personalCarData-${stateParticipantId}`}
             >
@@ -398,49 +401,46 @@ export function CardParticipant(props: CardParticipantProps) {
                 />
               ))}
             </List>
-          ),
-          label: intl.formatMessage({id: 'data.section.personalDetails'}),
-          labelIcon: <ParticipantPersonalDataIcon />,
-        });
-      }
+          ) : null,
+        label: intl.formatMessage({id: 'data.section.personalDetails'}),
+        labelIcon: <ParticipantPersonalDataIcon />,
+      });
       contentList.push({
-        content: (
+        content: stateRideProviderInformation ? (
           <List key={`participant-list-queries-${stateParticipantId}`}>
-            {stateRideProviderInformation ? (
-              <RenderDataElement
-                {...props}
-                key={'render-data-element-queries'}
-                element={{
-                  content:
-                    stateRideProviderInformation.roundedRating !== -1
-                      ? stateRideProviderInformation.roundedRating
-                      : intl.formatMessage({
-                          id: 'getacar.participant.data.roundedRating.notAvailable',
-                        }),
-                  dataAccessInformation: dataAccessPersonalData,
-                  label: intl.formatMessage({
-                    id: 'getacar.participant.data.roundedRating',
-                  }),
-                }}
-                id={stateRideProviderInformation.id}
-                dataOriginName={intl.formatMessage(
-                  {
-                    id: 'getacar.participant.rideProvider.name',
-                  },
-                  {
-                    name: stateRideProviderInformation.id,
-                  }
-                )}
-                dataOriginId={stateRideProviderInformation.id}
-                dataOriginIcon={<ParticipantRideProviderIcon />}
-                dataOriginInformation={
-                  <ParticipantsRideProvider intlValues={intlValues} />
+            <RenderDataElement
+              {...props}
+              key={'render-data-element-queries'}
+              element={{
+                content:
+                  stateRideProviderInformation.roundedRating !== -1
+                    ? stateRideProviderInformation.roundedRating
+                    : intl.formatMessage({
+                        id: 'getacar.participant.data.roundedRating.notAvailable',
+                      }),
+                dataAccessInformation: dataAccessPersonalData,
+                label: intl.formatMessage({
+                  id: 'getacar.participant.data.roundedRating',
+                }),
+              }}
+              id={stateRideProviderInformation.id}
+              dataOriginName={intl.formatMessage(
+                {
+                  id: 'getacar.participant.rideProvider.name',
+                },
+                {
+                  name: stateRideProviderInformation.id,
                 }
-                dataAccessInformation={dataAccessPersonalData}
-              />
-            ) : null}
+              )}
+              dataOriginId={stateRideProviderInformation.id}
+              dataOriginIcon={<ParticipantRideProviderIcon />}
+              dataOriginInformation={
+                <ParticipantsRideProvider intlValues={intlValues} />
+              }
+              dataAccessInformation={dataAccessPersonalData}
+            />
           </List>
-        ),
+        ) : null,
         label: intl.formatMessage({id: 'data.section.queries'}),
         labelIcon: <ParticipantQueriesIcon />,
       });

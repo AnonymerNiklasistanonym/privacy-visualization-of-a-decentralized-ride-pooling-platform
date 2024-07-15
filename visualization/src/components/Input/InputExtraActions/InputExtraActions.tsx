@@ -19,21 +19,26 @@ export interface InputExtraActionsProps {
 }
 
 export default function InputExtraActions({actions}: InputExtraActionsProps) {
-  debugComponentRender('InputExtraActions', true);
+  debugComponentRender('InputExtraActions');
   return (
     <>
       {actions !== undefined
         ? actions.map(a => (
-            <Tooltip key={`search-bar-action-${a.text}`} title={a.text}>
-              <IconButton
-                type="button"
-                sx={{p: '10px'}}
-                aria-label={a.text}
-                onClick={a.callback}
-                disabled={a.disabled}
-              >
-                {a.icon}
-              </IconButton>
+            <Tooltip
+              key={`search-bar-action-${a.text}`}
+              title={a.disabled === true ? undefined : a.text}
+            >
+              <span>
+                <IconButton
+                  type="button"
+                  sx={{p: '10px'}}
+                  aria-label={a.text}
+                  onClick={a.callback}
+                  disabled={a.disabled}
+                >
+                  {a.icon}
+                </IconButton>
+              </span>
             </Tooltip>
           ))
         : undefined}

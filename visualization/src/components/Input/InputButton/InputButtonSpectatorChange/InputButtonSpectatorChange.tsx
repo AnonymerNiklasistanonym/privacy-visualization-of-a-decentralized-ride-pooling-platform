@@ -53,7 +53,7 @@ export function ButtonChangeSpectator({
   fetchJsonSimulation,
   showError,
 }: ButtonChangeSpectatorPropsInput) {
-  debugComponentRender('ButtonChangeSpectator', true);
+  debugComponentRender('ButtonChangeSpectator');
   const intl = useIntl();
 
   // React: States
@@ -62,7 +62,7 @@ export function ButtonChangeSpectator({
     SimulationEndpointParticipantIdFromPseudonym | undefined
   >(undefined);
 
-  // React: Run on first render
+  // React: State change listener
   // > In case the actor ID is a pseudonym fetch the actual actor ID
   useEffect(() => {
     if (isPseudonym) {
@@ -79,25 +79,33 @@ export function ButtonChangeSpectator({
     }
   }, [spectatorId, fetchJsonSimulation, isPseudonym, showError]);
 
-  /** The resolved pseudonym ID */
-  const resolvedPseudonymId = stateResolvedPseudonym?.id;
+  const isAlreadySelected = useMemo(() => {
+    return (
+      stateSpectatorId === spectatorId ||
+      stateSpectatorId === stateResolvedPseudonym?.id
+    );
+  }, [spectatorId, stateResolvedPseudonym?.id, stateSpectatorId]);
 
-  /** If true it means that the actor is already selected */
-  const isAlreadySelected =
-    stateSpectatorId === spectatorId ||
-    stateSpectatorId === stateResolvedPseudonym?.id;
-
-  const spectatorCanSeePseudonym =
-    ignoreUnableToResolve === true ||
-    stateSpectatorId === SpectatorId.EVERYTHING ||
-    // !!! This only works when there is only a single auth service!
-    stateSpectatorId === SpectatorId.AUTHENTICATION_SERVICE ||
-    stateSpectatorId === stateResolvedPseudonym?.id ||
-    stateSpectatorId === stateResolvedPseudonym?.authServiceId;
+  const spectatorCanSeePseudonym = useMemo(() => {
+    return (
+      ignoreUnableToResolve === true ||
+      stateSpectatorId === SpectatorId.EVERYTHING ||
+      // !!! This only works when there is only a single auth service!
+      stateSpectatorId === SpectatorId.AUTHENTICATION_SERVICE ||
+      stateSpectatorId === stateResolvedPseudonym?.id ||
+      stateSpectatorId === stateResolvedPseudonym?.authServiceId
+    );
+  }, [
+    ignoreUnableToResolve,
+    stateResolvedPseudonym?.authServiceId,
+    stateResolvedPseudonym?.id,
+    stateSpectatorId,
+  ]);
 
   /** If true disable the button from being pressed */
-  const disabled =
-    isAlreadySelected || (isPseudonym && !spectatorCanSeePseudonym);
+  const disabled = useMemo(() => {
+    return isAlreadySelected || (isPseudonym && !spectatorCanSeePseudonym);
+  }, [isAlreadySelected, isPseudonym, spectatorCanSeePseudonym]);
 
   /** The button label */
   const buttonLabel = useMemo<string>(() => {
@@ -119,7 +127,7 @@ export function ButtonChangeSpectator({
       buttonLabelInfo.push(
         intl.formatMessage({
           id: 'pseudonym.resolved',
-        }) + ` [${resolvedPseudonymId}]`
+        }) + ` [${stateResolvedPseudonym?.id}]`
       );
     }
     if (isAlreadySelected) {
@@ -138,7 +146,7 @@ export function ButtonChangeSpectator({
     isAlreadySelected,
     isPseudonym,
     label,
-    resolvedPseudonymId,
+    stateResolvedPseudonym?.id,
     spectatorCanSeePseudonym,
   ]);
 
@@ -148,8 +156,8 @@ export function ButtonChangeSpectator({
       return;
     }
     // Update global spectator to the resolved actor ID from the supplied pseudonym
-    if (isPseudonym && resolvedPseudonymId !== undefined) {
-      setStateSpectatorId(resolvedPseudonymId);
+    if (isPseudonym && stateResolvedPseudonym?.id !== undefined) {
+      setStateSpectatorId(stateResolvedPseudonym?.id);
     }
     // Update global spectator to the supplied actor ID
     if (isPseudonym !== true) {
@@ -160,14 +168,19 @@ export function ButtonChangeSpectator({
     disabled,
     isPseudonym,
     setStateSpectatorId,
-    resolvedPseudonymId,
+    stateResolvedPseudonym?.id,
   ]);
+
+  // Use custom icon if supplied
+  const startIcon = useMemo<ReactNode>(
+    () => (disabled ? <LockIcon /> : icon),
+    [disabled, icon]
+  );
 
   return (
     <Button
       variant="contained"
-      // Use custom icon if supplied
-      startIcon={disabled ? <LockIcon /> : icon}
+      startIcon={startIcon}
       disabled={disabled}
       onClick={buttonOnClick}
     >

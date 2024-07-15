@@ -69,8 +69,8 @@ export interface MapMarkerParticipantInput extends MapMarkerParticipantProps {
   stateParticipantLat: number;
   /** The participant ID and current coordinates */
   participantType: SimulationEndpointParticipantTypes;
-  onPin: () => void;
-  onUnpin: () => void;
+  onPin: (participantId?: string) => void;
+  onUnpin: (participantId?: string) => void;
   isPinned: boolean;
 }
 
@@ -350,6 +350,7 @@ export function ParticipantMarkerElement(props: ParticipantMarkerElementProps) {
           unpinAction={onUnpin}
           isPinned={isPinned}
           pauseRefresh={pauseRefresh}
+          fixMarker={true}
         />
       </Popup>
     </Marker>

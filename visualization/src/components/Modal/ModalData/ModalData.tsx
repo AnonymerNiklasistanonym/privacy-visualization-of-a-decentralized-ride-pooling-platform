@@ -60,7 +60,7 @@ export default memo(ModalData, (prev, next) =>
 
 /** Modal that showcases data access and ownership */
 export function ModalData(props: ModalDataProps) {
-  debugComponentRender('ModalData', true);
+  debugComponentRender('ModalData');
   const {
     stateSpectatorId,
     stateDataModalOpen,

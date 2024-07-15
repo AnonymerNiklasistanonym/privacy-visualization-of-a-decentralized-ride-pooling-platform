@@ -20,8 +20,6 @@ export interface GetACarRideRequest {
   maxPassengers: number;
 }
 
-// TODO: Update
-
 export type GetACarSmartContractWalletId = string;
 
 export interface GetACarSmartContract {

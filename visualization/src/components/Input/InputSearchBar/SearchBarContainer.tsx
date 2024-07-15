@@ -21,7 +21,7 @@ export default function SearchBarContainer({
   children,
   searchActionTooltip,
 }: PropsWithChildren<SearchBarContainerProps>) {
-  debugComponentRender('SearchBarContainer', true);
+  debugComponentRender('SearchBarContainer');
   return (
     <Paper
       component="form"

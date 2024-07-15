@@ -171,6 +171,9 @@ export function Component() {
   useEffect(() => {
     console.log(`stateCount was updated to ${stateCount}`);
   }, [stateCount]);
+  useEffect(() => {
+    console.log('Runs only on the first render (runs twice during dev)');
+  }, []);
   return (
     <p>Counter: {stateCount}</p>
     <button onclick={() => setStateCount(prev => prev + 1)}>Increase</button>

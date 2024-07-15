@@ -162,7 +162,9 @@ export default function CollectionHome(
   ] = useState(1000 / 20);
 
   /** Caches requests with a time so multiple requests won't be made in the same time frame */
-  const requestCache = useRef(new Map<string, {time: Date; data: unknown}>());
+  const requestCache = useRef(
+    new Map<string, {time: Date; data: Promise<unknown>}>()
+  );
 
   // Props: Functions (depend on created states)
   const fetchJsonSimulation = useCallback(
@@ -183,7 +185,7 @@ export default function CollectionHome(
         );
         return cacheEntry.data as T;
       }
-      const data = await fetchJson<T>(
+      const data = fetchJson<T>(
         `${stateSettingsFetchBaseUrlSimulation}${endpoint}`,
         options
       );
@@ -646,6 +648,8 @@ export default function CollectionHome(
     stateThemeMode,
     updateGlobalSearch,
   };
+
+  // TODO Initial fetching of participants for a search index
 
   return (
     <WrapperThemeProvider {...props}>

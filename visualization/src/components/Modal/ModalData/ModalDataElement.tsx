@@ -35,7 +35,7 @@ export interface DataModalPropsElement extends ButtonChangeSpectatorProps {
 export default memo(DataModelListElement);
 
 export function DataModelListElement(props: DataModalPropsElement) {
-  debugComponentRender('DataModelListElement', true);
+  debugComponentRender('DataModelListElement');
 
   const {stateDataModalContentElement} = props;
 

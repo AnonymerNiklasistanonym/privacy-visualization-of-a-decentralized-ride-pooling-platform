@@ -22,7 +22,7 @@ export function GenericModal({
   setStateModalOpen,
   stateModalOpen,
 }: PropsWithChildren<GenericModalProps>) {
-  debugComponentRender('GenericModal', true);
+  debugComponentRender('GenericModal');
 
   return (
     <div>

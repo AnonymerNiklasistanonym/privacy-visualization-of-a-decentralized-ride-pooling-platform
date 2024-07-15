@@ -51,49 +51,38 @@ import type {SettingsProps} from '@misc/props/settings';
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface TabSettingsProps extends SettingsProps {}
 
-export interface SettingsElementGeneric {
+export interface SettingsElementGeneric<T> {
   label: string;
   type: string;
+  stateValue: ReactState<T>;
+  setStateValue: ReactSetState<T>;
 }
 
-export interface SettingsElementToggle extends SettingsElementGeneric {
-  stateValue: ReactState<boolean>;
-  setStateValue: ReactSetState<boolean>;
+export interface SettingsElementToggle extends SettingsElementGeneric<boolean> {
   type: 'toggle';
 }
 
-export interface SettingsElementText extends SettingsElementGeneric {
-  stateValue: ReactState<string>;
-  setStateValue: ReactSetState<string>;
+export interface SettingsElementText extends SettingsElementGeneric<string> {
   type: 'text';
 }
 
-export interface SettingsElementNumber extends SettingsElementGeneric {
-  stateValue: ReactState<number>;
-  setStateValue: ReactSetState<number>;
+export interface SettingsElementNumber extends SettingsElementGeneric<number> {
   type: 'number';
 }
 
-export interface SettingsElementMs extends SettingsElementGeneric {
-  stateValue: ReactState<number>;
-  setStateValue: ReactSetState<number>;
+export interface SettingsElementMs extends SettingsElementGeneric<number> {
   type: 'ms';
 }
 
-export interface SettingsElementRadio<T extends string>
-  extends SettingsElementGeneric {
-  stateValue: ReactState<T>;
-  setStateValue: ReactSetState<T>;
+export interface SettingsElementRadio<T extends string = string>
+  extends SettingsElementGeneric<T> {
   options: Array<{label: string; value: T}>;
   type: 'radio';
 }
 
-export interface SettingsElementButton extends SettingsElementGeneric {
+export interface SettingsElementButton extends SettingsElementGeneric<string> {
   onClick: () => void;
   type: 'button';
-  // Compatibility
-  stateValue: ReactState<string>;
-  setStateValue: ReactSetState<string>;
 }
 
 export type SettingsElement =
@@ -101,7 +90,7 @@ export type SettingsElement =
   | SettingsElementText
   | SettingsElementNumber
   | SettingsElementMs
-  | SettingsElementRadio<string>
+  | SettingsElementRadio
   | SettingsElementButton;
 
 export interface RenderSettingsElementProps {
@@ -111,9 +100,9 @@ export interface RenderSettingsElementProps {
 export const RenderSettingsElementMemo = memo(
   RenderSettingsElement,
   (prev, next) =>
-    debugMemoHelper<SettingsElementToggle>(
+    debugMemoHelper<SettingsElement>(
       `RenderSettingsElement ${next.element.label} (${next.element.type})`,
-      ['label', 'type', 'stateValue'],
+      ['label', 'type', 'stateValue', 'setStateValue'],
       prev.element,
       next.element
     )
@@ -121,8 +110,7 @@ export const RenderSettingsElementMemo = memo(
 
 export function RenderSettingsElement({element}: RenderSettingsElementProps) {
   debugComponentRender(
-    `RenderSettingsElement ${element.label} (${element.type})`,
-    true
+    `RenderSettingsElement#${element.label} (${element.type})`
   );
   const {label, type} = element;
   if (type === 'toggle') {
@@ -219,7 +207,7 @@ export const RenderSettingsMemo = memo(RenderSettings, (prev, next) =>
 );
 
 export function RenderSettings({title, icon, elements}: RenderSettingsProps) {
-  debugComponentRender(`RenderSettings ${title}`, true);
+  debugComponentRender(`RenderSettings#${title}`);
   return (
     <Grid item xs={12} sm={6} md={4}>
       <Card>
@@ -271,7 +259,8 @@ export function TabSettings({
   setStateThemeMode,
   stateThemeMode,
 }: TabSettingsProps) {
-  debugComponentRender('TabSettings', true);
+  debugComponentRender('TabSettings');
+
   const intl = useIntl();
   const {locales, defaultLocale} = i18n;
   const router = useRouter();

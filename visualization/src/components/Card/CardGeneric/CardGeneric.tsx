@@ -38,11 +38,13 @@ export interface CardGenericProps {
   /** Restrict card width */
   maxWidth?: string;
   /** Add pin button action */
-  pinAction?: () => void;
+  pinAction?: (participantId?: string) => void;
   /** Add unpin button action */
-  unpinAction?: () => void;
+  unpinAction?: (participantId?: string) => void;
   /** Add unpin button action */
   isPinned?: boolean;
+  /** Fix the content space for the marker scroll */
+  fixMarker?: boolean;
 }
 
 export interface CardGenericPropsInput extends CardGenericProps {
@@ -61,16 +63,17 @@ export interface CardGenericPropsInput extends CardGenericProps {
 }
 
 export default function CardGeneric({
-  label,
-  icon,
-  name,
-  status,
-  id,
-  content,
-  pinAction,
-  unpinAction,
   actions,
+  content,
+  fixMarker,
+  icon,
+  id,
   isPinned,
+  label,
+  name,
+  pinAction,
+  status,
+  unpinAction,
 }: CardGenericPropsInput) {
   const titleStackList = useMemo(() => {
     const result: Array<ReactElement> = [];
@@ -123,7 +126,7 @@ export default function CardGeneric({
         <IconButton
           key={`generic-card-action-pin-${id}`}
           aria-label="pin"
-          onClick={() => pinAction()}
+          onClick={() => pinAction(id)}
         >
           <PinIcon />
         </IconButton>
@@ -137,7 +140,7 @@ export default function CardGeneric({
         <IconButton
           key={`generic-card-action-unpin-${id}`}
           aria-label="unpin"
-          onClick={() => unpinAction()}
+          onClick={() => unpinAction(id)}
         >
           <UnpinIcon />
         </IconButton>
@@ -194,6 +197,9 @@ export default function CardGeneric({
             )}
           </Box>
         ))}
+        {content !== undefined && content.length > 0 && fixMarker === true ? (
+          <Box sx={{height: '2rem'}}></Box>
+        ) : undefined}
       </CardContent>
       {actions !== undefined && actions.length > 0 ? (
         <CardActions>{actions}</CardActions>
