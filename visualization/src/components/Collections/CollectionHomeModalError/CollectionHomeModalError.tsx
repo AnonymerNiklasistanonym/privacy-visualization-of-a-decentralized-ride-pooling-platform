@@ -7,16 +7,16 @@ import {showErrorBuilder} from '@components/Modal/ModalError';
 // > Components
 import CollectionHome from '@components/Collections/CollectionHome';
 import ModalError from '@components/Modal/ModalError';
-// > Globals
+// > Misc
+import {debugComponentRender} from '@misc/debug';
 // Type imports
-import type {
-  ErrorModalContentElement,
-  ModalErrorProps,
-} from '@components/Modal/ModalError';
-import type {GlobalPropsShowError} from '@misc/props/global';
+import type {CollectionHomeProps} from '@components/Collections/CollectionHome';
+import type {ErrorModalContentElement} from '@components/Modal/ModalError';
 
-/** Home page collection with error modal */
-export default function ErrorModalWrapperCollectionHome() {
+/** Home page collection + error modal */
+export default function CollectionHomeModalError() {
+  debugComponentRender('CollectionHomeModalError');
+
   // React: States
   // > Error Modal
   const [stateErrorModalOpen, setStateErrorModalOpen] = useState(false);
@@ -37,7 +37,7 @@ export default function ErrorModalWrapperCollectionHome() {
   );
 
   // Group all props
-  const props: GlobalPropsShowError & ModalErrorProps = {
+  const props: CollectionHomeProps = {
     setStateErrorModalContent,
     setStateErrorModalOpen,
     showError,

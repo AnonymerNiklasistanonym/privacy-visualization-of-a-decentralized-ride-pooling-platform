@@ -1,11 +1,24 @@
 'use client';
 
 // Package imports
-import {useEffect, useMemo, useState} from 'react';
+import {useCallback, useEffect, useMemo, useState} from 'react';
 import {useIntl} from 'react-intl';
 // > Components
-import {Box, ButtonGroup, Chip, Divider, Tab, Tabs} from '@mui/material';
+import {
+  Badge,
+  Box,
+  ButtonGroup,
+  Chip,
+  Divider,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  Tab,
+  Tabs,
+} from '@mui/material';
 import Link from 'next/link';
+import {Refresh as RefreshIcon} from '@mui/icons-material';
 // > Components
 import {
   TabBlockchainIcon,
@@ -19,6 +32,9 @@ import TabBlockchain from '@components/Tab/TabBlockchain';
 import TabMap from '@components/Tab/TabMap';
 import TabOverview from '@components/Tab/TabOverview';
 import TabSettings from '@components/Tab/TabSettings';
+// > Misc
+import {debugComponentUpdateCounter} from '@misc/debug';
+import {stringComparator} from '@misc/compare';
 // Type imports
 import type {
   GlobalPropsFetch,
@@ -31,17 +47,43 @@ import type {
   GlobalPropsSpectatorsSet,
 } from '@misc/props/global';
 import type {PropsWithChildren, ReactElement} from 'react';
+import type {
+  SettingsGlobalProps,
+  SettingsProps,
+  SettingsUiProps,
+} from '@misc/props/settings';
 import type {ModalErrorProps} from '@components/Modal/ModalError';
-import type {SettingsProps} from '@misc/props/settings';
 
-interface CustomTabPanelProps {
+interface CustomTabPanelProps extends SettingsGlobalProps, SettingsUiProps {
   index: number;
   value: number;
-  spacing: string;
 }
 
 function CustomTabPanel(props: PropsWithChildren<CustomTabPanelProps>) {
-  const {children, value, index, spacing} = props;
+  const {
+    children,
+    value,
+    index,
+    stateSettingsUiGridSpacing,
+    stateSettingsGlobalDebug,
+  } = props;
+
+  const spacing = useMemo<string>(
+    () => `${stateSettingsUiGridSpacing / 2}rem`,
+    [stateSettingsUiGridSpacing]
+  );
+
+  const [stateRenderList, setStateRenderList] = useState<
+    Array<[string, number]>
+  >([]);
+
+  const updateRenderCount = useCallback(() => {
+    setStateRenderList(
+      Array.from(debugComponentUpdateCounter).sort((a, b) =>
+        stringComparator(a[0], b[0])
+      )
+    );
+  }, [setStateRenderList]);
 
   return (
     <div
@@ -66,6 +108,30 @@ function CustomTabPanel(props: PropsWithChildren<CustomTabPanelProps>) {
           <Footer />
         </Box>
       )}
+      {stateSettingsGlobalDebug ? (
+        <>
+          <Divider>
+            <Chip label="Debug #Render" size="small" />
+          </Divider>
+          <List>
+            {stateRenderList.map(([name, count]) => (
+              <ListItem key={`simple-tabpanel-${index}-item-${name}`}>
+                <ListItemIcon>
+                  <Badge badgeContent={count} color="primary">
+                    <RefreshIcon />
+                  </Badge>
+                </ListItemIcon>
+                <ListItemText primary={name} />
+              </ListItem>
+            ))}
+          </List>
+          <ButtonGroup variant="contained" aria-label="Basic button group">
+            <GenericButton onClick={updateRenderCount}>
+              Update render count
+            </GenericButton>
+          </ButtonGroup>
+        </>
+      ) : undefined}
     </div>
   );
 }
@@ -81,7 +147,9 @@ export interface TabPanelProps
     GlobalPropsSpectatorsSet,
     GlobalPropsIntlValues,
     GlobalPropsSearch {
+  /** The initial tab that should be displayed */
   initialTabIndex?: number;
+  /** Callback that runs every time the tab index changes */
   onTabIndexChange?: (tabIndex: number) => void;
 }
 
@@ -194,28 +262,32 @@ export default function TabPanel(props: TabPanelProps) {
         <CustomTabPanel
           value={stateTabIndex}
           index={0}
-          spacing={`${stateSettingsUiGridSpacing / 2}rem`}
+          stateSettingsUiGridSpacing={stateSettingsUiGridSpacing}
+          stateSettingsGlobalDebug={stateSettingsGlobalDebug}
         >
           <TabMap {...props} />
         </CustomTabPanel>
         <CustomTabPanel
           value={stateTabIndex}
           index={1}
-          spacing={`${stateSettingsUiGridSpacing / 2}rem`}
+          stateSettingsUiGridSpacing={stateSettingsUiGridSpacing}
+          stateSettingsGlobalDebug={stateSettingsGlobalDebug}
         >
           <TabBlockchain {...props} />
         </CustomTabPanel>
         <CustomTabPanel
           value={stateTabIndex}
           index={2}
-          spacing={`${stateSettingsUiGridSpacing / 2}rem`}
+          stateSettingsUiGridSpacing={stateSettingsUiGridSpacing}
+          stateSettingsGlobalDebug={stateSettingsGlobalDebug}
         >
           <TabOverview {...props} />
         </CustomTabPanel>
         <CustomTabPanel
           value={stateTabIndex}
           index={3}
-          spacing={`${stateSettingsUiGridSpacing / 2}rem`}
+          stateSettingsUiGridSpacing={stateSettingsUiGridSpacing}
+          stateSettingsGlobalDebug={stateSettingsGlobalDebug}
         >
           <TabSettings {...props} />
         </CustomTabPanel>

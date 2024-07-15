@@ -1,7 +1,7 @@
 // Local imports
 import {getIntl} from '../../services/intl';
 // > Components
-import CollectionHomeError from '@components/Collections/CollectionHomeError';
+import CollectionHomeModalError from '@components/Collections/CollectionHomeModalError';
 import WrapperTranslation from '@components/Wrapper/WrapperTranslation';
 // > Logging
 import {createLoggerSection} from '@services/logging';
@@ -22,7 +22,7 @@ export default async function Home({params: {locale}}: ReactPropsI18nHome) {
 
   return (
     <WrapperTranslation locale={locale} messages={messages}>
-      <CollectionHomeError />
+      <CollectionHomeModalError />
     </WrapperTranslation>
   );
 }

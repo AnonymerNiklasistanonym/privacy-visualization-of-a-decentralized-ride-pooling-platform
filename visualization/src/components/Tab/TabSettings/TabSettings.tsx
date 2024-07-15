@@ -286,7 +286,7 @@ export function TabSettings({
   const searchParams = useSearchParams();
 
   const [stateSettingsLanguage, setStateSettingsLanguage] = useState(locale);
-  const [stateSettingsBrightnessLocal, setStateSettingsBrightness] =
+  const [stateSettingsBrightnessLocal, setStateSettingsBrightnessLocal] =
     useState<string>(stateThemeMode);
   useEffect(() => {
     const params = new URLSearchParams(searchParams);
@@ -307,6 +307,10 @@ export function TabSettings({
       setStateThemeMode(stateSettingsBrightnessLocal);
     }
   }, [stateSettingsBrightnessLocal, setStateThemeMode]);
+
+  useEffect(() => {
+    setStateSettingsBrightnessLocal(stateThemeMode);
+  }, [stateThemeMode]);
 
   const settingsCards = useMemo<Array<RenderSettingsProps>>(() => {
     const settingsCardsList: Array<RenderSettingsProps> = [
@@ -360,7 +364,7 @@ export function TabSettings({
                 value: 'light',
               },
             ],
-            setStateValue: setStateSettingsBrightness,
+            setStateValue: setStateSettingsBrightnessLocal,
             stateValue: stateSettingsBrightnessLocal,
             type: 'radio',
           },

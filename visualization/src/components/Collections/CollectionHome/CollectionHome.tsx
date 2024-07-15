@@ -59,11 +59,15 @@ import type {FetchOptions} from '@globals/lib/fetch';
 import type {ModalErrorProps} from '@components/Modal/ModalError';
 import type {SettingsProps} from '@misc/props/settings';
 
+export interface CollectionHomeProps
+  extends GlobalPropsShowError,
+    ModalErrorProps {}
+
 /** Home page collection (top level component) */
 export default function CollectionHome(
-  propsError: PropsWithChildren<GlobalPropsShowError & ModalErrorProps>
+  propsCollectionHome: PropsWithChildren<CollectionHomeProps>
 ) {
-  const {children, showError} = propsError;
+  const {children, showError} = propsCollectionHome;
 
   // NextJs: Routing
   const router = useRouter();
@@ -607,7 +611,7 @@ export default function CollectionHome(
     GlobalPropsSearch &
     GlobalPropsSpectatorMap &
     GlobalPropsIntlValues = {
-    ...propsError,
+    ...propsCollectionHome,
     fetchJsonSimulation,
     globalSearch,
     intlValues,
