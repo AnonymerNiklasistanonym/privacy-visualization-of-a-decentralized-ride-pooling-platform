@@ -23,6 +23,7 @@ import TabSettings from '@components/Tab/TabSettings';
 import type {
   GlobalPropsFetch,
   GlobalPropsIntlValues,
+  GlobalPropsModalDataInformation,
   GlobalPropsSearch,
   GlobalPropsShowError,
   GlobalPropsSpectatorMap,
@@ -42,6 +43,7 @@ export interface TabPanelProps
     GlobalPropsSpectatorSelectedElementsSet,
     SettingsProps,
     GlobalPropsSpectatorMap,
+    GlobalPropsModalDataInformation,
     ModalErrorProps,
     GlobalPropsSpectatorsSet,
     GlobalPropsIntlValues,

@@ -34,12 +34,15 @@ import type {
   CardGenericPropsContentElement,
 } from '@components/Card/CardGeneric';
 import type {
+  GlobalPropsIntlValues,
+  GlobalPropsModalDataInformation,
+} from '@misc/props/global';
+import type {
   SimulationEndpointParticipantIdFromPseudonym,
   SimulationEndpointRideRequestInformation,
 } from '@globals/types/simulation';
 import type {ButtonChangeSpectatorProps} from '@components/Input/InputButton/InputButtonSpectatorChange';
-import type {GlobalPropsIntlValues} from '@misc/props/global';
-import type {ModalDataInformation} from '@components/Modal/ModalData';
+import type {ModalDataInformationAccess} from '@components/Modal/ModalData';
 import type {ReactState} from '@misc/react';
 import type {SettingsGlobalProps} from '@misc/props/settings';
 
@@ -47,6 +50,7 @@ export interface CardRideRequestProps
   extends ButtonChangeSpectatorProps,
     SettingsGlobalProps,
     CardGenericProps,
+    GlobalPropsModalDataInformation,
     GlobalPropsIntlValues {
   stateRideRequestInformation: ReactState<SimulationEndpointRideRequestInformation | null>;
   stateRideRequestId: ReactState<string>;
@@ -112,7 +116,7 @@ export default function CardRideRequest(props: CardRideRequestProps) {
     }
   }, [rideRequestAuctionWinner, fetchJsonSimulation, showError]);
 
-  const dataAccessPseudonyms = useMemo<Array<ModalDataInformation>>(
+  const dataAccessPseudonyms = useMemo<Array<ModalDataInformationAccess>>(
     () => [
       {
         accessType: 'transitive',
@@ -146,8 +150,10 @@ export default function CardRideRequest(props: CardRideRequestProps) {
     [intl, intlValues]
   );
 
-  const dataAccessInformation = useMemo<Array<ModalDataInformation>>(() => {
-    const dataAccessInformationList: Array<ModalDataInformation> = [
+  const dataAccessInformation = useMemo<
+    Array<ModalDataInformationAccess>
+  >(() => {
+    const dataAccessInformationList: Array<ModalDataInformationAccess> = [
       ...dataAccessPseudonyms,
     ];
 
@@ -186,7 +192,7 @@ export default function CardRideRequest(props: CardRideRequestProps) {
     stateResolvedPseudonymCustomer,
   ]);
 
-  const dataAccessInformationDebug = useMemo<Array<ModalDataInformation>>(
+  const dataAccessInformationDebug = useMemo<Array<ModalDataInformationAccess>>(
     () => [],
     []
   );

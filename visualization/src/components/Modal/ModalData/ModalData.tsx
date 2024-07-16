@@ -5,6 +5,7 @@ import {useIntl} from 'react-intl';
 import {
   Box,
   Chip,
+  CircularProgress,
   Divider,
   List,
   ListSubheader,
@@ -22,36 +23,17 @@ import type {
   ModalDataInformation,
   ModalDataInformationAccessType,
 } from './ModalDataInformation';
-import type {ReactElement, ReactNode} from 'react';
 import type {ReactSetState, ReactState} from '@misc/react';
 import type {ButtonChangeSpectatorProps} from '@components/Input/InputButton/InputButtonSpectatorChange';
+import type {ReactNode} from 'react';
 
-export interface ModalDataPropsSetStates {
-  setStateDataModalOpen: ReactSetState<boolean>;
-}
-
-export interface ModalDataProps
-  extends ModalDataPropsSetStates,
-    ButtonChangeSpectatorProps,
-    DataOrigin {
+export interface ModalDataProps extends ButtonChangeSpectatorProps {
+  /** The open state of the modal */
   stateDataModalOpen: ReactState<boolean>;
-  /** Lists all entities that have in some way access to this information */
-  stateDataModalContent: ReactState<Array<ModalDataInformation>>;
-  /** The data label */
-  dataLabel: string;
-  /** The data value element */
-  dataValue: ReactNode;
-  /** The data value element as rendered by the current spectator */
-  dataValueSpectator: ReactNode;
-}
-
-export interface DataOrigin {
-  /** The data owner icon */
-  dataOriginIcon: ReactElement;
-  /** The data owner ID */
-  dataOriginId: string;
-  /** The data owner name */
-  dataOriginName: string;
+  /** Set the open state of the modal */
+  setStateDataModalOpen: ReactSetState<boolean>;
+  /** The information that the modal should render */
+  stateDataModalInformation: ReactState<undefined | ModalDataInformation>;
 }
 
 export default memo(ModalData, (prev, next) =>
@@ -64,12 +46,8 @@ export function ModalData(props: ModalDataProps) {
   const {
     stateSpectatorId,
     stateDataModalOpen,
-    stateDataModalContent,
+    stateDataModalInformation,
     setStateDataModalOpen,
-    dataLabel,
-    dataOriginName,
-    dataOriginIcon,
-    dataValueSpectator,
   } = props;
   const intl = useIntl();
   const listInformation = useMemo<
@@ -84,76 +62,110 @@ export function ModalData(props: ModalDataProps) {
     [intl]
   );
   // TODO: Add Button to show the data if hidden!
-  const dataValueHidden = dataValueSpectator === '******';
+
+  // Either a loading icon or the content
+  const content = useMemo<ReactNode>(() => {
+    if (stateDataModalInformation?.dataLabel === undefined) {
+      return (
+        <Box
+          key="modal-data-content-loading"
+          sx={{display: 'flex', width: '100%'}}
+          justifyContent="center"
+        >
+          <CircularProgress />
+        </Box>
+      );
+    }
+    const dataValueHidden =
+      stateDataModalInformation.dataValueSpectator === '******';
+
+    return (
+      <>
+        <Typography
+          variant="h5"
+          sx={{
+            color: theme =>
+              theme.palette.mode === 'dark' ? 'white' : undefined,
+          }}
+          gutterBottom
+        >
+          Who can see {stateDataModalInformation.dataLabel} from{' '}
+          <Chip
+            icon={stateDataModalInformation.informationOrigin.dataOriginIcon}
+            label={stateDataModalInformation.informationOrigin.dataOriginName}
+            color="primary"
+            onClick={() => {}}
+          />
+          ?
+        </Typography>
+        <Box
+          sx={{
+            color: theme =>
+              theme.palette.mode === 'dark' ? 'white' : undefined,
+            margin: '1rem',
+          }}
+        >
+          {stateDataModalInformation.dataValueSpectator}
+        </Box>
+        <Chip
+          icon={dataValueHidden ? <DataHiddenIcon /> : <DataVisibleIcon />}
+          color={dataValueHidden ? 'error' : 'success'}
+          label={`${
+            dataValueHidden ? 'Hidden' : 'Visible'
+          } for ${stateSpectatorId}`}
+        />
+        <Divider sx={{paddingTop: '1rem'}} />
+        {listInformation.map(([title, accessType]) => {
+          const elements = stateDataModalInformation.informationAccess.filter(
+            a => a.accessType === accessType
+          );
+          if (elements.length === 0) {
+            return undefined;
+          }
+          return (
+            <List
+              key={`data-modal-${accessType}-${title}-${stateDataModalInformation.informationOrigin.dataOriginName}`}
+              sx={{
+                bgcolor: 'background.paper',
+                width: '100%',
+              }}
+              component="nav"
+              aria-labelledby="nested-list-subheader-owner"
+              subheader={
+                <ListSubheader component="div" id="nested-list-subheader-owner">
+                  {title}:
+                </ListSubheader>
+              }
+            >
+              {elements.map(a => (
+                <DataModelListElement
+                  {...props}
+                  key={`data-modal-${accessType}-${a.name}-${stateDataModalInformation.informationOrigin.dataOriginName}`}
+                  stateDataModalContentElement={a}
+                />
+              ))}
+            </List>
+          );
+        })}
+      </>
+    );
+  }, [
+    listInformation,
+    props,
+    stateDataModalInformation?.dataLabel,
+    stateDataModalInformation?.dataValueSpectator,
+    stateDataModalInformation?.informationAccess,
+    stateDataModalInformation?.informationOrigin.dataOriginIcon,
+    stateDataModalInformation?.informationOrigin.dataOriginName,
+    stateSpectatorId,
+  ]);
+
   return (
     <GenericModal
       setStateModalOpen={setStateDataModalOpen}
       stateModalOpen={stateDataModalOpen}
     >
-      <Typography
-        variant="h5"
-        sx={{
-          color: theme => (theme.palette.mode === 'dark' ? 'white' : undefined),
-        }}
-        gutterBottom
-      >
-        Who can see {dataLabel} from{' '}
-        <Chip
-          icon={dataOriginIcon}
-          label={dataOriginName}
-          color="primary"
-          onClick={() => {}}
-        />
-        ?
-      </Typography>
-      <Box
-        sx={{
-          color: theme => (theme.palette.mode === 'dark' ? 'white' : undefined),
-          margin: '1rem',
-        }}
-      >
-        {dataValueSpectator}
-      </Box>
-      <Chip
-        icon={dataValueHidden ? <DataHiddenIcon /> : <DataVisibleIcon />}
-        color={dataValueHidden ? 'error' : 'success'}
-        label={`${
-          dataValueHidden ? 'Hidden' : 'Visible'
-        } for ${stateSpectatorId}`}
-      />
-      <Divider sx={{paddingTop: '1rem'}} />
-      {listInformation.map(([title, accessType]) => {
-        const elements = stateDataModalContent.filter(
-          a => a.accessType === accessType
-        );
-        if (elements.length === 0) {
-          return undefined;
-        }
-        return (
-          <List
-            key={`data-modal-${accessType}-${title}-${dataOriginName}`}
-            sx={{
-              bgcolor: 'background.paper',
-              width: '100%',
-            }}
-            component="nav"
-            aria-labelledby="nested-list-subheader-owner"
-            subheader={
-              <ListSubheader component="div" id="nested-list-subheader-owner">
-                {title}:
-              </ListSubheader>
-            }
-          >
-            {elements.map(a => (
-              <DataModelListElement
-                {...props}
-                key={`data-modal-${accessType}-${a.name}-${dataOriginName}`}
-                stateDataModalContentElement={a}
-              />
-            ))}
-          </List>
-        );
-      })}
+      {content}
     </GenericModal>
   );
 }

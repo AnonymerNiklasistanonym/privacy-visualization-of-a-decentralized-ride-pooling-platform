@@ -30,6 +30,7 @@ import {simulationEndpoints} from '@globals/defaults/endpoints';
 import type {
   GlobalPropsFetch,
   GlobalPropsIntlValues,
+  GlobalPropsModalDataInformation,
   GlobalPropsShowError,
   GlobalPropsSpectatorSelectedElements,
   GlobalPropsSpectatorSelectedElementsSet,
@@ -59,6 +60,7 @@ export interface MapMarkerParticipantProps
     GlobalPropsShowError,
     SettingsMapProps,
     GlobalPropsIntlValues,
+    GlobalPropsModalDataInformation,
     SettingsConnectedElementsProps,
     SettingsUiProps {}
 

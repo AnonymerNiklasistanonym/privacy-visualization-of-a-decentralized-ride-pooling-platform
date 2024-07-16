@@ -27,6 +27,7 @@ import {
   SpectatorEverythingIcon,
   SpectatorPublicIcon,
 } from '@components/Icons';
+import ModalData from '@components/Modal/ModalData';
 import SnackbarContentChange from '@components/Snackbar/SnackbarContentChange';
 import TabPanel from '@components/TabPanel';
 import WrapperThemeProvider from '@components/Wrapper/WrapperThemeProvider';
@@ -45,6 +46,7 @@ import {SpectatorId} from '@misc/spectatorIds';
 import type {
   GlobalPropsFetch,
   GlobalPropsIntlValues,
+  GlobalPropsModalDataInformation,
   GlobalPropsSearch,
   GlobalPropsShowError,
   GlobalPropsSpectatorInfo,
@@ -56,6 +58,7 @@ import type {
 } from '@misc/props/global';
 import type {PropsWithChildren, ReactElement} from 'react';
 import type {FetchOptions} from '@globals/lib/fetch';
+import type {ModalDataInformation} from '@components/Modal/ModalData';
 import type {ModalErrorProps} from '@components/Modal/ModalError';
 import type {SettingsProps} from '@misc/props/settings';
 
@@ -133,6 +136,11 @@ export default function CollectionHome(
     stateSnackbarSelectedSmartContractOpen,
     setStateSnackbarSelectedSmartContractOpen,
   ] = useState(false);
+  // > Modals
+  const [stateOpenModalData, setStateOpenModalData] = useState(false);
+  const [stateDataModalInformation, setStateDataModalInformation] = useState<
+    undefined | ModalDataInformation
+  >(undefined);
   // > Spectator
   const [stateSpectatorId, setStateSpectatorId] = useState(
     searchParams.get(UrlParameter.SPECTATOR) ?? SpectatorId.EVERYTHING
@@ -612,11 +620,14 @@ export default function CollectionHome(
     GlobalPropsSpectatorsSet &
     GlobalPropsSearch &
     GlobalPropsSpectatorMap &
+    GlobalPropsModalDataInformation &
     GlobalPropsIntlValues = {
     ...propsCollectionHome,
     fetchJsonSimulation,
     globalSearch,
     intlValues,
+    setStateDataModalInformation,
+    setStateOpenModalData,
     setStateSelectedParticipantId,
     setStateSelectedSmartContractId,
     setStateSettingsBlockchainUpdateRateInMs,
@@ -660,6 +671,12 @@ export default function CollectionHome(
           onTabIndexChange={setStateTabIndex}
         />
       </main>
+      <ModalData
+        {...props}
+        stateDataModalOpen={stateOpenModalData}
+        setStateDataModalOpen={setStateOpenModalData}
+        stateDataModalInformation={stateDataModalInformation}
+      />
       <SnackbarContentChange
         stateOpen={stateSnackbarSpectatorOpen}
         stateContent={stateSpectatorId}

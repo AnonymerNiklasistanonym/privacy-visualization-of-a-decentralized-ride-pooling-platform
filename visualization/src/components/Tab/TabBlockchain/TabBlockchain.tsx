@@ -24,6 +24,7 @@ import {SpectatorId} from '@misc/spectatorIds';
 import type {
   GlobalPropsFetch,
   GlobalPropsIntlValues,
+  GlobalPropsModalDataInformation,
   GlobalPropsSearch,
   GlobalPropsShowError,
   GlobalPropsSpectatorMap,
@@ -50,6 +51,7 @@ import type {ReactElement} from 'react';
 export interface TabBlockchainProps
   extends SettingsBlockchainProps,
     GlobalPropsFetch,
+    GlobalPropsModalDataInformation,
     GlobalPropsShowError,
     GlobalPropsSpectatorSelectedElements,
     GlobalPropsSpectatorSelectedElementsSet,

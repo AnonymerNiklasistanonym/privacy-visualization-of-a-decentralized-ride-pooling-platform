@@ -1,5 +1,5 @@
 // Package imports
-import {useMemo, useState} from 'react';
+import {useCallback, useMemo} from 'react';
 // > Components
 import {Box, ListItem, Tooltip, Typography} from '@mui/material';
 // Local imports
@@ -13,34 +13,35 @@ import {
   ServiceMatchingIcon,
   SpectatorPublicIcon,
 } from '@components/Icons';
-import ModalData from '@components/Modal/ModalData';
 // > Misc
 import {SpectatorId} from '@misc/spectatorIds';
 // Type imports
 import type {
-  DataOrigin,
-  ModalDataInformation,
+  ModalDataInformationAccess,
+  ModalDataInformationOrigin,
 } from '@components/Modal/ModalData';
 import type {ReactElement, ReactNode} from 'react';
 import type {ButtonChangeSpectatorProps} from '@components/Input/InputButton/InputButtonSpectatorChange';
+import type {GlobalPropsModalDataInformation} from '@misc/props/global';
 
 export interface DataElement {
   label: string;
   content: ReactNode;
   /** Information about who can see this data besides the owner */
-  dataAccessInformation: ModalDataInformation[];
+  dataAccessInformation: ModalDataInformationAccess[];
 }
 
 export interface RenderDataElementProps
   extends ButtonChangeSpectatorProps,
-    DataOrigin {
+    ModalDataInformationOrigin,
+    GlobalPropsModalDataInformation {
   /** The rendered information */
   element: Readonly<DataElement>;
   id: string;
   /** The data owner information element */
   dataOriginInformation?: ReactElement;
   /** Lists all entities that have in some way access to this information */
-  dataAccessInformation: Array<ModalDataInformation>;
+  dataAccessInformation: Array<ModalDataInformationAccess>;
 }
 
 export function RenderDataElement(props: RenderDataElementProps) {
@@ -53,11 +54,11 @@ export function RenderDataElement(props: RenderDataElementProps) {
     dataOriginIcon,
     dataOriginInformation,
     dataAccessInformation,
+    setStateOpenModalData,
+    setStateDataModalInformation,
   } = props;
 
-  const [stateOpen, setStateOpen] = useState(false);
-
-  const dataAccessDataModal: Array<ModalDataInformation> = useMemo(
+  const dataAccessDataModal: Array<ModalDataInformationAccess> = useMemo(
     () => [
       {
         accessType: 'owner',
@@ -100,14 +101,34 @@ export function RenderDataElement(props: RenderDataElementProps) {
     return [contentTemp, tooltipTemp];
   }, [dataAccessDataModal, element.content, stateSpectatorId]);
 
+  const openDataModalCallback = useCallback(() => {
+    setStateOpenModalData(true);
+    setStateDataModalInformation({
+      dataLabel: element.label,
+      dataValue: element.content,
+      dataValueSpectator: content,
+      informationAccess: dataAccessDataModal,
+      informationOrigin: {
+        dataOriginIcon,
+        dataOriginId,
+        dataOriginName,
+      },
+    });
+  }, [
+    setStateOpenModalData,
+    setStateDataModalInformation,
+    element.label,
+    element.content,
+    content,
+    dataAccessDataModal,
+    dataOriginIcon,
+    dataOriginId,
+    dataOriginName,
+  ]);
+
   const dataValue = useMemo<ReactElement>(
     () => (
-      <Tooltip
-        key={`render-data-element-tooltip-${id}`}
-        title={tooltip}
-        onClick={() => setStateOpen(true)}
-        arrow
-      >
+      <Tooltip key={`render-data-element-tooltip-${id}`} title={tooltip} arrow>
         <Typography
           variant="body2"
           display="inline"
@@ -140,28 +161,19 @@ export function RenderDataElement(props: RenderDataElementProps) {
           margin: 0,
           overflowWrap: 'break-word',
         }}
+        onClick={openDataModalCallback}
       >
         <Box fontWeight="medium" display="inline">
           {element.label}:{' '}
         </Box>
         {dataValue}
-        <ModalData
-          {...props}
-          key={element.label}
-          stateDataModalOpen={stateOpen}
-          setStateDataModalOpen={setStateOpen}
-          stateDataModalContent={dataAccessDataModal}
-          dataLabel={element.label}
-          dataValue={element.content}
-          dataValueSpectator={content}
-        />
       </Typography>
     </ListItem>
   );
 }
 
 // TODO Fix this
-export const dataModalInformationPersonalData: ModalDataInformation[] = [
+export const dataModalInformationPersonalData: ModalDataInformationAccess[] = [
   {
     accessType: 'local_storage',
     description:

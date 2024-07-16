@@ -1,6 +1,7 @@
 // Type imports
 import type {ReactSetState, ReactState} from '../react';
 import type {FetchOptions} from '@globals/lib/fetch';
+import type {ModalDataInformation} from '@components/Modal/ModalData';
 import type {ReactElement} from 'react';
 import type {ShowError} from '@components/Modal/ModalError';
 
@@ -26,6 +27,13 @@ export interface GlobalPropsSpectatorSelectedElementsSet {
   setStateSelectedParticipantId: ReactSetState<undefined | string>;
   /** Set the currently selected smart contract */
   setStateSelectedSmartContractId: ReactSetState<undefined | string>;
+}
+
+export interface GlobalPropsModalDataInformation {
+  /** Set the open/close state of the data modal */
+  setStateOpenModalData: ReactSetState<boolean>;
+  /** Set the content of the data modal */
+  setStateDataModalInformation: ReactSetState<undefined | ModalDataInformation>;
 }
 
 /** Props to fetch requests for actor data */

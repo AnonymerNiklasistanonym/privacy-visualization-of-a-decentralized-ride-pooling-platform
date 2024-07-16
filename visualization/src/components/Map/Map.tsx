@@ -31,6 +31,7 @@ import '@styles/Map.module.scss';
 import type {
   GlobalPropsFetch,
   GlobalPropsIntlValues,
+  GlobalPropsModalDataInformation,
   GlobalPropsShowError,
   GlobalPropsSpectatorSelectedElements,
   GlobalPropsSpectatorSelectedElementsSet,
@@ -62,6 +63,7 @@ export interface MapProps
     GlobalPropsFetch,
     GlobalPropsShowError,
     GlobalPropsIntlValues,
+    GlobalPropsModalDataInformation,
     SettingsConnectedElementsProps,
     GlobalPropsSpectatorSelectedElements,
     GlobalPropsSpectatorSelectedElementsSet {}

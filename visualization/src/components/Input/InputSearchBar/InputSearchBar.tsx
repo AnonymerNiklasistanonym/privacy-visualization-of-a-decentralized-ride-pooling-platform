@@ -19,7 +19,7 @@ export default memo(SearchBar, (prev, next) =>
 );
 
 export function SearchBar(props: SearchBarProps) {
-  debugComponentRender('SearchBar', true);
+  debugComponentRender('SearchBar');
   return (
     <SearchBarBetaContainer {...props}>
       <SearchBarAutocomplete {...props} />

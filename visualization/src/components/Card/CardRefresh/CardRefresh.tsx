@@ -7,6 +7,10 @@ import CardRideRequest from '../CardRideRequest';
 // > Globals
 import {simulationEndpoints} from '@globals/defaults/endpoints';
 // Type imports
+import type {
+  GlobalPropsIntlValues,
+  GlobalPropsModalDataInformation,
+} from '@misc/props/global';
 import type {ReactSetState, ReactState} from '@misc/react';
 import type {
   SimulationEndpointParticipantIdFromPseudonym,
@@ -17,13 +21,13 @@ import type {
 import type {ButtonChangeSpectatorProps} from '@components/Input/InputButton/InputButtonSpectatorChange';
 import type {CardGenericProps} from '../CardGeneric';
 import type {GetACarParticipantTypes} from '@globals/types/participant';
-import type {GlobalPropsIntlValues} from '@misc/props/global';
 import type {SettingsConnectedElementsProps} from '@misc/props/settings';
 
 export interface CardRefreshProps
   extends ButtonChangeSpectatorProps,
     SettingsConnectedElementsProps,
     CardGenericProps,
+    GlobalPropsModalDataInformation,
     GlobalPropsIntlValues {
   /** The type of data that should be fetched/displayed (e.g. participant)  */
   cardType: GetACarParticipantTypes | 'ride_request';
