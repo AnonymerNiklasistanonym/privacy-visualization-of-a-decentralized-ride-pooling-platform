@@ -23,9 +23,6 @@ import {SpectatorId} from '@misc/spectatorIds';
 // Type imports
 import type {
   GlobalPropsFetch,
-  GlobalPropsIntlValues,
-  GlobalPropsModalDataInformation,
-  GlobalPropsSearch,
   GlobalPropsShowError,
   GlobalPropsSpectatorMap,
   GlobalPropsSpectatorSelectedElements,
@@ -37,7 +34,6 @@ import type {
 } from '@components/Grid/GridConnectedElements';
 import type {
   SettingsBlockchainProps,
-  SettingsConnectedElementsProps,
   SettingsUiProps,
 } from '@misc/props/settings';
 import type {
@@ -46,20 +42,20 @@ import type {
   SimulationEndpointSmartContractInformation,
   SimulationEndpointSmartContracts,
 } from '@globals/types/simulation';
+import type {CardRefreshProps} from '@components/Card/CardRefresh';
+import type {InputSearchBarProps} from '@components/Input/InputSearchBar';
 import type {ReactElement} from 'react';
 
 export interface TabBlockchainProps
-  extends SettingsBlockchainProps,
+  extends CardRefreshProps,
+    InputSearchBarProps,
+    SettingsBlockchainProps,
     GlobalPropsFetch,
-    GlobalPropsModalDataInformation,
     GlobalPropsShowError,
     GlobalPropsSpectatorSelectedElements,
     GlobalPropsSpectatorSelectedElementsSet,
     SettingsUiProps,
-    GlobalPropsSpectatorMap,
-    GlobalPropsIntlValues,
-    SettingsConnectedElementsProps,
-    GlobalPropsSearch {}
+    GlobalPropsSpectatorMap {}
 
 // eslint-disable-next-line no-empty-pattern
 export default function TabBlockchain(props: TabBlockchainProps) {

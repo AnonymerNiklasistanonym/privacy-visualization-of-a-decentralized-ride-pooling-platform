@@ -28,25 +28,13 @@ import MapMarkerParticipant from './MapMarkerParticipant';
 // > Styles
 import '@styles/Map.module.scss';
 // Type imports
-import type {
-  GlobalPropsFetch,
-  GlobalPropsIntlValues,
-  GlobalPropsModalDataInformation,
-  GlobalPropsShowError,
-  GlobalPropsSpectatorSelectedElements,
-  GlobalPropsSpectatorSelectedElementsSet,
-} from '@misc/props/global';
 import type {ReactSetState, ReactState} from '@misc/react';
-import type {
-  SettingsConnectedElementsProps,
-  SettingsMapProps,
-  SettingsUiProps,
-} from '@misc/props/settings';
 import type {
   SimulationEndpointGraphInformation,
   SimulationEndpointParticipantCoordinates,
 } from '@globals/types/simulation';
 import type {Coordinates} from '@globals/types/coordinates';
+import type {GlobalPropsShowError} from '@misc/props/global';
 import type {LatLngExpression} from 'leaflet';
 import type {MapMarkerParticipantProps} from './MapMarkerParticipant';
 import type {PathfinderEndpointGraphInformation} from '@globals/types/pathfinder';
@@ -58,15 +46,8 @@ export interface StatPos {
 }
 
 export interface MapProps
-  extends SettingsMapProps,
-    SettingsUiProps,
-    GlobalPropsFetch,
-    GlobalPropsShowError,
-    GlobalPropsIntlValues,
-    GlobalPropsModalDataInformation,
-    SettingsConnectedElementsProps,
-    GlobalPropsSpectatorSelectedElements,
-    GlobalPropsSpectatorSelectedElementsSet {}
+  extends GlobalPropsShowError,
+    MapMarkerParticipantProps {}
 
 export interface MapPropsInput extends MapProps {
   stateGraph: ReactState<SimulationEndpointGraphInformation>;

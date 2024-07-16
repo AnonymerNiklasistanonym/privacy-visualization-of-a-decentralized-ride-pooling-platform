@@ -54,7 +54,9 @@ export interface CardParticipantProps
     CardGenericProps,
     GlobalPropsIntlValues,
     GlobalPropsModalDataInformation,
-    SettingsGlobalProps {
+    SettingsGlobalProps {}
+
+export interface CardParticipantPropsInput extends CardParticipantProps {
   stateParticipantId: ReactState<string>;
   stateCustomerInformation: ReactState<null | SimulationEndpointParticipantInformationCustomer>;
   stateRideProviderInformation: ReactState<null | SimulationEndpointParticipantInformationRideProvider>;
@@ -64,7 +66,7 @@ export interface CardParticipantProps
 
 export default memo(CardParticipant);
 
-export function CardParticipant(props: CardParticipantProps) {
+export function CardParticipant(props: CardParticipantPropsInput) {
   const {
     stateSpectatorId,
     stateSelectedParticipantId,

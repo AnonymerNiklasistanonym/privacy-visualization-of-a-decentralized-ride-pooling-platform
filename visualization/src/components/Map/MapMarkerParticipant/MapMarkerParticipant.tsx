@@ -29,18 +29,11 @@ import {simulationEndpoints} from '@globals/defaults/endpoints';
 // Type imports
 import type {
   GlobalPropsFetch,
-  GlobalPropsIntlValues,
-  GlobalPropsModalDataInformation,
   GlobalPropsShowError,
   GlobalPropsSpectatorSelectedElements,
   GlobalPropsSpectatorSelectedElementsSet,
 } from '@misc/props/global';
 import type {ReactSetState, ReactState} from '@misc/react';
-import type {
-  SettingsConnectedElementsProps,
-  SettingsMapProps,
-  SettingsUiProps,
-} from '@misc/props/settings';
 import type {
   SimulationEndpointParticipantIdFromPseudonym,
   SimulationEndpointParticipantInformationCustomer,
@@ -48,21 +41,20 @@ import type {
   SimulationEndpointParticipantTypes,
   SimulationEndpointRideRequestInformation,
 } from '@globals/types/simulation';
+import type {CardRefreshProps} from '@components/Card/CardRefresh';
 import type {Marker as LMarker} from 'leaflet';
 import type {ReactNode} from 'react';
+import type {SettingsMapProps} from '@misc/props/settings';
 
 const LOCATION_REAL_RADIUS = 50;
 
 export interface MapMarkerParticipantProps
-  extends GlobalPropsSpectatorSelectedElementsSet,
+  extends CardRefreshProps,
+    GlobalPropsSpectatorSelectedElementsSet,
     GlobalPropsSpectatorSelectedElements,
     GlobalPropsFetch,
     GlobalPropsShowError,
-    SettingsMapProps,
-    GlobalPropsIntlValues,
-    GlobalPropsModalDataInformation,
-    SettingsConnectedElementsProps,
-    SettingsUiProps {}
+    SettingsMapProps {}
 
 export interface MapMarkerParticipantInput extends MapMarkerParticipantProps {
   /** The participant ID and current coordinates */

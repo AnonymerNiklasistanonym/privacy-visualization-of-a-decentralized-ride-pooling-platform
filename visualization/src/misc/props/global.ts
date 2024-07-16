@@ -111,3 +111,13 @@ export interface GlobalPropsSpectatorMap {
 export interface GlobalPropsIntlValues {
   intlValues: {[key: string]: ReactElement | string};
 }
+
+export interface GlobalPropsTabIndexSet {
+  /** Set the current tab index */
+  setStateTabIndex: ReactSetState<number>;
+}
+
+export interface GlobalPropsTabIndex {
+  /** The current tab index */
+  stateTabIndex: ReactState<number>;
+}

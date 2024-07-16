@@ -16,6 +16,7 @@ import type {
   GlobalPropsShowError,
   GlobalPropsSpectatorSelectedElements,
   GlobalPropsSpectatorSelectedElementsSet,
+  GlobalPropsTabIndexSet,
 } from '@misc/props/global';
 import type {ReactNode} from 'react';
 import type {SimulationEndpointParticipantIdFromPseudonym} from '@globals/types/simulation';
@@ -24,6 +25,7 @@ export interface ButtonShowSpectatorProps
   extends GlobalPropsSpectatorSelectedElements,
     GlobalPropsSpectatorSelectedElementsSet,
     GlobalPropsShowError,
+    GlobalPropsTabIndexSet,
     GlobalPropsFetch {}
 
 export interface ButtonShowSpectatorPropsInput
@@ -49,6 +51,7 @@ export function ButtonShowSpectator({
   stateSelectedParticipantId,
   setStateSelectedParticipantId,
   setStateShowParticipantId,
+  setStateTabIndex,
   fetchJsonSimulation,
   showError,
 }: ButtonShowSpectatorPropsInput) {
@@ -149,19 +152,22 @@ export function ButtonShowSpectator({
     if (isPseudonym && resolvedPseudonymId !== undefined) {
       setStateSelectedParticipantId(resolvedPseudonymId);
       setStateShowParticipantId(resolvedPseudonymId);
+      setStateTabIndex(0);
     }
     // Update global spectator to the supplied actor ID
     if (isPseudonym !== true) {
       setStateSelectedParticipantId(spectatorId);
       setStateShowParticipantId(spectatorId);
+      setStateTabIndex(0);
     }
   }, [
-    spectatorId,
     disabled,
     isPseudonym,
+    resolvedPseudonymId,
     setStateSelectedParticipantId,
     setStateShowParticipantId,
-    resolvedPseudonymId,
+    setStateTabIndex,
+    spectatorId,
   ]);
 
   // Use custom icon if supplied

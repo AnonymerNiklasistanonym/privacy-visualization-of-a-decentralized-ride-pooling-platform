@@ -27,7 +27,9 @@ import type {ReactSetState, ReactState} from '@misc/react';
 import type {ButtonChangeSpectatorProps} from '@components/Input/InputButton/InputButtonSpectatorChange';
 import type {ReactNode} from 'react';
 
-export interface ModalDataProps extends ButtonChangeSpectatorProps {
+export type ModalDataProps = ButtonChangeSpectatorProps;
+
+export interface ModalDataPropsInput extends ModalDataProps {
   /** The open state of the modal */
   stateDataModalOpen: ReactState<boolean>;
   /** Set the open state of the modal */
@@ -41,7 +43,7 @@ export default memo(ModalData, (prev, next) =>
 );
 
 /** Modal that showcases data access and ownership */
-export function ModalData(props: ModalDataProps) {
+export function ModalData(props: ModalDataPropsInput) {
   debugComponentRender('ModalData');
   const {
     stateSpectatorId,

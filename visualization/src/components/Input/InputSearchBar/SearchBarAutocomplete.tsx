@@ -10,7 +10,10 @@ import {debugComponentRender, debugMemoHelper} from '@misc/debug';
 // Type imports
 import type {GlobalPropsSearch, GlobalSearchElement} from '@misc/props/global';
 
-export interface SearchBarAutocompleteProps extends GlobalPropsSearch {
+export type SearchBarAutocompleteProps = GlobalPropsSearch;
+
+export interface SearchBarAutocompletePropsInput
+  extends SearchBarAutocompleteProps {
   /** Primary filter */
   primaryFilter?: string;
   /** Placeholder text */
@@ -25,7 +28,7 @@ export function SearchBarAutocomplete({
   globalSearch,
   placeholder,
   primaryFilter,
-}: SearchBarAutocompleteProps) {
+}: SearchBarAutocompletePropsInput) {
   debugComponentRender('SearchBarAutocomplete');
 
   const filterOptions = useCallback(

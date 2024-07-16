@@ -42,25 +42,21 @@ import {
 import {LocalStorageKey} from '@misc/localStorage';
 import {SearchBarId} from '@misc/searchBarIds';
 import {SpectatorId} from '@misc/spectatorIds';
+import {TabIndex} from '@misc/tabIndices';
 // Type imports
 import type {
-  GlobalPropsFetch,
-  GlobalPropsIntlValues,
-  GlobalPropsModalDataInformation,
-  GlobalPropsSearch,
   GlobalPropsShowError,
   GlobalPropsSpectatorInfo,
-  GlobalPropsSpectatorMap,
-  GlobalPropsSpectatorSelectedElements,
-  GlobalPropsSpectatorSelectedElementsSet,
-  GlobalPropsSpectatorsSet,
   GlobalSearchElement,
 } from '@misc/props/global';
+import type {
+  ModalDataInformation,
+  ModalDataProps,
+} from '@components/Modal/ModalData';
 import type {PropsWithChildren, ReactElement} from 'react';
 import type {FetchOptions} from '@globals/lib/fetch';
-import type {ModalDataInformation} from '@components/Modal/ModalData';
 import type {ModalErrorProps} from '@components/Modal/ModalError';
-import type {SettingsProps} from '@misc/props/settings';
+import type {TabPanelProps} from '@components/TabPanel';
 
 export interface CollectionHomeProps
   extends GlobalPropsShowError,
@@ -161,7 +157,7 @@ export default function CollectionHome(
   const [stateTabIndex, setStateTabIndex] = useState(
     searchParams.get(UrlParameter.TAB_INDEX)
       ? Number(searchParams.get(UrlParameter.TAB_INDEX))
-      : 0
+      : TabIndex.MAP
   );
   // > Fetching
   const [
@@ -611,17 +607,7 @@ export default function CollectionHome(
   };
 
   // Group all props for easy forwarding
-  const props: GlobalPropsShowError &
-    GlobalPropsFetch &
-    GlobalPropsSpectatorSelectedElements &
-    GlobalPropsSpectatorSelectedElementsSet &
-    SettingsProps &
-    ModalErrorProps &
-    GlobalPropsSpectatorsSet &
-    GlobalPropsSearch &
-    GlobalPropsSpectatorMap &
-    GlobalPropsModalDataInformation &
-    GlobalPropsIntlValues = {
+  const props: TabPanelProps & ModalDataProps = {
     ...propsCollectionHome,
     fetchJsonSimulation,
     globalSearch,
@@ -641,6 +627,7 @@ export default function CollectionHome(
     setStateSettingsUiGridSpacing,
     setStateShowParticipantId,
     setStateSpectatorId,
+    setStateTabIndex,
     setStateThemeMode,
     stateSelectedParticipantId,
     stateSelectedSmartContractId,
@@ -656,6 +643,7 @@ export default function CollectionHome(
     stateShowParticipantId,
     stateSpectatorId,
     stateSpectators,
+    stateTabIndex,
     stateThemeMode,
     updateGlobalSearch,
   };
@@ -663,13 +651,12 @@ export default function CollectionHome(
   // TODO Initial fetching of participants for a search index
 
   return (
-    <WrapperThemeProvider {...props}>
+    <WrapperThemeProvider
+      stateSettingsGlobalDebug={stateSettingsGlobalDebug}
+      stateThemeMode={stateThemeMode}
+    >
       <main className={[`mui-theme-${stateThemeMode}`].join(' ')}>
-        <TabPanel
-          {...props}
-          initialTabIndex={stateTabIndex}
-          onTabIndexChange={setStateTabIndex}
-        />
+        <TabPanel {...props} />
       </main>
       <ModalData
         {...props}

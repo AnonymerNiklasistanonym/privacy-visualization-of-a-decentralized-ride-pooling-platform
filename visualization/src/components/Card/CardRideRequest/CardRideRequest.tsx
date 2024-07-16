@@ -42,21 +42,25 @@ import type {
   SimulationEndpointRideRequestInformation,
 } from '@globals/types/simulation';
 import type {ButtonChangeSpectatorProps} from '@components/Input/InputButton/InputButtonSpectatorChange';
+import type {ButtonShowSpectatorProps} from '@components/Input/InputButton/InputButtonSpectatorShow';
 import type {ModalDataInformationAccess} from '@components/Modal/ModalData';
 import type {ReactState} from '@misc/react';
 import type {SettingsGlobalProps} from '@misc/props/settings';
 
 export interface CardRideRequestProps
   extends ButtonChangeSpectatorProps,
+    ButtonShowSpectatorProps,
     SettingsGlobalProps,
     CardGenericProps,
     GlobalPropsModalDataInformation,
-    GlobalPropsIntlValues {
+    GlobalPropsIntlValues {}
+
+export interface CardRideRequestPropsInput extends CardRideRequestProps {
   stateRideRequestInformation: ReactState<SimulationEndpointRideRequestInformation | null>;
   stateRideRequestId: ReactState<string>;
 }
 
-export default function CardRideRequest(props: CardRideRequestProps) {
+export default function CardRideRequest(props: CardRideRequestPropsInput) {
   const {
     fetchJsonSimulation,
     showError,

@@ -1,11 +1,12 @@
 'use client';
 
 // Package imports
-import {useCallback, useEffect, useMemo, useState} from 'react';
+import {useCallback, useEffect, useMemo} from 'react';
 import {useIntl} from 'react-intl';
 // > Components
-import {Box, ButtonGroup, Chip, Divider, Tab, Tabs} from '@mui/material';
+import {Box, ButtonGroup, Tab, Tabs} from '@mui/material';
 import Link from 'next/link';
+// Local imports
 // > Components
 import {
   TabBlockchainIcon,
@@ -19,6 +20,8 @@ import TabMap from '@components/Tab/TabMap';
 import TabOverview from '@components/Tab/TabOverview';
 import TabPanelTab from './TabPanelTab';
 import TabSettings from '@components/Tab/TabSettings';
+// > Misc
+import {TabIndex} from '@misc/tabIndices';
 // Type imports
 import type {
   GlobalPropsFetch,
@@ -30,6 +33,8 @@ import type {
   GlobalPropsSpectatorSelectedElements,
   GlobalPropsSpectatorSelectedElementsSet,
   GlobalPropsSpectatorsSet,
+  GlobalPropsTabIndex,
+  GlobalPropsTabIndexSet,
 } from '@misc/props/global';
 import type {ModalErrorProps} from '@components/Modal/ModalError';
 import type {ReactElement} from 'react';
@@ -43,67 +48,52 @@ export interface TabPanelProps
     GlobalPropsSpectatorSelectedElementsSet,
     SettingsProps,
     GlobalPropsSpectatorMap,
+    GlobalPropsTabIndex,
+    GlobalPropsTabIndexSet,
     GlobalPropsModalDataInformation,
     ModalErrorProps,
     GlobalPropsSpectatorsSet,
     GlobalPropsIntlValues,
-    GlobalPropsSearch {
-  /** The initial tab that should be displayed */
-  initialTabIndex?: number;
-  /** Callback that runs every time the tab index changes */
-  onTabIndexChange?: (tabIndex: number) => void;
-}
+    GlobalPropsSearch {}
 
 // eslint-disable-next-line no-empty-pattern
 export default function TabPanel(props: TabPanelProps) {
   const {
-    initialTabIndex,
-    onTabIndexChange,
+    setStateErrorModalOpen,
+    setStateTabIndex,
     showError,
     stateErrorModalContent,
-    stateSettingsGlobalDebug,
-    setStateErrorModalOpen,
     stateSettingsFetchBaseUrlSimulation,
+    stateSettingsGlobalDebug,
     stateSettingsMapBaseUrlPathfinder,
     stateSettingsUiGridSpacing,
+    stateTabIndex,
     updateGlobalSearch,
   } = props;
 
   // i18n
   const intl = useIntl();
 
-  // React: States
-  // > Tabpanel
-  const [stateTabIndex, setStateTabIndex] = useState(initialTabIndex ?? 0);
-
-  // React: Listen for changes in created states
-  // > URL parameter listeners
-  useEffect(() => {
-    if (onTabIndexChange !== undefined) {
-      onTabIndexChange(stateTabIndex);
-    }
-  }, [onTabIndexChange, stateTabIndex]);
-
   const tabs = useMemo<Array<[string, number, ReactElement]>>(
     () => [
       [
         intl.formatMessage({id: 'page.home.tab.map.title'}),
-        0,
+        TabIndex.MAP,
         <TabMapIcon key="map" />,
       ],
       [
         intl.formatMessage({id: 'page.home.tab.blockchain.title'}),
-        1,
+        TabIndex.BLOCKCHAIN,
         <TabBlockchainIcon key="blockchain" />,
       ],
       [
         intl.formatMessage({id: 'page.home.tab.guide.title'}),
-        2,
-        <TabOverviewIcon key="overview" />,
+        TabIndex.GUIDE,
+        <TabOverviewIcon key="guide" />,
       ],
       [
         intl.formatMessage({id: 'page.home.tab.settings.title'}),
-        3,
+        TabIndex.SETTINGS,
         <TabSettingsIcon key="settings" />,
       ],
     ],
@@ -128,7 +118,7 @@ export default function TabPanel(props: TabPanelProps) {
         }),
       ])
     );
-  }, [updateGlobalSearch, tabs]);
+  }, [updateGlobalSearch, tabs, setStateTabIndex]);
 
   const openErrorModal = useCallback(() => {
     setStateErrorModalOpen(true);

@@ -2,15 +2,11 @@
 import {memo, useCallback, useEffect, useRef, useState} from 'react';
 // Local imports
 // > Components
-import CardParticipant from '../CardParticipant/CardParticipant';
+import CardParticipant from '../CardParticipant';
 import CardRideRequest from '../CardRideRequest';
 // > Globals
 import {simulationEndpoints} from '@globals/defaults/endpoints';
 // Type imports
-import type {
-  GlobalPropsIntlValues,
-  GlobalPropsModalDataInformation,
-} from '@misc/props/global';
 import type {ReactSetState, ReactState} from '@misc/react';
 import type {
   SimulationEndpointParticipantIdFromPseudonym,
@@ -18,17 +14,20 @@ import type {
   SimulationEndpointParticipantInformationRideProvider,
   SimulationEndpointRideRequestInformation,
 } from '@globals/types/simulation';
-import type {ButtonChangeSpectatorProps} from '@components/Input/InputButton/InputButtonSpectatorChange';
-import type {CardGenericProps} from '../CardGeneric';
+import type {CardParticipantProps} from '../CardParticipant';
+import type {CardRideRequestProps} from '../CardRideRequest';
 import type {GetACarParticipantTypes} from '@globals/types/participant';
 import type {SettingsConnectedElementsProps} from '@misc/props/settings';
 
 export interface CardRefreshProps
-  extends ButtonChangeSpectatorProps,
-    SettingsConnectedElementsProps,
-    CardGenericProps,
-    GlobalPropsModalDataInformation,
-    GlobalPropsIntlValues {
+  extends CardRideRequestProps,
+    CardParticipantProps,
+    SettingsConnectedElementsProps {}
+
+export interface CardRefreshPropsInput
+  extends CardRideRequestProps,
+    CardParticipantProps,
+    SettingsConnectedElementsProps {
   /** The type of data that should be fetched/displayed (e.g. participant)  */
   cardType: GetACarParticipantTypes | 'ride_request';
   /** The ID of the element that should be fetched/displayed */
@@ -48,7 +47,7 @@ export default memo(CardRefresh);
 /**
  * Auto refreshing card
  */
-export function CardRefresh(props: CardRefreshProps) {
+export function CardRefresh(props: CardRefreshPropsInput) {
   const {
     cardType,
     fetchJsonSimulation,
