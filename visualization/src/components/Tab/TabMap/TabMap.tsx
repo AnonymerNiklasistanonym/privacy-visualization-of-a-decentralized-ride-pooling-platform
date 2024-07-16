@@ -689,7 +689,7 @@ export default function TabMap(props: TabMapProps) {
         <CardRefresh
           {...props}
           key={`connected-element-driver-${stateConnectedDriver}`}
-          cardType={'customer'}
+          cardType={'ride_provider'}
           id={stateConnectedDriver}
           isPseudonym={true}
           label={intl.formatMessage(
