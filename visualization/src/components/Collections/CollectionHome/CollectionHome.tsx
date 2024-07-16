@@ -656,6 +656,10 @@ export default function CollectionHome(
   // TODO Blockchain page: Fix filter search and change spectator to be the same as on the map page
   // TODO Move info elements to map and blockchain page to guide page as additional card
   // TODO Add content parts of the guide page
+  // TODO Snackbar text update to use actual spectator name instead of just the ID
+  // TODO Change text IDs to not be composite values that are incompatible with German and instead use complete messages that can actually be translated
+  // TODO Fix/Check data modifiers and tooltip in case the data cannot be seen
+  // TODO Start the thesis content
 
   return (
     <WrapperThemeProvider
