@@ -649,6 +649,13 @@ export default function CollectionHome(
   };
 
   // TODO Initial fetching of participants for a search index
+  // TODO Also update spectators
+  // TODO Map/Blockchain page: Disable inputs while they are not initialized and show a linear or circular progress
+  // TODO Map/blockchain page: Show a circular progress whioe they are not initialized and for the table linear progress every time elements are fetched
+  // TODO Input search bar show as a chip the currently selected/filtered element if you can still search for a new one at the same time
+  // TODO Blockchain page: Fix filter search and change spectator to be the same as on the map page
+  // TODO Move info elements to map and blockchain page to guide page as additional card
+  // TODO Add content parts of the guide page
 
   return (
     <WrapperThemeProvider
