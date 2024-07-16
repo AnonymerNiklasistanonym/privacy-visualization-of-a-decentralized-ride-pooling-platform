@@ -679,6 +679,7 @@ export default function CollectionHome(
           intl.formatMessage({id: 'getacar.spectator.changed'}, {name: a})
         }
         bottomOffset={60 * 0}
+        autoHideDuration={1000}
       />
       <SnackbarContentChange
         stateOpen={stateSnackbarSelectedParticipantOpen}
@@ -691,6 +692,7 @@ export default function CollectionHome(
           )
         }
         bottomOffset={60 * 1}
+        autoHideDuration={1000}
       />
       <SnackbarContentChange
         stateOpen={stateSnackbarSelectedSmartContractOpen}
@@ -703,6 +705,7 @@ export default function CollectionHome(
           )
         }
         bottomOffset={60 * 2}
+        autoHideDuration={1000}
       />
       {children}
     </WrapperThemeProvider>
