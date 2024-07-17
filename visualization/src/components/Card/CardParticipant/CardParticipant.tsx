@@ -122,7 +122,7 @@ export function CardParticipant(props: CardParticipantPropsInput) {
         dataAccessDriver.push({
           accessType: 'transitive',
           description: intl.formatMessage({
-            id: 'getacar.spectator.message.driver.dataAccess',
+            id: 'getacar.participant.rideProvider.driver.message.dataAccess',
           }),
           icon: <ParticipantRideProviderIcon />,
           isPseudonym: true,
@@ -130,7 +130,7 @@ export function CardParticipant(props: CardParticipantPropsInput) {
             {id: 'current'},
             {
               name: intl.formatMessage({
-                id: 'getacar.spectator.message.driver',
+                id: 'getacar.participant.rideProvider.driver.message.connected',
               }),
             }
           ),
@@ -257,13 +257,13 @@ export function CardParticipant(props: CardParticipantPropsInput) {
               spectatorId={stateCustomerInformation.passenger}
               icon={<ParticipantRideProviderIcon />}
               label={intl.formatMessage({
-                id: 'getacar.spectator.message.driver',
+                id: 'getacar.participant.rideProvider.driver',
               })}
               isPseudonym={true}
             />
           ),
           label: intl.formatMessage({
-            id: 'getacar.spectator.message.driver',
+            id: 'getacar.participant.rideProvider.driver.message.connected',
           }),
           labelIcon: <ParticipantRideProviderIcon />,
         });

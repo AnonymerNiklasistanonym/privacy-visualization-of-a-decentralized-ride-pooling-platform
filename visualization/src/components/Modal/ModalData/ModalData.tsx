@@ -5,7 +5,6 @@ import {useIntl} from 'react-intl';
 import {
   Box,
   Chip,
-  CircularProgress,
   Divider,
   List,
   ListSubheader,
@@ -16,6 +15,7 @@ import {
 import {DataHiddenIcon, DataVisibleIcon} from '@components/Icons';
 import DataModelListElement from './ModalDataElement';
 import GenericModal from '@components/Modal/ModalGeneric';
+import LoadingCircle from '@components/Loading/LoadingCircle';
 // > Misc
 import {debugComponentRender, debugMemoHelper} from '@misc/debug';
 // Type imports
@@ -68,15 +68,7 @@ export function ModalData(props: ModalDataPropsInput) {
   // Either a loading icon or the content
   const content = useMemo<ReactNode>(() => {
     if (stateDataModalInformation?.dataLabel === undefined) {
-      return (
-        <Box
-          key="modal-data-content-loading"
-          sx={{display: 'flex', width: '100%'}}
-          justifyContent="center"
-        >
-          <CircularProgress />
-        </Box>
-      );
+      return <LoadingCircle key="modal-data-content-loading" />;
     }
     const dataValueHidden =
       stateDataModalInformation.dataValueSpectator === '******';

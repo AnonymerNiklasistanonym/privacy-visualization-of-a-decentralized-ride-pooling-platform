@@ -569,7 +569,7 @@ export default function TabMap(props: TabMapProps) {
         <CardRefresh
           {...props}
           key={`connected-element-pinned-customer-${pinnedCustomerId}`}
-          cardType={'customer'}
+          cardType="customer"
           id={pinnedCustomerId}
           //stateRideRequestList={stateConnectedRideRequests}
           //setStateRideRequestList={setStateConnectedRideRequests}
@@ -587,7 +587,7 @@ export default function TabMap(props: TabMapProps) {
         <CardRefresh
           {...props}
           key={`connected-element-pinned-rideProvider-${pinnedRideProviderId}`}
-          cardType={'ride_provider'}
+          cardType="ride_provider"
           id={pinnedRideProviderId}
           //stateRideRequestList={stateConnectedRideRequests}
           //setStateRideRequestList={setStateConnectedRideRequests}
@@ -661,7 +661,7 @@ export default function TabMap(props: TabMapProps) {
           <CardRefresh
             {...props}
             key={`connected-element-passenger-${stateConnectedPassenger}`}
-            cardType={'customer'}
+            cardType="customer"
             id={stateConnectedPassenger}
             isPseudonym={true}
             label={intl.formatMessage(
@@ -689,19 +689,12 @@ export default function TabMap(props: TabMapProps) {
         <CardRefresh
           {...props}
           key={`connected-element-driver-${stateConnectedDriver}`}
-          cardType={'ride_provider'}
+          cardType="ride_provider"
           id={stateConnectedDriver}
           isPseudonym={true}
-          label={intl.formatMessage(
-            {
-              id: 'connected',
-            },
-            {
-              name: intl.formatMessage({
-                id: 'getacar.spectator.message.driver',
-              }),
-            }
-          )}
+          label={intl.formatMessage({
+            id: 'getacar.participant.rideProvider.driver.message.connected',
+          })}
         />
       );
     }
@@ -710,39 +703,23 @@ export default function TabMap(props: TabMapProps) {
       {
         cards: pinnedParticipants,
         icon: <PinnedElementsIcon fontSize="large" />,
-        title: intl.formatMessage(
-          {id: 'getacar.spectator.message.pinned'},
-          {
-            name: intl.formatMessage({id: 'getacar.participant.plural'}),
-          }
-        ),
+        title: intl.formatMessage({
+          id: 'getacar.participant.message.pinned.plural',
+        }),
       },
       {
         cards: connectedParticipants,
         icon: <ConnectedElementsIcon fontSize="large" />,
-        title: intl.formatMessage(
-          {id: 'connected'},
-          {
-            name: intl.formatMessage({id: 'getacar.participant.plural'}),
-          }
-        ),
+        title: intl.formatMessage({
+          id: 'getacar.participant.message.connected.plural',
+        }),
       },
       {
         cards: connectedRideRequests,
         icon: <ConnectedElementsIcon fontSize="large" />,
-        title: intl.formatMessage(
-          {id: 'connected'},
-          {
-            name: intl.formatMessage(
-              {
-                id: 'active',
-              },
-              {
-                name: intl.formatMessage({id: 'getacar.rideRequest.plural'}),
-              }
-            ),
-          }
-        ),
+        title: intl.formatMessage({
+          id: 'getacar.rideRequest.message.connected.plural',
+        }),
       },
       {
         cards: connectedSmartContracts,

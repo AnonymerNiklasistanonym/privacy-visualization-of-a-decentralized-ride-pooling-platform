@@ -1,7 +1,7 @@
 'use client';
 
 // Package imports
-import {useState} from 'react';
+import {useCallback, useMemo, useState} from 'react';
 // > Components
 import {Alert, Snackbar} from '@mui/material';
 // Type imports
@@ -25,19 +25,29 @@ export default function SnackbarContentChange<T extends string | undefined>({
 }: SnackbarContentChangeProps<T>) {
   const [open, setOpen] = useState(false);
 
-  const handleClose = (event?: SyntheticEvent | Event, reason?: string) => {
-    if (reason === 'clickaway') {
-      return;
-    }
+  const handleClose = useCallback(
+    (event?: SyntheticEvent | Event, reason?: string) => {
+      if (reason === 'clickaway') {
+        return;
+      }
 
-    setOpen(false);
-    setStateOpen(false);
-  };
+      setOpen(false);
+      setStateOpen(false);
+    },
+    [setStateOpen]
+  );
+
+  const text = useMemo<string | T>(() => {
+    if (handleChangeStateContent !== undefined) {
+      return handleChangeStateContent(stateContent) ?? '';
+    }
+    return stateContent;
+  }, [handleChangeStateContent, stateContent]);
 
   return (
     <Snackbar
       open={open || stateOpen}
-      autoHideDuration={6000}
+      autoHideDuration={1 * 1000}
       onClose={handleClose}
       sx={{
         '&.MuiSnackbar-root': {bottom: `${(bottomOffset ?? 0) + 25}px`},
@@ -49,11 +59,7 @@ export default function SnackbarContentChange<T extends string | undefined>({
         variant="filled"
         sx={{width: '100%'}}
       >
-        {handleChangeStateContent !== undefined ? (
-          handleChangeStateContent(stateContent)
-        ) : (
-          <>{stateContent}</>
-        )}
+        {text}
       </Alert>
     </Snackbar>
   );

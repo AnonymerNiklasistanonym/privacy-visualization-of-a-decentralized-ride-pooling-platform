@@ -8,7 +8,6 @@ import {
   CardContent,
   CardHeader,
   Chip,
-  CircularProgress,
   Divider,
   IconButton,
   Stack,
@@ -19,6 +18,9 @@ import {
   PushPin as PinIcon,
   Remove as UnpinIcon,
 } from '@mui/icons-material';
+// Local imports
+// > Components
+import LoadingCircle from '@components/Loading/LoadingCircle';
 // Type imports
 import type {ReactElement, ReactNode} from 'react';
 
@@ -187,13 +189,7 @@ export default function CardGeneric({
               </Divider>
             ) : undefined}
             {content ?? (
-              <Box
-                key={`content-${label ?? index}-content`}
-                sx={{display: 'flex', width: '100%'}}
-                justifyContent="center"
-              >
-                <CircularProgress />
-              </Box>
+              <LoadingCircle key={`content-${label ?? index}-content`} />
             )}
           </Box>
         ))}

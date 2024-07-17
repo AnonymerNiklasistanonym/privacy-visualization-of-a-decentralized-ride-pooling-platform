@@ -15,6 +15,7 @@ import GenericButton from '@components/Input/InputButton/InputButtonGeneric';
 import GridConnectedElements from '@components/Grid/GridConnectedElements';
 import InputChangeSpectator from '@components/Input/InputChangeSpectator';
 import InputSearchBar from '@components/Input/InputSearchBar';
+import LoadingLine from '@components/Loading/LoadingLine';
 import TabContainer from '@components/Tab/TabContainer';
 import TableDebugData from '@components/Table/TableDebugData';
 // > Misc
@@ -179,7 +180,7 @@ export default function TabBlockchain(props: TabBlockchainProps) {
       selectedParticipants.push(
         <CardRefresh
           {...props}
-          cardType={'customer'}
+          cardType="customer"
           id={stateSelectedCustomerResolved}
           label={intl.formatMessage(
             {
@@ -198,7 +199,7 @@ export default function TabBlockchain(props: TabBlockchainProps) {
       selectedParticipants.push(
         <CardRefresh
           {...props}
-          cardType={'ride_provider'}
+          cardType="ride_provider"
           id={stateSelectedRideProviderResolved}
           label={intl.formatMessage(
             {
@@ -226,22 +227,16 @@ export default function TabBlockchain(props: TabBlockchainProps) {
       {
         cards: selectedParticipants,
         icon: <ConnectedElementsIcon fontSize="large" />,
-        title: intl.formatMessage(
-          {id: 'connected'},
-          {
-            name: intl.formatMessage({id: 'getacar.participant.plural'}),
-          }
-        ),
+        title: intl.formatMessage({
+          id: 'getacar.participant.message.connected.plural',
+        }),
       },
       {
         cards: selectedRideRequests,
         icon: <ConnectedElementsIcon fontSize="large" />,
-        title: intl.formatMessage(
-          {id: 'connected'},
-          {
-            name: intl.formatMessage({id: 'getacar.rideRequest.plural'}),
-          }
-        ),
+        title: intl.formatMessage({
+          id: 'getacar.rideRequest.message.connected.plural',
+        }),
       },
     ];
   }, [
@@ -492,6 +487,7 @@ export default function TabBlockchain(props: TabBlockchainProps) {
                 }}
                 elevation={2}
               >
+                <LoadingLine />
                 <TableDebugData
                   height={'100%'}
                   stateDebugData={{
