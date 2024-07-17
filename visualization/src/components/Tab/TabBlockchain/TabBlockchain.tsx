@@ -17,7 +17,6 @@ import CardRefresh from '@components/Card/CardRefresh';
 import GridConnectedElements from '@components/Grid/GridConnectedElements';
 import InputChangeSpectator from '@components/Input/InputChangeSpectator';
 import InputSearchBar from '@components/Input/InputSearchBar';
-import LoadingLine from '@components/Loading/LoadingLine';
 import TabContainer from '@components/Tab/TabContainer';
 import TableDebugData from '@components/Table/TableDebugData';
 // > Misc
@@ -92,6 +91,9 @@ export default function TabBlockchain(props: TabBlockchainProps) {
     stateSelectedRideProviderResolved,
     setStateSelectedRideProviderResolved,
   ] = useState<string | undefined>(undefined);
+  // > Fetching smart contracts
+  const [stateFetchingSmartContracts, setStateFetchingSmartContracts] =
+    useState<boolean>(true);
 
   const [stateConnectedRideRequests, setStateConnectedRideRequests] = useState<
     Array<string>
@@ -329,26 +331,31 @@ export default function TabBlockchain(props: TabBlockchainProps) {
     return stateSmartContracts;
   }, [stateSelectedParticipantId, stateSmartContracts, stateSpectators, intl]);
 
-  const fetchSmartContracts = () =>
-    fetchJsonSimulation<SimulationEndpointSmartContracts>(
-      simulationEndpoints.apiV1.smartContracts
-    )
-      .then(data =>
-        Promise.all(
-          data.smartContracts.map(smartContractId =>
-            fetchJsonSimulation<SimulationEndpointSmartContractInformation>(
-              simulationEndpoints.apiV1.smartContract(smartContractId)
+  const fetchSmartContracts = useCallback<() => Promise<void>>(
+    () =>
+      fetchJsonSimulation<SimulationEndpointSmartContracts>(
+        simulationEndpoints.apiV1.smartContracts
+      )
+        .then(data =>
+          Promise.all(
+            data.smartContracts.map(smartContractId =>
+              fetchJsonSimulation<SimulationEndpointSmartContractInformation>(
+                simulationEndpoints.apiV1.smartContract(smartContractId)
+              )
             )
           )
         )
-      )
-      .then(data => {
-        // TODO Fetch for all current participating participants and add their entries to the global search
-        // TODO Give their entries special IDs so that they are not overriding map entries
-        console.log(data);
-        setStateSmartContracts(data);
-      })
-      .catch(err => showError('Fetch simulation smart contracts', err));
+        .then(data => {
+          // TODO Fetch for all current participating participants and add their entries to the global search
+          // TODO Give their entries special IDs so that they are not overriding map entries
+          console.log(data);
+          setStateSmartContracts(data);
+          setStateFetchingSmartContracts(false);
+          console.log('Fetched smart contracts');
+        })
+        .catch(err => showError('Fetch simulation smart contracts', err)),
+    [fetchJsonSimulation, showError]
+  );
 
   // React: Effects
   useEffect(() => {
@@ -393,7 +400,7 @@ export default function TabBlockchain(props: TabBlockchainProps) {
           <Grid item xs={12}>
             <InputSearchBar
               {...props}
-              key={'search-bar-blockchain'}
+              key="search-bar-blockchain"
               placeholder={intl.formatMessage({
                 id: 'page.home.tab.blockchain.search',
               })}
@@ -401,7 +408,8 @@ export default function TabBlockchain(props: TabBlockchainProps) {
                 id: 'page.home.tab.blockchain.search',
               })}
               primaryFilter={SearchBarId.FILTER_SMART_CONTRACT_PARTICIPANT}
-              actions={searchActions}
+              actionsPost={searchActions}
+              loading={stateFetchingSmartContracts}
             />
           </Grid>
           <Grid item xs={12}>
@@ -419,7 +427,6 @@ export default function TabBlockchain(props: TabBlockchainProps) {
                 }}
                 elevation={2}
               >
-                <LoadingLine />
                 <TableDebugData
                   height={'100%'}
                   stateDebugData={{

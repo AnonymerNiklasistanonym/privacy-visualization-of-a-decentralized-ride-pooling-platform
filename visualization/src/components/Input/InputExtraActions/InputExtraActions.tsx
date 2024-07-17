@@ -13,12 +13,14 @@ export interface InputExtraActionsAction {
   callback: () => void;
 }
 
-export interface InputExtraActionsProps {
+export interface InputExtraActionsPropsInput {
   /** List of actions */
   actions?: Array<InputExtraActionsAction>;
 }
 
-export default function InputExtraActions({actions}: InputExtraActionsProps) {
+export default function InputExtraActions({
+  actions,
+}: InputExtraActionsPropsInput) {
   debugComponentRender('InputExtraActions');
   return (
     <>

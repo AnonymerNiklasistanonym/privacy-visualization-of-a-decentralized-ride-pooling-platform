@@ -23,7 +23,6 @@ import 'react-leaflet-fullscreen/styles.css';
 import '@styles/leaflet.module.css';
 import styles from '@styles/Map.module.scss';
 // > Components
-import LoadingLine from '@components/Loading/LoadingLine';
 import MapControlShowYourLocation from './MapControlShowYourLocation';
 import MapMarkerParticipant from './MapMarkerParticipant';
 // > Styles
@@ -150,10 +149,6 @@ export default function Map(props: MapPropsInput) {
       }}
       elevation={2}
     >
-      {stateParticipantCoordinatesList.customers.length === 0 &&
-      stateParticipantCoordinatesList.rideProviders.length === 0 ? (
-        <LoadingLine />
-      ) : undefined}
       <MapContainer
         center={[startPos.lat, startPos.long]}
         zoom={12}

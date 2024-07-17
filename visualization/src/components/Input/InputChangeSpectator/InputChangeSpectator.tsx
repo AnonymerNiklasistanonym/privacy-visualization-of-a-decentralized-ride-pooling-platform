@@ -23,13 +23,13 @@ import {
   GlobalPropsSpectatorSelectedElements,
   GlobalPropsSpectatorSelectedElementsSet,
 } from '@misc/props/global';
-import type {InputExtraActionsProps} from '@components/Input/InputExtraActions';
+import type {InputExtraActionsPropsInput} from '@components/Input/InputExtraActions';
 
 export interface InputChangeSpectatorProps
   extends GlobalPropsSpectatorSelectedElements,
     GlobalPropsSpectatorSelectedElementsSet,
     GlobalPropsSpectatorMap,
-    InputExtraActionsProps {}
+    InputExtraActionsPropsInput {}
 
 export default memo(InputChangeSpectator);
 

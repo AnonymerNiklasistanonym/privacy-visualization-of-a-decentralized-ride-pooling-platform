@@ -1,25 +1,35 @@
 // Package imports
+import {memo} from 'react';
 // > Components
 import {Divider, IconButton, Paper, Tooltip} from '@mui/material';
 import {Search as SearchIcon} from '@mui/icons-material';
 // Local imports
 // > Components
 import InputExtraActions from '@components/Input/InputExtraActions';
+import LoadingCircle from '@components/Loading/LoadingCircle';
 // > Misc
 import {debugComponentRender} from '@misc/debug';
 // Type imports
-import type {InputExtraActionsProps} from '@components/Input/InputExtraActions';
+import type {InputExtraActionsAction} from '@components/Input/InputExtraActions';
 import type {PropsWithChildren} from 'react';
+import type {ReactState} from '@misc/react';
 
-export interface SearchBarContainerProps extends InputExtraActionsProps {
+export interface SearchBarContainerProps {
   /** Text for search button tooltip */
   searchActionTooltip: string;
+  /** Actions after the search bar */
+  actionsPost?: Array<InputExtraActionsAction>;
+  /** Loading indicator */
+  loading: ReactState<boolean>;
 }
 
-export default function SearchBarContainer({
-  actions,
+export default memo(SearchBarContainer);
+
+export function SearchBarContainer({
+  actionsPost,
   children,
   searchActionTooltip,
+  loading,
 }: PropsWithChildren<SearchBarContainerProps>) {
   debugComponentRender('SearchBarContainer');
   return (
@@ -32,6 +42,7 @@ export default function SearchBarContainer({
         width: '100%',
       }}
     >
+      {loading === true ? <LoadingCircle notFullWidth={true} /> : undefined}
       {children}
       <Tooltip key={'search-bar-action-search'} title={searchActionTooltip}>
         <IconButton
@@ -43,10 +54,10 @@ export default function SearchBarContainer({
           <SearchIcon />
         </IconButton>
       </Tooltip>
-      {actions !== undefined && actions.length > 0 ? (
+      {actionsPost !== undefined && actionsPost.length > 0 ? (
         <Divider orientation="vertical" flexItem />
       ) : undefined}
-      <InputExtraActions actions={actions} />
+      <InputExtraActions actions={actionsPost} />
     </Paper>
   );
 }

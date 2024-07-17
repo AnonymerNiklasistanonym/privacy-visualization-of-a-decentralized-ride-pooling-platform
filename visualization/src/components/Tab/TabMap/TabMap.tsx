@@ -140,6 +140,11 @@ export default function TabMap(props: TabMapProps) {
   const [statePinnedRideProviders, setStatePinnedRideProviders] = useState<
     Array<string>
   >([]);
+  // > Loading participant coordinates
+  const [
+    stateLoadingParticipantCoordinates,
+    setStateLoadingParticipantCoordinates,
+  ] = useState<boolean>(true);
 
   const searchActions = useMemo<Array<InputExtraActionsAction>>(
     () => [
@@ -289,6 +294,7 @@ export default function TabMap(props: TabMapProps) {
       )
         .then(data => {
           setStateParticipantCoordinatesList(data);
+          setStateLoadingParticipantCoordinates(false);
           updateGlobalSearch(
             data.customers.map(a => [
               a.id,
@@ -765,7 +771,8 @@ export default function TabMap(props: TabMapProps) {
                   id: 'page.home.tab.map.search',
                 })}
                 primaryFilter={SearchBarId.SHOW_PARTICIPANT}
-                actions={searchActions}
+                actionsPost={searchActions}
+                loading={stateLoadingParticipantCoordinates}
               />
             </Grid>
             <Grid item xs={12}>

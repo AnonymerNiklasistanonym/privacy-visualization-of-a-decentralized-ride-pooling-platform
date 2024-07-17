@@ -9,6 +9,7 @@ import {Autocomplete, Box, TextField} from '@mui/material';
 import {debugComponentRender, debugMemoHelper} from '@misc/debug';
 // Type imports
 import type {GlobalPropsSearch, GlobalSearchElement} from '@misc/props/global';
+import type {ReactState} from '@misc/react';
 
 export type SearchBarAutocompleteProps = GlobalPropsSearch;
 
@@ -18,16 +19,19 @@ export interface SearchBarAutocompletePropsInput
   primaryFilter?: string;
   /** Placeholder text */
   placeholder: string;
+  /** Is currently loading */
+  loading: ReactState<boolean>;
 }
 
 export default memo(SearchBarAutocomplete, (prev, next) =>
-  debugMemoHelper('SearchBarAutocomplete', ['globalSearch'], prev, next)
+  debugMemoHelper('SearchBarAutocomplete', undefined, prev, next)
 );
 
 export function SearchBarAutocomplete({
   globalSearch,
   placeholder,
   primaryFilter,
+  loading,
 }: SearchBarAutocompletePropsInput) {
   debugComponentRender('SearchBarAutocomplete');
 
@@ -46,6 +50,7 @@ export function SearchBarAutocomplete({
       sx={{width: '100%'}}
       blurOnSelect={true}
       autoHighlight={true}
+      disabled={loading}
       onChange={(e, value) => {
         // If one element is selected call the onClick function
         if (value !== null) {
@@ -84,7 +89,6 @@ export function SearchBarAutocomplete({
           }}
         />
       )}
-      value={undefined}
       renderOption={(props, option) => (
         <Box component="li" sx={{'& > svg': {flexShrink: 0, mr: 2}}} {...props}>
           {option.icon}

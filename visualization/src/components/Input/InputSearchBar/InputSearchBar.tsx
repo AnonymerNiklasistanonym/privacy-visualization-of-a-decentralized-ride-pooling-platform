@@ -19,12 +19,12 @@ export interface InputSearchBarPropsInput
   extends SearchBarAutocompletePropsInput,
     SearchBarContainerProps {}
 
-export default memo(SearchBar, (prev, next) =>
-  debugMemoHelper('SearchBar', ['globalSearch'], prev, next)
+export default memo(InputSearchBar, (prev, next) =>
+  debugMemoHelper('InputSearchBar', undefined, prev, next)
 );
 
-export function SearchBar(props: InputSearchBarPropsInput) {
-  debugComponentRender('SearchBar');
+export function InputSearchBar(props: InputSearchBarPropsInput) {
+  debugComponentRender('InputSearchBar');
   return (
     <SearchBarBetaContainer {...props}>
       <SearchBarAutocomplete {...props} />

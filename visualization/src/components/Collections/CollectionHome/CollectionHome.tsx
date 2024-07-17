@@ -669,6 +669,7 @@ export default function CollectionHome(
   // TODO Fix/Check data modifiers and tooltip in case the data cannot be seen
   // TODO Start the thesis content
   // TODO Fix linear progress
+  // TODO Get connected 'future/possible' passenger from ride request
 
   return (
     <WrapperThemeProvider
