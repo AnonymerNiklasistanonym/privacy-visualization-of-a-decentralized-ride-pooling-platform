@@ -44,7 +44,6 @@ export function SearchBarAutocomplete({
       id="combo-box-demo"
       options={globalSearch}
       sx={{width: '100%'}}
-      value={null}
       blurOnSelect={true}
       autoHighlight={true}
       onChange={(e, value) => {
@@ -72,7 +71,7 @@ export function SearchBarAutocomplete({
             state.getOptionLabel(option).toLowerCase().includes(searchString)
           );
       }}
-      getOptionLabel={option => [option.name, ...option.keywords].join(' ')}
+      getOptionLabel={option => (filterOptions(option) ? option.value : '')}
       renderInput={params => (
         <TextField
           {...params}
@@ -85,10 +84,11 @@ export function SearchBarAutocomplete({
           }}
         />
       )}
+      value={undefined}
       renderOption={(props, option) => (
         <Box component="li" sx={{'& > svg': {flexShrink: 0, mr: 2}}} {...props}>
           {option.icon}
-          {option.name}
+          {option.displayName}
         </Box>
       )}
     />

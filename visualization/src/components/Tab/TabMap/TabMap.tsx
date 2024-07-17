@@ -9,8 +9,8 @@ import {Box, ButtonGroup, Chip, Divider, Grid} from '@mui/material';
 import {fetchJsonEndpoint, fetchTextEndpoint} from '@misc/fetch';
 // > Components
 import {
+  ClearSelectedParticipantIcon,
   ConnectedElementsIcon,
-  DisableSelectedParticipantIcon,
   NavigateToLocationIcon,
   ParticipantCustomerIcon,
   ParticipantRideProviderIcon,
@@ -146,7 +146,7 @@ export default function TabMap(props: TabMapProps) {
       {
         callback: () => setStateSelectedParticipantId(undefined),
         disabled: stateSelectedParticipantId === undefined,
-        icon: <DisableSelectedParticipantIcon />,
+        icon: <ClearSelectedParticipantIcon />,
         text: intl.formatMessage({id: 'getacar.participant.clearSelected'}),
       },
       {

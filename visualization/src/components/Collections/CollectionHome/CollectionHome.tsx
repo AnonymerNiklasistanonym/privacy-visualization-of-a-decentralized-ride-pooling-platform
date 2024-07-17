@@ -403,32 +403,34 @@ export default function CollectionHome(
     ];
     for (const [pageTitle, pagePath, pageIcon] of pages) {
       tempGlobalSearch.push({
-        icon: pageIcon,
-        keywords: ['page', 'switch', pageTitle, pagePath],
-        name: intl.formatMessage(
+        displayName: intl.formatMessage(
           {id: 'page.home.search.switchPage'},
           {
             name: pageTitle,
           }
         ),
+        icon: pageIcon,
+        keywords: ['page', 'switch', pageTitle, pagePath],
         onClick: () => {
           console.log('TODO Switch to page', pagePath);
           router.push(pagePath);
         },
+        value: pageTitle,
       });
     }
 
     const {locales, defaultLocale} = i18n;
     for (const locale of locales) {
+      const languageName = i18nGetLanguageName(locale);
       tempGlobalSearch.push({
-        icon: <LanguageIcon />,
-        keywords: ['language', 'switch', locale, i18nGetLanguageName(locale)],
-        name: intl.formatMessage(
+        displayName: intl.formatMessage(
           {id: 'page.home.search.changeLanguage'},
           {
-            name: i18nGetLanguageName(locale),
+            name: languageName,
           }
         ),
+        icon: <LanguageIcon />,
+        keywords: ['language', 'switch', locale, languageName],
         onClick: () => {
           const pathname2 = pathname.split('/').filter(a => a.length > 0);
           if (
@@ -443,13 +445,12 @@ export default function CollectionHome(
             )}?${params.toString()}`
           );
         },
+        value: languageName,
       });
     }
     for (const [tabName, tabInformation] of Array.from(stateTabs.entries())) {
       tempGlobalSearch.push({
-        icon: tabInformation.icon,
-        keywords: ['tab', 'switch', tabName, tabInformation.name],
-        name: intl.formatMessage(
+        displayName: intl.formatMessage(
           {
             id: 'page.home.search.switchTab',
           },
@@ -457,34 +458,38 @@ export default function CollectionHome(
             name: tabInformation.name,
           }
         ),
+        icon: tabInformation.icon,
+        keywords: ['tab', 'switch', tabName, tabInformation.name],
         onClick: () => {
-          setStateSpectatorId(tabName);
           tabInformation.callback();
         },
+        value: tabInformation.name,
       });
     }
     for (const [actorId, actorInformation] of Array.from(
       stateSpectators.entries()
     )) {
+      const actorName = `${actorInformation.name} (${actorId})`;
       tempGlobalSearch.push({
+        displayName: intl.formatMessage(
+          {
+            id: 'page.home.search.spectateAs',
+          },
+          {
+            name: actorName,
+          }
+        ),
         icon: actorInformation.icon,
         keywords: [
           actorId,
           actorInformation.name,
           ...(actorInformation.keywords ?? []),
         ],
-        name: intl.formatMessage(
-          {
-            id: 'page.home.search.spectateAs',
-          },
-          {
-            name: `${actorInformation.name} (${actorId})`,
-          }
-        ),
         onClick: () => {
           setStateSpectatorId(actorId);
           actorInformation.callback();
         },
+        value: actorName,
       });
       const categoryCustomer = intl.formatMessage({
         id: 'getacar.participant.customer',
@@ -496,7 +501,16 @@ export default function CollectionHome(
         actorInformation.category === categoryCustomer ||
         actorInformation.category === categoryRideProvider
       ) {
+        const participantName = `${actorInformation.name} (${actorId})`;
         tempGlobalSearch.push({
+          displayName: intl.formatMessage(
+            {
+              id: 'getacar.spectator.show',
+            },
+            {
+              name: participantName,
+            }
+          ),
           icon: actorInformation.icon,
           keywords: [
             actorId,
@@ -504,20 +518,21 @@ export default function CollectionHome(
             SearchBarId.SHOW_PARTICIPANT,
             ...(actorInformation.keywords ?? []),
           ],
-          name: intl.formatMessage(
-            {
-              id: 'getacar.spectator.show',
-            },
-            {
-              name: `${actorInformation.name} (${actorId})`,
-            }
-          ),
           onClick: () => {
             setStateShowParticipantId(actorId);
             actorInformation.callback();
           },
+          value: participantName,
         });
         tempGlobalSearch.push({
+          displayName: intl.formatMessage(
+            {
+              id: 'getacar.spectator.filter',
+            },
+            {
+              name: participantName,
+            }
+          ),
           icon: actorInformation.icon,
           keywords: [
             actorId,
@@ -525,26 +540,19 @@ export default function CollectionHome(
             SearchBarId.FILTER_SMART_CONTRACT_PARTICIPANT,
             ...(actorInformation.keywords ?? []),
           ],
-          name: intl.formatMessage(
-            {
-              id: 'getacar.spectator.filter',
-            },
-            {
-              name: `${actorInformation.name} (${actorId})`,
-            }
-          ),
           onClick: () => {
             setStateSelectedParticipantId(actorId);
             actorInformation.callback();
           },
+          value: participantName,
         });
       }
     }
     return tempGlobalSearch.sort((a, b) => {
-      if (a.name < b.name) {
+      if (a.displayName < b.displayName) {
         return -1;
       }
-      if (a.name > b.name) {
+      if (a.displayName > b.displayName) {
         return 1;
       }
       return 0;

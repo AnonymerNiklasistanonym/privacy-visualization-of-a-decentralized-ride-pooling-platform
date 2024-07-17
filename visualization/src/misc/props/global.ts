@@ -87,8 +87,10 @@ export interface GlobalPropsSpectatorsSet {
 export interface GlobalSearchElement {
   /** The icon with which it should be rendered */
   icon: ReactElement;
+  /** The name that should be displayed in the search bar when selected */
+  value: string;
   /** The name with which it should be rendered */
-  name: string;
+  displayName: string;
   /** The action that should be called when selected */
   onClick: () => void;
   /** The additional keywords to find this entry besides the name */

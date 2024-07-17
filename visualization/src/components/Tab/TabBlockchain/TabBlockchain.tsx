@@ -4,14 +4,16 @@
 import {useCallback, useEffect, useMemo, useState} from 'react';
 import {useIntl} from 'react-intl';
 // > Components
-import {Box, ButtonGroup, Grid, Paper} from '@mui/material';
-import {Clear as DeleteIcon} from '@mui/icons-material';
+import {Box, Grid, Paper} from '@mui/material';
 // Local imports
 import {simulationEndpoints} from '@globals/defaults/endpoints';
 // > Components
+import {
+  ConnectedElementsIcon,
+  ResetParticipantFilterIcon,
+  ResetSpectatorIcon,
+} from '@components/Icons';
 import CardRefresh from '@components/Card/CardRefresh';
-import {ConnectedElementsIcon} from '@components/Icons';
-import GenericButton from '@components/Input/InputButton/InputButtonGeneric';
 import GridConnectedElements from '@components/Grid/GridConnectedElements';
 import InputChangeSpectator from '@components/Input/InputChangeSpectator';
 import InputSearchBar from '@components/Input/InputSearchBar';
@@ -44,6 +46,7 @@ import type {
   SimulationEndpointSmartContracts,
 } from '@globals/types/simulation';
 import type {CardRefreshProps} from '@components/Card/CardRefresh';
+import type {InputExtraActionsAction} from '@components/Input/InputExtraActions';
 import type {InputSearchBarProps} from '@components/Input/InputSearchBar';
 import type {ReactElement} from 'react';
 
@@ -247,106 +250,44 @@ export default function TabBlockchain(props: TabBlockchainProps) {
     stateSelectedRideProviderResolved,
   ]);
 
+  const searchActions = useMemo<Array<InputExtraActionsAction>>(
+    () => [
+      {
+        callback: () => setStateSelectedParticipantId(undefined),
+        disabled: stateSelectedParticipantId === undefined,
+        icon: <ResetParticipantFilterIcon />,
+        text: intl.formatMessage({
+          id: 'getacar.participant.resetFilter.smartContracts',
+        }),
+      },
+    ],
+    [intl, stateSelectedParticipantId, setStateSelectedParticipantId]
+  );
+
+  const spectatorActions = useMemo<Array<InputExtraActionsAction>>(() => {
+    return [
+      {
+        callback: () => setStateSpectatorId(SpectatorId.EVERYTHING),
+        disabled: stateSpectatorId === SpectatorId.EVERYTHING,
+        icon: <ResetSpectatorIcon />,
+        text: intl.formatMessage({
+          id: 'getacar.spectator.reset',
+        }),
+      },
+    ];
+  }, [stateSpectatorId, intl, setStateSpectatorId]);
+
   const stateInfoElements = useMemo<
     Array<GridConnectedElementsSectionInfoElement>
   >(() => {
-    const buttonCurrentSpectatorClear = (
-      <GenericButton
-        disabled={stateSpectatorId === SpectatorId.EVERYTHING}
-        icon={<DeleteIcon />}
-        onClick={() => setStateSpectatorId(SpectatorId.EVERYTHING)}
-        secondaryColor={true}
-      >
-        {intl.formatMessage(
-          {
-            id: 'reset',
-          },
-          {
-            name: intl.formatMessage(
-              {
-                id: 'current',
-              },
-              {
-                name: intl.formatMessage({
-                  id: 'getacar.spectator',
-                }),
-              }
-            ),
-          }
-        )}
-      </GenericButton>
-    );
-    const buttonSelectedSmartContractClear = (
-      <GenericButton
-        disabled={stateSelectedSmartContractId === undefined}
-        icon={<DeleteIcon />}
-        onClick={() => setStateSelectedSmartContractId(undefined)}
-      >
-        {intl.formatMessage(
-          {
-            id: 'reset',
-          },
-          {
-            name: intl.formatMessage(
-              {
-                id: 'selected',
-              },
-              {
-                name: intl.formatMessage({
-                  id: 'getacar.smartContract',
-                }),
-              }
-            ),
-          }
-        )}
-      </GenericButton>
-    );
-    const buttonSelectedSpectatorClear = (
-      <GenericButton
-        disabled={stateSelectedParticipantId === undefined}
-        icon={<DeleteIcon />}
-        onClick={() => setStateSelectedParticipantId(undefined)}
-      >
-        {intl.formatMessage(
-          {
-            id: 'reset',
-          },
-          {
-            name: intl.formatMessage(
-              {
-                id: 'selected',
-              },
-              {
-                name: intl.formatMessage({
-                  id: 'getacar.spectator',
-                }),
-              }
-            ),
-          }
-        )}
-      </GenericButton>
-    );
     return [
       {
         content: (
-          <>
-            <InputChangeSpectator key="change-spectator" {...props} />
-            <ButtonGroup
-              sx={{
-                marginTop: `${stateSettingsUiGridSpacing / 2}rem`,
-              }}
-            >
-              {buttonCurrentSpectatorClear}
-              {buttonSelectedSmartContractClear}
-            </ButtonGroup>
-            <ButtonGroup
-              sx={{
-                marginTop: `${stateSettingsUiGridSpacing / 2}rem`,
-              }}
-            >
-              {buttonSelectedSpectatorClear}
-            </ButtonGroup>
-          </>
+          <InputChangeSpectator
+            key="change-spectator"
+            {...props}
+            actions={spectatorActions}
+          />
         ),
       },
       {
@@ -358,17 +299,7 @@ export default function TabBlockchain(props: TabBlockchainProps) {
         }),
       },
     ];
-  }, [
-    intl,
-    props,
-    setStateSelectedSmartContractId,
-    setStateSelectedParticipantId,
-    setStateSpectatorId,
-    stateSelectedSmartContractId,
-    stateSelectedParticipantId,
-    stateSettingsUiGridSpacing,
-    stateSpectatorId,
-  ]);
+  }, [intl, props, spectatorActions]);
 
   const [stateSmartContracts, setStateSmartContracts] = useState<
     Array<SimulationEndpointSmartContractInformation>
@@ -470,6 +401,7 @@ export default function TabBlockchain(props: TabBlockchainProps) {
                 id: 'page.home.tab.blockchain.search',
               })}
               primaryFilter={SearchBarId.FILTER_SMART_CONTRACT_PARTICIPANT}
+              actions={searchActions}
             />
           </Grid>
           <Grid item xs={12}>
