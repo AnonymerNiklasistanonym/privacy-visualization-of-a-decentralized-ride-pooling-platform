@@ -53,7 +53,7 @@ import type {
   ModalDataInformation,
   ModalDataProps,
 } from '@components/Modal/ModalData';
-import type {PropsWithChildren, ReactElement} from 'react';
+import type {MutableRefObject, PropsWithChildren, ReactElement} from 'react';
 import type {FetchOptions} from '@globals/lib/fetch';
 import type {ModalErrorProps} from '@components/Modal/ModalError';
 import type {TabPanelProps} from '@components/TabPanel';
@@ -61,6 +61,13 @@ import type {TabPanelProps} from '@components/TabPanel';
 export interface CollectionHomeProps
   extends GlobalPropsShowError,
     ModalErrorProps {}
+
+interface RequestCacheEntry {
+  /** The time when the request was made */
+  time: Date;
+  /** The running request with resolved data */
+  data: Promise<unknown>;
+}
 
 /** Home page collection (top level component) */
 export default function CollectionHome(
@@ -165,10 +172,8 @@ export default function CollectionHome(
     setStateSettingsFetchCacheUpdateRateInMs,
   ] = useState(1000 / 20);
 
-  /** Caches requests with a time so multiple requests won't be made in the same time frame */
-  const requestCache = useRef(
-    new Map<string, {time: Date; data: Promise<unknown>}>()
-  );
+  /** Caches requests to prevent request spamming */
+  const requestCache = useRef(new Map<string, RequestCacheEntry>());
 
   // Props: Functions (depend on created states)
   const fetchJsonSimulation = useCallback(
@@ -178,27 +183,60 @@ export default function CollectionHome(
     ): Promise<T> => {
       const cacheEntry = requestCache.current.get(endpoint);
       const currentTime = new Date();
-      // In case the current time and cache time are sufficiently close ignore request and return cached data instead
+      // In case there exists a cache entry for this request
+      // and the current time and cache time are sufficiently close
+      // do not make another request but reference the currently in progress request
       if (
         cacheEntry !== undefined &&
         currentTime.getTime() - cacheEntry.time.getTime() <
           stateSettingsFetchCacheUpdateRateInMs
       ) {
         console.warn(
-          `Stopped request '${endpoint}' since it was cached recently`
+          'Stopped request because it was cached recently',
+          endpoint,
+          `${currentTime.getTime() - cacheEntry.time.getTime()}ms`
         );
-        return cacheEntry.data as T;
+        return cacheEntry.data as Promise<T>;
+      } else {
+        const data = fetchJson<T>(
+          `${stateSettingsFetchBaseUrlSimulation}${endpoint}`,
+          options
+        );
+        // If a request is made update the cache
+        // TODO Cache only gets bigger, nothing is purged - clean routine
+        requestCache.current.set(endpoint, {data, time: currentTime});
+        return data;
       }
-      const data = fetchJson<T>(
-        `${stateSettingsFetchBaseUrlSimulation}${endpoint}`,
-        options
-      );
-      // If a request is made update the cache
-      requestCache.current.set(endpoint, {data, time: currentTime});
-      // TODO Cache only gets bigger, nothing is purged - clean routine
-      return data;
     },
     [stateSettingsFetchBaseUrlSimulation, stateSettingsFetchCacheUpdateRateInMs]
+  );
+
+  // Props: Functions (depend on created states)
+  const fetchJsonSimulationWait = useCallback(
+    async <T,>(
+      endpoint: string,
+      requestBalancer: MutableRefObject<boolean>,
+      options?: Readonly<FetchOptions>
+    ): Promise<T | null> => {
+      if (requestBalancer.current) {
+        console.warn(
+          'Stopped request because a request is already happening',
+          endpoint
+        );
+        return null;
+      }
+      requestBalancer.current = true;
+      let result: T;
+      try {
+        result = await fetchJsonSimulation(endpoint, options);
+      } catch (err) {
+        throw new Error(`Fetching ${endpoint} failed`, {cause: err});
+      } finally {
+        requestBalancer.current = false;
+      }
+      return result;
+    },
+    [fetchJsonSimulation]
   );
 
   // > Spectator List
@@ -522,6 +560,7 @@ export default function CollectionHome(
             setStateShowParticipantId(actorId);
             actorInformation.callback();
           },
+          participantId: actorId,
           value: participantName,
         });
         tempGlobalSearch.push({
@@ -544,6 +583,7 @@ export default function CollectionHome(
             setStateSelectedParticipantId(actorId);
             actorInformation.callback();
           },
+          participantId: actorId,
           value: participantName,
         });
       }
@@ -560,64 +600,72 @@ export default function CollectionHome(
   }, [stateSpectators, stateTabs, params, pathname, router, intl]);
 
   // TODO intl values
-  const customerChip: ChipListElementProps = {
-    description: 'requests rides (human)',
-    icon: <ParticipantCustomerIcon />,
-    label: intl.formatMessage({id: 'getacar.participant.customer'}),
-    link: '#anchor-customer',
-  };
-  const customersChip: ChipListElementProps = {
-    ...customerChip,
-    label: intl.formatMessage({id: 'getacar.participant.customer.plural'}),
-  };
-  const rideProviderChip: ChipListElementProps = {
-    description: 'provides rides (human/autonomous vehicle)',
-    icon: <ParticipantRideProviderIcon />,
-    label: intl.formatMessage({id: 'getacar.participant.rideProvider'}),
-    link: '#anchor-ride-provider',
-  };
-  const rideProvidersChip: ChipListElementProps = {
-    ...customerChip,
-    label: intl.formatMessage({id: 'getacar.participant.rideProvider.plural'}),
-  };
-  const authServiceChip: ChipListElementProps = {
-    icon: <ServiceAuthenticationIcon />,
-    label: intl.formatMessage({id: 'getacar.service.auth'}),
-    link: '#anchor-as',
-  };
-  const matchServiceChip: ChipListElementProps = {
-    icon: <ServiceMatchingIcon />,
-    label: intl.formatMessage({id: 'getacar.service.match'}),
-    link: '#anchor-ms',
-  };
 
-  const intlValues: {[key: string]: ReactElement} = {
-    AUTH_SERVICE: <ChipListElement {...authServiceChip} noDescription={true} />,
-    CONFIDENTIALITY_VISUALIZER: (
-      <Link href={confidenceVisualizer}>
-        {intl.formatMessage({id: 'confidentialityVisualizer.name'})}
-      </Link>
-    ),
-    CUSTOMER: <ChipListElement {...customerChip} noDescription={true} />,
-    CUSTOMERS: <ChipListElement {...customersChip} noDescription={true} />,
-    GETACAR: (
-      <Link href={getacar}>{intl.formatMessage({id: 'getacar.name'})}</Link>
-    ),
-    MATCHING_SERVICE: (
-      <ChipListElement {...matchServiceChip} noDescription={true} />
-    ),
-    RIDE_PROVIDER: (
-      <ChipListElement {...rideProviderChip} noDescription={true} />
-    ),
-    RIDE_PROVIDERS: (
-      <ChipListElement {...rideProvidersChip} noDescription={true} />
-    ),
-  };
+  const intlValues: {[key: string]: ReactElement} = useMemo(() => {
+    const customerChip: ChipListElementProps = {
+      description: 'requests rides (human)',
+      icon: <ParticipantCustomerIcon />,
+      label: intl.formatMessage({id: 'getacar.participant.customer'}),
+      link: '#anchor-customer',
+    };
+    const customersChip: ChipListElementProps = {
+      ...customerChip,
+      label: intl.formatMessage({id: 'getacar.participant.customer.plural'}),
+    };
+    const rideProviderChip: ChipListElementProps = {
+      description: 'provides rides (human/autonomous vehicle)',
+      icon: <ParticipantRideProviderIcon />,
+      label: intl.formatMessage({id: 'getacar.participant.rideProvider'}),
+      link: '#anchor-ride-provider',
+    };
+    const rideProvidersChip: ChipListElementProps = {
+      ...customerChip,
+      label: intl.formatMessage({
+        id: 'getacar.participant.rideProvider.plural',
+      }),
+    };
+    const authServiceChip: ChipListElementProps = {
+      icon: <ServiceAuthenticationIcon />,
+      label: intl.formatMessage({id: 'getacar.service.auth'}),
+      link: '#anchor-as',
+    };
+    const matchServiceChip: ChipListElementProps = {
+      icon: <ServiceMatchingIcon />,
+      label: intl.formatMessage({id: 'getacar.service.match'}),
+      link: '#anchor-ms',
+    };
+
+    return {
+      AUTH_SERVICE: (
+        <ChipListElement {...authServiceChip} noDescription={true} />
+      ),
+      CONFIDENTIALITY_VISUALIZER: (
+        <Link href={confidenceVisualizer}>
+          {intl.formatMessage({id: 'confidentialityVisualizer.name'})}
+        </Link>
+      ),
+      CUSTOMER: <ChipListElement {...customerChip} noDescription={true} />,
+      CUSTOMERS: <ChipListElement {...customersChip} noDescription={true} />,
+      GETACAR: (
+        <Link href={getacar}>{intl.formatMessage({id: 'getacar.name'})}</Link>
+      ),
+      MATCHING_SERVICE: (
+        <ChipListElement {...matchServiceChip} noDescription={true} />
+      ),
+      RIDE_PROVIDER: (
+        <ChipListElement {...rideProviderChip} noDescription={true} />
+      ),
+      RIDE_PROVIDERS: (
+        <ChipListElement {...rideProvidersChip} noDescription={true} />
+      ),
+    };
+  }, [intl]);
 
   // Group all props for easy forwarding
   const props: TabPanelProps & ModalDataProps = {
     ...propsCollectionHome,
     fetchJsonSimulation,
+    fetchJsonSimulationWait,
     globalSearch,
     intlValues,
     setStateDataModalInformation,

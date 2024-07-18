@@ -152,7 +152,7 @@ export default function TabPanel(props: TabPanelProps) {
           >
             {tabs.map(([tabTitle, tabIndex, tabIcon]) => (
               <Tab
-                key={tabIndex}
+                key={`tab-${tabIndex}`}
                 label={tabTitle.toUpperCase()}
                 icon={tabIcon}
               />

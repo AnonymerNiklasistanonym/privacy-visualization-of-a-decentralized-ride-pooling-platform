@@ -29,6 +29,7 @@ import type {
   GlobalPropsSpectatorMap,
   GlobalPropsSpectatorSelectedElements,
   GlobalPropsSpectatorSelectedElementsSet,
+  GlobalSearchElement,
 } from '@misc/props/global';
 import type {
   GridConnectedElementsSectionCards,
@@ -388,6 +389,18 @@ export default function TabBlockchain(props: TabBlockchainProps) {
     }
   }, [stateSelectedSmartContractId]);
 
+  const searchIsCurrentSelectedParticipant = useCallback<
+    (element: Readonly<GlobalSearchElement>) => boolean
+  >(
+    element => {
+      return (
+        stateSelectedParticipantId !== undefined &&
+        element.participantId === stateSelectedParticipantId
+      );
+    },
+    [stateSelectedParticipantId]
+  );
+
   return (
     <TabContainer fullPage={true}>
       <GridConnectedElements
@@ -410,6 +423,7 @@ export default function TabBlockchain(props: TabBlockchainProps) {
               primaryFilter={SearchBarId.FILTER_SMART_CONTRACT_PARTICIPANT}
               actionsPost={searchActions}
               loading={stateFetchingSmartContracts}
+              displayValueFilter={searchIsCurrentSelectedParticipant}
             />
           </Grid>
           <Grid item xs={12}>

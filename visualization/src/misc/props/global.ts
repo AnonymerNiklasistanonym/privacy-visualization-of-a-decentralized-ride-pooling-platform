@@ -1,9 +1,10 @@
 // Type imports
+import type {MutableRefObject, ReactElement} from 'react';
 import type {ReactSetState, ReactState} from '../react';
 import type {FetchOptions} from '@globals/lib/fetch';
 import type {ModalDataInformation} from '@components/Modal/ModalData';
-import type {ReactElement} from 'react';
 import type {ShowError} from '@components/Modal/ModalError';
+import type {SimulationEndpointParticipantTypes} from '@globals/types/simulation';
 
 /** Props to get the current spectator/selected elements */
 export interface GlobalPropsSpectatorSelectedElements {
@@ -38,11 +39,28 @@ export interface GlobalPropsModalDataInformation {
 
 /** Props to fetch requests for actor data */
 export interface GlobalPropsFetch {
-  /** Fetch a JSON endpoint of the simulation server. */
-  fetchJsonSimulation: <T>(
-    endpoint: string,
+  /**
+   * Fetch a JSON endpoint of the simulation server
+   * @returns It returns the fetched JSON
+   */
+  fetchJsonSimulation: <JSON_TYPE, ENDPOINTS extends string = string>(
+    /** The endpoint that should be fetched */
+    endpoint: ENDPOINTS,
+    /** Generic fetch options */
     options?: Readonly<FetchOptions>
-  ) => Promise<T>;
+  ) => Promise<JSON_TYPE>;
+  /**
+   * Fetch a JSON endpoint of the simulation server while waiting for the previous request
+   * @returns It returns either the fetched JSON or null if the request balancer detects a currently running request
+   */
+  fetchJsonSimulationWait: <JSON_TYPE, ENDPOINTS extends string = string>(
+    /** The endpoint that should be fetched */
+    endpoint: ENDPOINTS,
+    /** A request balancer to block multiple requests from the same source */
+    requestBalancer: MutableRefObject<boolean>,
+    /** Generic fetch options */
+    options?: Readonly<FetchOptions>
+  ) => Promise<JSON_TYPE | null>;
 }
 
 /** Props to show an error */
@@ -91,6 +109,10 @@ export interface GlobalSearchElement {
   value: string;
   /** The name with which it should be rendered */
   displayName: string;
+  /** To help filtering store the participant ID if this is a participant */
+  participantId?: string;
+  /** To help filtering store the participant type if this is a participant */
+  participantType?: SimulationEndpointParticipantTypes;
   /** The action that should be called when selected */
   onClick: () => void;
   /** The additional keywords to find this entry besides the name */

@@ -46,6 +46,7 @@ import type {
   GlobalPropsSpectatorSelectedElements,
   GlobalPropsSpectatorSelectedElementsSet,
   GlobalPropsSpectatorsSet,
+  GlobalSearchElement,
 } from '@misc/props/global';
 import type {
   GridConnectedElementsSectionCards,
@@ -104,7 +105,6 @@ export default function TabMap(props: TabMapProps) {
     stateSettingsFetchBaseUrlSimulation,
     stateSettingsMapUpdateRateInMs,
     stateSettingsUiGridSpacing,
-    updateGlobalSearch,
   } = props;
 
   // React states
@@ -115,12 +115,6 @@ export default function TabMap(props: TabMapProps) {
     rideRequests: [],
     smartContracts: [],
   });
-  // > Participant coordinates
-  const [stateParticipantCoordinatesList, setStateParticipantCoordinatesList] =
-    useState<SimulationEndpointParticipantCoordinates>({
-      customers: [],
-      rideProviders: [],
-    });
   // > Graphs
   const [stateGraph, setGraphState] =
     useState<SimulationEndpointGraphInformation>({
@@ -283,130 +277,7 @@ export default function TabMap(props: TabMapProps) {
     [fetchDebugData]
   );
 
-  const changeSpectatorInfo = intl.formatMessage({
-    id: 'getacar.spectator.change',
-  });
-
-  const fetchParticipantCoordinates = useCallback(
-    () =>
-      fetchJsonSimulation<SimulationEndpointParticipantCoordinates>(
-        simulationEndpoints.apiV1.participantCoordinates
-      )
-        .then(data => {
-          setStateParticipantCoordinatesList(data);
-          setStateLoadingParticipantCoordinates(false);
-          updateGlobalSearch(
-            data.customers.map(a => [
-              a.id,
-              async () => {
-                const customerInformation =
-                  await fetchJsonSimulation<SimulationEndpointParticipantInformationCustomer>(
-                    simulationEndpoints.apiV1.participantInformationCustomer(
-                      a.id
-                    )
-                  );
-                const customer = intl.formatMessage({
-                  id: 'getacar.participant.customer',
-                });
-                return {
-                  callback: () => {
-                    console.log(`Selected Customer ${a.id}`);
-                  },
-                  category: customer,
-                  icon: <ParticipantCustomerIcon />,
-                  keywords: [
-                    changeSpectatorInfo,
-                    a.id,
-                    customerInformation.fullName,
-                  ],
-                  name: `${customer} ${customerInformation.fullName}`,
-                };
-              },
-            ]),
-            []
-          );
-          updateGlobalSearch(
-            data.rideProviders.map(a => [
-              a.id,
-              async () => {
-                const rideProviderInformation =
-                  await fetchJsonSimulation<SimulationEndpointParticipantInformationRideProvider>(
-                    simulationEndpoints.apiV1.participantInformationRideProvider(
-                      a.id
-                    )
-                  );
-                const rideProvider = intl.formatMessage({
-                  id: 'getacar.participant.rideProvider',
-                });
-                return {
-                  callback: () => {
-                    console.log(`Selected Ride Provider ${a.id}`);
-                  },
-                  category: rideProvider,
-                  icon: <ParticipantRideProviderIcon />,
-                  keywords: [
-                    changeSpectatorInfo,
-                    a.id,
-                    'company' in rideProviderInformation
-                      ? rideProviderInformation.company
-                      : rideProviderInformation.fullName,
-                  ],
-                  name: `${rideProvider} ${
-                    'company' in rideProviderInformation
-                      ? rideProviderInformation.company
-                      : rideProviderInformation.fullName
-                  }`,
-                };
-              },
-            ]),
-            []
-          );
-        })
-        .catch(err =>
-          showError('Fetch simulation participant coordinates', err)
-        ),
-    [
-      changeSpectatorInfo,
-      fetchJsonSimulation,
-      intl,
-      showError,
-      updateGlobalSearch,
-    ]
-  );
-
-  const propsTabMap = {
-    ...props,
-    setStatePinnedCustomers,
-    setStatePinnedRideProviders,
-    showRideRequest: true,
-    stateGraph,
-    stateGraphPathfinder,
-    stateParticipantCoordinatesList,
-    statePinnedCustomers,
-    statePinnedRideProviders,
-  };
-
-  const requestBalancer = useRef(false);
-
   // React: Effects
-  // > Fetch Participant Coordinates
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (requestBalancer.current) {
-        console.warn(
-          'Stopped participant coordinates fetch since a request is already happening'
-        );
-        return;
-      }
-      requestBalancer.current = true;
-      fetchParticipantCoordinates().finally(() => {
-        requestBalancer.current = false;
-      });
-    }, stateSettingsMapUpdateRateInMs);
-    return () => {
-      clearInterval(interval);
-    };
-  });
   // > Fetch Selected Participant
   // TODO Make this better
   useEffect(() => {
@@ -418,12 +289,15 @@ export default function TabMap(props: TabMapProps) {
       if (selectedSpectator === undefined) {
         return;
       }
-      if (
-        selectedSpectator.category ===
-        intl.formatMessage({
-          id: 'getacar.participant.customer',
-        })
-      ) {
+
+      const selectedSpectatorCategoryCustomer = intl.formatMessage({
+        id: 'getacar.participant.customer',
+      });
+      const selectedSpectatorCategoryRideProvider = intl.formatMessage({
+        id: 'getacar.participant.rideProvider',
+      });
+
+      if (selectedSpectator.category === selectedSpectatorCategoryCustomer) {
         fetchJsonSimulation<SimulationEndpointParticipantInformationCustomer>(
           simulationEndpoints.apiV1.participantInformationCustomer(
             stateSelectedParticipantId
@@ -439,10 +313,7 @@ export default function TabMap(props: TabMapProps) {
           setStateConnectedDriver(customerInformation.passenger);
         });
       } else if (
-        selectedSpectator.category ===
-        intl.formatMessage({
-          id: 'getacar.participant.rideProvider',
-        })
+        selectedSpectator.category === selectedSpectatorCategoryRideProvider
       ) {
         fetchJsonSimulation<SimulationEndpointParticipantInformationRideProvider>(
           simulationEndpoints.apiV1.participantInformationRideProvider(
@@ -750,6 +621,18 @@ export default function TabMap(props: TabMapProps) {
     stateSpectators,
   ]);
 
+  const searchIsCurrentSelectedParticipant = useCallback<
+    (element: Readonly<GlobalSearchElement>) => boolean
+  >(
+    element => {
+      return (
+        stateSelectedParticipantId !== undefined &&
+        element.participantId === stateSelectedParticipantId
+      );
+    },
+    [stateSelectedParticipantId]
+  );
+
   return (
     <TabContainer fullPage={true}>
       <Box component="section" className={styles['tab-map']}>
@@ -762,8 +645,8 @@ export default function TabMap(props: TabMapProps) {
           <Grid container spacing={stateSettingsUiGridSpacing}>
             <Grid item xs={12}>
               <InputSearchBar
-                {...propsTabMap}
-                key={'search-bar-map'}
+                {...props}
+                key="search-bar-map"
                 placeholder={intl.formatMessage({
                   id: 'page.home.tab.map.search',
                 })}
@@ -773,6 +656,7 @@ export default function TabMap(props: TabMapProps) {
                 primaryFilter={SearchBarId.SHOW_PARTICIPANT}
                 actionsPost={searchActions}
                 loading={stateLoadingParticipantCoordinates}
+                displayValueFilter={searchIsCurrentSelectedParticipant}
               />
             </Grid>
             <Grid item xs={12}>
@@ -784,8 +668,17 @@ export default function TabMap(props: TabMapProps) {
                 }}
               >
                 <Map
-                  {...propsTabMap}
+                  {...props}
                   startPos={{lat: 48.7784485, long: 9.1800132, zoom: 11}}
+                  setStateLoadingParticipantCoordinates={
+                    setStateLoadingParticipantCoordinates
+                  }
+                  setStatePinnedCustomers={setStatePinnedCustomers}
+                  setStatePinnedRideProviders={setStatePinnedRideProviders}
+                  stateGraph={stateGraph}
+                  stateGraphPathfinder={stateGraphPathfinder}
+                  statePinnedCustomers={statePinnedCustomers}
+                  statePinnedRideProviders={statePinnedRideProviders}
                 />
               </Box>
             </Grid>

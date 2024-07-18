@@ -1,7 +1,7 @@
 'use client';
 
 // Package imports
-import {useCallback, useMemo, useState} from 'react';
+import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {useIntl} from 'react-intl';
 // > Components
 import {
@@ -25,16 +25,27 @@ import styles from '@styles/Map.module.scss';
 // > Components
 import MapControlShowYourLocation from './MapControlShowYourLocation';
 import MapMarkerParticipant from './MapMarkerParticipant';
+// > Globals
+import {simulationEndpoints} from '@globals/defaults/endpoints';
 // > Styles
 import '@styles/Map.module.scss';
 // Type imports
+import type {
+  GlobalPropsShowError,
+  GlobalPropsSpectatorsSet,
+} from '@misc/props/global';
+import {
+  ParticipantCustomerIcon,
+  ParticipantRideProviderIcon,
+} from '@components/Icons';
 import type {ReactSetState, ReactState} from '@misc/react';
 import type {
   SimulationEndpointGraphInformation,
   SimulationEndpointParticipantCoordinates,
+  SimulationEndpointParticipantInformationCustomer,
+  SimulationEndpointParticipantInformationRideProvider,
 } from '@globals/types/simulation';
 import type {Coordinates} from '@globals/types/coordinates';
-import type {GlobalPropsShowError} from '@misc/props/global';
 import type {LatLngExpression} from 'leaflet';
 import type {MapMarkerParticipantProps} from './MapMarkerParticipant';
 import type {PathfinderEndpointGraphInformation} from '@globals/types/pathfinder';
@@ -47,13 +58,14 @@ export interface StatPos {
 
 export interface MapProps
   extends GlobalPropsShowError,
+    GlobalPropsSpectatorsSet,
     MapMarkerParticipantProps {}
 
 export interface MapPropsInput extends MapProps {
   stateGraph: ReactState<SimulationEndpointGraphInformation>;
   stateGraphPathfinder: ReactState<PathfinderEndpointGraphInformation>;
   startPos: StatPos;
-  stateParticipantCoordinatesList: ReactState<SimulationEndpointParticipantCoordinates>;
+  setStateLoadingParticipantCoordinates: ReactSetState<boolean>;
   setStatePinnedCustomers: ReactSetState<Array<string>>;
   setStatePinnedRideProviders: ReactSetState<Array<string>>;
   statePinnedCustomers: ReactState<Array<string>>;
@@ -67,16 +79,25 @@ export default function Map(props: MapPropsInput) {
     startPos,
     stateGraph,
     stateGraphPathfinder,
-    stateParticipantCoordinatesList,
+    setStateLoadingParticipantCoordinates,
     statePinnedCustomers,
     statePinnedRideProviders,
     stateSettingsGlobalDebug,
+    stateSettingsMapUpdateRateInMs,
+    fetchJsonSimulation,
+    fetchJsonSimulationWait,
+    updateGlobalSearch,
+    showError,
     ...rest
   } = props;
 
   const propsParticipantMarker: MapMarkerParticipantProps = {
     ...rest,
+    fetchJsonSimulation,
+    fetchJsonSimulationWait,
+    showError,
     stateSettingsGlobalDebug,
+    stateSettingsMapUpdateRateInMs,
   };
 
   const intl = useIntl();
@@ -84,6 +105,123 @@ export default function Map(props: MapPropsInput) {
   const [stateCurrentPos, setStateCurrentPos] = useState<
     undefined | Coordinates
   >(undefined);
+
+  // > Participant coordinates
+  const [stateParticipantCoordinatesList, setStateParticipantCoordinatesList] =
+    useState<SimulationEndpointParticipantCoordinates>({
+      customers: [],
+      rideProviders: [],
+    });
+
+  const requestBalancerFetchParticipantCoordinates = useRef(false);
+
+  const fetchParticipantCoordinates = useCallback(
+    () =>
+      fetchJsonSimulationWait<SimulationEndpointParticipantCoordinates>(
+        simulationEndpoints.apiV1.participantCoordinates,
+        requestBalancerFetchParticipantCoordinates
+      )
+        .then(data => {
+          if (data === null) {
+            return;
+          }
+          setStateParticipantCoordinatesList(data);
+          setStateLoadingParticipantCoordinates(false);
+
+          const changeSpectatorInfo = intl.formatMessage({
+            id: 'getacar.spectator.change',
+          });
+          const customer = intl.formatMessage({
+            id: 'getacar.participant.customer',
+          });
+          const rideProvider = intl.formatMessage({
+            id: 'getacar.participant.rideProvider',
+          });
+
+          updateGlobalSearch(
+            data.customers.map(a => [
+              a.id,
+              async () => {
+                const customerInformation =
+                  await fetchJsonSimulation<SimulationEndpointParticipantInformationCustomer>(
+                    simulationEndpoints.apiV1.participantInformationCustomer(
+                      a.id
+                    )
+                  );
+                return {
+                  callback: () => {
+                    console.log(`Selected Customer ${a.id}`);
+                  },
+                  category: customer,
+                  icon: <ParticipantCustomerIcon />,
+                  keywords: [
+                    changeSpectatorInfo,
+                    a.id,
+                    customerInformation.fullName,
+                  ],
+                  name: `${customer} ${customerInformation.fullName}`,
+                };
+              },
+            ]),
+            []
+          );
+          updateGlobalSearch(
+            data.rideProviders.map(a => [
+              a.id,
+              async () => {
+                const rideProviderInformation =
+                  await fetchJsonSimulation<SimulationEndpointParticipantInformationRideProvider>(
+                    simulationEndpoints.apiV1.participantInformationRideProvider(
+                      a.id
+                    )
+                  );
+                return {
+                  callback: () => {
+                    console.log(`Selected Ride Provider ${a.id}`);
+                  },
+                  category: rideProvider,
+                  icon: <ParticipantRideProviderIcon />,
+                  keywords: [
+                    changeSpectatorInfo,
+                    a.id,
+                    'company' in rideProviderInformation
+                      ? rideProviderInformation.company
+                      : rideProviderInformation.fullName,
+                  ],
+                  name: `${rideProvider} ${
+                    'company' in rideProviderInformation
+                      ? rideProviderInformation.company
+                      : rideProviderInformation.fullName
+                  }`,
+                };
+              },
+            ]),
+            []
+          );
+        })
+        .catch(err =>
+          showError('Fetch simulation participant coordinates', err)
+        ),
+    [
+      fetchJsonSimulation,
+      fetchJsonSimulationWait,
+      intl,
+      setStateLoadingParticipantCoordinates,
+      showError,
+      updateGlobalSearch,
+    ]
+  );
+
+  // > Fetch Participant Coordinates
+  useEffect(() => {
+    const interval = setInterval(
+      () => fetchParticipantCoordinates(),
+      stateSettingsMapUpdateRateInMs
+    );
+    return () => {
+      clearInterval(interval);
+    };
+  });
 
   const onPinParticipant = useCallback(
     (participantId?: string) => {
