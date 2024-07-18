@@ -110,7 +110,7 @@ export function ButtonChangeSpectator({
   /** The button label */
   const buttonLabel = useMemo<string>(() => {
     const buttonLabelSpectate = intl.formatMessage(
-      {id: 'getacar.spectator.spectate'},
+      {id: 'getacar.spectator.message.changeTo'},
       {
         name: label,
       }

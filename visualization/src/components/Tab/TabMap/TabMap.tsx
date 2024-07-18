@@ -1,10 +1,10 @@
 'use client';
 
 // Package imports
-import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import {useCallback, useEffect, useMemo, useState} from 'react';
 import {useIntl} from 'react-intl';
 // > Components
-import {Box, ButtonGroup, Chip, Divider, Grid} from '@mui/material';
+import {Box, ButtonGroup, Chip, Divider, Grid, Typography} from '@mui/material';
 // Local imports
 import {fetchJsonEndpoint, fetchTextEndpoint} from '@misc/fetch';
 // > Components
@@ -12,14 +12,13 @@ import {
   ClearSelectedParticipantIcon,
   ConnectedElementsIcon,
   NavigateToLocationIcon,
-  ParticipantCustomerIcon,
-  ParticipantRideProviderIcon,
   PinnedElementsIcon,
   ResetSpectatorIcon,
 } from '@components/Icons';
 import CardRefresh from '@components/Card/CardRefresh';
 import GenericButton from '@components/Input/InputButton/InputButtonGeneric';
 import GridConnectedElements from '@components/Grid/GridConnectedElements';
+import GridConnectedElementsCard from '@components/Grid/GridConnectedElements/GridConnectedElementsCard';
 import InputChangeSpectator from '@components/Input/InputChangeSpectator';
 import InputSearchBar from '@components/Input/InputSearchBar';
 import Map from '@components/Map';
@@ -52,6 +51,7 @@ import type {
   GridConnectedElementsSectionCards,
   GridConnectedElementsSectionInfoElement,
 } from '@components/Grid/GridConnectedElements';
+import type {ReactSetState, ReactState} from '@misc/react';
 import type {
   SettingsConnectedElementsProps,
   SettingsFetchProps,
@@ -87,7 +87,10 @@ export interface TabMapProps
     SettingsConnectedElementsProps,
     SettingsFetchProps,
     SettingsMapProps,
-    SettingsUiProps {}
+    SettingsUiProps {
+  stateInfoCardMapDismissed: ReactState<boolean>;
+  setStateInfoCardMapDismissed: ReactSetState<boolean>;
+}
 
 export default function TabMap(props: TabMapProps) {
   const intl = useIntl();
@@ -105,6 +108,8 @@ export default function TabMap(props: TabMapProps) {
     stateSettingsFetchBaseUrlSimulation,
     stateSettingsMapUpdateRateInMs,
     stateSettingsUiGridSpacing,
+    stateInfoCardMapDismissed,
+    setStateInfoCardMapDismissed,
   } = props;
 
   // React states
@@ -633,6 +638,12 @@ export default function TabMap(props: TabMapProps) {
     [stateSelectedParticipantId]
   );
 
+  const callbackOnDismiss = useCallback(() => {
+    setStateInfoCardMapDismissed(true);
+    // Dispatch event for leaflet so that it can fix it's tiles to the new size
+    window.dispatchEvent(new Event('resize'));
+  }, [setStateInfoCardMapDismissed]);
+
   return (
     <TabContainer fullPage={true}>
       <Box component="section" className={styles['tab-map']}>
@@ -659,10 +670,27 @@ export default function TabMap(props: TabMapProps) {
                 displayValueFilter={searchIsCurrentSelectedParticipant}
               />
             </Grid>
+            {stateInfoCardMapDismissed === false ? (
+              <GridConnectedElementsCard
+                key="connected-elements-card-info"
+                muiGridItemSize={12}
+                icon={undefined}
+                title={intl.formatMessage({
+                  id: 'page.home.tab.map.section.info.title',
+                })}
+                onDismiss={callbackOnDismiss}
+              >
+                <Typography variant="body2">
+                  {intl.formatMessage({
+                    id: 'page.home.tab.map.section.info.content',
+                  })}
+                </Typography>
+              </GridConnectedElementsCard>
+            ) : undefined}
             <Grid item xs={12}>
               <Box
                 sx={{
-                  height: `calc(100vh - 10rem - ${
+                  height: `calc(100vh - 10rem - ${stateInfoCardMapDismissed ? '0rem' : '10rem'} - ${
                     (stateSettingsUiGridSpacing / 2) * 2
                   }rem)`,
                 }}

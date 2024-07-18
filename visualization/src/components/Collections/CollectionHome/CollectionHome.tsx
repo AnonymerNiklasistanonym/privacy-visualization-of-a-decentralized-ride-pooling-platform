@@ -171,6 +171,13 @@ export default function CollectionHome(
     stateSettingsFetchCacheUpdateRateInMs,
     setStateSettingsFetchCacheUpdateRateInMs,
   ] = useState(1000 / 20);
+  // > Info Cards
+  const [stateInfoCardMapDismissed, setStateInfoCardMapDismissed] =
+    useState(false);
+  const [
+    stateInfoCardBlockchainDismissed,
+    setStateInfoCardBlockchainDismissed,
+  ] = useState(false);
 
   /** Caches requests to prevent request spamming */
   const requestCache = useRef(new Map<string, RequestCacheEntry>());
@@ -669,6 +676,8 @@ export default function CollectionHome(
     globalSearch,
     intlValues,
     setStateDataModalInformation,
+    setStateInfoCardBlockchainDismissed,
+    setStateInfoCardMapDismissed,
     setStateOpenModalData,
     setStateSelectedParticipantId,
     setStateSelectedSmartContractId,
@@ -685,6 +694,8 @@ export default function CollectionHome(
     setStateSpectatorId,
     setStateTabIndex,
     setStateThemeMode,
+    stateInfoCardBlockchainDismissed,
+    stateInfoCardMapDismissed,
     stateSelectedParticipantId,
     stateSelectedSmartContractId,
     stateSettingsBlockchainUpdateRateInMs,

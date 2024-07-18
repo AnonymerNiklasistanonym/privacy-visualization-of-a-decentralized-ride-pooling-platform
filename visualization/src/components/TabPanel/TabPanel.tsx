@@ -19,42 +19,32 @@ import TabBlockchain from '@components/Tab/TabBlockchain';
 import TabMap from '@components/Tab/TabMap';
 import TabOverview from '@components/Tab/TabOverview';
 import TabPanelTab from './TabPanelTab';
+import TabPanelTabSectionDebug from './TabPanelTabSectionDebug';
 import TabSettings from '@components/Tab/TabSettings';
 // > Misc
 import {TabIndex} from '@misc/tabIndices';
 // Type imports
 import type {
-  GlobalPropsFetch,
-  GlobalPropsIntlValues,
-  GlobalPropsModalDataInformation,
-  GlobalPropsSearch,
   GlobalPropsShowError,
-  GlobalPropsSpectatorMap,
-  GlobalPropsSpectatorSelectedElements,
-  GlobalPropsSpectatorSelectedElementsSet,
-  GlobalPropsSpectatorsSet,
   GlobalPropsTabIndex,
   GlobalPropsTabIndexSet,
 } from '@misc/props/global';
 import type {ModalErrorProps} from '@components/Modal/ModalError';
 import type {ReactElement} from 'react';
 import type {SettingsProps} from '@misc/props/settings';
-import TabPanelTabSectionDebug from './TabPanelTabSectionDebug';
+import type {TabBlockchainProps} from '@components/Tab/TabBlockchain';
+import type {TabMapProps} from '@components/Tab/TabMap/TabMap';
+import type {TabSettingsProps} from '@components/Tab/TabSettings';
 
 export interface TabPanelProps
   extends GlobalPropsShowError,
-    GlobalPropsFetch,
-    GlobalPropsSpectatorSelectedElements,
-    GlobalPropsSpectatorSelectedElementsSet,
     SettingsProps,
-    GlobalPropsSpectatorMap,
     GlobalPropsTabIndex,
     GlobalPropsTabIndexSet,
-    GlobalPropsModalDataInformation,
     ModalErrorProps,
-    GlobalPropsSpectatorsSet,
-    GlobalPropsIntlValues,
-    GlobalPropsSearch {}
+    TabBlockchainProps,
+    TabMapProps,
+    TabSettingsProps {}
 
 // eslint-disable-next-line no-empty-pattern
 export default function TabPanel(props: TabPanelProps) {

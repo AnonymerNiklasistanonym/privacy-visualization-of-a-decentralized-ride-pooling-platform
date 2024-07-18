@@ -4,7 +4,7 @@
 import {useCallback, useEffect, useMemo, useState} from 'react';
 import {useIntl} from 'react-intl';
 // > Components
-import {Box, Grid, Paper} from '@mui/material';
+import {Box, Grid, Paper, Typography} from '@mui/material';
 // Local imports
 import {simulationEndpoints} from '@globals/defaults/endpoints';
 // > Components
@@ -15,6 +15,7 @@ import {
 } from '@components/Icons';
 import CardRefresh from '@components/Card/CardRefresh';
 import GridConnectedElements from '@components/Grid/GridConnectedElements';
+import GridConnectedElementsCard from '@components/Grid/GridConnectedElements/GridConnectedElementsCard';
 import InputChangeSpectator from '@components/Input/InputChangeSpectator';
 import InputSearchBar from '@components/Input/InputSearchBar';
 import TabContainer from '@components/Tab/TabContainer';
@@ -35,6 +36,7 @@ import type {
   GridConnectedElementsSectionCards,
   GridConnectedElementsSectionInfoElement,
 } from '@components/Grid/GridConnectedElements';
+import type {ReactSetState, ReactState} from '@misc/react';
 import type {
   SettingsBlockchainProps,
   SettingsUiProps,
@@ -59,7 +61,10 @@ export interface TabBlockchainProps
     GlobalPropsSpectatorSelectedElements,
     GlobalPropsSpectatorSelectedElementsSet,
     SettingsUiProps,
-    GlobalPropsSpectatorMap {}
+    GlobalPropsSpectatorMap {
+  stateInfoCardBlockchainDismissed: ReactState<boolean>;
+  setStateInfoCardBlockchainDismissed: ReactSetState<boolean>;
+}
 
 // eslint-disable-next-line no-empty-pattern
 export default function TabBlockchain(props: TabBlockchainProps) {
@@ -76,6 +81,8 @@ export default function TabBlockchain(props: TabBlockchainProps) {
     stateSettingsUiGridSpacing,
     stateSpectatorId,
     stateSpectators,
+    stateInfoCardBlockchainDismissed,
+    setStateInfoCardBlockchainDismissed,
   } = props;
   const intl = useIntl();
 
@@ -401,6 +408,10 @@ export default function TabBlockchain(props: TabBlockchainProps) {
     [stateSelectedParticipantId]
   );
 
+  const callbackOnDismiss = useCallback(() => {
+    setStateInfoCardBlockchainDismissed(true);
+  }, [setStateInfoCardBlockchainDismissed]);
+
   return (
     <TabContainer fullPage={true}>
       <GridConnectedElements
@@ -426,10 +437,27 @@ export default function TabBlockchain(props: TabBlockchainProps) {
               displayValueFilter={searchIsCurrentSelectedParticipant}
             />
           </Grid>
+          {stateInfoCardBlockchainDismissed === false ? (
+            <GridConnectedElementsCard
+              key="connected-elements-card-info"
+              muiGridItemSize={12}
+              icon={undefined}
+              title={intl.formatMessage({
+                id: 'page.home.tab.blockchain.section.info.title',
+              })}
+              onDismiss={callbackOnDismiss}
+            >
+              <Typography variant="body2">
+                {intl.formatMessage({
+                  id: 'page.home.tab.blockchain.section.info.content',
+                })}
+              </Typography>
+            </GridConnectedElementsCard>
+          ) : undefined}
           <Grid item xs={12}>
             <Box
               sx={{
-                height: `calc(100vh - 10rem - ${
+                height: `calc(100vh - 10rem - ${stateInfoCardBlockchainDismissed ? '0rem' : '10rem'} - ${
                   (stateSettingsUiGridSpacing / 2) * 2
                 }rem)`,
               }}
