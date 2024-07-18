@@ -21,8 +21,8 @@ import {
   ServiceAuthentication,
   ServiceMatching,
 } from '@components/Tab/TabOverview/Elements';
-import ButtonShowSpectator from '@components/Input/InputButton/InputButtonSpectatorShow';
 import CardGeneric from '@components/Card/CardGeneric';
+import InputButtonSpectatorShow from '@components/Input/InputButton/InputButtonSpectatorShow';
 import {RenderDataElement} from '../CardParticipant/PopupContentGeneric';
 // > Globals
 import {simulationEndpoints} from '@globals/defaults/endpoints';
@@ -207,7 +207,7 @@ export default function CardRideRequest(props: CardRideRequestPropsInput) {
     if (stateRideRequestInformation?.userId !== undefined) {
       contentList.push({
         content: (
-          <ButtonShowSpectator
+          <InputButtonSpectatorShow
             {...props}
             key={`ride-request-auction-winner-${stateRideRequestId}`}
             spectatorId={stateRideRequestInformation.userId}
@@ -228,7 +228,7 @@ export default function CardRideRequest(props: CardRideRequestPropsInput) {
     if (stateRideRequestInformation?.auctionWinner !== undefined) {
       contentList.push({
         content: (
-          <ButtonShowSpectator
+          <InputButtonSpectatorShow
             {...props}
             key={`ride-request-auction-winner-${stateRideRequestId}`}
             spectatorId={stateRideRequestInformation.auctionWinner}

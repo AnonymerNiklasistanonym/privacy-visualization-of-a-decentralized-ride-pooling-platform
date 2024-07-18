@@ -8,8 +8,6 @@ import {
   Badge,
   Box,
   ButtonGroup,
-  Chip,
-  Divider,
   List,
   ListItem,
   ListItemIcon,

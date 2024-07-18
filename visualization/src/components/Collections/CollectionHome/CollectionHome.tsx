@@ -38,6 +38,7 @@ import {
   confidenceVisualizer,
   getacar,
 } from '@globals/defaults/urls';
+import {simulationEndpoints} from '@globals/defaults/endpoints';
 // > Misc
 import {LocalStorageKey} from '@misc/localStorage';
 import {SearchBarId} from '@misc/searchBarIds';
@@ -54,6 +55,13 @@ import type {
   ModalDataProps,
 } from '@components/Modal/ModalData';
 import type {MutableRefObject, PropsWithChildren, ReactElement} from 'react';
+import type {
+  SimulationEndpointParticipantCoordinates,
+  SimulationEndpointParticipantInformationCustomer,
+  SimulationEndpointParticipantInformationRideProvider,
+  SimulationEndpointSmartContractInformation,
+  SimulationEndpointSmartContracts,
+} from '@globals/types/simulation';
 import type {FetchOptions} from '@globals/lib/fetch';
 import type {ModalErrorProps} from '@components/Modal/ModalError';
 import type {TabPanelProps} from '@components/TabPanel';
@@ -668,11 +676,143 @@ export default function CollectionHome(
     };
   }, [intl]);
 
+  const requestBalancerFetchParticipantCoordinates = useRef(false);
+  const fetchJsonSimulationWaitParticipantCoordinates = useCallback(
+    () =>
+      fetchJsonSimulationWait<SimulationEndpointParticipantCoordinates>(
+        simulationEndpoints.apiV1.participantCoordinates,
+        requestBalancerFetchParticipantCoordinates
+      ).then(data => {
+        if (data === null) {
+          return data;
+        }
+
+        const changeSpectatorInfo = intl.formatMessage({
+          id: 'getacar.spectator.message.change',
+        });
+        const customer = intl.formatMessage({
+          id: 'getacar.participant.customer',
+        });
+        const rideProvider = intl.formatMessage({
+          id: 'getacar.participant.rideProvider',
+        });
+
+        updateGlobalSearch(
+          data.customers.map(a => [
+            a.id,
+            async () => {
+              const customerInformation =
+                await fetchJsonSimulation<SimulationEndpointParticipantInformationCustomer>(
+                  simulationEndpoints.apiV1.participantInformationCustomer(a.id)
+                );
+              return {
+                callback: () => {
+                  console.log(`Selected Customer ${a.id}`);
+                },
+                category: customer,
+                icon: <ParticipantCustomerIcon />,
+                keywords: [
+                  changeSpectatorInfo,
+                  a.id,
+                  customerInformation.fullName,
+                ],
+                name: `${customer} ${customerInformation.fullName}`,
+              };
+            },
+          ]),
+          []
+        );
+        updateGlobalSearch(
+          data.rideProviders.map(a => [
+            a.id,
+            async () => {
+              const rideProviderInformation =
+                await fetchJsonSimulation<SimulationEndpointParticipantInformationRideProvider>(
+                  simulationEndpoints.apiV1.participantInformationRideProvider(
+                    a.id
+                  )
+                );
+              return {
+                callback: () => {
+                  console.log(`Selected Ride Provider ${a.id}`);
+                },
+                category: rideProvider,
+                icon: <ParticipantRideProviderIcon />,
+                keywords: [
+                  changeSpectatorInfo,
+                  a.id,
+                  'company' in rideProviderInformation
+                    ? rideProviderInformation.company
+                    : rideProviderInformation.fullName,
+                ],
+                name: `${rideProvider} ${
+                  'company' in rideProviderInformation
+                    ? rideProviderInformation.company
+                    : rideProviderInformation.fullName
+                }`,
+              };
+            },
+          ]),
+          []
+        );
+
+        return data;
+      }),
+    [fetchJsonSimulation, fetchJsonSimulationWait, intl, updateGlobalSearch]
+  );
+
+  const requestBalancerFetchSmartContracts = useRef(false);
+  const fetchJsonSimulationWaitSmartContracts = useCallback(
+    () =>
+      fetchJsonSimulationWait<SimulationEndpointSmartContracts>(
+        simulationEndpoints.apiV1.smartContracts,
+        requestBalancerFetchSmartContracts
+      )
+        .then(data => {
+          if (data === null) {
+            return data;
+          }
+          return Promise.all(
+            data.smartContracts.map(smartContractId =>
+              fetchJsonSimulation<SimulationEndpointSmartContractInformation>(
+                simulationEndpoints.apiV1.smartContract(smartContractId)
+              )
+            )
+          );
+        })
+        .then(data => {
+          if (data === null) {
+            return data;
+          }
+          // TODO Fetch for all current participating participants and add their entries to the global search
+          // TODO Give their entries special IDs so that they are not overriding map entries
+          return data;
+        }),
+    [fetchJsonSimulation, fetchJsonSimulationWait]
+  );
+
+  useEffect(() => {
+    fetchJsonSimulationWaitParticipantCoordinates().catch(err =>
+      showError(
+        'Error while initializing existing participants [participant coordinates]',
+        err
+      )
+    );
+    fetchJsonSimulationWaitSmartContracts().catch(err =>
+      showError(
+        'Error while initializing existing participants [smart contracts]',
+        err
+      )
+    );
+  });
+
   // Group all props for easy forwarding
   const props: TabPanelProps & ModalDataProps = {
     ...propsCollectionHome,
     fetchJsonSimulation,
     fetchJsonSimulationWait,
+    fetchJsonSimulationWaitParticipantCoordinates,
+    fetchJsonSimulationWaitSmartContracts,
     globalSearch,
     intlValues,
     setStateDataModalInformation,

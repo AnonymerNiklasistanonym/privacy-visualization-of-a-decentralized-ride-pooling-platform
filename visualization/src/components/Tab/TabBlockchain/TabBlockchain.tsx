@@ -1,7 +1,7 @@
 'use client';
 
 // Package imports
-import {useCallback, useEffect, useMemo, useState} from 'react';
+import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {useIntl} from 'react-intl';
 // > Components
 import {Box, Grid, Paper, Typography} from '@mui/material';
@@ -26,6 +26,7 @@ import {SpectatorId} from '@misc/spectatorIds';
 // Type imports
 import type {
   GlobalPropsFetch,
+  GlobalPropsFetchSmartContracts,
   GlobalPropsShowError,
   GlobalPropsSpectatorMap,
   GlobalPropsSpectatorSelectedElements,
@@ -45,7 +46,6 @@ import type {
   SimulationEndpointParticipantIdFromPseudonym,
   SimulationEndpointSmartContractConnectedRideRequests,
   SimulationEndpointSmartContractInformation,
-  SimulationEndpointSmartContracts,
 } from '@globals/types/simulation';
 import type {CardRefreshProps} from '@components/Card/CardRefresh';
 import type {InputExtraActionsAction} from '@components/Input/InputExtraActions';
@@ -57,6 +57,7 @@ export interface TabBlockchainProps
     InputSearchBarProps,
     SettingsBlockchainProps,
     GlobalPropsFetch,
+    GlobalPropsFetchSmartContracts,
     GlobalPropsShowError,
     GlobalPropsSpectatorSelectedElements,
     GlobalPropsSpectatorSelectedElementsSet,
@@ -70,6 +71,7 @@ export interface TabBlockchainProps
 export default function TabBlockchain(props: TabBlockchainProps) {
   const {
     fetchJsonSimulation,
+    fetchJsonSimulationWaitSmartContracts,
     setStateSelectedParticipantId,
     setStateSelectedSmartContractId,
     setStateSpectatorId,
@@ -300,16 +302,8 @@ export default function TabBlockchain(props: TabBlockchainProps) {
           />
         ),
       },
-      {
-        content: intl.formatMessage({
-          id: 'page.home.tab.blockchain.section.info.content',
-        }),
-        title: intl.formatMessage({
-          id: 'page.home.tab.blockchain.section.info.title',
-        }),
-      },
     ];
-  }, [intl, props, spectatorActions]);
+  }, [props, spectatorActions]);
 
   const [stateSmartContracts, setStateSmartContracts] = useState<
     Array<SimulationEndpointSmartContractInformation>
@@ -339,30 +333,19 @@ export default function TabBlockchain(props: TabBlockchainProps) {
     return stateSmartContracts;
   }, [stateSelectedParticipantId, stateSmartContracts, stateSpectators, intl]);
 
-  const fetchSmartContracts = useCallback<() => Promise<void>>(
+  const requestBalancerFetchSmartContracts = useRef(false);
+  const fetchSmartContracts = useCallback(
     () =>
-      fetchJsonSimulation<SimulationEndpointSmartContracts>(
-        simulationEndpoints.apiV1.smartContracts
-      )
-        .then(data =>
-          Promise.all(
-            data.smartContracts.map(smartContractId =>
-              fetchJsonSimulation<SimulationEndpointSmartContractInformation>(
-                simulationEndpoints.apiV1.smartContract(smartContractId)
-              )
-            )
-          )
-        )
+      fetchJsonSimulationWaitSmartContracts(requestBalancerFetchSmartContracts)
         .then(data => {
-          // TODO Fetch for all current participating participants and add their entries to the global search
-          // TODO Give their entries special IDs so that they are not overriding map entries
-          console.log(data);
+          if (data === null) {
+            return;
+          }
           setStateSmartContracts(data);
           setStateFetchingSmartContracts(false);
-          console.log('Fetched smart contracts');
         })
         .catch(err => showError('Fetch simulation smart contracts', err)),
-    [fetchJsonSimulation, showError]
+    [fetchJsonSimulationWaitSmartContracts, showError]
   );
 
   // React: Effects

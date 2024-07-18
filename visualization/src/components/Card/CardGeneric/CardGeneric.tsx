@@ -196,7 +196,7 @@ export default function CardGeneric({
           </Box>
         ))}
         {content !== undefined && content.length > 0 && fixMarker === true ? (
-          <Box sx={{height: '2rem'}}></Box>
+          <Box sx={{height: '3rem'}}></Box>
         ) : undefined}
       </CardContent>
       {actions !== undefined && actions.length > 0 ? (

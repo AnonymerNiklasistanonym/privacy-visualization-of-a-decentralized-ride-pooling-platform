@@ -25,8 +25,8 @@ import {
   ServiceMatching,
 } from '@components/Tab/TabOverview/Elements';
 import ButtonChangeSpectator from '@components/Input/InputButton/InputButtonSpectatorChange';
-import ButtonShowSpectator from '@components/Input/InputButton/InputButtonSpectatorShow';
 import CardGeneric from '@components/Card/CardGeneric';
+import InputButtonSpectatorShow from '@components/Input/InputButton/InputButtonSpectatorShow';
 // > Misc
 import {SpectatorId} from '@misc/spectatorIds';
 // Type imports
@@ -253,7 +253,7 @@ export function CardParticipant(props: CardParticipantPropsInput) {
       if (stateCustomerInformation?.passenger !== undefined) {
         contentList.push({
           content: (
-            <ButtonShowSpectator
+            <InputButtonSpectatorShow
               {...props}
               key={`participant-change-spectator-rideProvider-${stateParticipantId}`}
               spectatorId={stateCustomerInformation.passenger}
@@ -461,7 +461,7 @@ export function CardParticipant(props: CardParticipantPropsInput) {
             <List key={`participant-list-passengers-${stateParticipantId}`}>
               {stateRideProviderInformation.passengerList.map(
                 (passengerId, index) => (
-                  <ButtonShowSpectator
+                  <InputButtonSpectatorShow
                     {...props}
                     key={`passenger-${passengerId}-${stateParticipantId}`}
                     spectatorId={passengerId}
@@ -628,11 +628,12 @@ export function CardParticipant(props: CardParticipantPropsInput) {
     }
     if (fixMarker !== true) {
       actionsList.push(
-        <ButtonShowSpectator
+        <InputButtonSpectatorShow
           {...props}
           key={`action-show-spectator-${stateParticipantId}`}
           spectatorId={stateParticipantId}
           icon={<NavigateToLocationIcon />}
+          label={undefined}
         />
       );
     }

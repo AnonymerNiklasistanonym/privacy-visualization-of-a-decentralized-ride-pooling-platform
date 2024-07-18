@@ -1,10 +1,14 @@
 // Type imports
 import type {MutableRefObject, ReactElement} from 'react';
 import type {ReactSetState, ReactState} from '../react';
+import type {
+  SimulationEndpointParticipantCoordinates,
+  SimulationEndpointParticipantTypes,
+  SimulationEndpointSmartContractInformation,
+} from '@globals/types/simulation';
 import type {FetchOptions} from '@globals/lib/fetch';
 import type {ModalDataInformation} from '@components/Modal/ModalData';
 import type {ShowError} from '@components/Modal/ModalError';
-import type {SimulationEndpointParticipantTypes} from '@globals/types/simulation';
 
 /** Props to get the current spectator/selected elements */
 export interface GlobalPropsSpectatorSelectedElements {
@@ -61,6 +65,20 @@ export interface GlobalPropsFetch {
     /** Generic fetch options */
     options?: Readonly<FetchOptions>
   ) => Promise<JSON_TYPE | null>;
+}
+
+export interface GlobalPropsFetchParticipantCoordinates {
+  fetchJsonSimulationWaitParticipantCoordinates: (
+    requestBalancer: MutableRefObject<boolean>,
+    options?: Readonly<FetchOptions>
+  ) => Promise<SimulationEndpointParticipantCoordinates | null>;
+}
+
+export interface GlobalPropsFetchSmartContracts {
+  fetchJsonSimulationWaitSmartContracts: (
+    requestBalancer: MutableRefObject<boolean>,
+    options?: Readonly<FetchOptions>
+  ) => Promise<Array<SimulationEndpointSmartContractInformation> | null>;
 }
 
 /** Props to show an error */

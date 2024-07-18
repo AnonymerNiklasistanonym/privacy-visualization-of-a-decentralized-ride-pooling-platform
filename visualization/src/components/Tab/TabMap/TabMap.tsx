@@ -59,15 +59,9 @@ import type {
 } from '@misc/props/settings';
 import type {
   SimulationEndpointGraphInformation,
-  SimulationEndpointParticipantCoordinates,
   SimulationEndpointParticipantInformationCustomer,
   SimulationEndpointParticipantInformationRideProvider,
-  SimulationEndpointRideRequestInformation,
-  SimulationEndpointRideRequests,
-  SimulationEndpointSmartContractInformation,
-  SimulationEndpointSmartContracts,
 } from '@globals/types/simulation';
-import type {DebugData} from '@components/Table/DebugData';
 import type {InputExtraActionsAction} from '@components/Input/InputExtraActions';
 import type {MapProps} from '@components/Map';
 import type {PathfinderEndpointGraphInformation} from '@globals/types/pathfinder';
@@ -314,15 +308,6 @@ export default function TabMap(props: TabMapProps) {
           />
         ),
       },
-      //{
-      //  content: intl.formatMessage({
-      //    id: 'page.home.tab.map.section.info.content',
-      //  }),
-      //  dismissible: true,
-      //  title: intl.formatMessage({
-      //    id: 'page.home.tab.map.section.info.title',
-      //  }),
-      //},
     ];
   }, [props, spectatorActions]);
 

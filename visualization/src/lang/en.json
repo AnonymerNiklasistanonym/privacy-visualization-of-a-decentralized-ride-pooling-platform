@@ -81,6 +81,7 @@
   "getacar.spectator.message.lastSelected": "Last selected {name}",
   "getacar.spectator.message.passenger": "Passenger",
   "getacar.spectator.message.passenger.dataAccess": "Since this Customer is a passenger of the Ride Provider this data about them is known to them",
+  "getacar.spectator.message.unableToResolvePseudonym": "Spectator is unable to resolve the pseudonym to participant",
   "getacar.spectator.message.pinned": "Pinned {name}",
   "getacar.spectator.message.selected": "Selected {name}",
   "getacar.spectator.message.show": "Show",

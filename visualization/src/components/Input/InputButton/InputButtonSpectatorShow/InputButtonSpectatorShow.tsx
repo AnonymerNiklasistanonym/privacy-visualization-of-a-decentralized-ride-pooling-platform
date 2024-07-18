@@ -2,7 +2,7 @@
 import {memo, useCallback, useEffect, useMemo, useState} from 'react';
 import {useIntl} from 'react-intl';
 // > Components
-import {Button} from '@mui/material';
+import {Button, Tooltip} from '@mui/material';
 import {Lock as LockIcon} from '@mui/icons-material';
 // Local imports
 // > Globals
@@ -80,9 +80,6 @@ export function ButtonShowSpectator({
     }
   }, [spectatorId, fetchJsonSimulation, isPseudonym, showError]);
 
-  /** The resolved pseudonym ID */
-  const resolvedPseudonymId = stateResolvedPseudonym?.id;
-
   const spectatorCanSeePseudonym =
     stateSpectatorId === SpectatorId.EVERYTHING ||
     // !!! This only works when there is only a single auth service!
@@ -112,11 +109,15 @@ export function ButtonShowSpectator({
         }) + ` [${spectatorId}]`
       );
     }
-    if (isPseudonym && spectatorCanSeePseudonym) {
+    if (
+      isPseudonym &&
+      spectatorCanSeePseudonym &&
+      stateResolvedPseudonym?.id !== undefined
+    ) {
       buttonLabelInfo.push(
         intl.formatMessage({
           id: 'pseudonym.resolved',
-        }) + ` [${resolvedPseudonymId}]`
+        }) + ` [${stateResolvedPseudonym?.id}]`
       );
     }
     return `${buttonLabelSpectate}${
@@ -127,9 +128,18 @@ export function ButtonShowSpectator({
     intl,
     isPseudonym,
     label,
-    resolvedPseudonymId,
+    stateResolvedPseudonym?.id,
     spectatorCanSeePseudonym,
   ]);
+
+  const tooltip = useMemo<string>(() => {
+    if (isPseudonym && !spectatorCanSeePseudonym) {
+      return intl.formatMessage({
+        id: 'getacar.spectator.message.unableToResolvePseudonym',
+      });
+    }
+    return '';
+  }, [intl, isPseudonym, spectatorCanSeePseudonym]);
 
   const buttonOnClick = useCallback(() => {
     if (disabled) {
@@ -165,14 +175,18 @@ export function ButtonShowSpectator({
   );
 
   return (
-    <Button
-      disabled={disabled}
-      onClick={buttonOnClick}
-      size="small"
-      startIcon={startIcon}
-      variant="outlined"
-    >
-      {buttonLabel}
-    </Button>
+    <Tooltip title={tooltip}>
+      <span>
+        <Button
+          disabled={disabled}
+          onClick={buttonOnClick}
+          size="small"
+          startIcon={startIcon}
+          variant="outlined"
+        >
+          {buttonLabel}
+        </Button>
+      </span>
+    </Tooltip>
   );
 }

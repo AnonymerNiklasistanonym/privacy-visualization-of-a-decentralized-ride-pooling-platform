@@ -25,25 +25,18 @@ import styles from '@styles/Map.module.scss';
 // > Components
 import MapControlShowYourLocation from './MapControlShowYourLocation';
 import MapMarkerParticipant from './MapMarkerParticipant';
-// > Globals
-import {simulationEndpoints} from '@globals/defaults/endpoints';
 // > Styles
 import '@styles/Map.module.scss';
 // Type imports
 import type {
+  GlobalPropsFetchParticipantCoordinates,
   GlobalPropsShowError,
   GlobalPropsSpectatorsSet,
 } from '@misc/props/global';
-import {
-  ParticipantCustomerIcon,
-  ParticipantRideProviderIcon,
-} from '@components/Icons';
 import type {ReactSetState, ReactState} from '@misc/react';
 import type {
   SimulationEndpointGraphInformation,
   SimulationEndpointParticipantCoordinates,
-  SimulationEndpointParticipantInformationCustomer,
-  SimulationEndpointParticipantInformationRideProvider,
 } from '@globals/types/simulation';
 import type {Coordinates} from '@globals/types/coordinates';
 import type {LatLngExpression} from 'leaflet';
@@ -57,7 +50,8 @@ export interface StatPos {
 }
 
 export interface MapProps
-  extends GlobalPropsShowError,
+  extends GlobalPropsFetchParticipantCoordinates,
+    GlobalPropsShowError,
     GlobalPropsSpectatorsSet,
     MapMarkerParticipantProps {}
 
@@ -86,7 +80,7 @@ export default function Map(props: MapPropsInput) {
     stateSettingsMapUpdateRateInMs,
     fetchJsonSimulation,
     fetchJsonSimulationWait,
-    updateGlobalSearch,
+    fetchJsonSimulationWaitParticipantCoordinates,
     showError,
     ...rest
   } = props;
@@ -114,11 +108,9 @@ export default function Map(props: MapPropsInput) {
     });
 
   const requestBalancerFetchParticipantCoordinates = useRef(false);
-
   const fetchParticipantCoordinates = useCallback(
     () =>
-      fetchJsonSimulationWait<SimulationEndpointParticipantCoordinates>(
-        simulationEndpoints.apiV1.participantCoordinates,
+      fetchJsonSimulationWaitParticipantCoordinates(
         requestBalancerFetchParticipantCoordinates
       )
         .then(data => {
@@ -127,88 +119,14 @@ export default function Map(props: MapPropsInput) {
           }
           setStateParticipantCoordinatesList(data);
           setStateLoadingParticipantCoordinates(false);
-
-          const changeSpectatorInfo = intl.formatMessage({
-            id: 'getacar.spectator.message.change',
-          });
-          const customer = intl.formatMessage({
-            id: 'getacar.participant.customer',
-          });
-          const rideProvider = intl.formatMessage({
-            id: 'getacar.participant.rideProvider',
-          });
-
-          updateGlobalSearch(
-            data.customers.map(a => [
-              a.id,
-              async () => {
-                const customerInformation =
-                  await fetchJsonSimulation<SimulationEndpointParticipantInformationCustomer>(
-                    simulationEndpoints.apiV1.participantInformationCustomer(
-                      a.id
-                    )
-                  );
-                return {
-                  callback: () => {
-                    console.log(`Selected Customer ${a.id}`);
-                  },
-                  category: customer,
-                  icon: <ParticipantCustomerIcon />,
-                  keywords: [
-                    changeSpectatorInfo,
-                    a.id,
-                    customerInformation.fullName,
-                  ],
-                  name: `${customer} ${customerInformation.fullName}`,
-                };
-              },
-            ]),
-            []
-          );
-          updateGlobalSearch(
-            data.rideProviders.map(a => [
-              a.id,
-              async () => {
-                const rideProviderInformation =
-                  await fetchJsonSimulation<SimulationEndpointParticipantInformationRideProvider>(
-                    simulationEndpoints.apiV1.participantInformationRideProvider(
-                      a.id
-                    )
-                  );
-                return {
-                  callback: () => {
-                    console.log(`Selected Ride Provider ${a.id}`);
-                  },
-                  category: rideProvider,
-                  icon: <ParticipantRideProviderIcon />,
-                  keywords: [
-                    changeSpectatorInfo,
-                    a.id,
-                    'company' in rideProviderInformation
-                      ? rideProviderInformation.company
-                      : rideProviderInformation.fullName,
-                  ],
-                  name: `${rideProvider} ${
-                    'company' in rideProviderInformation
-                      ? rideProviderInformation.company
-                      : rideProviderInformation.fullName
-                  }`,
-                };
-              },
-            ]),
-            []
-          );
         })
         .catch(err =>
-          showError('Fetch simulation participant coordinates', err)
+          showError('Error while fetching participant coordinates', err)
         ),
     [
-      fetchJsonSimulation,
-      fetchJsonSimulationWait,
-      intl,
+      fetchJsonSimulationWaitParticipantCoordinates,
       setStateLoadingParticipantCoordinates,
       showError,
-      updateGlobalSearch,
     ]
   );
 
