@@ -62,6 +62,8 @@ export interface CardGenericPropsInput extends CardGenericProps {
   content: Array<CardGenericPropsContentElement>;
   /** The actions to be rendered */
   actions?: Array<ReactNode>;
+  /** The actions to be rendered if this card is pinned */
+  actionsPinned?: Array<ReactNode>;
 }
 
 export default function CardGeneric({
@@ -172,7 +174,7 @@ export default function CardGeneric({
       <CardContent
         sx={{
           // Hide overflow in the content part
-          maxHeight: '40vh',
+          maxHeight: '35vh',
           overflowY: 'scroll',
         }}
       >
@@ -194,7 +196,7 @@ export default function CardGeneric({
           </Box>
         ))}
         {content !== undefined && content.length > 0 && fixMarker === true ? (
-          <Box sx={{height: '3rem'}}></Box>
+          <Box sx={{height: '2rem'}}></Box>
         ) : undefined}
       </CardContent>
       {actions !== undefined && actions.length > 0 ? (

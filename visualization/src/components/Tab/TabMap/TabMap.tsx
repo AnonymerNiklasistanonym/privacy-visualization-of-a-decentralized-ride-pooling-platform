@@ -6,7 +6,7 @@ import {useIntl} from 'react-intl';
 // > Components
 import {Box, ButtonGroup, Chip, Divider, Grid, Typography} from '@mui/material';
 // Local imports
-import {fetchJsonEndpoint, fetchTextEndpoint} from '@misc/fetch';
+import {fetchJsonEndpoint} from '@misc/fetch';
 // > Components
 import {
   ClearSelectedParticipantIcon,
@@ -23,7 +23,6 @@ import InputChangeSpectator from '@components/Input/InputChangeSpectator';
 import InputSearchBar from '@components/Input/InputSearchBar';
 import Map from '@components/Map';
 import TabContainer from '@components/Tab/TabContainer';
-import TableDebugData from '@components/Table/TableDebugData';
 // > Globals
 import {
   pathfinderEndpoints,
@@ -105,7 +104,6 @@ export default function TabMap(props: TabMapProps) {
     stateSelectedParticipantId,
     stateSettingsGlobalDebug,
     stateSettingsMapBaseUrlPathfinder,
-    stateSettingsFetchBaseUrlSimulation,
     stateSettingsMapUpdateRateInMs,
     stateSettingsUiGridSpacing,
     stateInfoCardMapDismissed,
@@ -113,13 +111,6 @@ export default function TabMap(props: TabMapProps) {
   } = props;
 
   // React states
-  // > Debug
-  const [stateDebugData, setStateDebugData] = useState<DebugData>({
-    customers: [],
-    rideProviders: [],
-    rideRequests: [],
-    smartContracts: [],
-  });
   // > Graphs
   const [stateGraph, setGraphState] =
     useState<SimulationEndpointGraphInformation>({
@@ -145,6 +136,7 @@ export default function TabMap(props: TabMapProps) {
     setStateLoadingParticipantCoordinates,
   ] = useState<boolean>(true);
 
+  /** The additional search actions */
   const searchActions = useMemo<Array<InputExtraActionsAction>>(
     () => [
       {
@@ -168,6 +160,7 @@ export default function TabMap(props: TabMapProps) {
     ]
   );
 
+  /** Fetch graph data */
   const fetchGraphs = useCallback(
     (clear = false) => {
       if (clear === true) {
@@ -198,89 +191,8 @@ export default function TabMap(props: TabMapProps) {
     },
     [fetchJsonSimulation, showError, stateSettingsMapBaseUrlPathfinder]
   );
+  /** Clear graph data */
   const clearGraphs = useCallback(() => fetchGraphs(true), [fetchGraphs]);
-
-  const fetchDebugData = useCallback(
-    (clear = false) => {
-      if (clear === true) {
-        setStateDebugData(prev => ({
-          ...prev,
-          customers: [],
-          rideProviders: [],
-          rideRequests: [],
-          smartContracts: [],
-        }));
-        return;
-      }
-
-      Promise.all([
-        fetchJsonSimulation<SimulationEndpointParticipantCoordinates>(
-          simulationEndpoints.apiV1.participantCoordinates
-        ),
-        fetchJsonSimulation<SimulationEndpointRideRequests>(
-          simulationEndpoints.apiV1.rideRequests
-        ),
-        fetchJsonSimulation<SimulationEndpointSmartContracts>(
-          simulationEndpoints.apiV1.smartContracts
-        ),
-      ])
-        .then(
-          ([
-            participantCoordinatesData,
-            rideRequestsData,
-            smartContractsData,
-          ]) =>
-            Promise.all([
-              Promise.all(
-                participantCoordinatesData.customers.map(a =>
-                  fetchJsonSimulation<SimulationEndpointParticipantInformationCustomer>(
-                    simulationEndpoints.apiV1.participantInformationCustomer(
-                      a.id
-                    )
-                  )
-                )
-              ),
-              Promise.all(
-                participantCoordinatesData.rideProviders.map(a =>
-                  fetchJsonSimulation<SimulationEndpointParticipantInformationRideProvider>(
-                    simulationEndpoints.apiV1.participantInformationRideProvider(
-                      a.id
-                    )
-                  )
-                )
-              ),
-              Promise.all(
-                rideRequestsData.rideRequests.map(a =>
-                  fetchJsonSimulation<SimulationEndpointRideRequestInformation>(
-                    simulationEndpoints.apiV1.rideRequestInformation(a)
-                  )
-                )
-              ),
-              Promise.all(
-                smartContractsData.smartContracts.map(a =>
-                  fetchJsonSimulation<SimulationEndpointSmartContractInformation>(
-                    simulationEndpoints.apiV1.smartContract(a)
-                  )
-                )
-              ),
-            ])
-        )
-        .then(([customers, rideProviders, rideRequests, smartContracts]) => {
-          setStateDebugData({
-            customers,
-            rideProviders,
-            rideRequests,
-            smartContracts,
-          });
-        })
-        .catch(err => showError('Fetch debug data', err));
-    },
-    [fetchJsonSimulation, showError]
-  );
-  const clearDebugData = useCallback(
-    () => fetchDebugData(true),
-    [fetchDebugData]
-  );
 
   // React: Effects
   // > Fetch Selected Participant
@@ -377,7 +289,7 @@ export default function TabMap(props: TabMapProps) {
               ].includes(currentSpectator?.category)
             : true,
         icon: <NavigateToLocationIcon />,
-        text: intl.formatMessage({id: 'getacar.spectator.showMap'}),
+        text: intl.formatMessage({id: 'getacar.spectator.message.showMap'}),
       },
     ];
   }, [
@@ -725,50 +637,6 @@ export default function TabMap(props: TabMapProps) {
           {stateSettingsGlobalDebug ? (
             <>
               <Divider>
-                <Chip label="Control Simulation" size="small" />
-              </Divider>
-              <ButtonGroup variant="contained" aria-label="Basic button group">
-                <GenericButton
-                  onClick={() =>
-                    fetchTextEndpoint(
-                      stateSettingsFetchBaseUrlSimulation,
-                      simulationEndpoints.simulation.state
-                    )
-                      .then(a => alert(`Simulation state: ${a}`))
-                      .catch(err => showError('Fetch simulation state', err))
-                  }
-                >
-                  State
-                </GenericButton>
-                <GenericButton
-                  onClick={() =>
-                    fetchTextEndpoint(
-                      stateSettingsFetchBaseUrlSimulation,
-                      simulationEndpoints.simulation.pause
-                    ).catch(err =>
-                      showError('Fetch simulation state pause', err)
-                    )
-                  }
-                >
-                  Pause
-                </GenericButton>
-                <GenericButton
-                  onClick={() =>
-                    fetchTextEndpoint(
-                      stateSettingsFetchBaseUrlSimulation,
-                      simulationEndpoints.simulation.run
-                    ).catch(err => showError('Fetch simulation state run', err))
-                  }
-                >
-                  Run
-                </GenericButton>
-              </ButtonGroup>{' '}
-            </>
-          ) : undefined}
-
-          {stateSettingsGlobalDebug ? (
-            <>
-              <Divider>
                 <Chip label="Debug Graphs/Pathfinder" size="small" />
               </Divider>
               <ButtonGroup variant="contained" aria-label="Basic button group">
@@ -779,53 +647,6 @@ export default function TabMap(props: TabMapProps) {
                   Clear Graphs
                 </GenericButton>
               </ButtonGroup>
-            </>
-          ) : undefined}
-          {stateSettingsGlobalDebug ? (
-            <>
-              <Divider>
-                <Chip label="Debug Data" size="small" />
-              </Divider>
-              <ButtonGroup variant="contained" aria-label="Basic button group">
-                <GenericButton onClick={fetchDebugData}>
-                  Fetch Debug Data
-                </GenericButton>
-                <GenericButton onClick={clearDebugData}>
-                  Clear Debug Data
-                </GenericButton>
-              </ButtonGroup>
-            </>
-          ) : undefined}
-          {stateSettingsGlobalDebug ? (
-            <>
-              <Divider>
-                <Chip label="Customers" size="small" variant="outlined" />
-              </Divider>
-              <TableDebugData
-                stateDebugData={stateDebugData}
-                debugDataType="customer"
-              />
-              <Divider>
-                <Chip label="Ride Providers" size="small" variant="outlined" />
-              </Divider>
-              <TableDebugData
-                stateDebugData={stateDebugData}
-                debugDataType="ride_provider"
-              />
-              <Divider>
-                <Chip label="Ride Requests" size="small" variant="outlined" />
-              </Divider>
-              <TableDebugData
-                stateDebugData={stateDebugData}
-                debugDataType="ride_request"
-              />
-              <Divider>
-                <Chip label="Smart Contracts" size="small" variant="outlined" />
-              </Divider>
-              <TableDebugData
-                stateDebugData={stateDebugData}
-                debugDataType="smart_contract"
-              />
             </>
           ) : undefined}
         </Box>

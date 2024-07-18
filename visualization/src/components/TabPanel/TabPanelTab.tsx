@@ -1,32 +1,23 @@
 'use client';
 
 // Package imports
-import {memo, useCallback, useMemo, useState} from 'react';
+import {memo, useMemo} from 'react';
 // > Components
-import {
-  Badge,
-  Box,
-  ButtonGroup,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
-} from '@mui/material';
-import {Refresh as RefreshIcon} from '@mui/icons-material';
+import {Box} from '@mui/material';
 // > Components
 import Footer from '@components/Footer';
-import GenericButton from '@components/Input/InputButton/InputButtonGeneric';
-// > Misc
-import {debugComponentRenderCounter} from '@misc/debug';
-import {stringComparator} from '@misc/compare';
 // Type imports
 import type {SettingsGlobalProps, SettingsUiProps} from '@misc/props/settings';
 import type {PropsWithChildren} from 'react';
-import {TabPanelTabSectionDebug} from './TabPanelTabSectionDebug';
+import type {ReactState} from '@misc/react';
 
-interface TabPanelTabProps extends SettingsGlobalProps, SettingsUiProps {
+export interface TabPanelTabProps
+  extends SettingsGlobalProps,
+    SettingsUiProps {}
+
+export interface TabPanelTabPropsInput extends TabPanelTabProps {
   index: number;
-  value: number;
+  value: ReactState<number>;
 }
 
 export default memo(TabPanelTab);
@@ -36,24 +27,11 @@ export function TabPanelTab({
   value,
   index,
   stateSettingsUiGridSpacing,
-  stateSettingsGlobalDebug,
-}: PropsWithChildren<TabPanelTabProps>) {
+}: PropsWithChildren<TabPanelTabPropsInput>) {
   const spacing = useMemo<string>(
     () => `${stateSettingsUiGridSpacing / 2}rem`,
     [stateSettingsUiGridSpacing]
   );
-
-  const [stateRenderList, setStateRenderList] = useState<
-    Array<[string, number]>
-  >([]);
-
-  const updateRenderCount = useCallback(() => {
-    setStateRenderList(
-      Array.from(debugComponentRenderCounter).sort((a, b) =>
-        stringComparator(a[0], b[0])
-      )
-    );
-  }, [setStateRenderList]);
 
   return (
     <div
@@ -78,28 +56,6 @@ export function TabPanelTab({
           <Footer />
         </Box>
       )}
-      <TabPanelTabSectionDebug
-        title="Debug #Render"
-        stateSettingsGlobalDebug={stateSettingsGlobalDebug}
-      >
-        <ButtonGroup variant="contained" aria-label="Basic button group">
-          <GenericButton onClick={updateRenderCount}>
-            Update render count
-          </GenericButton>
-        </ButtonGroup>
-        <List>
-          {stateRenderList.map(([name, count]) => (
-            <ListItem key={`simple-tabpanel-${index}-item-${name}`}>
-              <ListItemIcon>
-                <Badge badgeContent={count} max={100000} color="primary">
-                  <RefreshIcon />
-                </Badge>
-              </ListItemIcon>
-              <ListItemText primary={name} />
-            </ListItem>
-          ))}
-        </List>
-      </TabPanelTabSectionDebug>
     </div>
   );
 }

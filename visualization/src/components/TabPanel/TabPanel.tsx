@@ -1,11 +1,24 @@
 'use client';
 
 // Package imports
-import {useCallback, useEffect, useMemo} from 'react';
+import {useCallback, useEffect, useMemo, useState} from 'react';
 import {useIntl} from 'react-intl';
 // > Components
-import {Box, ButtonGroup, Tab, Tabs} from '@mui/material';
+import {
+  Badge,
+  Box,
+  ButtonGroup,
+  Chip,
+  Divider,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  Tab,
+  Tabs,
+} from '@mui/material';
 import Link from 'next/link';
+import {Refresh as RefreshIcon} from '@mui/icons-material';
 // Local imports
 // > Components
 import {
@@ -21,19 +34,36 @@ import TabOverview from '@components/Tab/TabOverview';
 import TabPanelTab from './TabPanelTab';
 import TabPanelTabSectionDebug from './TabPanelTabSectionDebug';
 import TabSettings from '@components/Tab/TabSettings';
+import TableDebugData from '@components/Table/TableDebugData';
+// > Globals
+import {simulationEndpoints} from '@globals/defaults/endpoints';
 // > Misc
 import {TabIndex} from '@misc/tabIndices';
+import {debugComponentRenderCounter} from '@misc/debug';
+import {fetchTextEndpoint} from '@misc/fetch';
+import {stringComparator} from '@misc/compare';
 // Type imports
 import type {
   GlobalPropsShowError,
   GlobalPropsTabIndex,
   GlobalPropsTabIndexSet,
 } from '@misc/props/global';
+import type {
+  SimulationEndpointParticipantCoordinates,
+  SimulationEndpointParticipantInformationCustomer,
+  SimulationEndpointParticipantInformationRideProvider,
+  SimulationEndpointRideRequestInformation,
+  SimulationEndpointRideRequests,
+  SimulationEndpointSmartContractInformation,
+  SimulationEndpointSmartContracts,
+} from '@globals/types/simulation';
+import type {DebugData} from '@components/Table/DebugData';
 import type {ModalErrorProps} from '@components/Modal/ModalError';
 import type {ReactElement} from 'react';
 import type {SettingsProps} from '@misc/props/settings';
 import type {TabBlockchainProps} from '@components/Tab/TabBlockchain';
 import type {TabMapProps} from '@components/Tab/TabMap/TabMap';
+import type {TabPanelTabProps} from './TabPanelTab';
 import type {TabSettingsProps} from '@components/Tab/TabSettings';
 
 export interface TabPanelProps
@@ -59,6 +89,7 @@ export default function TabPanel(props: TabPanelProps) {
     stateSettingsUiGridSpacing,
     stateTabIndex,
     updateGlobalSearch,
+    fetchJsonSimulation,
   } = props;
 
   // i18n
@@ -117,6 +148,115 @@ export default function TabPanel(props: TabPanelProps) {
     }
   }, [setStateErrorModalOpen, showError, stateErrorModalContent.length]);
 
+  const [stateRenderList, setStateRenderList] = useState<
+    Array<[string, number]>
+  >([]);
+
+  // React states
+  // > Debug
+  const [stateDebugData, setStateDebugData] = useState<DebugData>({
+    customers: [],
+    rideProviders: [],
+    rideRequests: [],
+    smartContracts: [],
+  });
+
+  /** Fetch general debug data */
+  const fetchDebugData = useCallback(
+    (clear = false) => {
+      if (clear === true) {
+        setStateDebugData(prev => ({
+          ...prev,
+          customers: [],
+          rideProviders: [],
+          rideRequests: [],
+          smartContracts: [],
+        }));
+        return;
+      }
+
+      Promise.all([
+        fetchJsonSimulation<SimulationEndpointParticipantCoordinates>(
+          simulationEndpoints.apiV1.participantCoordinates
+        ),
+        fetchJsonSimulation<SimulationEndpointRideRequests>(
+          simulationEndpoints.apiV1.rideRequests
+        ),
+        fetchJsonSimulation<SimulationEndpointSmartContracts>(
+          simulationEndpoints.apiV1.smartContracts
+        ),
+      ])
+        .then(
+          ([
+            participantCoordinatesData,
+            rideRequestsData,
+            smartContractsData,
+          ]) =>
+            Promise.all([
+              Promise.all(
+                participantCoordinatesData.customers.map(a =>
+                  fetchJsonSimulation<SimulationEndpointParticipantInformationCustomer>(
+                    simulationEndpoints.apiV1.participantInformationCustomer(
+                      a.id
+                    )
+                  )
+                )
+              ),
+              Promise.all(
+                participantCoordinatesData.rideProviders.map(a =>
+                  fetchJsonSimulation<SimulationEndpointParticipantInformationRideProvider>(
+                    simulationEndpoints.apiV1.participantInformationRideProvider(
+                      a.id
+                    )
+                  )
+                )
+              ),
+              Promise.all(
+                rideRequestsData.rideRequests.map(a =>
+                  fetchJsonSimulation<SimulationEndpointRideRequestInformation>(
+                    simulationEndpoints.apiV1.rideRequestInformation(a)
+                  )
+                )
+              ),
+              Promise.all(
+                smartContractsData.smartContracts.map(a =>
+                  fetchJsonSimulation<SimulationEndpointSmartContractInformation>(
+                    simulationEndpoints.apiV1.smartContract(a)
+                  )
+                )
+              ),
+            ])
+        )
+        .then(([customers, rideProviders, rideRequests, smartContracts]) => {
+          setStateDebugData({
+            customers,
+            rideProviders,
+            rideRequests,
+            smartContracts,
+          });
+        })
+        .catch(err => showError('Fetch debug data', err));
+    },
+    [fetchJsonSimulation, showError]
+  );
+  const clearDebugData = useCallback(
+    () => fetchDebugData(true),
+    [fetchDebugData]
+  );
+
+  const updateRenderCount = useCallback(() => {
+    setStateRenderList(
+      Array.from(debugComponentRenderCounter).sort((a, b) =>
+        stringComparator(a[0], b[0])
+      )
+    );
+  }, [setStateRenderList]);
+
+  const propsTabPanelTab: TabPanelTabProps = {
+    stateSettingsGlobalDebug,
+    stateSettingsUiGridSpacing,
+  };
+
   return (
     <Box>
       <Box
@@ -149,36 +289,16 @@ export default function TabPanel(props: TabPanelProps) {
             ))}
           </Tabs>
         </Box>
-        <TabPanelTab
-          value={stateTabIndex}
-          index={0}
-          stateSettingsUiGridSpacing={stateSettingsUiGridSpacing}
-          stateSettingsGlobalDebug={stateSettingsGlobalDebug}
-        >
+        <TabPanelTab {...propsTabPanelTab} value={stateTabIndex} index={0}>
           <TabMap {...props} />
         </TabPanelTab>
-        <TabPanelTab
-          value={stateTabIndex}
-          index={1}
-          stateSettingsUiGridSpacing={stateSettingsUiGridSpacing}
-          stateSettingsGlobalDebug={stateSettingsGlobalDebug}
-        >
+        <TabPanelTab {...propsTabPanelTab} value={stateTabIndex} index={1}>
           <TabBlockchain {...props} />
         </TabPanelTab>
-        <TabPanelTab
-          value={stateTabIndex}
-          index={2}
-          stateSettingsUiGridSpacing={stateSettingsUiGridSpacing}
-          stateSettingsGlobalDebug={stateSettingsGlobalDebug}
-        >
+        <TabPanelTab {...propsTabPanelTab} value={stateTabIndex} index={2}>
           <TabOverview {...props} />
         </TabPanelTab>
-        <TabPanelTab
-          value={stateTabIndex}
-          index={3}
-          stateSettingsUiGridSpacing={stateSettingsUiGridSpacing}
-          stateSettingsGlobalDebug={stateSettingsGlobalDebug}
-        >
+        <TabPanelTab {...propsTabPanelTab} value={stateTabIndex} index={3}>
           <TabSettings {...props} />
         </TabPanelTab>
       </Box>
@@ -186,7 +306,7 @@ export default function TabPanel(props: TabPanelProps) {
         title="Debugging"
         stateSettingsGlobalDebug={stateSettingsGlobalDebug}
       >
-        <ButtonGroup variant="contained" aria-label="Basic button group">
+        <ButtonGroup variant="contained">
           <GenericButton onClick={openErrorModal}>
             Open Error Modal
           </GenericButton>
@@ -197,6 +317,126 @@ export default function TabPanel(props: TabPanelProps) {
             <GenericButton>Open Pathfinder Website</GenericButton>
           </Link>
         </ButtonGroup>
+      </TabPanelTabSectionDebug>
+      <TabPanelTabSectionDebug
+        title="Debug #Render"
+        stateSettingsGlobalDebug={stateSettingsGlobalDebug}
+      >
+        <ButtonGroup variant="contained">
+          <GenericButton onClick={updateRenderCount}>
+            Update render count
+          </GenericButton>
+        </ButtonGroup>
+        <List>
+          {stateRenderList.map(([name, count]) => (
+            <ListItem key={`render-debug-item-${name}`}>
+              <ListItemIcon>
+                <Badge badgeContent={count} max={100000} color="primary">
+                  <RefreshIcon />
+                </Badge>
+              </ListItemIcon>
+              <ListItemText primary={name} />
+            </ListItem>
+          ))}
+        </List>
+      </TabPanelTabSectionDebug>
+
+      <TabPanelTabSectionDebug
+        title="Control Simulation"
+        stateSettingsGlobalDebug={stateSettingsGlobalDebug}
+      >
+        <ButtonGroup variant="contained">
+          <GenericButton
+            onClick={() =>
+              fetchTextEndpoint(
+                stateSettingsFetchBaseUrlSimulation,
+                simulationEndpoints.simulation.state
+              )
+                .then(a => alert(`Simulation state: ${a}`))
+                .catch(err => showError('Fetch simulation state', err))
+            }
+          >
+            State
+          </GenericButton>
+          <GenericButton
+            onClick={() =>
+              fetchTextEndpoint(
+                stateSettingsFetchBaseUrlSimulation,
+                simulationEndpoints.simulation.pause
+              ).catch(err => showError('Fetch simulation state pause', err))
+            }
+          >
+            Pause
+          </GenericButton>
+          <GenericButton
+            onClick={() =>
+              fetchTextEndpoint(
+                stateSettingsFetchBaseUrlSimulation,
+                simulationEndpoints.simulation.run
+              ).catch(err => showError('Fetch simulation state run', err))
+            }
+          >
+            Run
+          </GenericButton>
+        </ButtonGroup>
+      </TabPanelTabSectionDebug>
+
+      <TabPanelTabSectionDebug
+        title="Debug Data"
+        stateSettingsGlobalDebug={stateSettingsGlobalDebug}
+      >
+        <ButtonGroup variant="contained">
+          <GenericButton onClick={fetchDebugData}>
+            Fetch Debug Data
+          </GenericButton>
+          <GenericButton onClick={clearDebugData}>
+            Clear Debug Data
+          </GenericButton>
+        </ButtonGroup>
+      </TabPanelTabSectionDebug>
+
+      <TabPanelTabSectionDebug
+        title="Debug Data > Customers"
+        stateSettingsGlobalDebug={stateSettingsGlobalDebug}
+        outlined={true}
+      >
+        <TableDebugData
+          stateDebugData={stateDebugData}
+          debugDataType="customer"
+        />
+      </TabPanelTabSectionDebug>
+
+      <TabPanelTabSectionDebug
+        title="Debug Data > Ride Providers"
+        stateSettingsGlobalDebug={stateSettingsGlobalDebug}
+        outlined={true}
+      >
+        <TableDebugData
+          stateDebugData={stateDebugData}
+          debugDataType="customer"
+        />
+      </TabPanelTabSectionDebug>
+
+      <TabPanelTabSectionDebug
+        title="Debug Data > Ride Requests"
+        stateSettingsGlobalDebug={stateSettingsGlobalDebug}
+        outlined={true}
+      >
+        <TableDebugData
+          stateDebugData={stateDebugData}
+          debugDataType="ride_request"
+        />
+      </TabPanelTabSectionDebug>
+
+      <TabPanelTabSectionDebug
+        title="Debug Data > Smart Contracts"
+        stateSettingsGlobalDebug={stateSettingsGlobalDebug}
+        outlined={true}
+      >
+        <TableDebugData
+          stateDebugData={stateDebugData}
+          debugDataType="smart_contract"
+        />
       </TabPanelTabSectionDebug>
     </Box>
   );

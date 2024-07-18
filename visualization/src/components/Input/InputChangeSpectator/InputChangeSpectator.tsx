@@ -52,11 +52,11 @@ export function InputChangeSpectator(props: InputChangeSpectatorProps) {
       <Stack direction="row">
         <FormControl fullWidth>
           <InputLabel id="inputLabel.changeSpectator">
-            {intl.formatMessage({id: 'getacar.spectator.change'})}
+            {intl.formatMessage({id: 'getacar.spectator.message.change'})}
           </InputLabel>
           <Select
             labelId="inputLabel.changeSpectator"
-            label={intl.formatMessage({id: 'getacar.spectator.change'})}
+            label={intl.formatMessage({id: 'getacar.spectator.message.change'})}
             value={stateSpectatorId}
             onChange={event => setStateSpectatorId(event.target.value)}
             renderValue={value => {

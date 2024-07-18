@@ -74,18 +74,9 @@ export function SearchBarAutocomplete({
   );
 
   useEffect(() => {
-    console.info('selectedValue', selectedValue);
     setValue(selectedValue ?? null);
     setInputValue(selectedValue?.value ?? '');
   }, [selectedValue]);
-
-  useEffect(() => {
-    console.info('value', value);
-  }, [value]);
-
-  useEffect(() => {
-    console.info('inputValue', inputValue);
-  }, [inputValue]);
 
   return (
     <Autocomplete
@@ -151,7 +142,6 @@ export function SearchBarAutocomplete({
       )}
       value={value}
       onChange={(event, newValue) => {
-        console.info('onChange', newValue);
         setValue(newValue);
         // If one element is selected call the onClick function
         if (newValue !== null) {
@@ -160,7 +150,7 @@ export function SearchBarAutocomplete({
       }}
       inputValue={inputValue}
       onInputChange={(event, newInputValue, reason) => {
-        console.info('onInputChange', newInputValue, reason);
+        // Ignore reset actions that sometimes randomly make the input to ''
         if (reason !== 'reset') {
           setInputValue(newInputValue);
         }

@@ -8,12 +8,14 @@ import type {SettingsGlobalProps} from '@misc/props/settings';
 
 export interface TabPanelTabSectionDebugProps extends SettingsGlobalProps {
   title: string;
+  outlined?: boolean;
 }
 
 export default memo(TabPanelTabSectionDebug);
 
 export function TabPanelTabSectionDebug({
   children,
+  outlined,
   stateSettingsGlobalDebug,
   title,
 }: PropsWithChildren<TabPanelTabSectionDebugProps>) {
@@ -28,7 +30,11 @@ export function TabPanelTabSectionDebug({
       }}
     >
       <Divider>
-        <Chip label={title} size="small" />
+        <Chip
+          label={title}
+          size="small"
+          variant={outlined ? 'outlined' : undefined}
+        />
       </Divider>
       {children}
     </Box>

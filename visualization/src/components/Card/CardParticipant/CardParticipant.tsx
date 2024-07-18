@@ -7,6 +7,7 @@ import {Button, List} from '@mui/material';
 // > Components
 import {DataElement, RenderDataElement} from './PopupContentGeneric';
 import {
+  NavigateToLocationIcon,
   ParticipantCustomerIcon,
   ParticipantPersonalDataIcon,
   ParticipantQueriesIcon,
@@ -77,6 +78,7 @@ export function CardParticipant(props: CardParticipantPropsInput) {
     stateSettingsGlobalDebug,
     intlValues,
     label,
+    fixMarker,
   } = props;
   const intl = useIntl();
 
@@ -624,8 +626,19 @@ export function CardParticipant(props: CardParticipantPropsInput) {
         </Button>
       );
     }
+    if (fixMarker !== true) {
+      actionsList.push(
+        <ButtonShowSpectator
+          {...props}
+          key={`action-show-spectator-${stateParticipantId}`}
+          spectatorId={stateParticipantId}
+          icon={<NavigateToLocationIcon />}
+        />
+      );
+    }
     return actionsList;
   }, [
+    fixMarker,
     intl,
     participantType,
     props,

@@ -2,7 +2,7 @@
 import {memo, useCallback, useEffect, useMemo, useState} from 'react';
 import {useIntl} from 'react-intl';
 // > Components
-import {Button} from '@mui/material';
+import {Button, Tooltip} from '@mui/material';
 import {Lock as LockIcon} from '@mui/icons-material';
 // Local imports
 // > Globals
@@ -110,7 +110,7 @@ export function ButtonChangeSpectator({
   /** The button label */
   const buttonLabel = useMemo<string>(() => {
     const buttonLabelSpectate = intl.formatMessage(
-      {id: 'getacar.spectator.message.changeTo'},
+      {id: 'getacar.spectator.message.change'},
       {
         name: label,
       }
@@ -130,25 +130,26 @@ export function ButtonChangeSpectator({
         }) + ` [${stateResolvedPseudonym?.id}]`
       );
     }
-    if (isAlreadySelected) {
-      buttonLabelInfo.push(
-        intl.formatMessage({
-          id: 'getacar.spectator.alreadySelected',
-        })
-      );
-    }
     return `${buttonLabelSpectate}${
       buttonLabelInfo.length > 0 ? ` (${buttonLabelInfo.join(', ')})` : ''
     }`;
   }, [
     spectatorId,
     intl,
-    isAlreadySelected,
     isPseudonym,
     label,
     stateResolvedPseudonym?.id,
     spectatorCanSeePseudonym,
   ]);
+
+  const tooltip = useMemo<string>(() => {
+    if (isAlreadySelected) {
+      return intl.formatMessage({
+        id: 'getacar.spectator.alreadySelected',
+      });
+    }
+    return '';
+  }, [intl, isAlreadySelected]);
 
   const buttonOnClick = useCallback(() => {
     if (disabled) {
@@ -178,13 +179,18 @@ export function ButtonChangeSpectator({
   );
 
   return (
-    <Button
-      variant="contained"
-      startIcon={startIcon}
-      disabled={disabled}
-      onClick={buttonOnClick}
-    >
-      {buttonLabel}
-    </Button>
+    <Tooltip title={tooltip}>
+      <span>
+        <Button
+          disabled={disabled}
+          onClick={buttonOnClick}
+          size="small"
+          startIcon={startIcon}
+          variant="outlined"
+        >
+          {buttonLabel}
+        </Button>
+      </span>
+    </Tooltip>
   );
 }

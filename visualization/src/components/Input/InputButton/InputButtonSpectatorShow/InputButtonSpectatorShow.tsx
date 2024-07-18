@@ -33,7 +33,7 @@ export interface ButtonShowSpectatorPropsInput
   /** The ID of the spectator that the should be shown on clicking it */
   spectatorId: string;
   /** A custom label that should be displayed on the button */
-  label: string;
+  label?: string;
   /** In case the supplied ID is a pseudonym some extra logic is required */
   isPseudonym?: boolean;
   /** A custom icon that should be displayed on the button */
@@ -48,7 +48,6 @@ export function ButtonShowSpectator({
   icon,
   label,
   stateSpectatorId,
-  stateSelectedParticipantId,
   setStateSelectedParticipantId,
   setStateShowParticipantId,
   setStateTabIndex,
@@ -84,11 +83,6 @@ export function ButtonShowSpectator({
   /** The resolved pseudonym ID */
   const resolvedPseudonymId = stateResolvedPseudonym?.id;
 
-  /** If true it means that the actor is already selected */
-  const isAlreadySelected =
-    stateSelectedParticipantId === spectatorId ||
-    stateSelectedParticipantId === stateResolvedPseudonym?.id;
-
   const spectatorCanSeePseudonym =
     stateSpectatorId === SpectatorId.EVERYTHING ||
     // !!! This only works when there is only a single auth service!
@@ -97,17 +91,19 @@ export function ButtonShowSpectator({
     stateSpectatorId === stateResolvedPseudonym?.authServiceId;
 
   /** If true disable the button from being pressed */
-  const disabled =
-    isAlreadySelected || (isPseudonym && !spectatorCanSeePseudonym);
+  const disabled = isPseudonym && !spectatorCanSeePseudonym;
 
   /** The button label */
   const buttonLabel = useMemo<string>(() => {
-    const buttonLabelSpectate = intl.formatMessage(
-      {id: 'getacar.spectator.show'},
-      {
-        name: label,
-      }
-    );
+    const buttonLabelSpectate =
+      label !== undefined
+        ? intl.formatMessage(
+            {id: 'getacar.spectator.message.showParticipant'},
+            {
+              name: label,
+            }
+          )
+        : intl.formatMessage({id: 'getacar.spectator.message.show'});
     const buttonLabelInfo = [];
     if (isPseudonym && !spectatorCanSeePseudonym) {
       buttonLabelInfo.push(
@@ -123,20 +119,12 @@ export function ButtonShowSpectator({
         }) + ` [${resolvedPseudonymId}]`
       );
     }
-    if (isAlreadySelected) {
-      buttonLabelInfo.push(
-        intl.formatMessage({
-          id: 'getacar.spectator.alreadySelected',
-        })
-      );
-    }
     return `${buttonLabelSpectate}${
       buttonLabelInfo.length > 0 ? ` (${buttonLabelInfo.join(', ')})` : ''
     }`;
   }, [
     spectatorId,
     intl,
-    isAlreadySelected,
     isPseudonym,
     label,
     resolvedPseudonymId,
@@ -178,11 +166,11 @@ export function ButtonShowSpectator({
 
   return (
     <Button
-      variant="contained"
-      // Use custom icon if supplied
-      startIcon={startIcon}
       disabled={disabled}
       onClick={buttonOnClick}
+      size="small"
+      startIcon={startIcon}
+      variant="outlined"
     >
       {buttonLabel}
     </Button>

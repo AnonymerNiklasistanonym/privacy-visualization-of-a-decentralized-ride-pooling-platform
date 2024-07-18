@@ -129,7 +129,7 @@ export default function Map(props: MapPropsInput) {
           setStateLoadingParticipantCoordinates(false);
 
           const changeSpectatorInfo = intl.formatMessage({
-            id: 'getacar.spectator.change',
+            id: 'getacar.spectator.message.change',
           });
           const customer = intl.formatMessage({
             id: 'getacar.participant.customer',

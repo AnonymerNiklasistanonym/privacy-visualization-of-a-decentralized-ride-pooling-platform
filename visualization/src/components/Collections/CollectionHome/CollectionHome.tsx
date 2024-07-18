@@ -550,7 +550,7 @@ export default function CollectionHome(
         tempGlobalSearch.push({
           displayName: intl.formatMessage(
             {
-              id: 'getacar.spectator.show',
+              id: 'getacar.spectator.message.showParticipant',
             },
             {
               name: participantName,
@@ -722,12 +722,10 @@ export default function CollectionHome(
   // TODO Input search bar show as a chip the currently selected/filtered element if you can still search for a new one at the same time
   // TODO Blockchain page: Fix filter search and change spectator to be the same as on the map page
   // TODO Move info elements to map and blockchain page to guide page as additional card
-  // TODO Add content parts of the guide page
   // TODO Snackbar text update to use actual spectator name instead of just the ID
   // TODO Change text IDs to not be composite values that are incompatible with German and instead use complete messages that can actually be translated
   // TODO Fix/Check data modifiers and tooltip in case the data cannot be seen
   // TODO Start the thesis content
-  // TODO Fix linear progress
   // TODO Get connected 'future/possible' passenger from ride request
 
   return (
