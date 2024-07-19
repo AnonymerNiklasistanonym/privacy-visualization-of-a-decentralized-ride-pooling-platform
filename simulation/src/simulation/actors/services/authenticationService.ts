@@ -42,11 +42,15 @@ export interface SimulationTypeAuthenticationService
 }
 
 export class AuthenticationService extends Service<SimulationTypeAuthenticationService> {
-  private participantDb: AuthenticationServiceParticipantDb;
+  private participantDb: AuthenticationServiceParticipantDb = [];
+
+  private fakeRatingCache = new Map<
+    string,
+    {count: number; rating: number; time: Date}
+  >();
 
   constructor(id: string, latitude: number, longitude: number, radius: number) {
     super(id, 'auth_service', latitude, longitude, radius);
-    this.participantDb = [];
   }
 
   /** Register a customer (with the necessary contact details). */
@@ -172,6 +176,7 @@ export class AuthenticationService extends Service<SimulationTypeAuthenticationS
     if (participant === undefined) {
       throw Error(`Participant '${pseudonym}' was not found!`);
     }
+    const currentDate = new Date();
     const ratings = [
       ...simulation.blockchain.rideContracts
         .filter(
@@ -194,13 +199,30 @@ export class AuthenticationService extends Service<SimulationTypeAuthenticationS
     if (ratings.length === 0) {
       return -1;
     }
+    const fakeRatingCacheEntry = this.fakeRatingCache.get(
+      participant.contactDetails.id
+    );
+    if (
+      fakeRatingCacheEntry !== undefined &&
+      fakeRatingCacheEntry.count === ratings.length &&
+      currentDate.getTime() - fakeRatingCacheEntry.time.getTime() < 1000 * 20
+    ) {
+      return fakeRatingCacheEntry.rating;
+    }
     const numberOfFakeValues = 1 + Math.round(ratings.length / 10);
     const actualRating = ratings.reduce((a, b) => a + b, 0) / ratings.length;
     const fakeRating =
       Array.from({length: numberOfFakeValues}, () =>
         getRandomFloatFromInterval(actualRating - 0.5, actualRating + 0.5)
       ).reduce((a, b) => a + b, 0) / numberOfFakeValues;
-    return Math.round(((actualRating + fakeRating) / 2) * 10) / 10;
+    const fakeRatingRounded =
+      Math.round(((actualRating + fakeRating) / 2) * 10) / 10;
+    this.fakeRatingCache.set(participant.contactDetails.id, {
+      count: ratings.length,
+      rating: fakeRatingRounded,
+      time: currentDate,
+    });
+    return fakeRatingRounded;
   }
 
   private getParticipantFromPseudonym(

@@ -49,6 +49,7 @@ export function GridConnectedElementsCard({
     if (onDismiss !== undefined) {
       actionsList.push(
         <IconButton
+          key={`grid-connected-elements-card-action-dismiss-${title}`}
           aria-label="dismiss"
           onClick={() => {
             setStateShow(false);
@@ -62,6 +63,7 @@ export function GridConnectedElementsCard({
     if (onExtend !== undefined) {
       actionsList.push(
         <IconButton
+          key={`grid-connected-elements-card-action-expand-${title}`}
           aria-label="expand"
           onClick={() => {
             setStateExtend(prev => !prev);
