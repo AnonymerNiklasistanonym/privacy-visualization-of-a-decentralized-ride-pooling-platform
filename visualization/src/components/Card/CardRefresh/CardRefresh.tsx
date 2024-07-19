@@ -1,11 +1,13 @@
 // Package imports
-import {memo, useCallback, useEffect, useRef, useState} from 'react';
+import {memo, useCallback, useEffect, useMemo, useRef, useState} from 'react';
 // Local imports
 // > Components
 import CardParticipant from '../CardParticipant';
 import CardRideRequest from '../CardRideRequest';
 // > Globals
 import {simulationEndpoints} from '@globals/defaults/endpoints';
+// > Misc
+import {debugRequestBlock, debugVisibilityChange} from '@misc/debug';
 // Type imports
 import type {ReactSetState, ReactState} from '@misc/react';
 import type {
@@ -51,6 +53,7 @@ export function CardRefresh(props: CardRefreshPropsInput) {
   const {
     cardType,
     fetchJsonSimulation,
+    fetchJsonSimulationWait,
     id,
     isPseudonym,
     pauseRefresh,
@@ -97,48 +100,81 @@ export function CardRefresh(props: CardRefreshPropsInput) {
   /** Keep track of if there is a fetch happening to not double fetch at the same time */
   const currentlyFetching = useRef(false);
 
-  const participantId = isPseudonym === true ? stateResolvedPseudonym : id;
+  const participantId = useMemo(
+    () => (isPseudonym === true ? stateResolvedPseudonym : id),
+    [id, isPseudonym, stateResolvedPseudonym]
+  );
 
   /** Fetches the card specific information in set intervals */
   const fetchCardInformation = useCallback(async () => {
-    if (currentlyFetching.current) {
-      console.warn(
-        `Stopped card refresh (${cardType}, ${id}) fetch since a request is already happening`
-      );
-      return;
-    }
     if (pauseRefresh !== undefined && pauseRefresh()) {
       return;
     }
-    currentlyFetching.current = true;
+    // Get the card information
+    try {
+      if (cardType === 'customer' && participantId !== undefined) {
+        const customerInformation =
+          await fetchJsonSimulationWait<SimulationEndpointParticipantInformationCustomer>(
+            simulationEndpoints.apiV1.participantInformationCustomer(
+              participantId
+            ),
+            currentlyFetching
+          );
+        if (customerInformation === null) {
+          return;
+        }
+        setStateCustomerInformation(customerInformation);
+      } else if (cardType === 'ride_provider' && participantId !== undefined) {
+        const rideProviderInformation =
+          await fetchJsonSimulationWait<SimulationEndpointParticipantInformationRideProvider>(
+            simulationEndpoints.apiV1.participantInformationRideProvider(
+              participantId
+            ),
+            currentlyFetching
+          );
+        if (rideProviderInformation === null) {
+          return;
+        }
+        setStateRideProviderInformation(rideProviderInformation);
+      } else if (cardType === 'ride_request') {
+        const rideRequestInformation =
+          await fetchJsonSimulationWait<SimulationEndpointRideRequestInformation>(
+            simulationEndpoints.apiV1.rideRequestInformation(id),
+            currentlyFetching
+          );
+        if (rideRequestInformation === null) {
+          return;
+        }
+        setStateRideRequestInformation(rideRequestInformation);
+      }
+    } catch (err) {
+      showError(
+        `Simulation fetch card information '${cardType}' (${id})`,
+        err as Error
+      );
+    }
+  }, [
+    cardType,
+    fetchJsonSimulationWait,
+    id,
+    participantId,
+    pauseRefresh,
+    showError,
+  ]);
+
+  // React: Effects
+  // > Update current ride request list
+  useEffect(() => {
     let currentRideRequest: undefined | string = undefined;
     // Get the card information
-    if (cardType === 'customer' && participantId !== undefined) {
-      const customerInformation =
-        await fetchJsonSimulation<SimulationEndpointParticipantInformationCustomer>(
-          simulationEndpoints.apiV1.participantInformationCustomer(
-            participantId
-          )
-        );
-      setStateCustomerInformation(customerInformation);
-      currentRideRequest = customerInformation.rideRequest;
-    } else if (cardType === 'ride_provider' && participantId !== undefined) {
-      const rideProviderInformation =
-        await fetchJsonSimulation<SimulationEndpointParticipantInformationRideProvider>(
-          simulationEndpoints.apiV1.participantInformationRideProvider(
-            participantId
-          )
-        );
-      setStateRideProviderInformation(rideProviderInformation);
-      currentRideRequest = rideProviderInformation.rideRequest;
-    } else if (cardType === 'ride_request') {
-      const rideRequestInformation =
-        await fetchJsonSimulation<SimulationEndpointRideRequestInformation>(
-          simulationEndpoints.apiV1.rideRequestInformation(id)
-        );
-      setStateRideRequestInformation(rideRequestInformation);
+    if (cardType === 'customer' && stateCustomerInformation !== null) {
+      currentRideRequest = stateCustomerInformation.rideRequest;
+    } else if (
+      cardType === 'ride_provider' &&
+      stateRideProviderInformation !== null
+    ) {
+      currentRideRequest = stateRideProviderInformation.rideRequest;
     }
-    currentlyFetching.current = false;
     // Update external ride request ID list
     if (
       currentRideRequest !== undefined &&
@@ -150,27 +186,48 @@ export function CardRefresh(props: CardRefreshPropsInput) {
     }
   }, [
     cardType,
-    fetchJsonSimulation,
-    id,
-    participantId,
-    pauseRefresh,
     setStateRideRequestList,
+    stateCustomerInformation,
+    stateRideProviderInformation,
     stateRideRequestList,
   ]);
 
-  // React: Effects
+  const [stateWindowIsHidden, setStateWindowIsHidden] = useState(false);
+
   // > Fetch data in interval
   useEffect(() => {
-    const interval = setInterval(async () => {
-      fetchCardInformation().catch(err =>
-        showError(
-          `Simulation fetch card information '${cardType}' (${id})`,
-          err
-        )
+    // Initial fetch
+    fetchCardInformation();
+
+    // Detect when window is hidden
+    const visibilityChangeListener = () => {
+      setStateWindowIsHidden(document.hidden);
+      debugVisibilityChange(
+        document.hidden,
+        `CardRefresh '${cardType}' (${id})`
       );
+    };
+    document.addEventListener('visibilitychange', visibilityChangeListener);
+
+    // Fetch continuously
+    const interval = setInterval(() => {
+      if (stateWindowIsHidden) {
+        debugRequestBlock(
+          'Card information not fetched because window not visible',
+          `CardRefresh '${cardType}' (${id})`
+        );
+        return;
+      }
+      fetchCardInformation();
     }, stateSettingsCardUpdateRateInMs);
+
     return () => {
+      // On close stop interval and remove window visibility change listener
       clearInterval(interval);
+      document.removeEventListener(
+        'visibilitychange',
+        visibilityChangeListener
+      );
     };
   });
 

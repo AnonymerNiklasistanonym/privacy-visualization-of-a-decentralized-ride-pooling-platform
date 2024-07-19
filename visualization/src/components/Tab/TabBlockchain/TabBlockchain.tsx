@@ -21,6 +21,7 @@ import InputSearchBar from '@components/Input/InputSearchBar';
 import TabContainer from '@components/Tab/TabContainer';
 import TableDebugData from '@components/Table/TableDebugData';
 // > Misc
+import {debugRequestBlock, debugVisibilityChange} from '@misc/debug';
 import {SearchBarId} from '@misc/searchBarIds';
 import {SpectatorId} from '@misc/spectatorIds';
 // Type imports
@@ -368,17 +369,39 @@ export default function TabBlockchain(props: TabBlockchainProps) {
     [fetchJsonSimulationWaitSmartContracts, showError]
   );
 
+  const [stateWindowIsHidden, setStateWindowIsHidden] = useState(false);
+
   // React: Effects
   useEffect(() => {
+    // Initial fetch
     fetchSmartContracts();
-  }, [fetchSmartContracts]);
-  useEffect(() => {
-    const interval = setInterval(
-      () => fetchSmartContracts(),
-      stateSettingsBlockchainUpdateRateInMs
-    );
+
+    // Detect when window is hidden
+    const visibilityChangeListener = () => {
+      setStateWindowIsHidden(document.hidden);
+      debugVisibilityChange(document.hidden, 'Blockchain');
+    };
+    document.addEventListener('visibilitychange', visibilityChangeListener);
+
+    // Fetch continuously
+    const interval = setInterval(() => {
+      if (stateWindowIsHidden) {
+        debugRequestBlock(
+          'Smart contracts not fetched because window not visible',
+          'Blockchain'
+        );
+        return;
+      }
+      fetchSmartContracts();
+    }, stateSettingsBlockchainUpdateRateInMs);
+
     return () => {
+      // On close stop interval and remove window visibility change listener
       clearInterval(interval);
+      document.removeEventListener(
+        'visibilitychange',
+        visibilityChangeListener
+      );
     };
   });
 
@@ -399,8 +422,19 @@ export default function TabBlockchain(props: TabBlockchainProps) {
     if (stateSelectedSmartContractId === undefined) {
       setStateSelectedCustomerPseudonym(undefined);
       setStateSelectedRideProviderPseudonym(undefined);
+    } else {
+      const smartContract = stateSmartContractsFinal.find(
+        a => stateSelectedSmartContractId === a.walletId
+      );
+      if (smartContract !== undefined) {
+        onRowSelect(
+          smartContract.walletId,
+          smartContract.customerId,
+          smartContract.rideProviderId
+        );
+      }
     }
-  }, [stateSelectedSmartContractId]);
+  }, [onRowSelect, stateSelectedSmartContractId, stateSmartContractsFinal]);
 
   const searchIsCurrentSelectedParticipant = useCallback<
     (element: Readonly<GlobalSearchElement>) => boolean
@@ -417,6 +451,20 @@ export default function TabBlockchain(props: TabBlockchainProps) {
   const callbackOnDismiss = useCallback(() => {
     setStateInfoCardBlockchainDismissed(true);
   }, [setStateInfoCardBlockchainDismissed]);
+
+  const selectSmartContract = useCallback(
+    (_: unknown, id: string) => {
+      const smartContract = stateSmartContracts.find(a => a.walletId === id);
+      if (smartContract) {
+        onRowSelect(
+          smartContract.walletId,
+          smartContract.customerId,
+          smartContract.rideProviderId
+        );
+      }
+    },
+    [onRowSelect, stateSmartContracts]
+  );
 
   return (
     <TabContainer fullPage={true}>
@@ -484,19 +532,7 @@ export default function TabBlockchain(props: TabBlockchainProps) {
                     smartContracts: stateSmartContractsFinal,
                   }}
                   debugDataType="smart_contract"
-                  onRowClick={(type, id) => {
-                    console.log(type, id);
-                    const smartContract = stateSmartContracts.find(
-                      a => a.walletId === id
-                    );
-                    if (smartContract) {
-                      onRowSelect(
-                        smartContract.walletId,
-                        smartContract.customerId,
-                        smartContract.rideProviderId
-                      );
-                    }
-                  }}
+                  onRowClick={selectSmartContract}
                 />
               </Paper>
             </Box>

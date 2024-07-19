@@ -40,6 +40,7 @@ import {
 } from '@globals/defaults/urls';
 import {simulationEndpoints} from '@globals/defaults/endpoints';
 // > Misc
+import {debugCache, debugRequestBlock} from '@misc/debug';
 import {LocalStorageKey} from '@misc/localStorage';
 import {SearchBarId} from '@misc/searchBarIds';
 import {SpectatorId} from '@misc/spectatorIds';
@@ -212,11 +213,9 @@ export default function CollectionHome(
         cacheTimeMultiplier !== undefined &&
         cacheTime < stateSettingsFetchCacheUpdateRateInMs * cacheTimeMultiplier
       ) {
-        console.warn(
-          'Stopped request because it was cached within the cache time multiplier',
-          endpoint,
-          cacheTimeMultiplier,
-          `${cacheTime}ms`
+        debugCache(
+          `Stopped request because it was cached within the cache time multiplier (${cacheTime}ms x ${cacheTimeMultiplier})`,
+          endpoint
         );
         return cacheEntry.data as Promise<T>;
       } else if (
@@ -224,25 +223,12 @@ export default function CollectionHome(
         cacheTime !== undefined &&
         cacheTime < stateSettingsFetchCacheUpdateRateInMs
       ) {
-        console.warn(
-          'Stopped request because it was cached recently',
-          endpoint,
-          `${cacheTime}ms`
+        debugCache(
+          `Stopped request because it was cached recently (${cacheTime}ms)`,
+          endpoint
         );
         return cacheEntry.data as Promise<T>;
       } else {
-        console.debug(
-          'cache entry',
-          cacheEntry !== undefined,
-          'or cache timeout',
-          cacheTime,
-          '<',
-          stateSettingsFetchCacheUpdateRateInMs,
-          cacheTime !== undefined
-            ? cacheTime < stateSettingsFetchCacheUpdateRateInMs
-            : false,
-          endpoint
-        );
         const data = fetchJson<T>(
           `${stateSettingsFetchBaseUrlSimulation}${endpoint}`,
           options
@@ -264,7 +250,7 @@ export default function CollectionHome(
       options?: Readonly<FetchOptions>
     ): Promise<T | null> => {
       if (requestBalancer.current) {
-        console.warn(
+        debugRequestBlock(
           'Stopped request because a request is already happening',
           endpoint
         );
@@ -436,15 +422,14 @@ export default function CollectionHome(
     } else {
       params.delete(UrlParameter.SELECTED_PARTICIPANT);
     }
-    // Feature: Auto select row/data in blockchain tab (right now unused)
-    //if (stateSelectedSmartContractId !== undefined) {
-    //  params.set(
-    //    UrlParameter.SELECTED_SMART_CONTRACT_ID,
-    //    stateSelectedSmartContractId
-    //  );
-    //} else {
-    //  params.delete(UrlParameter.SELECTED_SMART_CONTRACT_ID);
-    //}
+    if (stateSelectedSmartContractId !== undefined) {
+      params.set(
+        UrlParameter.SELECTED_SMART_CONTRACT_ID,
+        stateSelectedSmartContractId
+      );
+    } else {
+      params.delete(UrlParameter.SELECTED_SMART_CONTRACT_ID);
+    }
     if (stateTabIndex !== 0) {
       params.set(UrlParameter.TAB_INDEX, `${stateTabIndex}`);
     } else {

@@ -1,10 +1,16 @@
 export const debug = Object.freeze({
+  /** Show cache related logs */
+  caching: process.env.NODE_ENV === 'development',
   /** Log component updates */
-  componentUpdates: false, //process.env.NODE_ENV === 'development',
+  componentUpdates: process.env.NODE_ENV === 'development',
   /** Show generic logs */
   logs: process.env.NODE_ENV === 'development',
+  /** Show messages when requests are blocked */
+  requestBlocking: process.env.NODE_ENV === 'development',
   /** Use custom memo helper */
-  useMemoHelper: true,
+  useMemoHelper: process.env.NODE_ENV === 'development',
+  /** Show visibility change logs */
+  visibilityChange: process.env.NODE_ENV === 'development',
 });
 
 export const debugComponentRenderCounter = new Map<string, number>();
@@ -15,7 +21,7 @@ export function debugComponentRender(name: string) {
   const count = debugComponentRenderCounter.get(name) ?? 0;
   debugComponentRenderCounter.set(name, count + 1);
   if (debug.componentUpdates) {
-    console.log(`Render component ${name} (${count})`);
+    console.debug(`Render component ${name} (${count})`);
   }
 }
 
@@ -23,7 +29,25 @@ export function debugComponentElementUpdate(name: string) {
   const count = debugComponentUpdateCounter.get(name) ?? 0;
   debugComponentUpdateCounter.set(name, count + 1);
   if (debug.componentUpdates) {
-    console.log(`Update component element ${name} (${count})`);
+    console.debug(`Update component element ${name} (${count})`);
+  }
+}
+
+export function debugCache(message: string, endpoint: string) {
+  if (debug.caching) {
+    console.debug(`Cache: ${message}`, endpoint);
+  }
+}
+
+export function debugRequestBlock(message: string, element: string) {
+  if (debug.requestBlocking) {
+    console.debug(`Request was blocked: ${message}`, element);
+  }
+}
+
+export function debugVisibilityChange(hiddenState: boolean, element: string) {
+  if (debug.visibilityChange) {
+    console.debug('Window visibility:', !hiddenState, element);
   }
 }
 
@@ -63,7 +87,7 @@ export function debugMemoHelper<T, TYPE = Record<keyof T, unknown>>(
       return true;
     }
     if (typeof prev !== 'object' || typeof next !== 'object') {
-      console.log(
+      console.debug(
         `Memo component ${name} not an object but different`,
         prev,
         '!==',
@@ -81,7 +105,7 @@ export function debugMemoHelper<T, TYPE = Record<keyof T, unknown>>(
         : undefined;
       const sameObject = Object.is(prevValue, nextValue);
       if (!sameObject) {
-        console.log(
+        console.debug(
           `Memo component ${name} key '${key}' not the same`,
           prevValue,
           '!==',
@@ -98,7 +122,7 @@ export function debugMemoHelper<T, TYPE = Record<keyof T, unknown>>(
       const nextElementsTemp = next[key[0]];
       if (Array.isArray(prevElementsTemp) && Array.isArray(nextElementsTemp)) {
         if (prevElementsTemp.length !== nextElementsTemp.length) {
-          console.log(
+          console.debug(
             `Memo component ${name} key '${String(
               key[0]
             )}' not the same because arrays differ in length`,
@@ -118,7 +142,7 @@ export function debugMemoHelper<T, TYPE = Record<keyof T, unknown>>(
         for (let i = 0; i < prevElements.length; i++) {
           if (!key[1](prevElements[i], nextElements[i])) {
             const index = i;
-            console.log(
+            console.debug(
               `Memo component ${name} key '${String(
                 key[0]
               )}'[${index}] not the same because`,
@@ -139,7 +163,7 @@ export function debugMemoHelper<T, TYPE = Record<keyof T, unknown>>(
       }
     } else if (prev[key] !== next[key]) {
       if (debug.componentUpdates) {
-        console.log(
+        console.debug(
           `Memo component ${name} key '${String(key)}' not the same because`,
           prev[key],
           '!==',

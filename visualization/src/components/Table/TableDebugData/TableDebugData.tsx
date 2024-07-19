@@ -317,7 +317,7 @@ export default function TableDebugData({
 
   const handleEventRowClick = useCallback<GridEventListener<'rowClick'>>(
     params => {
-      console.log('rowClick', debugDataType, params.row, params);
+      console.debug('rowClick', debugDataType, params.row, params);
       if (onRowClick !== undefined) {
         onRowClick(debugDataType, params.row.id ?? -1);
       }
@@ -327,7 +327,7 @@ export default function TableDebugData({
 
   const handleEventCellClick = useCallback<GridEventListener<'cellClick'>>(
     params => {
-      console.log('cellClick', debugDataType, params.row, params);
+      console.debug('cellClick', debugDataType, params.row, params);
     },
     [debugDataType]
   );

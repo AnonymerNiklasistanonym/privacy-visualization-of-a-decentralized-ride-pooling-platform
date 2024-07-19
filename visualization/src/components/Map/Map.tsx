@@ -25,6 +25,8 @@ import styles from '@styles/Map.module.scss';
 // > Components
 import MapControlShowYourLocation from './MapControlShowYourLocation';
 import MapMarkerParticipant from './MapMarkerParticipant';
+// > Misc
+import {debugRequestBlock, debugVisibilityChange} from '@misc/debug';
 // > Styles
 import '@styles/Map.module.scss';
 // Type imports
@@ -130,14 +132,39 @@ export default function Map(props: MapPropsInput) {
     ]
   );
 
+  const [stateWindowIsHidden, setStateWindowIsHidden] = useState(false);
+
   // > Fetch Participant Coordinates
   useEffect(() => {
-    const interval = setInterval(
-      () => fetchParticipantCoordinates(),
-      stateSettingsMapUpdateRateInMs
-    );
+    // Initial fetch
+    fetchParticipantCoordinates();
+
+    // Detect when window is hidden
+    const visibilityChangeListener = () => {
+      setStateWindowIsHidden(document.hidden);
+      debugVisibilityChange(document.hidden, 'Map');
+    };
+    document.addEventListener('visibilitychange', visibilityChangeListener);
+
+    // Fetch continuously
+    const interval = setInterval(() => {
+      if (stateWindowIsHidden) {
+        debugRequestBlock(
+          'Participant coordinates not fetched because window not visible',
+          'Map'
+        );
+        return;
+      }
+      fetchParticipantCoordinates();
+    }, stateSettingsMapUpdateRateInMs);
+
     return () => {
+      // On close stop interval and remove window visibility change listener
       clearInterval(interval);
+      document.removeEventListener(
+        'visibilitychange',
+        visibilityChangeListener
+      );
     };
   });
 
