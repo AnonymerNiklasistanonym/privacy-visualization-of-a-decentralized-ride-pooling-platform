@@ -165,3 +165,10 @@ export interface GlobalPropsTabIndex {
   /** The current tab index */
   stateTabIndex: ReactState<number>;
 }
+
+export interface GlobalPropsPinnedParticipants {
+  statePinnedCustomers: ReactState<Array<string>>;
+  setStatePinnedCustomers: ReactSetState<Array<string>>;
+  statePinnedRideProviders: ReactState<Array<string>>;
+  setStatePinnedRideProviders: ReactSetState<Array<string>>;
+}

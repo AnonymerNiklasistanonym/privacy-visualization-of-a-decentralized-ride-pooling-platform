@@ -179,6 +179,13 @@ export default function CollectionHome(
       ? Number(searchParams.get(UrlParameter.TAB_INDEX))
       : TabIndex.MAP
   );
+  // > Pinned participants
+  const [statePinnedCustomers, setStatePinnedCustomers] = useState<
+    Array<string>
+  >(JSON.parse(searchParams.get(UrlParameter.PINNED_CUSTOMERS) ?? '[]'));
+  const [statePinnedRideProviders, setStatePinnedRideProviders] = useState<
+    Array<string>
+  >(JSON.parse(searchParams.get(UrlParameter.PINNED_RIDE_PROVIDERS) ?? '[]'));
   // > Fetching
   const [
     stateSettingsFetchCacheUpdateRateInMs,
@@ -435,6 +442,22 @@ export default function CollectionHome(
     } else {
       params.delete(UrlParameter.SELECTED_SMART_CONTRACT_ID);
     }
+    if (statePinnedCustomers.length > 0) {
+      params.set(
+        UrlParameter.PINNED_CUSTOMERS,
+        JSON.stringify(statePinnedCustomers)
+      );
+    } else {
+      params.delete(UrlParameter.PINNED_CUSTOMERS);
+    }
+    if (statePinnedRideProviders.length > 0) {
+      params.set(
+        UrlParameter.PINNED_RIDE_PROVIDERS,
+        JSON.stringify(statePinnedRideProviders)
+      );
+    } else {
+      params.delete(UrlParameter.PINNED_RIDE_PROVIDERS);
+    }
     if (stateTabIndex !== 0) {
       params.set(UrlParameter.TAB_INDEX, `${stateTabIndex}`);
     } else {
@@ -451,6 +474,8 @@ export default function CollectionHome(
     stateSelectedParticipantId,
     stateSelectedSmartContractId,
     stateTabIndex,
+    statePinnedCustomers,
+    statePinnedRideProviders,
   ]);
 
   useEffect(() => {
@@ -843,6 +868,8 @@ export default function CollectionHome(
     setStateInfoCardBlockchainDismissed,
     setStateInfoCardMapDismissed,
     setStateOpenModalData,
+    setStatePinnedCustomers,
+    setStatePinnedRideProviders,
     setStateSelectedParticipantId,
     setStateSelectedSmartContractId,
     setStateSettingsBlockchainUpdateRateInMs,
@@ -860,6 +887,8 @@ export default function CollectionHome(
     setStateThemeMode,
     stateInfoCardBlockchainDismissed,
     stateInfoCardMapDismissed,
+    statePinnedCustomers,
+    statePinnedRideProviders,
     stateSelectedParticipantId,
     stateSelectedSmartContractId,
     stateSettingsBlockchainUpdateRateInMs,
@@ -882,7 +911,7 @@ export default function CollectionHome(
   // TODO Initial fetching of participants for a search index
   // TODO Also update spectators
   // TODO Map/Blockchain page: Disable inputs while they are not initialized and show a linear or circular progress
-  // TODO Map/blockchain page: Show a circular progress whioe they are not initialized and for the table linear progress every time elements are fetched
+  // TODO Map/blockchain page: Show a circular progress while they are not initialized and for the table linear progress every time elements are fetched
   // TODO Input search bar show as a chip the currently selected/filtered element if you can still search for a new one at the same time
   // TODO Blockchain page: Fix filter search and change spectator to be the same as on the map page
   // TODO Move info elements to map and blockchain page to guide page as additional card

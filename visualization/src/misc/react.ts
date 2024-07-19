@@ -1,5 +1,5 @@
 // Package imports
-import type {Dispatch, SetStateAction} from 'react';
+import type {Dispatch, MutableRefObject, SetStateAction} from 'react';
 import type {MessageFormatElement} from 'react-intl';
 
 export type ReactHandleChange<T> = (
@@ -26,3 +26,4 @@ export interface ReactPropsI18nHome {
 export type ReactSetState<T> = Dispatch<SetStateAction<T>>;
 /** React state that should not be edited */
 export type ReactState<T> = Readonly<T>;
+export type ReactRef<T> = MutableRefObject<T>;

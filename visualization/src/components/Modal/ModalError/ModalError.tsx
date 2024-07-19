@@ -1,5 +1,5 @@
 // Package imports
-import {useCallback, useEffect, useState} from 'react';
+import {useCallback, useEffect, useMemo, useState} from 'react';
 import {useIntl} from 'react-intl';
 // > Components
 import {
@@ -26,10 +26,9 @@ import {
 import InputButtonGeneric from '@components/Input/InputButton/InputButtonGeneric';
 import ModalGeneric from '@components/Modal/ModalGeneric';
 // Type imports
-import type {ReactSetState, ReactState} from '@misc/react';
+import type {ReactRef, ReactSetState, ReactState} from '@misc/react';
 
 export interface ErrorModalContentElement {
-  title: string;
   error: Error;
   count: number;
 }
@@ -41,12 +40,13 @@ export interface ModalErrorProps
 
 export interface ErrorModalPropsGet {
   stateErrorModalOpen: ReactState<boolean>;
-  stateErrorModalContent: ReactState<Array<ErrorModalContentElement>>;
+  stateErrorModalContentSize: ReactState<number>;
+  errorModalContent: ReactRef<Map<string, ErrorModalContentElement>>;
 }
 
 export interface ErrorModalPropsSet {
   setStateErrorModalOpen: ReactSetState<boolean>;
-  setStateErrorModalContent: ReactSetState<Array<ErrorModalContentElement>>;
+  setStateErrorModalContentSize: ReactSetState<number>;
 }
 
 export interface ErrorModalPropsErrorBuilder
@@ -56,66 +56,72 @@ export interface ErrorModalPropsErrorBuilder
 export const compareErrorModalContent = (
   title: string,
   error: Error,
+  errorElementTitle: string,
   errorElement: ErrorModalContentElement
 ) =>
-  errorElement.title === title &&
+  errorElementTitle === title &&
   errorElement.error.message === error.message &&
   errorElement.error.stack === error.stack;
 
-export type ShowError = (message: string, error: Error) => void;
+export type ShowError = (title: string, error: Error) => void;
 
 export function showErrorBuilder(
   {
-    stateErrorModalContent,
-    setStateErrorModalContent,
+    errorModalContent,
     setStateErrorModalOpen,
+    setStateErrorModalContentSize,
   }: ErrorModalPropsErrorBuilder,
   logError = true
 ): ShowError {
-  return (message: string, error: Error) => {
+  return (title: string, error: Error) => {
     if (logError) {
       console.error(error);
     }
+    const entry = errorModalContent.current.get(title);
     // Append error or increase count
-    const errorAlreadyInList = stateErrorModalContent.find(a =>
-      compareErrorModalContent(message, error, a)
-    );
-    if (errorAlreadyInList) {
-      setStateErrorModalContent(
-        stateErrorModalContent.map(a => {
-          if (compareErrorModalContent(message, error, a)) {
-            a.count += 1;
-          }
-          return a;
-        })
-      );
+    if (entry) {
+      entry.count++;
     } else {
-      setStateErrorModalContent([
-        ...stateErrorModalContent,
-        {
-          count: 1,
-          error,
-          title: message,
-        },
-      ]);
+      errorModalContent.current.set(title, {count: 1, error});
+    }
+    if (entry === undefined) {
       // Only open modal if new error is found
       setStateErrorModalOpen(true);
+      setStateErrorModalContentSize(new Date().getTime());
     }
   };
 }
 
 /** Modal that displays errors */
-export default function ModalError(props: ModalErrorProps) {
-  const {stateErrorModalOpen, stateErrorModalContent, setStateErrorModalOpen} =
-    props;
+export default function ModalError({
+  errorModalContent,
+  stateErrorModalOpen,
+  stateErrorModalContentSize,
+  setStateErrorModalContentSize,
+  setStateErrorModalOpen,
+}: ModalErrorProps) {
   const intl = useIntl();
 
   useEffect(() => {
     // Close the modal when there is no content any more
-    if (stateErrorModalContent.length === 0) {
+    if (
+      errorModalContent.current.size === 0 ||
+      stateErrorModalContentSize === 0
+    ) {
       setStateErrorModalOpen(false);
     }
-  }, [stateErrorModalContent, setStateErrorModalOpen]);
+  }, [errorModalContent, setStateErrorModalOpen, stateErrorModalContentSize]);
+
+  const errorModalContentList = useMemo(() => {
+    console.info(
+      errorModalContent.current,
+      Array.from(errorModalContent.current)
+    );
+    if (stateErrorModalContentSize === 0) {
+      return [];
+    }
+    return Array.from(errorModalContent.current);
+  }, [errorModalContent, stateErrorModalContentSize]);
 
   return (
     <ModalGeneric
@@ -135,38 +141,48 @@ export default function ModalError(props: ModalErrorProps) {
           </ListSubheader>
         }
       >
-        {stateErrorModalContent.map(a => (
-          <ErrorModalListElement key={a.title} {...props} element={a} />
+        {errorModalContentList.map(([title, content]) => (
+          <ErrorModalListElement
+            key={title}
+            errorModalContent={errorModalContent}
+            stateErrorModalContentSize={stateErrorModalContentSize}
+            stateErrorModalOpen={stateErrorModalOpen}
+            setStateErrorModalContentSize={setStateErrorModalContentSize}
+            setStateErrorModalOpen={setStateErrorModalOpen}
+            title={title}
+            element={content}
+          />
         ))}
       </List>
     </ModalGeneric>
   );
 }
 
-export interface ErrorModalListElementProps extends ModalErrorProps {
+export interface ErrorModalListElementProps
+  extends ErrorModalPropsSet,
+    ErrorModalPropsGet {
+  title: string;
   element: ErrorModalContentElement;
 }
 
 export function ErrorModalListElement({
+  title,
   element,
-  stateErrorModalContent,
-  setStateErrorModalContent,
+  errorModalContent,
+  setStateErrorModalContentSize,
 }: ErrorModalListElementProps) {
   const [open, setOpen] = useState(false);
 
   const handleClick = useCallback(() => setOpen(!open), [setOpen, open]);
-  const removeErrorMessage = useCallback(
-    () =>
-      setStateErrorModalContent(
-        stateErrorModalContent.filter(
-          b => !compareErrorModalContent(b.title, b.error, element)
-        )
-      ),
-    [setStateErrorModalContent, stateErrorModalContent, element]
-  );
+  const removeErrorMessage = useCallback(() => {
+    errorModalContent.current.delete(title);
+    setStateErrorModalContentSize(new Date().getTime());
+  }, [errorModalContent, setStateErrorModalContentSize, title]);
+  const deleteIcon = useMemo(() => <DeleteIcon />, []);
+
   return (
     <>
-      <ListItem>
+      <ListItem key={`error-modal-list-element-${title}`}>
         <ListItemButton onClick={handleClick}>
           <ListItemIcon>
             <Badge
@@ -178,14 +194,19 @@ export function ErrorModalListElement({
             </Badge>
           </ListItemIcon>
           <ListItemText
-            primary={`${element.title} (${element.error.name}${
+            primary={`${title} (${element.error.name}${
               element.error.cause ? ` / ${element.error.cause}` : ''
             })`}
           />
           {open ? <ExpandLessIcon /> : <ExpandMoreIcon />}
         </ListItemButton>
       </ListItem>
-      <Collapse in={open} timeout="auto" unmountOnExit>
+      <Collapse
+        key={`error-modal-list-element-collapse-${title}`}
+        in={open}
+        timeout="auto"
+        unmountOnExit
+      >
         <Box
           component="section"
           sx={{
@@ -194,10 +215,7 @@ export function ErrorModalListElement({
             width: '100%',
           }}
         >
-          <InputButtonGeneric
-            icon={<DeleteIcon />}
-            onClick={removeErrorMessage}
-          >
+          <InputButtonGeneric icon={deleteIcon} onClick={removeErrorMessage}>
             Remove Error
           </InputButtonGeneric>
           <Typography variant="body2" sx={{marginTop: '1rem'}} gutterBottom>

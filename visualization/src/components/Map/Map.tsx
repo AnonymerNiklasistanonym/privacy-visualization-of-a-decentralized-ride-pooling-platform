@@ -32,6 +32,7 @@ import '@styles/Map.module.scss';
 // Type imports
 import type {
   GlobalPropsFetchParticipantCoordinates,
+  GlobalPropsPinnedParticipants,
   GlobalPropsShowError,
   GlobalPropsSpectatorsSet,
 } from '@misc/props/global';
@@ -55,6 +56,7 @@ export interface MapProps
   extends GlobalPropsFetchParticipantCoordinates,
     GlobalPropsShowError,
     GlobalPropsSpectatorsSet,
+    GlobalPropsPinnedParticipants,
     MapMarkerParticipantProps {}
 
 export interface MapPropsInput extends MapProps {
@@ -62,10 +64,6 @@ export interface MapPropsInput extends MapProps {
   stateGraphPathfinder: ReactState<PathfinderEndpointGraphInformation>;
   startPos: StatPos;
   setStateLoadingParticipantCoordinates: ReactSetState<boolean>;
-  setStatePinnedCustomers: ReactSetState<Array<string>>;
-  setStatePinnedRideProviders: ReactSetState<Array<string>>;
-  statePinnedCustomers: ReactState<Array<string>>;
-  statePinnedRideProviders: ReactState<Array<string>>;
 }
 
 export default function Map(props: MapPropsInput) {

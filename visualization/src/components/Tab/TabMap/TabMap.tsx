@@ -38,6 +38,7 @@ import styles from '@styles/Map.module.scss';
 import type {
   GlobalPropsFetch,
   GlobalPropsIntlValues,
+  GlobalPropsPinnedParticipants,
   GlobalPropsSearch,
   GlobalPropsShowError,
   GlobalPropsSpectatorMap,
@@ -76,6 +77,7 @@ export interface TabMapProps
     GlobalPropsSpectatorSelectedElements,
     GlobalPropsSpectatorSelectedElementsSet,
     GlobalPropsSpectatorsSet,
+    GlobalPropsPinnedParticipants,
     MapProps,
     SettingsConnectedElementsProps,
     SettingsFetchProps,
@@ -102,6 +104,10 @@ export default function TabMap(props: TabMapProps) {
     stateSettingsUiGridSpacing,
     stateInfoCardMapDismissed,
     setStateInfoCardMapDismissed,
+    statePinnedCustomers,
+    setStatePinnedCustomers,
+    statePinnedRideProviders,
+    setStatePinnedRideProviders,
   } = props;
 
   // React states
@@ -117,13 +123,6 @@ export default function TabMap(props: TabMapProps) {
       edges: [],
       vertices: [],
     });
-  // > Pinned participants
-  const [statePinnedCustomers, setStatePinnedCustomers] = useState<
-    Array<string>
-  >([]);
-  const [statePinnedRideProviders, setStatePinnedRideProviders] = useState<
-    Array<string>
-  >([]);
   // > Loading participant coordinates
   const [
     stateLoadingParticipantCoordinates,

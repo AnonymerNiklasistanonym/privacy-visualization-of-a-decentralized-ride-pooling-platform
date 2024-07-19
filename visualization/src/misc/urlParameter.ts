@@ -10,4 +10,8 @@ export enum UrlParameter {
   SELECTED_PARTICIPANT = 'selected_participant',
   /** Stores the currently selected smart contract ID */
   SELECTED_SMART_CONTRACT_ID = 'smart_contract_id',
+  /** Stores the currently pinned participants */
+  PINNED_CUSTOMERS = 'pinned_customers',
+  /** Stores the currently pinned participants */
+  PINNED_RIDE_PROVIDERS = 'pinned_ride_providers',
 }
