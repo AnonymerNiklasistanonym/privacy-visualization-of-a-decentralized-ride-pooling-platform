@@ -24,10 +24,10 @@ import type {
   ModalDataInformationAccessType,
 } from './ModalDataInformation';
 import type {ReactSetState, ReactState} from '@misc/react';
-import type {ButtonChangeSpectatorProps} from '@components/Input/InputButton/InputButtonSpectatorChange';
+import type {InputButtonSpectatorChangeProps} from '@components/Input/InputButton/InputButtonSpectatorChange';
 import type {ReactNode} from 'react';
 
-export type ModalDataProps = ButtonChangeSpectatorProps;
+export type ModalDataProps = InputButtonSpectatorChangeProps;
 
 export interface ModalDataPropsInput extends ModalDataProps {
   /** The open state of the modal */

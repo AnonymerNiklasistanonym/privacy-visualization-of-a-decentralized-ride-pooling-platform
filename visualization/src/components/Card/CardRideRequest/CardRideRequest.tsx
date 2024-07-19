@@ -28,6 +28,7 @@ import {RenderDataElement} from '../CardParticipant/PopupContentGeneric';
 import {simulationEndpoints} from '@globals/defaults/endpoints';
 // > Misc
 import {SpectatorId} from '@misc/spectatorIds';
+import {debugComponentElementUpdate} from '@misc/debug';
 // Type imports
 import type {
   CardGenericProps,
@@ -41,15 +42,15 @@ import type {
   SimulationEndpointParticipantIdFromPseudonym,
   SimulationEndpointRideRequestInformation,
 } from '@globals/types/simulation';
-import type {ButtonChangeSpectatorProps} from '@components/Input/InputButton/InputButtonSpectatorChange';
-import type {ButtonShowSpectatorProps} from '@components/Input/InputButton/InputButtonSpectatorShow';
+import type {InputButtonSpectatorChangeProps} from '@components/Input/InputButton/InputButtonSpectatorChange';
+import type {InputButtonSpectatorShowProps} from '@components/Input/InputButton/InputButtonSpectatorShow';
 import type {ModalDataInformationAccess} from '@components/Modal/ModalData';
 import type {ReactState} from '@misc/react';
 import type {SettingsGlobalProps} from '@misc/props/settings';
 
 export interface CardRideRequestProps
-  extends ButtonChangeSpectatorProps,
-    ButtonShowSpectatorProps,
+  extends InputButtonSpectatorChangeProps,
+    InputButtonSpectatorShowProps,
     SettingsGlobalProps,
     CardGenericProps,
     GlobalPropsModalDataInformation,
@@ -202,6 +203,9 @@ export default function CardRideRequest(props: CardRideRequestPropsInput) {
   );
 
   const content = useMemo<Array<CardGenericPropsContentElement>>(() => {
+    debugComponentElementUpdate(
+      `CardRideRequest#content#${stateRideRequestId}`
+    );
     const contentList: Array<CardGenericPropsContentElement> = [];
 
     if (stateRideRequestInformation?.userId !== undefined) {

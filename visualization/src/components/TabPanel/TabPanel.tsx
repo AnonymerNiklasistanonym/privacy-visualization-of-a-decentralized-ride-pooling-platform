@@ -36,8 +36,11 @@ import TableDebugData from '@components/Table/TableDebugData';
 // > Globals
 import {simulationEndpoints} from '@globals/defaults/endpoints';
 // > Misc
+import {
+  debugComponentRenderCounter,
+  debugComponentUpdateCounter,
+} from '@misc/debug';
 import {TabIndex} from '@misc/tabIndices';
-import {debugComponentRenderCounter} from '@misc/debug';
 import {fetchTextEndpoint} from '@misc/fetch';
 import {stringComparator} from '@misc/compare';
 // Type imports
@@ -150,6 +153,10 @@ export default function TabPanel(props: TabPanelProps) {
     Array<[string, number]>
   >([]);
 
+  const [stateUpdateList, setStateUpdateList] = useState<
+    Array<[string, number]>
+  >([]);
+
   // React states
   // > Debug
   const [stateDebugData, setStateDebugData] = useState<DebugData>({
@@ -250,6 +257,14 @@ export default function TabPanel(props: TabPanelProps) {
     );
   }, [setStateRenderList]);
 
+  const updateUpdateCount = useCallback(() => {
+    setStateUpdateList(
+      Array.from(debugComponentUpdateCounter).sort((a, b) =>
+        stringComparator(a[0], b[0])
+      )
+    );
+  }, [setStateUpdateList]);
+
   const propsTabPanelTab: TabPanelTabProps = {
     stateSettingsGlobalDebug,
     stateSettingsUiGridSpacing,
@@ -316,6 +331,7 @@ export default function TabPanel(props: TabPanelProps) {
           </Link>
         </ButtonGroup>
       </TabPanelTabSectionDebug>
+
       <TabPanelTabSectionDebug
         title="Debug #Render"
         stateSettingsGlobalDebug={stateSettingsGlobalDebug}
@@ -327,7 +343,30 @@ export default function TabPanel(props: TabPanelProps) {
         </ButtonGroup>
         <List>
           {stateRenderList.map(([name, count]) => (
-            <ListItem key={`render-debug-item-${name}`}>
+            <ListItem key={`render-count-debug-item-${name}`}>
+              <ListItemIcon>
+                <Badge badgeContent={count} max={100000} color="primary">
+                  <RefreshIcon />
+                </Badge>
+              </ListItemIcon>
+              <ListItemText primary={name} />
+            </ListItem>
+          ))}
+        </List>
+      </TabPanelTabSectionDebug>
+
+      <TabPanelTabSectionDebug
+        title="Debug #Update"
+        stateSettingsGlobalDebug={stateSettingsGlobalDebug}
+      >
+        <ButtonGroup variant="contained">
+          <GenericButton onClick={updateUpdateCount}>
+            Update update count
+          </GenericButton>
+        </ButtonGroup>
+        <List>
+          {stateUpdateList.map(([name, count]) => (
+            <ListItem key={`update-count-debug-item-${name}`}>
               <ListItemIcon>
                 <Badge badgeContent={count} max={100000} color="primary">
                   <RefreshIcon />

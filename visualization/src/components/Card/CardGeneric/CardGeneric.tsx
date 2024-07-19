@@ -23,6 +23,7 @@ import {
 import LoadingCircle from '@components/Loading/LoadingCircle';
 // Type imports
 import type {ReactElement, ReactNode} from 'react';
+import {debugComponentElementUpdate} from '@misc/debug';
 
 export interface CardGenericPropsContentElement {
   /** Label of the content element */
@@ -80,6 +81,7 @@ export default function CardGeneric({
   unpinAction,
 }: CardGenericPropsInput) {
   const titleStackList = useMemo(() => {
+    debugComponentElementUpdate(`CardGeneric#titleStackList#${id}`);
     const result: Array<ReactElement> = [];
     if (label !== undefined) {
       result.push(
@@ -121,6 +123,7 @@ export default function CardGeneric({
   }, [label, id, status]);
 
   const iconActions = useMemo(() => {
+    debugComponentElementUpdate(`CardGeneric#iconActions#${id}`);
     const result = [];
     if (
       pinAction !== undefined &&

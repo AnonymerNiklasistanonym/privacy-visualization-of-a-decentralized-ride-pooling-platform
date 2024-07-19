@@ -2,7 +2,7 @@
 import {ReactElement, memo, useMemo} from 'react';
 import {useIntl} from 'react-intl';
 // > Components
-import {Button, List} from '@mui/material';
+import {List} from '@mui/material';
 // Local imports
 // > Components
 import {DataElement, RenderDataElement} from './PopupContentGeneric';
@@ -24,11 +24,12 @@ import {
   ServiceAuthentication,
   ServiceMatching,
 } from '@components/Tab/TabOverview/Elements';
-import ButtonChangeSpectator from '@components/Input/InputButton/InputButtonSpectatorChange';
 import CardGeneric from '@components/Card/CardGeneric';
+import InputButtonSpectatorChange from '@components/Input/InputButton/InputButtonSpectatorChange';
 import InputButtonSpectatorShow from '@components/Input/InputButton/InputButtonSpectatorShow';
 // > Misc
 import {SpectatorId} from '@misc/spectatorIds';
+import {debugComponentElementUpdate} from '@misc/debug';
 // Type imports
 import type {
   CardGenericProps,
@@ -43,15 +44,15 @@ import type {
   SimulationEndpointParticipantInformationRideProvider,
   SimulationEndpointParticipantTypes,
 } from '@globals/types/simulation';
-import type {ButtonChangeSpectatorProps} from '@components/Input/InputButton/InputButtonSpectatorChange';
-import type {ButtonShowSpectatorProps} from '@components/Input/InputButton/InputButtonSpectatorShow';
+import type {InputButtonSpectatorChangeProps} from '@components/Input/InputButton/InputButtonSpectatorChange';
+import type {InputButtonSpectatorShowProps} from '@components/Input/InputButton/InputButtonSpectatorShow';
 import type {ModalDataInformationAccess} from '@components/Modal/ModalData';
 import type {ReactState} from '@misc/react';
 import type {SettingsGlobalProps} from '@misc/props/settings';
 
 export interface CardParticipantProps
-  extends ButtonChangeSpectatorProps,
-    ButtonShowSpectatorProps,
+  extends InputButtonSpectatorChangeProps,
+    InputButtonSpectatorShowProps,
     CardGenericProps,
     GlobalPropsIntlValues,
     GlobalPropsModalDataInformation,
@@ -79,8 +80,59 @@ export function CardParticipant(props: CardParticipantPropsInput) {
     intlValues,
     label,
     fixMarker,
+    ...rest
   } = props;
+
+  const {
+    fetchJsonSimulation,
+    fetchJsonSimulationWait,
+    setStateSelectedParticipantId,
+    setStateSelectedSmartContractId,
+    setStateShowParticipantId,
+    setStateSpectatorId,
+    setStateTabIndex,
+    showError,
+    stateSelectedSmartContractId,
+    stateShowParticipantId,
+  } = props;
+
   const intl = useIntl();
+
+  const propsInputButton = useMemo<
+    InputButtonSpectatorShowProps & InputButtonSpectatorChangeProps
+  >(() => {
+    debugComponentElementUpdate(
+      `CardParticipant#propsInputButton#${stateParticipantId}`
+    );
+    return {
+      fetchJsonSimulation,
+      fetchJsonSimulationWait,
+      setStateSelectedParticipantId,
+      setStateSelectedSmartContractId,
+      setStateShowParticipantId,
+      setStateSpectatorId,
+      setStateTabIndex,
+      showError,
+      stateSelectedParticipantId,
+      stateSelectedSmartContractId,
+      stateShowParticipantId,
+      stateSpectatorId,
+    };
+  }, [
+    fetchJsonSimulation,
+    fetchJsonSimulationWait,
+    setStateSelectedParticipantId,
+    setStateSelectedSmartContractId,
+    setStateShowParticipantId,
+    setStateSpectatorId,
+    setStateTabIndex,
+    showError,
+    stateParticipantId,
+    stateSelectedParticipantId,
+    stateSelectedSmartContractId,
+    stateShowParticipantId,
+    stateSpectatorId,
+  ]);
 
   const dataAccessPersonalData = useMemo<Array<ModalDataInformationAccess>>(
     () => [
@@ -117,6 +169,10 @@ export function CardParticipant(props: CardParticipantPropsInput) {
   );
 
   const content = useMemo<Array<CardGenericPropsContentElement>>(() => {
+    debugComponentElementUpdate(
+      `CardParticipant#content#${stateParticipantId}`
+    );
+
     const contentList: Array<CardGenericPropsContentElement> = [];
     if (participantType === 'customer') {
       const dataAccessDriver: ModalDataInformationAccess[] = [];
@@ -483,31 +539,6 @@ export function CardParticipant(props: CardParticipantPropsInput) {
           labelIcon: <ParticipantRideProviderIcon />,
         });
       }
-      //// TODO Show Ride Request
-      //if (
-      //  stateRideProviderInformation?.rideRequest !== undefined &&
-      //  showRideRequest
-      //) {
-      //  result.push({
-      //    content: (
-      //      <Typography variant="body2" gutterBottom>
-      //        <Button
-      //          variant="contained"
-      //          startIcon={<ParticipantRideRequestIcon />}
-      //          onClick={() =>
-      //            setStateSelectedRideRequest(
-      //              stateRideProviderInformation.rideRequest
-      //            )
-      //          }
-      //        >
-      //          Show ride request ({stateRideProviderInformation.rideRequest})
-      //        </Button>
-      //      </Typography>
-      //    ),
-      //    label: 'Ride Request',
-      //    labelIcon: <ParticipantRideRequestIcon />,
-      //  });
-      //}
     }
     if (stateSettingsGlobalDebug === true) {
       contentList.push({
@@ -585,9 +616,13 @@ export function CardParticipant(props: CardParticipantPropsInput) {
 
   /** Action buttons based on global state */
   const actions = useMemo<Array<ReactElement>>(() => {
+    debugComponentElementUpdate(
+      `CardParticipant#actions#${stateParticipantId}`
+    );
+
     const actionsList = [
-      <ButtonChangeSpectator
-        {...props}
+      <InputButtonSpectatorChange
+        {...propsInputButton}
         key={`action-change-spectator-${stateParticipantId}`}
         spectatorId={stateParticipantId}
         icon={
@@ -609,27 +644,10 @@ export function CardParticipant(props: CardParticipantPropsInput) {
         )}
       />,
     ];
-    if (stateSettingsGlobalDebug) {
-      actionsList.push(
-        <Button
-          key={`action-debug-${stateParticipantId}`}
-          onClick={() =>
-            console.warn('DEBUG participant information', {
-              participantType,
-              stateCustomerInformation,
-              stateParticipantId,
-              stateRideProviderInformation,
-            })
-          }
-        >
-          DEBUG participant information
-        </Button>
-      );
-    }
     if (fixMarker !== true) {
       actionsList.push(
         <InputButtonSpectatorShow
-          {...props}
+          {...propsInputButton}
           key={`action-show-spectator-${stateParticipantId}`}
           spectatorId={stateParticipantId}
           icon={<NavigateToLocationIcon />}
@@ -638,16 +656,7 @@ export function CardParticipant(props: CardParticipantPropsInput) {
       );
     }
     return actionsList;
-  }, [
-    fixMarker,
-    intl,
-    participantType,
-    props,
-    stateCustomerInformation,
-    stateParticipantId,
-    stateRideProviderInformation,
-    stateSettingsGlobalDebug,
-  ]);
+  }, [fixMarker, intl, participantType, propsInputButton, stateParticipantId]);
 
   /** Additional information label based on global state */
   const finalLabel = useMemo<string | undefined>(() => {

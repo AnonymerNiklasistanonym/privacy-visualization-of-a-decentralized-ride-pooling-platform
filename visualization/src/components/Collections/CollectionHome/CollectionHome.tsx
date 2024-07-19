@@ -40,7 +40,11 @@ import {
 } from '@globals/defaults/urls';
 import {simulationEndpoints} from '@globals/defaults/endpoints';
 // > Misc
-import {debugCache, debugRequestBlock} from '@misc/debug';
+import {
+  debugCache,
+  debugComponentElementUpdate,
+  debugRequestBlock,
+} from '@misc/debug';
 import {LocalStorageKey} from '@misc/localStorage';
 import {SearchBarId} from '@misc/searchBarIds';
 import {SpectatorId} from '@misc/spectatorIds';
@@ -457,6 +461,8 @@ export default function CollectionHome(
 
   // Global search bar
   const globalSearch = useMemo(() => {
+    debugComponentElementUpdate('globalSearch');
+
     const tempGlobalSearch: Array<GlobalSearchElement> = [];
     const pages: Array<[string, string, ReactElement]> = [
       [
@@ -631,6 +637,8 @@ export default function CollectionHome(
   }, [stateSpectators, stateTabs, params, pathname, router, intl]);
 
   const intlValues: {[key: string]: ReactElement} = useMemo(() => {
+    debugComponentElementUpdate('intlValues');
+
     const customerChip: ChipListElementProps = {
       description: 'requests rides (human)',
       icon: <ParticipantCustomerIcon />,

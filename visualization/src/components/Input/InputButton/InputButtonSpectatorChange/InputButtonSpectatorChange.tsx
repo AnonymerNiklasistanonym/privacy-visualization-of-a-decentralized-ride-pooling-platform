@@ -20,14 +20,14 @@ import type {
 import type {ReactNode} from 'react';
 import type {SimulationEndpointParticipantIdFromPseudonym} from '@globals/types/simulation';
 
-export interface ButtonChangeSpectatorProps
+export interface InputButtonSpectatorChangeProps
   extends GlobalPropsSpectatorSelectedElements,
     GlobalPropsSpectatorSelectedElementsSet,
     GlobalPropsShowError,
     GlobalPropsFetch {}
 
-export interface ButtonChangeSpectatorPropsInput
-  extends ButtonChangeSpectatorProps {
+export interface InputButtonSpectatorChangePropsInput
+  extends InputButtonSpectatorChangeProps {
   /** The ID of the spectator that the should be shown on clicking it */
   spectatorId: string;
   /** A custom label that should be displayed on the button */
@@ -40,9 +40,9 @@ export interface ButtonChangeSpectatorPropsInput
   icon?: ReactNode;
 }
 
-export default memo(ButtonChangeSpectator);
+export default memo(InputButtonSpectatorChange);
 
-export function ButtonChangeSpectator({
+export function InputButtonSpectatorChange({
   spectatorId,
   ignoreUnableToResolve,
   isPseudonym,
@@ -52,8 +52,8 @@ export function ButtonChangeSpectator({
   setStateSpectatorId,
   fetchJsonSimulation,
   showError,
-}: ButtonChangeSpectatorPropsInput) {
-  debugComponentRender('ButtonChangeSpectator');
+}: InputButtonSpectatorChangePropsInput) {
+  debugComponentRender('InputButtonSpectatorChange');
   const intl = useIntl();
 
   // React: States

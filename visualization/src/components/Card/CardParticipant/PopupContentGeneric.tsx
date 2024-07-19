@@ -21,7 +21,7 @@ import type {
   ModalDataInformationOrigin,
 } from '@components/Modal/ModalData';
 import type {ReactElement, ReactNode} from 'react';
-import type {ButtonChangeSpectatorProps} from '@components/Input/InputButton/InputButtonSpectatorChange';
+import type {InputButtonSpectatorChangeProps} from '@components/Input/InputButton/InputButtonSpectatorChange';
 import type {GlobalPropsModalDataInformation} from '@misc/props/global';
 
 export interface DataElement {
@@ -32,7 +32,7 @@ export interface DataElement {
 }
 
 export interface RenderDataElementProps
-  extends ButtonChangeSpectatorProps,
+  extends InputButtonSpectatorChangeProps,
     ModalDataInformationOrigin,
     GlobalPropsModalDataInformation {
   /** The rendered information */
