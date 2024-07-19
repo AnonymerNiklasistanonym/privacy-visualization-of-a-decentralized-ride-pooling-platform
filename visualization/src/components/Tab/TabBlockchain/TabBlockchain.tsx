@@ -110,7 +110,11 @@ export default function TabBlockchain(props: TabBlockchainProps) {
   >([]);
 
   useEffect(() => {
-    if (stateSelectedSmartContractId !== undefined) {
+    if (
+      stateSelectedCustomerPseudonym !== undefined &&
+      stateSelectedRideProviderPseudonym !== undefined &&
+      stateSelectedSmartContractId !== undefined
+    ) {
       console.warn(
         'Fetch connected ride requests of smart contract...',
         stateSelectedSmartContractId
@@ -134,7 +138,13 @@ export default function TabBlockchain(props: TabBlockchainProps) {
     } else {
       setStateConnectedRideRequests([]);
     }
-  }, [fetchJsonSimulation, stateSelectedSmartContractId, showError]);
+  }, [
+    fetchJsonSimulation,
+    stateSelectedSmartContractId,
+    showError,
+    stateSelectedCustomerPseudonym,
+    stateSelectedRideProviderPseudonym,
+  ]);
 
   useEffect(() => {
     if (stateSelectedCustomerPseudonym !== undefined) {
@@ -235,6 +245,16 @@ export default function TabBlockchain(props: TabBlockchainProps) {
           {...props}
           id={stateConnectedRideRequest}
           cardType={'ride_request'}
+          label={intl.formatMessage(
+            {
+              id: 'connected',
+            },
+            {
+              name: intl.formatMessage({
+                id: 'getacar.rideRequest',
+              }),
+            }
+          )}
         />
       );
     }
@@ -349,6 +369,9 @@ export default function TabBlockchain(props: TabBlockchainProps) {
   );
 
   // React: Effects
+  useEffect(() => {
+    fetchSmartContracts();
+  }, [fetchSmartContracts]);
   useEffect(() => {
     const interval = setInterval(
       () => fetchSmartContracts(),

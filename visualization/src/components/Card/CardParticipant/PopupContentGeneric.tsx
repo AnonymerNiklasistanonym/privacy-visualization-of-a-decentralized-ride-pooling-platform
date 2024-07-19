@@ -133,7 +133,6 @@ export function RenderDataElement(props: RenderDataElementProps) {
           variant="body2"
           display="inline"
           component="span"
-          noWrap
           gutterBottom
         >
           {content}

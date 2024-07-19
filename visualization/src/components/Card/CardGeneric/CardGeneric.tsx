@@ -175,6 +175,7 @@ export default function CardGeneric({
         sx={{
           // Hide overflow in the content part
           maxHeight: '35vh',
+          minWidth: '8rem',
           overflowY: 'scroll',
         }}
       >

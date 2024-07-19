@@ -50,6 +50,8 @@ export interface GlobalPropsFetch {
   fetchJsonSimulation: <JSON_TYPE, ENDPOINTS extends string = string>(
     /** The endpoint that should be fetched */
     endpoint: ENDPOINTS,
+    /** Multiplier on default cache timeout where data can still be cached */
+    cacheTimeMultiplier?: number,
     /** Generic fetch options */
     options?: Readonly<FetchOptions>
   ) => Promise<JSON_TYPE>;

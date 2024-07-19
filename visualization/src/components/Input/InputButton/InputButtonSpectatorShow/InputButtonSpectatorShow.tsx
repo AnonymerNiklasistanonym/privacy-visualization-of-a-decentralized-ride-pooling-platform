@@ -117,7 +117,7 @@ export function ButtonShowSpectator({
       buttonLabelInfo.push(
         intl.formatMessage({
           id: 'pseudonym.resolved',
-        }) + ` [${stateResolvedPseudonym?.id}]`
+        }) + ` [${stateResolvedPseudonym.id}]`
       );
     }
     return `${buttonLabelSpectate}${
@@ -147,9 +147,9 @@ export function ButtonShowSpectator({
       return;
     }
     // Update global spectator to the resolved actor ID from the supplied pseudonym
-    if (isPseudonym && resolvedPseudonymId !== undefined) {
-      setStateSelectedParticipantId(resolvedPseudonymId);
-      setStateShowParticipantId(resolvedPseudonymId);
+    if (isPseudonym && stateResolvedPseudonym?.id !== undefined) {
+      setStateSelectedParticipantId(stateResolvedPseudonym.id);
+      setStateShowParticipantId(stateResolvedPseudonym.id);
       setStateTabIndex(0);
     }
     // Update global spectator to the supplied actor ID
@@ -161,7 +161,7 @@ export function ButtonShowSpectator({
   }, [
     disabled,
     isPseudonym,
-    resolvedPseudonymId,
+    stateResolvedPseudonym?.id,
     setStateSelectedParticipantId,
     setStateShowParticipantId,
     setStateTabIndex,

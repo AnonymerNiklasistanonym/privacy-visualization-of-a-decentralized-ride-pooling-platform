@@ -128,7 +128,7 @@ export default function CollectionHome(
   const [
     stateSettingsBlockchainUpdateRateInMs,
     setStateSettingsBlockchainUpdateRateInMs,
-  ] = useState(1000 / 5);
+  ] = useState(1000 * 1);
   // >> Debug
   const [stateSettingsGlobalDebug, setStateSettingsGlobalDebug] = useState(
     params.get(UrlParameter.DEBUG) === 'true'
@@ -194,6 +194,7 @@ export default function CollectionHome(
   const fetchJsonSimulation = useCallback(
     async <T,>(
       endpoint: string,
+      cacheTimeMultiplier?: number,
       options?: Readonly<FetchOptions>
     ): Promise<T> => {
       const cacheEntry = requestCache.current.get(endpoint);
@@ -201,18 +202,47 @@ export default function CollectionHome(
       // In case there exists a cache entry for this request
       // and the current time and cache time are sufficiently close
       // do not make another request but reference the currently in progress request
+      const cacheTime =
+        cacheEntry !== undefined
+          ? currentTime.getTime() - cacheEntry.time.getTime()
+          : undefined;
       if (
         cacheEntry !== undefined &&
-        currentTime.getTime() - cacheEntry.time.getTime() <
-          stateSettingsFetchCacheUpdateRateInMs
+        cacheTime !== undefined &&
+        cacheTimeMultiplier !== undefined &&
+        cacheTime < stateSettingsFetchCacheUpdateRateInMs * cacheTimeMultiplier
+      ) {
+        console.warn(
+          'Stopped request because it was cached within the cache time multiplier',
+          endpoint,
+          cacheTimeMultiplier,
+          `${cacheTime}ms`
+        );
+        return cacheEntry.data as Promise<T>;
+      } else if (
+        cacheEntry !== undefined &&
+        cacheTime !== undefined &&
+        cacheTime < stateSettingsFetchCacheUpdateRateInMs
       ) {
         console.warn(
           'Stopped request because it was cached recently',
           endpoint,
-          `${currentTime.getTime() - cacheEntry.time.getTime()}ms`
+          `${cacheTime}ms`
         );
         return cacheEntry.data as Promise<T>;
       } else {
+        console.debug(
+          'cache entry',
+          cacheEntry !== undefined,
+          'or cache timeout',
+          cacheTime,
+          '<',
+          stateSettingsFetchCacheUpdateRateInMs,
+          cacheTime !== undefined
+            ? cacheTime < stateSettingsFetchCacheUpdateRateInMs
+            : false,
+          endpoint
+        );
         const data = fetchJson<T>(
           `${stateSettingsFetchBaseUrlSimulation}${endpoint}`,
           options
@@ -243,7 +273,7 @@ export default function CollectionHome(
       requestBalancer.current = true;
       let result: T;
       try {
-        result = await fetchJsonSimulation(endpoint, options);
+        result = await fetchJsonSimulation(endpoint, undefined, options);
       } catch (err) {
         throw new Error(`Fetching ${endpoint} failed`, {cause: err});
       } finally {
@@ -406,14 +436,15 @@ export default function CollectionHome(
     } else {
       params.delete(UrlParameter.SELECTED_PARTICIPANT);
     }
-    if (stateSelectedSmartContractId !== undefined) {
-      params.set(
-        UrlParameter.SELECTED_SMART_CONTRACT_ID,
-        stateSelectedSmartContractId
-      );
-    } else {
-      params.delete(UrlParameter.SELECTED_SMART_CONTRACT_ID);
-    }
+    // Feature: Auto select row/data in blockchain tab (right now unused)
+    //if (stateSelectedSmartContractId !== undefined) {
+    //  params.set(
+    //    UrlParameter.SELECTED_SMART_CONTRACT_ID,
+    //    stateSelectedSmartContractId
+    //  );
+    //} else {
+    //  params.delete(UrlParameter.SELECTED_SMART_CONTRACT_ID);
+    //}
     if (stateTabIndex !== 0) {
       params.set(UrlParameter.TAB_INDEX, `${stateTabIndex}`);
     } else {
@@ -614,8 +645,6 @@ export default function CollectionHome(
     });
   }, [stateSpectators, stateTabs, params, pathname, router, intl]);
 
-  // TODO intl values
-
   const intlValues: {[key: string]: ReactElement} = useMemo(() => {
     const customerChip: ChipListElementProps = {
       description: 'requests rides (human)',
@@ -775,7 +804,8 @@ export default function CollectionHome(
           return Promise.all(
             data.smartContracts.map(smartContractId =>
               fetchJsonSimulation<SimulationEndpointSmartContractInformation>(
-                simulationEndpoints.apiV1.smartContract(smartContractId)
+                simulationEndpoints.apiV1.smartContract(smartContractId),
+                200
               )
             )
           );

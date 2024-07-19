@@ -27,6 +27,7 @@
   "getacar.blockchain.rideContractService": "Ride Contract Service",
   "getacar.blockchain.rideContractService.description": "create Smart Contracts between participants on the blockchain",
   "getacar.blockchain.smartContract.selectedChanged": "Changed selected smart contract to {name}",
+  "getacar.blockchain.smartContract.connectedRideRequest": "Connected to selected Smart Contract",
   "getacar.foundation": "GETACAR foundation",
   "getacar.foundation.description": "verifies Authentication Services",
   "getacar.name": "GETACAR: a privacy-preserving platform for ride-pooling",
