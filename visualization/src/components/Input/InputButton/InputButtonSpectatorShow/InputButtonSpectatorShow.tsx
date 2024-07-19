@@ -8,8 +8,8 @@ import {Lock as LockIcon} from '@mui/icons-material';
 // > Globals
 import {simulationEndpoints} from '@globals/defaults/endpoints';
 // > Misc
+import {debugComponentRender, debugMemoHelper} from '@misc/debug';
 import {SpectatorId} from '@misc/spectatorIds';
-import {debugComponentRender} from '@misc/debug';
 // Type imports
 import type {
   GlobalPropsFetch,
@@ -40,7 +40,9 @@ export interface BInputButtonSpectatorShowPropsInput
   icon?: ReactNode;
 }
 
-export default memo(InputButtonSpectatorShow);
+export default memo(InputButtonSpectatorShow, (prev, next) =>
+  debugMemoHelper('InputButtonSpectatorShow', undefined, prev, next)
+);
 
 export function InputButtonSpectatorShow({
   spectatorId,

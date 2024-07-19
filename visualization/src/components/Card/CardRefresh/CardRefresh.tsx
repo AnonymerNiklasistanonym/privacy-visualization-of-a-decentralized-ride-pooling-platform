@@ -213,7 +213,8 @@ export function CardRefresh(props: CardRefreshPropsInput) {
     const interval = setInterval(() => {
       if (stateWindowIsHidden) {
         debugRequestBlock(
-          'Card information not fetched because window not visible',
+          'Card information',
+          'window not visible',
           `CardRefresh '${cardType}' (${id})`
         );
         return;

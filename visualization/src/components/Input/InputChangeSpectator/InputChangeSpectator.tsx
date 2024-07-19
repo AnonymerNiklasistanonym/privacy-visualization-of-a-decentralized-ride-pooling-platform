@@ -28,12 +28,14 @@ import type {InputExtraActionsPropsInput} from '@components/Input/InputExtraActi
 export interface InputChangeSpectatorProps
   extends GlobalPropsSpectatorSelectedElements,
     GlobalPropsSpectatorSelectedElementsSet,
-    GlobalPropsSpectatorMap,
+    GlobalPropsSpectatorMap {}
+export interface InputChangeSpectatorPropsInput
+  extends InputChangeSpectatorProps,
     InputExtraActionsPropsInput {}
 
 export default memo(InputChangeSpectator);
 
-export function InputChangeSpectator(props: InputChangeSpectatorProps) {
+export function InputChangeSpectator(props: InputChangeSpectatorPropsInput) {
   debugComponentRender('InputChangeSpectator');
   const {actions, setStateSpectatorId, stateSpectatorId, stateSpectators} =
     props;

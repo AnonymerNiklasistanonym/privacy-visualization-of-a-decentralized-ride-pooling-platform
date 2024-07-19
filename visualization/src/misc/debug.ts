@@ -1,8 +1,8 @@
 export const debug = Object.freeze({
   /** Show cache related logs */
-  caching: process.env.NODE_ENV === 'development',
+  caching: false ?? process.env.NODE_ENV === 'development',
   /** Log component updates */
-  componentUpdates: process.env.NODE_ENV === 'development',
+  componentUpdates: false ?? process.env.NODE_ENV === 'development',
   /** Show generic logs */
   logs: process.env.NODE_ENV === 'development',
   /** Show messages when requests are blocked */
@@ -39,9 +39,13 @@ export function debugCache(message: string, endpoint: string) {
   }
 }
 
-export function debugRequestBlock(message: string, element: string) {
+export function debugRequestBlock(
+  request: string,
+  reason: string,
+  element: string
+) {
   if (debug.requestBlocking) {
-    console.debug(`Request was blocked: ${message}`, element);
+    console.debug(`Blocked Request ${request} because ${reason}`, element);
   }
 }
 

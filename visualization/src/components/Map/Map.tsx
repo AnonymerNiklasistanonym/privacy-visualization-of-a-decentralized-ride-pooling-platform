@@ -150,7 +150,8 @@ export default function Map(props: MapPropsInput) {
     const interval = setInterval(() => {
       if (stateWindowIsHidden) {
         debugRequestBlock(
-          'Participant coordinates not fetched because window not visible',
+          'Participant coordinates',
+          'window not visible',
           'Map'
         );
         return;

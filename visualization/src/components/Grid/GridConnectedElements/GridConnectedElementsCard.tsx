@@ -19,6 +19,7 @@ import {
 } from '@mui/icons-material';
 // Type imports
 import type {PropsWithChildren, ReactElement} from 'react';
+import {debugComponentElementUpdate} from '@misc/debug';
 
 export interface GridConnectedElementsCardProps {
   title?: string;
@@ -42,6 +43,8 @@ export function GridConnectedElementsCard({
   const [stateExtend, setStateExtend] = useState<boolean>(true);
 
   const actions = useMemo<Array<ReactElement>>(() => {
+    debugComponentElementUpdate(`GridConnectedElementsCard#actions#${title}`);
+
     const actionsList: Array<ReactElement> = [];
     if (onDismiss !== undefined) {
       actionsList.push(
@@ -70,21 +73,26 @@ export function GridConnectedElementsCard({
       );
     }
     return actionsList;
-  }, [onDismiss, onExtend, stateExtend]);
+  }, [onDismiss, onExtend, stateExtend, title]);
 
-  const card = (
-    <Card>
-      {title !== undefined ? (
-        <CardHeader
-          avatar={icon ?? <InfoIcon />}
-          action={actions}
-          title={title.toUpperCase()}
-        />
-      ) : undefined}
-      <Collapse in={stateExtend} timeout="auto" unmountOnExit>
-        <CardContent>{children}</CardContent>
-      </Collapse>
-    </Card>
+  const avatar = useMemo(() => icon ?? <InfoIcon />, [icon]);
+
+  const card = useMemo(
+    () => (
+      <Card>
+        {title !== undefined ? (
+          <CardHeader
+            avatar={avatar}
+            action={actions}
+            title={title.toUpperCase()}
+          />
+        ) : undefined}
+        <Collapse in={stateExtend} timeout="auto" unmountOnExit>
+          <CardContent>{children}</CardContent>
+        </Collapse>
+      </Card>
+    ),
+    [actions, children, avatar, stateExtend, title]
   );
 
   if (stateShow) {

@@ -70,30 +70,26 @@ export default memo(CardParticipant);
 
 export function CardParticipant(props: CardParticipantPropsInput) {
   const {
-    stateSpectatorId,
-    stateSelectedParticipantId,
-    stateParticipantId,
-    stateCustomerInformation,
-    stateRideProviderInformation,
-    participantType,
-    stateSettingsGlobalDebug,
-    intlValues,
-    label,
-    fixMarker,
-    ...rest
-  } = props;
-
-  const {
     fetchJsonSimulation,
     fetchJsonSimulationWait,
+    fixMarker,
+    intlValues,
+    label,
+    participantType,
     setStateSelectedParticipantId,
     setStateSelectedSmartContractId,
     setStateShowParticipantId,
     setStateSpectatorId,
     setStateTabIndex,
     showError,
+    stateCustomerInformation,
+    stateParticipantId,
+    stateRideProviderInformation,
+    stateSelectedParticipantId,
     stateSelectedSmartContractId,
+    stateSettingsGlobalDebug,
     stateShowParticipantId,
+    stateSpectatorId,
   } = props;
 
   const intl = useIntl();
@@ -133,6 +129,10 @@ export function CardParticipant(props: CardParticipantPropsInput) {
     stateShowParticipantId,
     stateSpectatorId,
   ]);
+
+  const iconRideProvider = useMemo(() => <ParticipantRideProviderIcon />, []);
+
+  const iconCustomer = useMemo(() => <ParticipantCustomerIcon />, []);
 
   const dataAccessPersonalData = useMemo<Array<ModalDataInformationAccess>>(
     () => [
@@ -182,7 +182,7 @@ export function CardParticipant(props: CardParticipantPropsInput) {
           description: intl.formatMessage({
             id: 'getacar.participant.rideProvider.driver.message.dataAccess',
           }),
-          icon: <ParticipantRideProviderIcon />,
+          icon: iconRideProvider,
           isPseudonym: true,
           name: intl.formatMessage(
             {id: 'current'},
@@ -253,7 +253,7 @@ export function CardParticipant(props: CardParticipantPropsInput) {
                   }
                 )}
                 dataOriginId={stateCustomerInformation.id}
-                dataOriginIcon={<ParticipantCustomerIcon />}
+                dataOriginIcon={iconCustomer}
                 dataOriginInformation={
                   <ParticipantsCustomer intlValues={intlValues} />
                 }
@@ -294,7 +294,7 @@ export function CardParticipant(props: CardParticipantPropsInput) {
                   }
                 )}
                 dataOriginId={stateCustomerInformation.id}
-                dataOriginIcon={<ParticipantCustomerIcon />}
+                dataOriginIcon={iconCustomer}
                 dataOriginInformation={
                   <ParticipantsCustomer intlValues={intlValues} />
                 }
@@ -310,10 +310,10 @@ export function CardParticipant(props: CardParticipantPropsInput) {
         contentList.push({
           content: (
             <InputButtonSpectatorShow
-              {...props}
+              {...propsInputButton}
               key={`participant-change-spectator-rideProvider-${stateParticipantId}`}
               spectatorId={stateCustomerInformation.passenger}
-              icon={<ParticipantRideProviderIcon />}
+              icon={iconRideProvider}
               label={intl.formatMessage({
                 id: 'getacar.participant.rideProvider.driver',
               })}
@@ -323,7 +323,7 @@ export function CardParticipant(props: CardParticipantPropsInput) {
           label: intl.formatMessage({
             id: 'getacar.participant.rideProvider.driver.message.connected',
           }),
-          labelIcon: <ParticipantRideProviderIcon />,
+          labelIcon: iconRideProvider,
         });
       }
     }
@@ -336,7 +336,7 @@ export function CardParticipant(props: CardParticipantPropsInput) {
             description: intl.formatMessage({
               id: 'getacar.spectator.message.passenger.dataAccess',
             }),
-            icon: <ParticipantRideProviderIcon />,
+            icon: iconRideProvider,
             isPseudonym: true,
             name: intl.formatMessage(
               {id: 'current'},
@@ -383,7 +383,7 @@ export function CardParticipant(props: CardParticipantPropsInput) {
                   id={stateParticipantId}
                   dataOriginName={`Ride Provider (${stateParticipantId})`}
                   dataOriginId={stateParticipantId}
-                  dataOriginIcon={<ParticipantRideProviderIcon />}
+                  dataOriginIcon={iconRideProvider}
                   dataOriginInformation={
                     <ParticipantsRideProvider intlValues={intlValues} />
                   }
@@ -393,7 +393,7 @@ export function CardParticipant(props: CardParticipantPropsInput) {
             </List>
           ) : null,
         label: 'Car Details',
-        labelIcon: <ParticipantRideProviderIcon />,
+        labelIcon: iconRideProvider,
       });
       const personalData: DataElement[] = [];
       if (stateRideProviderInformation) {
@@ -457,7 +457,7 @@ export function CardParticipant(props: CardParticipantPropsInput) {
                   id={stateParticipantId}
                   dataOriginName={`Ride Provider (${stateParticipantId})`}
                   dataOriginId={stateParticipantId}
-                  dataOriginIcon={<ParticipantRideProviderIcon />}
+                  dataOriginIcon={iconRideProvider}
                   dataOriginInformation={
                     <ParticipantsRideProvider intlValues={intlValues} />
                   }
@@ -497,7 +497,7 @@ export function CardParticipant(props: CardParticipantPropsInput) {
                 }
               )}
               dataOriginId={stateRideProviderInformation.id}
-              dataOriginIcon={<ParticipantRideProviderIcon />}
+              dataOriginIcon={iconRideProvider}
               dataOriginInformation={
                 <ParticipantsRideProvider intlValues={intlValues} />
               }
@@ -518,10 +518,10 @@ export function CardParticipant(props: CardParticipantPropsInput) {
               {stateRideProviderInformation.passengerList.map(
                 (passengerId, index) => (
                   <InputButtonSpectatorShow
-                    {...props}
+                    {...propsInputButton}
                     key={`passenger-${passengerId}-${stateParticipantId}`}
                     spectatorId={passengerId}
-                    icon={<ParticipantCustomerIcon />}
+                    icon={iconCustomer}
                     label={intl.formatMessage(
                       {id: 'getacar.participant.rideProvider.passengerNumber'},
                       {name: index}
@@ -536,7 +536,7 @@ export function CardParticipant(props: CardParticipantPropsInput) {
           label: intl.formatMessage({
             id: 'getacar.participant.rideProvider.passengers',
           }),
-          labelIcon: <ParticipantRideProviderIcon />,
+          labelIcon: iconRideProvider,
         });
       }
     }
@@ -563,7 +563,7 @@ export function CardParticipant(props: CardParticipantPropsInput) {
                   id={stateParticipantId}
                   dataOriginName={`Debug Participant [Ride Provider] (${stateParticipantId})`}
                   dataOriginId={stateParticipantId}
-                  dataOriginIcon={<ParticipantRideProviderIcon />}
+                  dataOriginIcon={iconRideProvider}
                   dataOriginInformation={
                     <ParticipantsRideProvider intlValues={intlValues} />
                   }
@@ -585,7 +585,7 @@ export function CardParticipant(props: CardParticipantPropsInput) {
                   id={stateParticipantId}
                   dataOriginName={`Debug Participant [Customer] (${stateParticipantId})`}
                   dataOriginId={stateParticipantId}
-                  dataOriginIcon={<ParticipantCustomerIcon />}
+                  dataOriginIcon={iconCustomer}
                   dataOriginInformation={
                     <ParticipantsCustomer intlValues={intlValues} />
                   }
@@ -604,10 +604,13 @@ export function CardParticipant(props: CardParticipantPropsInput) {
     return contentList;
   }, [
     dataAccessPersonalData,
+    iconCustomer,
+    iconRideProvider,
     intl,
     intlValues,
     participantType,
     props,
+    propsInputButton,
     stateCustomerInformation,
     stateParticipantId,
     stateRideProviderInformation,
@@ -625,13 +628,7 @@ export function CardParticipant(props: CardParticipantPropsInput) {
         {...propsInputButton}
         key={`action-change-spectator-${stateParticipantId}`}
         spectatorId={stateParticipantId}
-        icon={
-          participantType === 'customer' ? (
-            <ParticipantCustomerIcon />
-          ) : (
-            <ParticipantRideProviderIcon />
-          )
-        }
+        icon={participantType === 'customer' ? iconCustomer : iconRideProvider}
         isPseudonym={false}
         label={intl.formatMessage(
           {id: 'getacar.spectator.this'},
@@ -656,7 +653,15 @@ export function CardParticipant(props: CardParticipantPropsInput) {
       );
     }
     return actionsList;
-  }, [fixMarker, intl, participantType, propsInputButton, stateParticipantId]);
+  }, [
+    fixMarker,
+    iconCustomer,
+    iconRideProvider,
+    intl,
+    participantType,
+    propsInputButton,
+    stateParticipantId,
+  ]);
 
   /** Additional information label based on global state */
   const finalLabel = useMemo<string | undefined>(() => {
@@ -683,13 +688,7 @@ export function CardParticipant(props: CardParticipantPropsInput) {
       {...props}
       key={`generic-card-${stateParticipantId}`}
       label={finalLabel}
-      icon={
-        participantType === 'customer' ? (
-          <ParticipantCustomerIcon />
-        ) : (
-          <ParticipantRideProviderIcon />
-        )
-      }
+      icon={participantType === 'customer' ? iconCustomer : iconRideProvider}
       name={
         participantType === 'customer'
           ? intl.formatMessage({id: 'getacar.participant.customer'})

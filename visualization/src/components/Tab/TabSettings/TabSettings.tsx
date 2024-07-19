@@ -42,7 +42,11 @@ import NumericFormatGeneric from '@components/Input/NumericFormatGeneric';
 import NumericFormatMs from '@components/Input/NumericFormatMs';
 import TabContainer from '@components/Tab/TabContainer';
 // > Misc
-import {debugComponentRender, debugMemoHelper} from '@misc/debug';
+import {
+  debugComponentElementUpdate,
+  debugComponentRender,
+  debugMemoHelper,
+} from '@misc/debug';
 import {stringComparator} from '@misc/compare';
 // Type imports
 import type {ReactSetState, ReactState} from '@misc/react';
@@ -302,6 +306,8 @@ export function TabSettings({
   }, [stateThemeMode]);
 
   const settingsCards = useMemo<Array<RenderSettingsProps>>(() => {
+    debugComponentElementUpdate('TabSettings#settingsCards');
+
     const settingsCardsList: Array<RenderSettingsProps> = [
       {
         elements: [

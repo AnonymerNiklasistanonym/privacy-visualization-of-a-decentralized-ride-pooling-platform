@@ -21,7 +21,12 @@ import InputSearchBar from '@components/Input/InputSearchBar';
 import TabContainer from '@components/Tab/TabContainer';
 import TableDebugData from '@components/Table/TableDebugData';
 // > Misc
-import {debugRequestBlock, debugVisibilityChange} from '@misc/debug';
+import {
+  debugComponentElementUpdate,
+  debugComponentRender,
+  debugRequestBlock,
+  debugVisibilityChange,
+} from '@misc/debug';
 import {SearchBarId} from '@misc/searchBarIds';
 import {SpectatorId} from '@misc/spectatorIds';
 // Type imports
@@ -49,6 +54,7 @@ import type {
   SimulationEndpointSmartContractInformation,
 } from '@globals/types/simulation';
 import type {CardRefreshProps} from '@components/Card/CardRefresh';
+import type {InputChangeSpectatorProps} from '@components/Input/InputChangeSpectator';
 import type {InputExtraActionsAction} from '@components/Input/InputExtraActions';
 import type {InputSearchBarProps} from '@components/Input/InputSearchBar';
 import type {ReactElement} from 'react';
@@ -70,7 +76,11 @@ export interface TabBlockchainProps
 
 // eslint-disable-next-line no-empty-pattern
 export default function TabBlockchain(props: TabBlockchainProps) {
+  debugComponentRender('TabBlockchain');
+
   const {
+    setStateShowParticipantId,
+    stateShowParticipantId,
     fetchJsonSimulation,
     fetchJsonSimulationWaitSmartContracts,
     setStateSelectedParticipantId,
@@ -87,7 +97,33 @@ export default function TabBlockchain(props: TabBlockchainProps) {
     stateInfoCardBlockchainDismissed,
     setStateInfoCardBlockchainDismissed,
   } = props;
+
   const intl = useIntl();
+
+  const propsInputChangeSpectator = useMemo<InputChangeSpectatorProps>(() => {
+    debugComponentElementUpdate('TabBlockchain#propsInputButton');
+    return {
+      setStateSelectedParticipantId,
+      setStateSelectedSmartContractId,
+      setStateShowParticipantId,
+      setStateSpectatorId,
+      stateSelectedParticipantId,
+      stateSelectedSmartContractId,
+      stateShowParticipantId,
+      stateSpectatorId,
+      stateSpectators,
+    };
+  }, [
+    setStateSelectedParticipantId,
+    setStateSelectedSmartContractId,
+    setStateShowParticipantId,
+    setStateSpectatorId,
+    stateSelectedParticipantId,
+    stateSelectedSmartContractId,
+    stateShowParticipantId,
+    stateSpectatorId,
+    stateSpectators,
+  ]);
 
   const [stateSelectedCustomerPseudonym, setStateSelectedCustomerPseudonym] =
     useState<string | undefined>(undefined);
@@ -200,6 +236,8 @@ export default function TabBlockchain(props: TabBlockchainProps) {
   const stateConnectedElements = useMemo<
     Array<GridConnectedElementsSectionCards>
   >(() => {
+    debugComponentElementUpdate('TabBlockchain#stateConnectedElements');
+
     const selectedParticipants: Array<ReactElement> = [];
     const selectedRideRequests: Array<ReactElement> = [];
     if (stateSelectedCustomerResolved !== undefined) {
@@ -283,8 +321,9 @@ export default function TabBlockchain(props: TabBlockchainProps) {
     stateSelectedRideProviderResolved,
   ]);
 
-  const searchActions = useMemo<Array<InputExtraActionsAction>>(
-    () => [
+  const searchActions = useMemo<Array<InputExtraActionsAction>>(() => {
+    debugComponentElementUpdate('TabBlockchain#searchActions');
+    return [
       {
         callback: () => setStateSelectedParticipantId(undefined),
         disabled: stateSelectedParticipantId === undefined,
@@ -293,11 +332,11 @@ export default function TabBlockchain(props: TabBlockchainProps) {
           id: 'getacar.participant.resetFilter.smartContracts',
         }),
       },
-    ],
-    [intl, stateSelectedParticipantId, setStateSelectedParticipantId]
-  );
+    ];
+  }, [intl, stateSelectedParticipantId, setStateSelectedParticipantId]);
 
   const spectatorActions = useMemo<Array<InputExtraActionsAction>>(() => {
+    debugComponentElementUpdate('TabBlockchain#spectatorActions');
     return [
       {
         callback: () => setStateSpectatorId(SpectatorId.EVERYTHING),
@@ -313,18 +352,26 @@ export default function TabBlockchain(props: TabBlockchainProps) {
   const stateInfoElements = useMemo<
     Array<GridConnectedElementsSectionInfoElement>
   >(() => {
+    debugComponentElementUpdate('TabBlockchain#stateInfoElements');
     return [
       {
         content: (
           <InputChangeSpectator
             key="change-spectator"
-            {...props}
+            {...propsInputChangeSpectator}
             actions={spectatorActions}
           />
         ),
       },
     ];
-  }, [props, spectatorActions]);
+  }, [propsInputChangeSpectator, spectatorActions]);
+
+  const refSmartContracts = useRef<
+    Array<SimulationEndpointSmartContractInformation>
+  >([]);
+
+  const [stateSmartContractsFetchedOnce, setStateSmartContractsFetchedOnce] =
+    useState(false);
 
   const [stateSmartContracts, setStateSmartContracts] = useState<
     Array<SimulationEndpointSmartContractInformation>
@@ -333,6 +380,7 @@ export default function TabBlockchain(props: TabBlockchainProps) {
   const stateSmartContractsFinal = useMemo<
     Array<SimulationEndpointSmartContractInformation>
   >(() => {
+    debugComponentElementUpdate('TabBlockchain#stateSmartContractsFinal');
     if (stateSelectedParticipantId !== undefined) {
       const spectator = stateSpectators.get(stateSelectedParticipantId);
       if (spectator !== undefined) {
@@ -362,11 +410,17 @@ export default function TabBlockchain(props: TabBlockchainProps) {
           if (data === null) {
             return;
           }
-          setStateSmartContracts(data);
+          if (
+            JSON.stringify(data) !== JSON.stringify(refSmartContracts.current)
+          ) {
+            refSmartContracts.current = data;
+            setStateSmartContracts(refSmartContracts.current);
+            setStateSmartContractsFetchedOnce(true);
+          }
           setStateFetchingSmartContracts(false);
         })
         .catch(err => showError('Fetch simulation smart contracts', err)),
-    [fetchJsonSimulationWaitSmartContracts, showError]
+    [fetchJsonSimulationWaitSmartContracts, showError, refSmartContracts]
   );
 
   const [stateWindowIsHidden, setStateWindowIsHidden] = useState(false);
@@ -387,7 +441,8 @@ export default function TabBlockchain(props: TabBlockchainProps) {
     const interval = setInterval(() => {
       if (stateWindowIsHidden) {
         debugRequestBlock(
-          'Smart contracts not fetched because window not visible',
+          'Smart contracts',
+          'window not visible',
           'Blockchain'
         );
         return;
@@ -422,8 +477,8 @@ export default function TabBlockchain(props: TabBlockchainProps) {
     if (stateSelectedSmartContractId === undefined) {
       setStateSelectedCustomerPseudonym(undefined);
       setStateSelectedRideProviderPseudonym(undefined);
-    } else {
-      const smartContract = stateSmartContractsFinal.find(
+    } else if (stateSmartContractsFetchedOnce) {
+      const smartContract = refSmartContracts.current.find(
         a => stateSelectedSmartContractId === a.walletId
       );
       if (smartContract !== undefined) {
@@ -434,7 +489,11 @@ export default function TabBlockchain(props: TabBlockchainProps) {
         );
       }
     }
-  }, [onRowSelect, stateSelectedSmartContractId, stateSmartContractsFinal]);
+  }, [
+    onRowSelect,
+    stateSelectedSmartContractId,
+    stateSmartContractsFetchedOnce,
+  ]);
 
   const searchIsCurrentSelectedParticipant = useCallback<
     (element: Readonly<GlobalSearchElement>) => boolean
@@ -454,16 +513,9 @@ export default function TabBlockchain(props: TabBlockchainProps) {
 
   const selectSmartContract = useCallback(
     (_: unknown, id: string) => {
-      const smartContract = stateSmartContracts.find(a => a.walletId === id);
-      if (smartContract) {
-        onRowSelect(
-          smartContract.walletId,
-          smartContract.customerId,
-          smartContract.rideProviderId
-        );
-      }
+      setStateSelectedSmartContractId(id);
     },
-    [onRowSelect, stateSmartContracts]
+    [setStateSelectedSmartContractId]
   );
 
   return (

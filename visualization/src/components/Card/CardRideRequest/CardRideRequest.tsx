@@ -69,7 +69,53 @@ export default function CardRideRequest(props: CardRideRequestPropsInput) {
     stateRideRequestId,
     stateSettingsGlobalDebug,
     intlValues,
+    fetchJsonSimulationWait,
+    setStateSelectedParticipantId,
+    setStateSelectedSmartContractId,
+    setStateShowParticipantId,
+    setStateSpectatorId,
+    setStateTabIndex,
+    stateSelectedParticipantId,
+    stateSelectedSmartContractId,
+    stateShowParticipantId,
+    stateSpectatorId,
   } = props;
+
+  const propsInputButton = useMemo<
+    InputButtonSpectatorShowProps & InputButtonSpectatorChangeProps
+  >(() => {
+    debugComponentElementUpdate(
+      `CardRideRequest#propsInputButton#${stateRideRequestId}`
+    );
+    return {
+      fetchJsonSimulation,
+      fetchJsonSimulationWait,
+      setStateSelectedParticipantId,
+      setStateSelectedSmartContractId,
+      setStateShowParticipantId,
+      setStateSpectatorId,
+      setStateTabIndex,
+      showError,
+      stateSelectedParticipantId,
+      stateSelectedSmartContractId,
+      stateShowParticipantId,
+      stateSpectatorId,
+    };
+  }, [
+    fetchJsonSimulation,
+    fetchJsonSimulationWait,
+    setStateSelectedParticipantId,
+    setStateSelectedSmartContractId,
+    setStateShowParticipantId,
+    setStateSpectatorId,
+    setStateTabIndex,
+    showError,
+    stateRideRequestId,
+    stateSelectedParticipantId,
+    stateSelectedSmartContractId,
+    stateShowParticipantId,
+    stateSpectatorId,
+  ]);
 
   const rideRequestUserId = stateRideRequestInformation?.userId;
   const rideRequestAuctionWinner = stateRideRequestInformation?.auctionWinner;
@@ -88,6 +134,10 @@ export default function CardRideRequest(props: CardRideRequestPropsInput) {
   ] = useState<SimulationEndpointParticipantIdFromPseudonym | undefined>(
     undefined
   );
+
+  const iconRideProvider = useMemo(() => <ParticipantRideProviderIcon />, []);
+
+  const iconCustomer = useMemo(() => <ParticipantCustomerIcon />, []);
 
   // React: Run on first render
   useEffect(() => {
@@ -168,7 +218,7 @@ export default function CardRideRequest(props: CardRideRequestPropsInput) {
         description: intl.formatMessage({
           id: 'dataAccess.rideRequestData.customer',
         }),
-        icon: <ParticipantCustomerIcon />,
+        icon: iconCustomer,
         name: intl.formatMessage({id: 'getacar.service.match'}),
         spectatorId: stateResolvedPseudonymCustomer.id,
         spectatorInformation: <ParticipantsCustomer intlValues={intlValues} />,
@@ -180,7 +230,7 @@ export default function CardRideRequest(props: CardRideRequestPropsInput) {
         description: intl.formatMessage({
           id: 'dataAccess.rideRequestData.rideProvider',
         }),
-        icon: <ParticipantRideProviderIcon />,
+        icon: iconRideProvider,
         name: intl.formatMessage({id: 'getacar.service.match'}),
         spectatorId: stateResolvedPseudonymAuctionWinner.id,
         spectatorInformation: (
@@ -191,6 +241,8 @@ export default function CardRideRequest(props: CardRideRequestPropsInput) {
     return dataAccessInformationList;
   }, [
     dataAccessPseudonyms,
+    iconCustomer,
+    iconRideProvider,
     intl,
     intlValues,
     stateResolvedPseudonymAuctionWinner,
@@ -212,10 +264,10 @@ export default function CardRideRequest(props: CardRideRequestPropsInput) {
       contentList.push({
         content: (
           <InputButtonSpectatorShow
-            {...props}
+            {...propsInputButton}
             key={`ride-request-auction-winner-${stateRideRequestId}`}
             spectatorId={stateRideRequestInformation.userId}
-            icon={<ParticipantCustomerIcon />}
+            icon={iconCustomer}
             label={intl.formatMessage({
               id: 'getacar.participant.customer',
             })}
@@ -225,7 +277,7 @@ export default function CardRideRequest(props: CardRideRequestPropsInput) {
         label: intl.formatMessage({
           id: 'getacar.participant.customer',
         }),
-        labelIcon: <ParticipantCustomerIcon />,
+        labelIcon: iconCustomer,
       });
     }
 
@@ -233,10 +285,10 @@ export default function CardRideRequest(props: CardRideRequestPropsInput) {
       contentList.push({
         content: (
           <InputButtonSpectatorShow
-            {...props}
+            {...propsInputButton}
             key={`ride-request-auction-winner-${stateRideRequestId}`}
             spectatorId={stateRideRequestInformation.auctionWinner}
-            icon={<ParticipantRideProviderIcon />}
+            icon={iconRideProvider}
             label={intl.formatMessage({
               id: 'getacar.spectator.message.auctionWinner',
             })}
@@ -246,7 +298,7 @@ export default function CardRideRequest(props: CardRideRequestPropsInput) {
         label: intl.formatMessage({
           id: 'getacar.spectator.message.auctionWinner',
         }),
-        labelIcon: <ParticipantRideProviderIcon />,
+        labelIcon: iconRideProvider,
       });
     }
 
@@ -290,8 +342,11 @@ export default function CardRideRequest(props: CardRideRequestPropsInput) {
   }, [
     dataAccessInformation,
     dataAccessInformationDebug,
+    iconCustomer,
+    iconRideProvider,
     intl,
     props,
+    propsInputButton,
     stateRideRequestId,
     stateRideRequestInformation,
     stateSettingsGlobalDebug,

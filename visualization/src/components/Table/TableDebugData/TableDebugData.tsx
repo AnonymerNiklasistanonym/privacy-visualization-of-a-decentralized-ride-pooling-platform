@@ -1,5 +1,5 @@
 // Package imports
-import {useCallback, useMemo} from 'react';
+import {memo, useCallback, useMemo} from 'react';
 import {useIntl} from 'react-intl';
 // > Components
 import {Box, Rating} from '@mui/material';
@@ -14,6 +14,13 @@ import {
   ParticipantRideProviderIcon,
   ParticipantRideRequestIcon,
 } from '@components/Icons';
+// > Misc
+import {
+  debug,
+  debugComponentElementUpdate,
+  debugComponentRender,
+  debugMemoHelper,
+} from '@misc/debug';
 // Type imports
 import type {
   GridColDef,
@@ -29,8 +36,6 @@ import type {
 } from '@globals/types/simulation';
 import type {DebugData} from '../DebugData';
 import type {ReactState} from '@misc/react';
-
-// TODO Add generic table that can memoize entries to curb expensive updates
 
 export type DebugDataType =
   | 'customer'
@@ -62,17 +67,43 @@ const ID_LENGTH = 120;
 const PSEUDO_LENGTH = 190;
 const RATING_LENGTH = 150;
 
-export default function TableDebugData({
+export default memo(TableDebugData, (prev, next) => {
+  const defaultComp = debugMemoHelper(
+    'TableDebugData',
+    ['debugDataType', 'height'],
+    prev,
+    next
+  );
+  const customComp =
+    JSON.stringify(prev.stateDebugData) === JSON.stringify(next.stateDebugData);
+  if (debug.useMemoHelper) {
+    if (customComp) {
+      console.debug('Detected no change in stateDebugData', defaultComp);
+    } else {
+      console.debug('Detected a change in stateDebugData', defaultComp);
+    }
+  }
+  return defaultComp && customComp;
+});
+
+// TODO Feature? Make this table generic
+
+export function TableDebugData({
   stateDebugData,
   debugDataType,
   height,
   onRowClick,
 }: TableDebugDataProps) {
+  debugComponentRender(`TableDebugData#${debugDataType}`);
+
   const intl = useIntl();
 
   const [rows, columns] = useMemo<
     [Array<GridRowModel>, Array<GridColDef>]
   >(() => {
+    debugComponentElementUpdate(
+      `TableDebugData#[rows, columns]#${debugDataType}`
+    );
     const rowsList: GridRowModel[] = [];
     const columnsList: GridColDef[] = [
       {
@@ -352,7 +383,9 @@ export default function TableDebugData({
           },
           density: 'compact',
           pagination: {
-            rowCount: 25,
+            paginationModel: {
+              pageSize: 25,
+            },
           },
           sorting: {
             sortModel: [

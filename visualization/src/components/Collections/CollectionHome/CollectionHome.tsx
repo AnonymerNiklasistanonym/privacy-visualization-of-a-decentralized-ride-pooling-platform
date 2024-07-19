@@ -255,8 +255,9 @@ export default function CollectionHome(
     ): Promise<T | null> => {
       if (requestBalancer.current) {
         debugRequestBlock(
-          'Stopped request because a request is already happening',
-          endpoint
+          `Fetching '${endpoint}'`,
+          'Fetching is already happening',
+          'fetchJsonSimulationWait'
         );
         return null;
       }

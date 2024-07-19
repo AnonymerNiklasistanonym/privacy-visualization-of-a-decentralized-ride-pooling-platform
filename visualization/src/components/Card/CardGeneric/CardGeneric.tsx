@@ -81,7 +81,7 @@ export default function CardGeneric({
   unpinAction,
 }: CardGenericPropsInput) {
   const titleStackList = useMemo(() => {
-    debugComponentElementUpdate(`CardGeneric#titleStackList#${id}`);
+    debugComponentElementUpdate(`CardGeneric#titleStackList#${id}-${label}`);
     const result: Array<ReactElement> = [];
     if (label !== undefined) {
       result.push(
@@ -123,7 +123,7 @@ export default function CardGeneric({
   }, [label, id, status]);
 
   const iconActions = useMemo(() => {
-    debugComponentElementUpdate(`CardGeneric#iconActions#${id}`);
+    debugComponentElementUpdate(`CardGeneric#iconActions#${id}-${label}`);
     const result = [];
     if (
       pinAction !== undefined &&
@@ -131,7 +131,7 @@ export default function CardGeneric({
     ) {
       result.push(
         <IconButton
-          key={`generic-card-action-pin-${id}`}
+          key={`generic-card-action-pin-${id}-${label}`}
           aria-label="pin"
           onClick={() => pinAction(id)}
         >
@@ -145,7 +145,7 @@ export default function CardGeneric({
     ) {
       result.push(
         <IconButton
-          key={`generic-card-action-unpin-${id}`}
+          key={`generic-card-action-unpin-${id}-${label}`}
           aria-label="unpin"
           onClick={() => unpinAction(id)}
         >
@@ -154,7 +154,7 @@ export default function CardGeneric({
       );
     }
     return result;
-  }, [id, isPinned, pinAction, unpinAction]);
+  }, [id, isPinned, label, pinAction, unpinAction]);
 
   return (
     <Card variant="outlined">
