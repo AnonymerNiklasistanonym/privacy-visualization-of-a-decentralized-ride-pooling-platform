@@ -39,6 +39,7 @@ import {simulationEndpoints} from '@globals/defaults/endpoints';
 import {
   debugComponentRenderCounter,
   debugComponentUpdateCounter,
+  debugFetching,
 } from '@misc/debug';
 import {TabIndex} from '@misc/tabIndices';
 import {fetchTextEndpoint} from '@misc/fetch';
@@ -157,6 +158,10 @@ export default function TabPanel(props: TabPanelProps) {
     Array<[string, number]>
   >([]);
 
+  const [stateFetchList, setStateFetchList] = useState<Array<[string, number]>>(
+    []
+  );
+
   // React states
   // > Debug
   const [stateDebugData, setStateDebugData] = useState<DebugData>({
@@ -265,6 +270,12 @@ export default function TabPanel(props: TabPanelProps) {
     );
   }, [setStateUpdateList]);
 
+  const updateFetchCount = useCallback(() => {
+    setStateFetchList(
+      Array.from(debugFetching).sort((a, b) => stringComparator(a[0], b[0]))
+    );
+  }, [setStateFetchList]);
+
   const propsTabPanelTab: TabPanelTabProps = {
     stateSettingsGlobalDebug,
     stateSettingsUiGridSpacing,
@@ -367,6 +378,29 @@ export default function TabPanel(props: TabPanelProps) {
         <List>
           {stateUpdateList.map(([name, count]) => (
             <ListItem key={`update-count-debug-item-${name}`}>
+              <ListItemIcon>
+                <Badge badgeContent={count} max={100000} color="primary">
+                  <RefreshIcon />
+                </Badge>
+              </ListItemIcon>
+              <ListItemText primary={name} />
+            </ListItem>
+          ))}
+        </List>
+      </TabPanelTabSectionDebug>
+
+      <TabPanelTabSectionDebug
+        title="Debug #Fetch"
+        stateSettingsGlobalDebug={stateSettingsGlobalDebug}
+      >
+        <ButtonGroup variant="contained">
+          <GenericButton onClick={updateFetchCount}>
+            Update fetch count
+          </GenericButton>
+        </ButtonGroup>
+        <List>
+          {stateFetchList.map(([name, count]) => (
+            <ListItem key={`fetch-count-debug-item-${name}`}>
               <ListItemIcon>
                 <Badge badgeContent={count} max={100000} color="primary">
                   <RefreshIcon />

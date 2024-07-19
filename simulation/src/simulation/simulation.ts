@@ -435,6 +435,7 @@ export class Simulation {
         if (customer) {
           res.json({
             ...customer.endpointCustomer,
+            realRating: customer.getRealRating(this),
             roundedRating: customer.getRating(this),
           });
           return;
@@ -452,6 +453,7 @@ export class Simulation {
         if (rideProvider) {
           res.json({
             ...rideProvider.endpointRideProvider,
+            realRating: rideProvider.getRealRating(this),
             roundedRating: rideProvider.getRating(this),
           });
           return;

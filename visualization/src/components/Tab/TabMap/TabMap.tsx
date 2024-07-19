@@ -306,6 +306,7 @@ export default function TabMap(props: TabMapProps) {
             actions={spectatorActions}
           />
         ),
+        id: 'tab-map-change-spectator',
       },
     ];
   }, [props, spectatorActions]);
@@ -513,6 +514,8 @@ export default function TabMap(props: TabMapProps) {
   }, [
     intl,
     props,
+    setStatePinnedCustomers,
+    setStatePinnedRideProviders,
     stateConnectedDriver,
     stateConnectedPassengers,
     stateConnectedRideRequests,

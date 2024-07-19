@@ -1,5 +1,5 @@
 // Package imports
-import {useCallback, useMemo} from 'react';
+import {useCallback, useEffect, useMemo, useState} from 'react';
 // > Components
 import {Box, ListItem, Tooltip, Typography} from '@mui/material';
 // Local imports
@@ -21,8 +21,8 @@ import type {
   ModalDataInformationOrigin,
 } from '@components/Modal/ModalData';
 import type {ReactElement, ReactNode} from 'react';
-import type {InputButtonSpectatorChangeProps} from '@components/Input/InputButton/InputButtonSpectatorChange';
 import type {GlobalPropsModalDataInformation} from '@misc/props/global';
+import type {InputButtonSpectatorChangeProps} from '@components/Input/InputButton/InputButtonSpectatorChange';
 
 export interface DataElement {
   label: string;
@@ -37,6 +37,7 @@ export interface RenderDataElementProps
     GlobalPropsModalDataInformation {
   /** The rendered information */
   element: Readonly<DataElement>;
+  /** Only used for the element key */
   id: string;
   /** The data owner information element */
   dataOriginInformation?: ReactElement;
@@ -54,6 +55,7 @@ export function RenderDataElement(props: RenderDataElementProps) {
     dataOriginIcon,
     dataOriginInformation,
     dataAccessInformation,
+    stateOpenModalData,
     setStateOpenModalData,
     setStateDataModalInformation,
   } = props;
@@ -101,29 +103,43 @@ export function RenderDataElement(props: RenderDataElementProps) {
     return [contentTemp, tooltipTemp];
   }, [dataAccessDataModal, element.content, stateSpectatorId]);
 
+  const [stateDataModalOpened, setStateDataModalOpened] = useState(false);
+
   const openDataModalCallback = useCallback(() => {
     setStateOpenModalData(true);
-    setStateDataModalInformation({
-      dataLabel: element.label,
-      dataValue: element.content,
-      dataValueSpectator: content,
-      informationAccess: dataAccessDataModal,
-      informationOrigin: {
-        dataOriginIcon,
-        dataOriginId,
-        dataOriginName,
-      },
-    });
+    setStateDataModalOpened(true);
+  }, [setStateOpenModalData]);
+
+  useEffect(() => {
+    if (stateOpenModalData === false) {
+      setStateDataModalOpened(false);
+    }
+  }, [stateOpenModalData]);
+
+  useEffect(() => {
+    if (stateDataModalOpened) {
+      setStateDataModalInformation({
+        dataLabel: element.label,
+        dataValue: element.content,
+        dataValueSpectator: content,
+        informationAccess: dataAccessDataModal,
+        informationOrigin: {
+          dataOriginIcon,
+          dataOriginId,
+          dataOriginName,
+        },
+      });
+    }
   }, [
-    setStateOpenModalData,
-    setStateDataModalInformation,
-    element.label,
-    element.content,
     content,
     dataAccessDataModal,
     dataOriginIcon,
     dataOriginId,
     dataOriginName,
+    element.content,
+    element.label,
+    setStateDataModalInformation,
+    stateDataModalOpened,
   ]);
 
   const dataValue = useMemo<ReactElement>(

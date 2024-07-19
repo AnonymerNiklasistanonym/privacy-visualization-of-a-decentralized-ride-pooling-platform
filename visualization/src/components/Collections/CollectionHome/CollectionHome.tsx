@@ -43,6 +43,7 @@ import {simulationEndpoints} from '@globals/defaults/endpoints';
 import {
   debugCache,
   debugComponentElementUpdate,
+  debugFetching,
   debugRequestBlock,
 } from '@misc/debug';
 import {LocalStorageKey} from '@misc/localStorage';
@@ -247,6 +248,7 @@ export default function CollectionHome(
         // If a request is made update the cache
         // TODO Cache only gets bigger, nothing is purged - clean routine
         requestCache.current.set(endpoint, {data, time: currentTime});
+        debugFetching.set(endpoint, (debugFetching.get(endpoint) ?? 0) + 1);
         return data;
       }
     },
@@ -887,6 +889,7 @@ export default function CollectionHome(
     setStateThemeMode,
     stateInfoCardBlockchainDismissed,
     stateInfoCardMapDismissed,
+    stateOpenModalData,
     statePinnedCustomers,
     statePinnedRideProviders,
     stateSelectedParticipantId,

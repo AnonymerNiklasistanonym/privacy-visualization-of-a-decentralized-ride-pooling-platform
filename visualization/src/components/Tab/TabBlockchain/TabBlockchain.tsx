@@ -152,21 +152,13 @@ export default function TabBlockchain(props: TabBlockchainProps) {
       stateSelectedRideProviderPseudonym !== undefined &&
       stateSelectedSmartContractId !== undefined
     ) {
-      console.warn(
-        'Fetch connected ride requests of smart contract...',
-        stateSelectedSmartContractId
-      );
       fetchJsonSimulation<SimulationEndpointSmartContractConnectedRideRequests>(
         simulationEndpoints.apiV1.smartContractConnectedRideRequests(
           stateSelectedSmartContractId
         )
       )
         .then(data => {
-          // TODO Not working
-          console.warn(
-            'Fetched connected ride requests of smart contract',
-            data
-          );
+          // TODO Feature: Instead of fetching all blockchain entries fetch only the connected ones
           setStateConnectedRideRequests(data.connectedRideRequests);
         })
         .catch(err =>
@@ -362,6 +354,7 @@ export default function TabBlockchain(props: TabBlockchainProps) {
             actions={spectatorActions}
           />
         ),
+        id: 'tab-blockchain-change-spectator',
       },
     ];
   }, [propsInputChangeSpectator, spectatorActions]);
@@ -526,8 +519,12 @@ export default function TabBlockchain(props: TabBlockchainProps) {
         stateInfoElements={stateInfoElements}
         stateSettingsGlobalDebug={stateSettingsGlobalDebug}
       >
-        <Grid container spacing={stateSettingsUiGridSpacing}>
-          <Grid item xs={12}>
+        <Grid
+          container
+          spacing={stateSettingsUiGridSpacing}
+          key="connected-elements-grid-container"
+        >
+          <Grid item xs={12} key="connected-elements-grid-search-bar">
             <InputSearchBar
               {...props}
               key="search-bar-blockchain"
@@ -560,7 +557,7 @@ export default function TabBlockchain(props: TabBlockchainProps) {
               </Typography>
             </GridConnectedElementsCard>
           ) : undefined}
-          <Grid item xs={12}>
+          <Grid item xs={12} key="connected-elements-grid-table">
             <Box
               sx={{
                 height: `calc(100vh - 10rem - ${stateInfoCardBlockchainDismissed ? '0rem' : '10rem'} - ${

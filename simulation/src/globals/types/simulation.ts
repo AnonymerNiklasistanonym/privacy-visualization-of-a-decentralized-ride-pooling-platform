@@ -60,6 +60,8 @@ export interface SimulationEndpointParticipantInformation
   simulationStatus: string;
   /** Rounded rating of participant. */
   roundedRating?: number;
+  /** Real rating of participant. */
+  realRating?: number;
 }
 
 export interface SimulationEndpointParticipantInformationCustomer

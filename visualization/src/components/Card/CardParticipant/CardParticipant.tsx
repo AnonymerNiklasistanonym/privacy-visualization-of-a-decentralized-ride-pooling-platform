@@ -15,6 +15,7 @@ import {
   ServiceAuthenticationIcon,
   ServiceMatchingIcon,
   SettingsDebugIcon,
+  SpectatorEverythingIcon,
   SpectatorPublicIcon,
 } from '@components/Icons';
 import {
@@ -131,41 +132,130 @@ export function CardParticipant(props: CardParticipantPropsInput) {
   ]);
 
   const iconRideProvider = useMemo(() => <ParticipantRideProviderIcon />, []);
-
   const iconCustomer = useMemo(() => <ParticipantCustomerIcon />, []);
+  const iconAuth = useMemo(() => <ServiceAuthenticationIcon />, []);
+  const iconMatch = useMemo(() => <ServiceMatchingIcon />, []);
+  const iconEverything = useMemo(() => <SpectatorEverythingIcon />, []);
+
+  const spectatorInfoPublic = useMemo(
+    () => <Public intlValues={intlValues} />,
+    [intlValues]
+  );
+  const spectatorInfoAuth = useMemo(
+    () => <ServiceAuthentication intlValues={intlValues} />,
+    [intlValues]
+  );
+  const spectatorInfoMatch = useMemo(
+    () => <ServiceMatching intlValues={intlValues} />,
+    [intlValues]
+  );
+
+  const dataAccessNotPublic = useMemo<Array<ModalDataInformationAccess>>(
+    () => [
+      {
+        accessType: 'none',
+        description: intl.formatMessage({
+          id: 'dataAccess.NotPubliclyAvailable',
+        }),
+        icon: iconEverything,
+        name: intl.formatMessage({id: 'getacar.spectator.public'}),
+        spectatorId: SpectatorId.PUBLIC,
+        spectatorInformation: spectatorInfoPublic,
+      },
+    ],
+    [iconEverything, intl, spectatorInfoPublic]
+  );
 
   const dataAccessPersonalData = useMemo<Array<ModalDataInformationAccess>>(
     () => [
       {
         accessType: 'local_storage',
         description: intl.formatMessage({id: 'dataAccess.personalData.as'}),
-        icon: <ServiceAuthenticationIcon />,
+        icon: iconAuth,
         name: intl.formatMessage({
           id: 'getacar.spectator.service.authentication',
         }),
         spectatorId: SpectatorId.AUTHENTICATION_SERVICE,
-        spectatorInformation: <ServiceAuthentication intlValues={intlValues} />,
+        spectatorInformation: spectatorInfoAuth,
       },
       {
         accessType: 'none',
         description: intl.formatMessage({id: 'dataAccess.personalData.ms'}),
-        icon: <ServiceMatchingIcon />,
+        icon: iconMatch,
         name: intl.formatMessage({id: 'getacar.service.match'}),
         spectatorId: SpectatorId.MATCHING_SERVICE,
-        spectatorInformation: <ServiceMatching intlValues={intlValues} />,
+        spectatorInformation: spectatorInfoMatch,
+      },
+      ...dataAccessNotPublic,
+    ],
+    [
+      dataAccessNotPublic,
+      iconAuth,
+      iconMatch,
+      intl,
+      spectatorInfoAuth,
+      spectatorInfoMatch,
+    ]
+  );
+
+  const dataAccessQueryRealRating = useMemo<Array<ModalDataInformationAccess>>(
+    () => [
+      {
+        accessType: 'transitive',
+        description: intl.formatMessage({id: 'dataAccess.queryData.rating.as'}),
+        icon: iconAuth,
+        name: intl.formatMessage({
+          id: 'getacar.spectator.service.authentication',
+        }),
+        spectatorId: SpectatorId.AUTHENTICATION_SERVICE,
+        spectatorInformation: spectatorInfoAuth,
+      },
+      ...dataAccessNotPublic,
+    ],
+    [dataAccessNotPublic, iconAuth, intl, spectatorInfoAuth]
+  );
+
+  const dataAccessQueryRoundedRating = useMemo<
+    Array<ModalDataInformationAccess>
+  >(
+    () => [
+      {
+        accessType: 'transitive',
+        description: intl.formatMessage({
+          id: 'dataAccess.queryData.rating.rounded.as',
+        }),
+        icon: iconAuth,
+        name: intl.formatMessage({
+          id: 'getacar.spectator.service.authentication',
+        }),
+        spectatorId: SpectatorId.AUTHENTICATION_SERVICE,
+        spectatorInformation: spectatorInfoAuth,
       },
       {
-        accessType: 'none',
+        accessType: 'transitive',
         description: intl.formatMessage({
-          id: 'dataAccess.NotPubliclyAvailable',
+          id: 'dataAccess.queryData.rating.rounded.ms',
         }),
-        icon: <SpectatorPublicIcon />,
-        name: intl.formatMessage({id: 'getacar.spectator.public'}),
-        spectatorId: SpectatorId.PUBLIC,
-        spectatorInformation: <Public intlValues={intlValues} />,
+        icon: iconMatch,
+        name: intl.formatMessage({id: 'getacar.service.match'}),
+        spectatorId: SpectatorId.MATCHING_SERVICE,
+        spectatorInformation: spectatorInfoMatch,
       },
+      ...dataAccessNotPublic,
     ],
-    [intl, intlValues]
+    [
+      dataAccessNotPublic,
+      iconAuth,
+      iconMatch,
+      intl,
+      spectatorInfoAuth,
+      spectatorInfoMatch,
+    ]
+  );
+
+  const dataAccessDebug = useMemo<Array<ModalDataInformationAccess>>(
+    () => [...dataAccessNotPublic],
+    [dataAccessNotPublic]
   );
 
   const content = useMemo<Array<CardGenericPropsContentElement>>(() => {
@@ -268,39 +358,54 @@ export function CardParticipant(props: CardParticipantPropsInput) {
       contentList.push({
         content: stateCustomerInformation ? (
           <List key={`participant-list-queries-${stateParticipantId}`}>
-            {
-              <RenderDataElement
-                {...props}
-                key={'render-data-element-queries'}
-                element={{
-                  content:
-                    stateCustomerInformation.roundedRating !== -1
-                      ? stateCustomerInformation.roundedRating
-                      : intl.formatMessage({
-                          id: 'getacar.participant.data.roundedRating.notAvailable',
-                        }),
-                  dataAccessInformation: dataAccessPersonalData,
-                  label: intl.formatMessage({
-                    id: 'getacar.participant.data.roundedRating',
-                  }),
-                }}
-                id={stateCustomerInformation.id}
-                dataOriginName={intl.formatMessage(
-                  {
-                    id: 'getacar.participant.customer.name',
-                  },
-                  {
-                    name: stateCustomerInformation.id,
-                  }
-                )}
-                dataOriginId={stateCustomerInformation.id}
-                dataOriginIcon={iconCustomer}
-                dataOriginInformation={
-                  <ParticipantsCustomer intlValues={intlValues} />
-                }
-                dataAccessInformation={dataAccessPersonalData}
-              />
-            }
+            <RenderDataElement
+              {...props}
+              key={'render-data-element-queries-rating-rounded'}
+              element={{
+                content:
+                  stateCustomerInformation.roundedRating !== -1
+                    ? stateCustomerInformation.roundedRating
+                    : intl.formatMessage({
+                        id: 'getacar.participant.data.rating.notAvailable',
+                      }),
+                dataAccessInformation: dataAccessPersonalData,
+                label: intl.formatMessage({
+                  id: 'getacar.participant.data.rating.rounded',
+                }),
+              }}
+              id={stateCustomerInformation.id}
+              dataOriginName={intl.formatMessage({
+                id: 'getacar.service.auth',
+              })}
+              dataOriginId={SpectatorId.AUTHENTICATION_SERVICE}
+              dataOriginIcon={iconAuth}
+              dataOriginInformation={spectatorInfoAuth}
+              dataAccessInformation={dataAccessQueryRoundedRating}
+            />
+            <RenderDataElement
+              {...props}
+              key={'render-data-element-queries-rating'}
+              element={{
+                content:
+                  stateCustomerInformation.realRating !== -1
+                    ? stateCustomerInformation.realRating
+                    : intl.formatMessage({
+                        id: 'getacar.participant.data.rating.notAvailable',
+                      }),
+                dataAccessInformation: dataAccessPersonalData,
+                label: intl.formatMessage({
+                  id: 'getacar.participant.data.rating',
+                }),
+              }}
+              id={stateCustomerInformation.id}
+              dataOriginName={intl.formatMessage({
+                id: 'getacar.service.auth',
+              })}
+              dataOriginId={SpectatorId.AUTHENTICATION_SERVICE}
+              dataOriginIcon={iconAuth}
+              dataOriginInformation={spectatorInfoAuth}
+              dataAccessInformation={dataAccessQueryRealRating}
+            />
           </List>
         ) : null,
         label: intl.formatMessage({id: 'data.section.queries'}),
@@ -480,11 +585,11 @@ export function CardParticipant(props: CardParticipantPropsInput) {
                   stateRideProviderInformation.roundedRating !== -1
                     ? stateRideProviderInformation.roundedRating
                     : intl.formatMessage({
-                        id: 'getacar.participant.data.roundedRating.notAvailable',
+                        id: 'getacar.participant.data.rating.notAvailable',
                       }),
                 dataAccessInformation: dataAccessPersonalData,
                 label: intl.formatMessage({
-                  id: 'getacar.participant.data.roundedRating',
+                  id: 'getacar.participant.data.rating.rounded',
                 }),
               }}
               id={stateRideProviderInformation.id}
@@ -561,13 +666,10 @@ export function CardParticipant(props: CardParticipantPropsInput) {
                     label: key,
                   }}
                   id={stateParticipantId}
-                  dataOriginName={`Debug Participant [Ride Provider] (${stateParticipantId})`}
-                  dataOriginId={stateParticipantId}
-                  dataOriginIcon={iconRideProvider}
-                  dataOriginInformation={
-                    <ParticipantsRideProvider intlValues={intlValues} />
-                  }
-                  dataAccessInformation={[]}
+                  dataOriginName="Debug"
+                  dataOriginId={SpectatorId.EVERYTHING}
+                  dataOriginIcon={iconEverything}
+                  dataAccessInformation={dataAccessDebug}
                 />
               )
             )}

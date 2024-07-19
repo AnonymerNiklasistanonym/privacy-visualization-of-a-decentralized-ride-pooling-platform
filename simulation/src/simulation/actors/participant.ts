@@ -107,6 +107,17 @@ export abstract class Participant<JsonType> extends Actor<
     return this.registeredAuthService.getRating(pseudonym, simulation);
   }
 
+  getRealRating(simulation: Simulation): number {
+    if (this.registeredAuthService === null) {
+      throw new Error(
+        'Participant is not yet registered to an authentication service.'
+      );
+    }
+    const pseudonym = this.registeredAuthService.getVerify(this.id);
+    return this.registeredAuthService.getRealRating(pseudonym, simulation)
+      .rating;
+  }
+
   async getRoute(
     simulation: Readonly<Simulation>,
     newLocation: Readonly<Coordinates>,

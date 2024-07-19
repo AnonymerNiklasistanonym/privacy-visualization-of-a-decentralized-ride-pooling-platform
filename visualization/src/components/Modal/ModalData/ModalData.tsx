@@ -13,9 +13,9 @@ import {
 // Local imports
 // > Components
 import {DataHiddenIcon, DataVisibleIcon} from '@components/Icons';
-import DataModelListElement from './ModalDataElement';
 import GenericModal from '@components/Modal/ModalGeneric';
 import LoadingCircle from '@components/Loading/LoadingCircle';
+import ModalDataElement from './ModalDataElement';
 // > Misc
 import {debugComponentRender, debugMemoHelper} from '@misc/debug';
 // Type imports
@@ -25,9 +25,11 @@ import type {
 } from './ModalDataInformation';
 import type {ReactSetState, ReactState} from '@misc/react';
 import type {InputButtonSpectatorChangeProps} from '@components/Input/InputButton/InputButtonSpectatorChange';
+import type {ModalDataListElementProps} from './ModalDataElement';
 import type {ReactNode} from 'react';
+import { GlobalPropsSpectatorMap } from '@misc/props/global';
 
-export type ModalDataProps = InputButtonSpectatorChangeProps;
+export interface ModalDataProps extends InputButtonSpectatorChangeProps, GlobalPropsSpectatorMap {}
 
 export interface ModalDataPropsInput extends ModalDataProps {
   /** The open state of the modal */
@@ -46,11 +48,22 @@ export default memo(ModalData, (prev, next) =>
 export function ModalData(props: ModalDataPropsInput) {
   debugComponentRender('ModalData');
   const {
+    stateSpectators,
     stateSpectatorId,
     stateDataModalOpen,
     stateDataModalInformation,
     setStateDataModalOpen,
+    ...rest
   } = props;
+
+  const propsDataModelListElement: ModalDataListElementProps = useMemo(
+    () => ({
+      ...rest,
+      stateSpectatorId,
+    }),
+    [rest, stateSpectatorId]
+  );
+
   const intl = useIntl();
   const listInformation = useMemo<
     Array<[string, ModalDataInformationAccessType]>
@@ -64,6 +77,14 @@ export function ModalData(props: ModalDataPropsInput) {
     [intl]
   );
   // TODO: Add Button to show the data if hidden!
+
+  const spectatorInfo = useMemo(() => {
+    const spectator = stateSpectators.get(stateSpectatorId);
+    if (spectator) {
+      return `${spectator.name} (${stateSpectatorId})`;
+    }
+    return stateSpectatorId;
+  }, [stateSpectatorId, stateSpectators]);
 
   // Either a loading icon or the content
   const content = useMemo<ReactNode>(() => {
@@ -83,7 +104,14 @@ export function ModalData(props: ModalDataPropsInput) {
           }}
           gutterBottom
         >
-          Who can see {stateDataModalInformation.dataLabel} from{' '}
+          {intl.formatMessage(
+            {
+              id: 'data.access.message.whoCanSee',
+            },
+            {
+              name: stateDataModalInformation.dataLabel,
+            }
+          )}
           <Chip
             icon={stateDataModalInformation.informationOrigin.dataOriginIcon}
             label={stateDataModalInformation.informationOrigin.dataOriginName}
@@ -104,9 +132,25 @@ export function ModalData(props: ModalDataPropsInput) {
         <Chip
           icon={dataValueHidden ? <DataHiddenIcon /> : <DataVisibleIcon />}
           color={dataValueHidden ? 'error' : 'success'}
-          label={`${
-            dataValueHidden ? 'Hidden' : 'Visible'
-          } for ${stateSpectatorId}`}
+          label={
+            dataValueHidden
+              ? intl.formatMessage(
+                  {
+                    id: 'data.access.message.hiddenFor',
+                  },
+                  {
+                    name: spectatorInfo,
+                  }
+                )
+              : intl.formatMessage(
+                  {
+                    id: 'data.access.message.visibleFor',
+                  },
+                  {
+                    name: spectatorInfo,
+                  }
+                )
+          }
         />
         <Divider sx={{paddingTop: '1rem'}} />
         {listInformation.map(([title, accessType]) => {
@@ -132,8 +176,8 @@ export function ModalData(props: ModalDataPropsInput) {
               }
             >
               {elements.map(a => (
-                <DataModelListElement
-                  {...props}
+                <ModalDataElement
+                  {...propsDataModelListElement}
                   key={`data-modal-${accessType}-${a.name}-${stateDataModalInformation.informationOrigin.dataOriginName}`}
                   stateDataModalContentElement={a}
                 />
@@ -144,8 +188,9 @@ export function ModalData(props: ModalDataPropsInput) {
       </>
     );
   }, [
+    intl,
     listInformation,
-    props,
+    propsDataModelListElement,
     stateDataModalInformation?.dataLabel,
     stateDataModalInformation?.dataValueSpectator,
     stateDataModalInformation?.informationAccess,

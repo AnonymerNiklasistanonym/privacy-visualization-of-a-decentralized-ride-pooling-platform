@@ -35,6 +35,8 @@ export interface GlobalPropsSpectatorSelectedElementsSet {
 }
 
 export interface GlobalPropsModalDataInformation {
+  /** The open/close state of the data modal */
+  stateOpenModalData: ReactState<boolean>;
   /** Set the open/close state of the data modal */
   setStateOpenModalData: ReactSetState<boolean>;
   /** Set the content of the data modal */

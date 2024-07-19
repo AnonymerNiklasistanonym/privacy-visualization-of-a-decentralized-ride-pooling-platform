@@ -23,6 +23,7 @@ export interface GridConnectedElementsSectionCards {
 export interface GridConnectedElementsSectionInfoElement {
   title?: string;
   icon?: ReactElement;
+  id: string;
   /** Content can either be a raw string or a custom element (component) */
   content: string | ReactElement;
   /** Card can be dismissed */
@@ -86,9 +87,9 @@ export function GridConnectedElements({
                 alignItems="stretch"
               >
                 {stateInfoElements.map(
-                  ({content, title, icon, dismissible}, index) => (
+                  ({content, title, icon, id, dismissible}) => (
                     <GridConnectedElementsCard
-                      key={`connected-elements-card-info-${title ?? index}`}
+                      key={`connected-elements-card-info-${id}`}
                       muiGridItemSize={12}
                       icon={icon}
                       title={title}

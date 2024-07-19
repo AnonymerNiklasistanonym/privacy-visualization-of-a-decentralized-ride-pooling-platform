@@ -28,16 +28,19 @@ import type {InputButtonSpectatorChangeProps} from '@components/Input/InputButto
 import type {ModalDataInformationAccess} from './ModalDataInformation';
 import type {ReactState} from '@misc/react';
 
-export interface DataModalPropsElement extends InputButtonSpectatorChangeProps {
+export type ModalDataListElementProps = InputButtonSpectatorChangeProps;
+
+export interface ModalDataListElementPropsInput
+  extends ModalDataListElementProps {
   stateDataModalContentElement: ReactState<ModalDataInformationAccess>;
 }
 
-export default memo(DataModelListElement);
+export default memo(ModalDataListElement);
 
-export function DataModelListElement(props: DataModalPropsElement) {
+export function ModalDataListElement(props: ModalDataListElementPropsInput) {
   debugComponentRender('DataModelListElement');
 
-  const {stateDataModalContentElement} = props;
+  const {stateDataModalContentElement, ...rest} = props;
 
   const [open, setOpen] = useState(false);
 
@@ -47,9 +50,16 @@ export function DataModelListElement(props: DataModalPropsElement) {
 
   const theme = useTheme();
 
+  const propsInputButton: InputButtonSpectatorChangeProps = {
+    ...rest,
+  };
+
   return (
     <>
-      <ListItemButton onClick={handleClick}>
+      <ListItemButton
+        key={`list-item-button-${stateDataModalContentElement.name}`}
+        onClick={handleClick}
+      >
         <ListItemIcon>
           {stateDataModalContentElement.icon ?? <QuestionMarkIcon />}
         </ListItemIcon>
@@ -63,7 +73,12 @@ export function DataModelListElement(props: DataModalPropsElement) {
         />
         {open ? <ExpandLessIcon /> : <ExpandMoreIcon />}
       </ListItemButton>
-      <Collapse in={open} timeout="auto" unmountOnExit>
+      <Collapse
+        key={`list-item-button-collapse-${stateDataModalContentElement.name}`}
+        in={open}
+        timeout="auto"
+        unmountOnExit
+      >
         <Box
           component="section"
           sx={{
@@ -77,7 +92,7 @@ export function DataModelListElement(props: DataModalPropsElement) {
             </CardContent>
             <CardActions>
               <InputButtonSpectatorChange
-                {...props}
+                {...propsInputButton}
                 key={`modal_${stateDataModalContentElement.name}`}
                 spectatorId={stateDataModalContentElement.spectatorId}
                 icon={stateDataModalContentElement.icon ?? <QuestionMarkIcon />}

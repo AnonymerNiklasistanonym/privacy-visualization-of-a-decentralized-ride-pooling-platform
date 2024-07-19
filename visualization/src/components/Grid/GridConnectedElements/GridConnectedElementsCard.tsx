@@ -81,7 +81,7 @@ export function GridConnectedElementsCard({
 
   const card = useMemo(
     () => (
-      <Card>
+      <Card key={`grid-connected-elements-card-${title}`}>
         {title !== undefined ? (
           <CardHeader
             avatar={avatar}
@@ -100,7 +100,11 @@ export function GridConnectedElementsCard({
   if (stateShow) {
     if (muiGridItemSize !== undefined) {
       return (
-        <Grid item xs={muiGridItemSize}>
+        <Grid
+          item
+          xs={muiGridItemSize}
+          key={`grid-connected-elements-card-grid-${title}`}
+        >
           {card}
         </Grid>
       );

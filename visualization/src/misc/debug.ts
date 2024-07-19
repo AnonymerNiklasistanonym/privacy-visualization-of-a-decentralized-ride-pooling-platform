@@ -17,6 +17,8 @@ export const debugComponentRenderCounter = new Map<string, number>();
 
 export const debugComponentUpdateCounter = new Map<string, number>();
 
+export const debugFetching = new Map<string, number>();
+
 export function debugComponentRender(name: string) {
   const count = debugComponentRenderCounter.get(name) ?? 0;
   debugComponentRenderCounter.set(name, count + 1);

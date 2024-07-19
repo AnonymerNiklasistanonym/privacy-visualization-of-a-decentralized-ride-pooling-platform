@@ -177,6 +177,52 @@ export class AuthenticationService extends Service<SimulationTypeAuthenticationS
       throw Error(`Participant '${pseudonym}' was not found!`);
     }
     const currentDate = new Date();
+    const actualRating = this.getRealRating(pseudonym, simulation);
+    // Round to one decimal space and introduce some random values so it can't be used to reverse anything
+    if (actualRating.count === 0) {
+      return -1;
+    }
+    const fakeRatingCacheEntry = this.fakeRatingCache.get(
+      participant.contactDetails.id
+    );
+    if (
+      fakeRatingCacheEntry !== undefined &&
+      fakeRatingCacheEntry.count === actualRating.count &&
+      currentDate.getTime() - fakeRatingCacheEntry.time.getTime() < 1000 * 20
+    ) {
+      return fakeRatingCacheEntry.rating;
+    }
+
+    const numberOfFakeValues = 1 + Math.round(actualRating.count / 10);
+    const fakeRating =
+      Array.from({length: numberOfFakeValues}, () =>
+        getRandomFloatFromInterval(
+          actualRating.rating - 0.5,
+          actualRating.rating + 0.5
+        )
+      ).reduce((a, b) => a + b, 0) / numberOfFakeValues;
+    const fakeRatingRounded =
+      Math.round(((actualRating.rating + fakeRating) / 2) * 10) / 10;
+    this.fakeRatingCache.set(participant.contactDetails.id, {
+      count: actualRating.count,
+      rating: fakeRatingRounded,
+      time: currentDate,
+    });
+    return fakeRatingRounded;
+  }
+
+  /** Get the rounded rating from a participant. */
+  getRealRating(
+    pseudonym: string,
+    simulation: Simulation
+  ): {
+    count: number;
+    rating: number;
+  } {
+    const participant = this.getParticipantFromPseudonym(pseudonym);
+    if (participant === undefined) {
+      throw Error(`Participant '${pseudonym}' was not found!`);
+    }
     const ratings = [
       ...simulation.blockchain.rideContracts
         .filter(
@@ -197,32 +243,12 @@ export class AuthenticationService extends Service<SimulationTypeAuthenticationS
     ];
     // Round to one decimal space and introduce some random values so it can't be used to reverse anything
     if (ratings.length === 0) {
-      return -1;
+      return {count: 0, rating: -1};
     }
-    const fakeRatingCacheEntry = this.fakeRatingCache.get(
-      participant.contactDetails.id
-    );
-    if (
-      fakeRatingCacheEntry !== undefined &&
-      fakeRatingCacheEntry.count === ratings.length &&
-      currentDate.getTime() - fakeRatingCacheEntry.time.getTime() < 1000 * 20
-    ) {
-      return fakeRatingCacheEntry.rating;
-    }
-    const numberOfFakeValues = 1 + Math.round(ratings.length / 10);
-    const actualRating = ratings.reduce((a, b) => a + b, 0) / ratings.length;
-    const fakeRating =
-      Array.from({length: numberOfFakeValues}, () =>
-        getRandomFloatFromInterval(actualRating - 0.5, actualRating + 0.5)
-      ).reduce((a, b) => a + b, 0) / numberOfFakeValues;
-    const fakeRatingRounded =
-      Math.round(((actualRating + fakeRating) / 2) * 10) / 10;
-    this.fakeRatingCache.set(participant.contactDetails.id, {
+    return {
       count: ratings.length,
-      rating: fakeRatingRounded,
-      time: currentDate,
-    });
-    return fakeRatingRounded;
+      rating: ratings.reduce((a, b) => a + b, 0) / ratings.length,
+    };
   }
 
   private getParticipantFromPseudonym(
