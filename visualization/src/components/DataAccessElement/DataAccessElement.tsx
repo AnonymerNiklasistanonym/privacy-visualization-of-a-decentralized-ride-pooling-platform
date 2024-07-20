@@ -17,6 +17,7 @@ import {SpectatorId} from '@misc/spectatorIds';
 import type {
   GlobalPropsModalDataInformation,
   GlobalPropsSpectatorMap,
+  GlobalPropsSpectatorSelectedElements,
 } from '@misc/props/global';
 import type {
   ModalDataInformationAccess,
@@ -35,7 +36,7 @@ export interface DataAccessElementInfo {
 }
 
 export interface DataAccessElementProps
-  extends InputButtonSpectatorChangeProps,
+  extends GlobalPropsSpectatorSelectedElements,
     GlobalPropsSpectatorMap,
     GlobalPropsModalDataInformation {}
 
@@ -214,9 +215,17 @@ export function DataAccessElement(props: DataAccessElementPropsInput) {
           margin: 0,
           overflowWrap: 'break-word',
         }}
-        onClick={openDataModalCallback}
+        onClick={
+          typeof contentFinal === 'string' ? openDataModalCallback : undefined
+        }
       >
-        <Box fontWeight="medium" display="inline">
+        <Box
+          fontWeight="medium"
+          display="inline"
+          onClick={
+            typeof contentFinal !== 'string' ? openDataModalCallback : undefined
+          }
+        >
           {label}:{' '}
         </Box>
         {dataValue}

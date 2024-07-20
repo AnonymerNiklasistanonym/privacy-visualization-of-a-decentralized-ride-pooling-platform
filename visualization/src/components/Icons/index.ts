@@ -41,6 +41,7 @@ import {
   Lock as DataHiddenIcon,
   // Other
   Clear as ClearSelectedParticipantIcon,
+  Business as CompanyIcon,
   Clear as ResetParticipantFilterIcon,
   Clear as ResetSpectatorIcon,
   Link as ConnectedElementsIcon,
@@ -49,6 +50,7 @@ import {
 } from '@mui/icons-material';
 export {
   ClearSelectedParticipantIcon,
+  CompanyIcon,
   ConnectedElementsIcon,
   DarkModeIcon,
   DataHiddenIcon,

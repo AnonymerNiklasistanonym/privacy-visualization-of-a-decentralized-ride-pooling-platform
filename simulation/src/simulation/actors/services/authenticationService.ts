@@ -247,7 +247,10 @@ export class AuthenticationService extends Service<SimulationTypeAuthenticationS
     }
     return {
       count: ratings.length,
-      rating: ratings.reduce((a, b) => a + b, 0) / ratings.length,
+      rating:
+        Math.round(
+          (ratings.reduce((a, b) => a + b, 0) / ratings.length) * 100
+        ) / 100,
     };
   }
 

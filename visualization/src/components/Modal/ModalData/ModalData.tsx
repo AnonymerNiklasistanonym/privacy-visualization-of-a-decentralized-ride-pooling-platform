@@ -1,5 +1,5 @@
 // Package imports
-import {memo, useMemo} from 'react';
+import {memo, useCallback, useMemo} from 'react';
 import {useIntl} from 'react-intl';
 // > Components
 import {
@@ -92,6 +92,10 @@ export function ModalData(props: ModalDataPropsInput) {
     return stateSpectatorId;
   }, [stateSpectatorId, stateSpectators]);
 
+  const closeDataModalCallback = useCallback(() => {
+    setStateDataModalOpen(false);
+  }, [setStateDataModalOpen]);
+
   // Either a loading icon or the content
   const content = useMemo<ReactNode>(() => {
     if (stateDataModalInformation?.dataLabel === undefined) {
@@ -132,6 +136,11 @@ export function ModalData(props: ModalDataPropsInput) {
               theme.palette.mode === 'dark' ? 'white' : undefined,
             margin: '1rem',
           }}
+          onClick={
+            typeof stateDataModalInformation.dataValueSpectator !== 'string'
+              ? closeDataModalCallback
+              : undefined
+          }
         >
           {stateDataModalInformation.dataValueSpectator}
         </Box>
@@ -201,8 +210,10 @@ export function ModalData(props: ModalDataPropsInput) {
       </>
     );
   }, [
+    closeDataModalCallback,
     intl,
     listInformation,
+    props,
     propsDataModelListElement,
     spectatorInfo,
     stateDataModalInformation?.dataLabel,
