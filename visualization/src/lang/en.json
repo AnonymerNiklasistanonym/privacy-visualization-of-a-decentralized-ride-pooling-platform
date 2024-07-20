@@ -34,7 +34,7 @@
   "dataAccess.personalData.ms": "Only knows the participants pseudonym but no personal information",
   "dataAccess.driver.as": "Can get the pseudonym of the driver from the public blockchain entry since it knows all pseudonyms of the customer. Can resolve the pseudonym of the driver since it knows all pseudonyms of all Ride Providers.",
   "dataAccess.passenger.as": "Can get the pseudonym of the driver from the public blockchain entry since it knows all pseudonyms of the Ride Provider. Can resolve the pseudonym of the passenger since it knows all pseudonyms of all Customers.",
-  "dataAccess.rideRequestData.as": "Can resolve the pseudonyms since it stores them locally but does not know about the ride request",
+  "dataAccess.rideRequestData.as": "Can find out about the ride request by checking the public blockchain since it knows all pseudonyms connected to the participants",
   "dataAccess.driverPassenger.ms": "Knows the pseudonyms of both participants since it held the auction but can't resolve them to the actual participants",
   "dataAccess.rideRequestData.customer": "Created the ride request but can not resolve the ride provider pseudonym",
   "dataAccess.rideRequestData.ms": "Stores the pseudonyms but cannot resolve them",

@@ -23,7 +23,6 @@ import type {
   ModalDataInformationAccess,
   ModalDataInformationOrigin,
 } from '@components/Modal/ModalData';
-import type {InputButtonSpectatorChangeProps} from '@components/Input/InputButton/InputButtonSpectatorChange';
 import type {ReactElement} from 'react';
 
 export interface DataAccessElementInfo {

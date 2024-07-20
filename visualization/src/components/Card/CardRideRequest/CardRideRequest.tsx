@@ -12,7 +12,7 @@ import {
   ServiceAuthenticationIcon,
   ServiceMatchingIcon,
   SettingsDebugIcon,
-  SpectatorPublicIcon,
+  SpectatorEverythingIcon,
 } from '@components/Icons';
 import {
   ParticipantsCustomer,
@@ -35,17 +35,23 @@ import type {
   CardGenericPropsContentElement,
 } from '@components/Card/CardGeneric';
 import type {
+  DataAccessElementInfo,
+  DataAccessElementProps,
+} from '@components/DataAccessElement';
+import type {
   GlobalPropsIntlValues,
   GlobalPropsModalDataInformation,
 } from '@misc/props/global';
 import type {
+  ModalDataInformationAccess,
+  ModalDataInformationOrigin,
+} from '@components/Modal/ModalData';
+import type {
   SimulationEndpointParticipantIdFromPseudonym,
   SimulationEndpointRideRequestInformation,
 } from '@globals/types/simulation';
-import type {DataAccessElementProps} from '@components/DataAccessElement';
 import type {InputButtonSpectatorChangeProps} from '@components/Input/InputButton/InputButtonSpectatorChange';
 import type {InputButtonSpectatorShowProps} from '@components/Input/InputButton/InputButtonSpectatorShow';
-import type {ModalDataInformationAccess} from '@components/Modal/ModalData';
 import type {ReactState} from '@misc/react';
 import type {SettingsGlobalProps} from '@misc/props/settings';
 
@@ -81,6 +87,10 @@ export default function CardRideRequest(props: CardRideRequestPropsInput) {
     stateSelectedSmartContractId,
     stateShowParticipantId,
     stateSpectatorId,
+    setStateDataModalInformation,
+    setStateOpenModalData,
+    stateOpenModalData,
+    stateSpectators,
   } = props;
 
   const propsInputButton = useMemo<
@@ -118,9 +128,31 @@ export default function CardRideRequest(props: CardRideRequestPropsInput) {
     stateShowParticipantId,
     stateSpectatorId,
   ]);
-
-  const rideRequestUserId = stateRideRequestInformation?.userId;
-  const rideRequestAuctionWinner = stateRideRequestInformation?.auctionWinner;
+  const propsDataAccessElement = useMemo<DataAccessElementProps>(() => {
+    debugComponentElementUpdate(
+      `CardRideRequest#propsDataAccessElement#${stateRideRequestId}`
+    );
+    return {
+      setStateDataModalInformation,
+      setStateOpenModalData,
+      stateOpenModalData,
+      stateSelectedParticipantId,
+      stateSelectedSmartContractId,
+      stateShowParticipantId,
+      stateSpectatorId,
+      stateSpectators,
+    };
+  }, [
+    setStateDataModalInformation,
+    setStateOpenModalData,
+    stateOpenModalData,
+    stateRideRequestId,
+    stateSelectedParticipantId,
+    stateSelectedSmartContractId,
+    stateShowParticipantId,
+    stateSpectatorId,
+    stateSpectators,
+  ]);
 
   const intl = useIntl();
 
@@ -137,15 +169,13 @@ export default function CardRideRequest(props: CardRideRequestPropsInput) {
     undefined
   );
 
-  const iconRideProvider = useMemo(() => <ParticipantRideProviderIcon />, []);
-
-  const iconCustomer = useMemo(() => <ParticipantCustomerIcon />, []);
-
   // React: Run on first render
   useEffect(() => {
-    if (rideRequestUserId !== undefined) {
+    if (stateRideRequestInformation?.userId !== undefined) {
       fetchJsonSimulation<SimulationEndpointParticipantIdFromPseudonym>(
-        simulationEndpoints.apiV1.participantIdFromPseudonym(rideRequestUserId)
+        simulationEndpoints.apiV1.participantIdFromPseudonym(
+          stateRideRequestInformation?.userId
+        )
       )
         .then(data => setStateResolvedPseudonymCustomer(data))
         .catch(err =>
@@ -155,12 +185,12 @@ export default function CardRideRequest(props: CardRideRequestPropsInput) {
           )
         );
     }
-  }, [rideRequestUserId, fetchJsonSimulation, showError]);
+  }, [stateRideRequestInformation?.userId, fetchJsonSimulation, showError]);
   useEffect(() => {
-    if (rideRequestAuctionWinner !== undefined) {
+    if (stateRideRequestInformation?.auctionWinner !== undefined) {
       fetchJsonSimulation<SimulationEndpointParticipantIdFromPseudonym>(
         simulationEndpoints.apiV1.participantIdFromPseudonym(
-          rideRequestAuctionWinner
+          stateRideRequestInformation?.auctionWinner
         )
       )
         .then(data => setStateResolvedPseudonymAuctionWinner(data))
@@ -171,130 +201,196 @@ export default function CardRideRequest(props: CardRideRequestPropsInput) {
           )
         );
     }
-  }, [rideRequestAuctionWinner, fetchJsonSimulation, showError]);
+  }, [
+    stateRideRequestInformation?.auctionWinner,
+    fetchJsonSimulation,
+    showError,
+  ]);
 
-  const dataAccessPseudonyms = useMemo<Array<ModalDataInformationAccess>>(
+  // Icons
+  const iconRideProvider = useMemo(() => <ParticipantRideProviderIcon />, []);
+  const iconCustomer = useMemo(() => <ParticipantCustomerIcon />, []);
+  const iconRideRequest = useMemo(() => <ParticipantRideRequestIcon />, []);
+  const iconAuth = useMemo(() => <ServiceAuthenticationIcon />, []);
+  const iconMatch = useMemo(() => <ServiceMatchingIcon />, []);
+  const iconEverything = useMemo(() => <SpectatorEverythingIcon />, []);
+  const iconDebug = useMemo(() => <SettingsDebugIcon />, []);
+
+  // Spectator infos
+  const spectatorInfoPublic = useMemo(
+    () => <Public intlValues={intlValues} />,
+    [intlValues]
+  );
+  const spectatorInfoAuth = useMemo(
+    () => <ServiceAuthentication intlValues={intlValues} />,
+    [intlValues]
+  );
+  const spectatorInfoMatch = useMemo(
+    () => <ServiceMatching intlValues={intlValues} />,
+    [intlValues]
+  );
+  const spectatorInfoCustomer = useMemo(
+    () => <ParticipantsCustomer intlValues={intlValues} />,
+    [intlValues]
+  );
+  const spectatorInfoRideProvider = useMemo(
+    () => <ParticipantsRideProvider intlValues={intlValues} />,
+    [intlValues]
+  );
+
+  // Data access lists
+  const dataAccessNotPublic = useMemo<Array<ModalDataInformationAccess>>(
     () => [
-      {
-        accessType: 'transitive',
-        description: intl.formatMessage({id: 'dataAccess.rideRequestData.as'}),
-        icon: <ServiceAuthenticationIcon />,
-        name: intl.formatMessage({
-          id: 'getacar.spectator.service.authentication',
-        }),
-        spectatorId: SpectatorId.AUTHENTICATION_SERVICE,
-        spectatorInformation: <ServiceAuthentication intlValues={intlValues} />,
-      },
-      {
-        accessType: 'none',
-        description: intl.formatMessage({id: 'dataAccess.rideRequestData.ms'}),
-        icon: <ServiceMatchingIcon />,
-        name: intl.formatMessage({id: 'getacar.service.match'}),
-        spectatorId: SpectatorId.MATCHING_SERVICE,
-        spectatorInformation: <ServiceMatching intlValues={intlValues} />,
-      },
       {
         accessType: 'none',
         description: intl.formatMessage({
           id: 'dataAccess.NotPubliclyAvailable',
         }),
-        icon: <SpectatorPublicIcon />,
+        icon: iconEverything,
         name: intl.formatMessage({id: 'getacar.spectator.public'}),
         spectatorId: SpectatorId.PUBLIC,
-        spectatorInformation: <Public intlValues={intlValues} />,
+        spectatorInformation: spectatorInfoPublic,
       },
     ],
-    [intl, intlValues]
+    [iconEverything, intl, spectatorInfoPublic]
   );
-
-  const dataAccessInformation = useMemo<
+  const dataAccessDebug = useMemo<Array<ModalDataInformationAccess>>(
+    () => [...dataAccessNotPublic],
+    [dataAccessNotPublic]
+  );
+  const dataAccessPseudonyms = useMemo<Array<ModalDataInformationAccess>>(
+    () => [
+      {
+        accessType: 'transitive',
+        description: intl.formatMessage({id: 'dataAccess.rideRequestData.as'}),
+        icon: iconAuth,
+        name: intl.formatMessage({
+          id: 'getacar.spectator.service.authentication',
+        }),
+        spectatorId: SpectatorId.AUTHENTICATION_SERVICE,
+        spectatorInformation: spectatorInfoAuth,
+      },
+      {
+        accessType: 'local_storage',
+        description: intl.formatMessage({id: 'dataAccess.rideRequestData.ms'}),
+        icon: iconMatch,
+        name: intl.formatMessage({id: 'getacar.service.match'}),
+        spectatorId: SpectatorId.MATCHING_SERVICE,
+        spectatorInformation: spectatorInfoMatch,
+      },
+      ...dataAccessNotPublic,
+    ],
+    [
+      dataAccessNotPublic,
+      iconAuth,
+      iconMatch,
+      intl,
+      spectatorInfoAuth,
+      spectatorInfoMatch,
+    ]
+  );
+  const dataAccessPseudonymResolved = useMemo<
     Array<ModalDataInformationAccess>
   >(() => {
-    const dataAccessInformationList: Array<ModalDataInformationAccess> = [
-      ...dataAccessPseudonyms,
-    ];
-
+    const dataAccessInformationList: Array<ModalDataInformationAccess> = [];
     if (stateResolvedPseudonymCustomer !== undefined) {
       dataAccessInformationList.push({
-        accessType: 'none',
+        accessType: 'transitive',
         description: intl.formatMessage({
           id: 'dataAccess.rideRequestData.customer',
         }),
         icon: iconCustomer,
         name: intl.formatMessage({id: 'getacar.service.match'}),
         spectatorId: stateResolvedPseudonymCustomer.id,
-        spectatorInformation: <ParticipantsCustomer intlValues={intlValues} />,
+        spectatorInformation: spectatorInfoCustomer,
       });
     }
     if (stateResolvedPseudonymAuctionWinner !== undefined) {
       dataAccessInformationList.push({
-        accessType: 'none',
+        accessType: 'transitive',
         description: intl.formatMessage({
           id: 'dataAccess.rideRequestData.rideProvider',
         }),
         icon: iconRideProvider,
         name: intl.formatMessage({id: 'getacar.service.match'}),
         spectatorId: stateResolvedPseudonymAuctionWinner.id,
-        spectatorInformation: (
-          <ParticipantsRideProvider intlValues={intlValues} />
-        ),
+        spectatorInformation: spectatorInfoRideProvider,
       });
     }
-    return dataAccessInformationList;
+    return [...dataAccessInformationList, ...dataAccessPseudonyms];
   }, [
     dataAccessPseudonyms,
     iconCustomer,
     iconRideProvider,
     intl,
-    intlValues,
+    spectatorInfoCustomer,
+    spectatorInfoRideProvider,
     stateResolvedPseudonymAuctionWinner,
     stateResolvedPseudonymCustomer,
   ]);
 
-  const dataAccessInformationDebug = useMemo<Array<ModalDataInformationAccess>>(
-    () => [],
-    []
-  );
+  // Origin lists
+  const originMatch = useMemo<ModalDataInformationOrigin>(() => {
+    return {
+      dataOriginIcon: iconMatch,
+      dataOriginId: SpectatorId.MATCHING_SERVICE,
+      dataOriginInformation: spectatorInfoMatch,
+      dataOriginName: intl.formatMessage({
+        id: 'getacar.service.match',
+      }),
+    };
+  }, [iconMatch, intl, spectatorInfoMatch]);
+
+  // Content lists
+  const contentDebug = useMemo<Array<DataAccessElementInfo>>(() => {
+    const contentList: Array<DataAccessElementInfo> = [];
+    if (stateSettingsGlobalDebug === true) {
+      for (const [label, value] of [
+        ...Object.entries(stateRideRequestInformation ?? {}),
+      ]) {
+        contentList.push({
+          content:
+            typeof value === 'string' || typeof value === 'number'
+              ? value
+              : JSON.stringify(value),
+          dataAccessInformation: dataAccessDebug,
+          label: label,
+        });
+      }
+    }
+    return contentList;
+  }, [dataAccessDebug, stateRideRequestInformation, stateSettingsGlobalDebug]);
 
   const content = useMemo<Array<CardGenericPropsContentElement>>(() => {
     debugComponentElementUpdate(
       `CardRideRequest#content#${stateRideRequestId}`
     );
-    const contentList: Array<CardGenericPropsContentElement> = [];
 
+    const contentList: Array<CardGenericPropsContentElement> = [];
     if (stateRideRequestInformation?.userId !== undefined) {
       contentList.push({
         content: (
-          <InputButtonSpectatorShow
-            {...propsInputButton}
-            key={`ride-request-auction-winner-${stateRideRequestId}`}
-            spectatorId={stateRideRequestInformation.userId}
-            icon={iconCustomer}
+          <DataAccessElement
+            {...propsDataAccessElement}
+            {...originMatch}
+            key={`data-access-element-ride-request-auction-creator-${stateRideRequestId}`}
+            id={stateRideRequestId}
             label={intl.formatMessage({
               id: 'getacar.participant.customer',
             })}
-            isPseudonym={true}
-          />
-        ),
-        label: intl.formatMessage({
-          id: 'getacar.participant.customer',
-        }),
-        labelIcon: iconCustomer,
-      });
-    }
-
-    if (stateRideRequestInformation?.auctionWinner !== undefined) {
-      contentList.push({
-        content: (
-          <InputButtonSpectatorShow
-            {...propsInputButton}
-            key={`ride-request-auction-winner-${stateRideRequestId}`}
-            spectatorId={stateRideRequestInformation.auctionWinner}
-            icon={iconRideProvider}
-            label={intl.formatMessage({
-              id: 'getacar.spectator.message.auctionWinner',
-            })}
-            isPseudonym={true}
+            content={
+              <InputButtonSpectatorShow
+                {...propsInputButton}
+                key={`ride-request-auction-creator-${stateRideRequestId}`}
+                spectatorId={stateRideRequestInformation.userId}
+                icon={iconCustomer}
+                label={intl.formatMessage({
+                  id: 'getacar.participant.customer',
+                })}
+                isPseudonym={true}
+              />
+            }
+            dataAccessInformation={dataAccessPseudonymResolved}
           />
         ),
         label: intl.formatMessage({
@@ -304,63 +400,116 @@ export default function CardRideRequest(props: CardRideRequestPropsInput) {
       });
     }
 
-    if (stateSettingsGlobalDebug === true) {
+    if (stateRideRequestInformation?.auctionWinner !== undefined) {
       contentList.push({
         content: (
-          <List
-            key={`debug-list-ride-request-${stateRideRequestId}`}
-            sx={{
-              overflowX: 'scroll',
-            }}
-          >
-            {Object.entries(stateRideRequestInformation ?? {}).map(
-              ([key, value]) => (
-                <DataAccessElement
-                  {...props}
-                  key={`debug-data-element-${stateRideRequestId}-${key}`}
-                  content={
-                    typeof value === 'string' || typeof value === 'number'
-                      ? value
-                      : JSON.stringify(value)
-                  }
-                  label={key}
-                  id={stateRideRequestId}
-                  dataOriginName={`Debug Ride Request (${stateRideRequestId})`}
-                  dataOriginId={stateRideRequestId}
-                  dataOriginIcon={<ParticipantRideRequestIcon />}
-                  dataAccessInformation={dataAccessInformation}
-                />
-              )
-            )}
-          </List>
+          <DataAccessElement
+            {...propsDataAccessElement}
+            {...originMatch}
+            key={`data-access-element-ride-request-auction-winner-${stateRideRequestId}`}
+            id={stateRideRequestId}
+            label={intl.formatMessage({
+              id: 'getacar.spectator.message.auctionWinner',
+            })}
+            content={
+              <InputButtonSpectatorShow
+                {...propsInputButton}
+                key={`ride-request-auction-winner-${stateRideRequestId}`}
+                spectatorId={stateRideRequestInformation.auctionWinner}
+                icon={iconRideProvider}
+                label={intl.formatMessage({
+                  id: 'getacar.spectator.message.auctionWinner',
+                })}
+                isPseudonym={true}
+              />
+            }
+            dataAccessInformation={dataAccessPseudonymResolved}
+          />
         ),
         label: intl.formatMessage({
-          id: 'page.home.tab.settings.card.debug.title',
+          id: 'getacar.spectator.message.auctionWinner',
         }),
-        labelIcon: <SettingsDebugIcon />,
+        labelIcon: iconRideProvider,
       });
     }
     return contentList;
   }, [
-    dataAccessInformation,
+    dataAccessPseudonymResolved,
     iconCustomer,
     iconRideProvider,
     intl,
-    props,
+    originMatch,
+    propsDataAccessElement,
     propsInputButton,
     stateRideRequestId,
-    stateRideRequestInformation,
+    stateRideRequestInformation?.auctionWinner,
+    stateRideRequestInformation?.userId,
+  ]);
+
+  const contentDebug2 = useMemo<Array<CardGenericPropsContentElement>>(() => {
+    debugComponentElementUpdate(
+      `CardRideRequest#contentDebug#${stateRideRequestId}`
+    );
+
+    const contentList: Array<CardGenericPropsContentElement> = [];
+    if (stateSettingsGlobalDebug === true) {
+      contentList.push({
+        content:
+          contentDebug.length > 0 ? (
+            <List
+              key={`rideRequest-list-debug-${stateRideRequestId}`}
+              sx={{
+                overflowX: 'scroll',
+              }}
+            >
+              {contentDebug.map(element => (
+                <DataAccessElement
+                  {...propsDataAccessElement}
+                  key={`render-data-element-${element.label}-${stateRideRequestId}`}
+                  id={stateRideRequestId}
+                  dataOriginName={intl.formatMessage({
+                    id: 'page.home.tab.settings.card.debug.title',
+                  })}
+                  dataOriginId={SpectatorId.EVERYTHING}
+                  dataOriginIcon={iconEverything}
+                  {...element}
+                />
+              ))}
+            </List>
+          ) : null,
+        label: intl.formatMessage({
+          id: 'page.home.tab.settings.card.debug.title',
+        }),
+        labelIcon: iconDebug,
+      });
+    }
+    return contentList;
+  }, [
+    contentDebug,
+    iconDebug,
+    iconEverything,
+    intl,
+    propsDataAccessElement,
+    stateRideRequestId,
     stateSettingsGlobalDebug,
   ]);
+
+  const contentFinal = useMemo<Array<CardGenericPropsContentElement>>(() => {
+    debugComponentElementUpdate(
+      `CardRideRequest#contentFinal#${stateRideRequestId}`
+    );
+
+    return [...content, ...contentDebug2];
+  }, [content, contentDebug2, stateRideRequestId]);
 
   return (
     <CardGeneric
       {...props}
-      icon={<ParticipantRideRequestIcon />}
+      icon={iconRideRequest}
       name={intl.formatMessage({id: 'getacar.rideRequest'})}
       id={stateRideRequestId}
       status={stateRideRequestInformation?.auctionStatus}
-      content={content}
+      content={contentFinal}
     />
   );
 }

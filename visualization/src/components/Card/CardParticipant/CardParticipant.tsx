@@ -142,7 +142,6 @@ export function CardParticipant(props: CardParticipantPropsInput) {
     stateShowParticipantId,
     stateSpectatorId,
   ]);
-
   const propsDataAccessElement = useMemo<DataAccessElementProps>(() => {
     debugComponentElementUpdate(
       `CardParticipant#propsDataAccessElement#${stateParticipantId}`
@@ -966,7 +965,7 @@ export function CardParticipant(props: CardParticipantPropsInput) {
     iconDebug,
     iconEverything,
     intl,
-    props,
+    propsDataAccessElement,
     stateParticipantId,
     stateSettingsGlobalDebug,
   ]);
