@@ -8,12 +8,15 @@ import {
   Divider,
   List,
   ListSubheader,
+  Stack,
   Typography,
 } from '@mui/material';
 // Local imports
+import {dataHidden} from '@components/DataAccessElement';
 // > Components
 import {DataHiddenIcon, DataVisibleIcon} from '@components/Icons';
 import GenericModal from '@components/Modal/ModalGeneric';
+import InputButtonSpectatorChange from '@components/Input/InputButton/InputButtonSpectatorChange';
 import LoadingCircle from '@components/Loading/LoadingCircle';
 import ModalDataElement from './ModalDataElement';
 // > Misc
@@ -24,12 +27,15 @@ import type {
   ModalDataInformationAccessType,
 } from './ModalDataInformation';
 import type {ReactSetState, ReactState} from '@misc/react';
+import type {GlobalPropsSpectatorMap} from '@misc/props/global';
 import type {InputButtonSpectatorChangeProps} from '@components/Input/InputButton/InputButtonSpectatorChange';
 import type {ModalDataListElementProps} from './ModalDataElement';
 import type {ReactNode} from 'react';
-import { GlobalPropsSpectatorMap } from '@misc/props/global';
+import {SpectatorId} from '@misc/spectatorIds';
 
-export interface ModalDataProps extends InputButtonSpectatorChangeProps, GlobalPropsSpectatorMap {}
+export interface ModalDataProps
+  extends InputButtonSpectatorChangeProps,
+    GlobalPropsSpectatorMap {}
 
 export interface ModalDataPropsInput extends ModalDataProps {
   /** The open state of the modal */
@@ -92,7 +98,7 @@ export function ModalData(props: ModalDataPropsInput) {
       return <LoadingCircle key="modal-data-content-loading" />;
     }
     const dataValueHidden =
-      stateDataModalInformation.dataValueSpectator === '******';
+      stateDataModalInformation.dataValueSpectator === dataHidden;
 
     return (
       <>
@@ -129,29 +135,36 @@ export function ModalData(props: ModalDataPropsInput) {
         >
           {stateDataModalInformation.dataValueSpectator}
         </Box>
-        <Chip
-          icon={dataValueHidden ? <DataHiddenIcon /> : <DataVisibleIcon />}
-          color={dataValueHidden ? 'error' : 'success'}
-          label={
-            dataValueHidden
-              ? intl.formatMessage(
-                  {
-                    id: 'data.access.message.hiddenFor',
-                  },
-                  {
-                    name: spectatorInfo,
-                  }
-                )
-              : intl.formatMessage(
-                  {
-                    id: 'data.access.message.visibleFor',
-                  },
-                  {
-                    name: spectatorInfo,
-                  }
-                )
-          }
-        />
+        <Stack direction="row" spacing={2}>
+          <Chip
+            icon={dataValueHidden ? <DataHiddenIcon /> : <DataVisibleIcon />}
+            color={dataValueHidden ? 'error' : 'success'}
+            label={
+              dataValueHidden
+                ? intl.formatMessage(
+                    {
+                      id: 'data.access.message.hiddenFor',
+                    },
+                    {
+                      name: spectatorInfo,
+                    }
+                  )
+                : intl.formatMessage(
+                    {
+                      id: 'data.access.message.visibleFor',
+                    },
+                    {
+                      name: spectatorInfo,
+                    }
+                  )
+            }
+          />
+          <InputButtonSpectatorChange
+            {...props}
+            spectatorId={SpectatorId.EVERYTHING}
+            label={intl.formatMessage({id: 'getacar.spectator.reset'})}
+          />
+        </Stack>
         <Divider sx={{paddingTop: '1rem'}} />
         {listInformation.map(([title, accessType]) => {
           const elements = stateDataModalInformation.informationAccess.filter(
@@ -191,12 +204,12 @@ export function ModalData(props: ModalDataPropsInput) {
     intl,
     listInformation,
     propsDataModelListElement,
+    spectatorInfo,
     stateDataModalInformation?.dataLabel,
     stateDataModalInformation?.dataValueSpectator,
     stateDataModalInformation?.informationAccess,
     stateDataModalInformation?.informationOrigin.dataOriginIcon,
     stateDataModalInformation?.informationOrigin.dataOriginName,
-    stateSpectatorId,
   ]);
 
   return (

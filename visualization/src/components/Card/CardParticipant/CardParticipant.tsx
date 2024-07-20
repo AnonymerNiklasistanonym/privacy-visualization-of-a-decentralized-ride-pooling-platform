@@ -5,7 +5,6 @@ import {useIntl} from 'react-intl';
 import {List} from '@mui/material';
 // Local imports
 // > Components
-import {DataElement, RenderDataElement} from './PopupContentGeneric';
 import {
   NavigateToLocationIcon,
   ParticipantCustomerIcon,
@@ -16,7 +15,6 @@ import {
   ServiceMatchingIcon,
   SettingsDebugIcon,
   SpectatorEverythingIcon,
-  SpectatorPublicIcon,
 } from '@components/Icons';
 import {
   ParticipantsCustomer,
@@ -24,8 +22,9 @@ import {
   Public,
   ServiceAuthentication,
   ServiceMatching,
-} from '@components/Tab/TabOverview/Elements';
+} from '@components/Tab/TabGuide';
 import CardGeneric from '@components/Card/CardGeneric';
+import DataAccessElement from '@components/DataAccessElement';
 import InputButtonSpectatorChange from '@components/Input/InputButton/InputButtonSpectatorChange';
 import InputButtonSpectatorShow from '@components/Input/InputButton/InputButtonSpectatorShow';
 // > Misc
@@ -36,6 +35,10 @@ import type {
   CardGenericProps,
   CardGenericPropsContentElement,
 } from '@components/Card/CardGeneric';
+import type {
+  DataAccessElementInfo,
+  DataAccessElementProps,
+} from '@components/DataAccessElement';
 import type {
   GlobalPropsIntlValues,
   GlobalPropsModalDataInformation,
@@ -55,6 +58,7 @@ export interface CardParticipantProps
   extends InputButtonSpectatorChangeProps,
     InputButtonSpectatorShowProps,
     CardGenericProps,
+    DataAccessElementProps,
     GlobalPropsIntlValues,
     GlobalPropsModalDataInformation,
     SettingsGlobalProps {}
@@ -285,7 +289,7 @@ export function CardParticipant(props: CardParticipantPropsInput) {
           spectatorId: stateCustomerInformation.passenger,
         });
       }
-      const personalData: DataElement[] = [];
+      const personalData: Array<DataAccessElementInfo> = [];
       if (stateCustomerInformation) {
         personalData.push(
           ...[
@@ -328,11 +332,12 @@ export function CardParticipant(props: CardParticipantPropsInput) {
       contentList.push({
         content: stateCustomerInformation ? (
           <List key={`participant-list-personalData-${stateParticipantId}`}>
-            {personalData.map(a => (
-              <RenderDataElement
+            {personalData.map(({content, dataAccessInformation, label}) => (
+              <DataAccessElement
                 {...props}
-                key={`render-data-element-${a.label}-${stateParticipantId}`}
-                element={a}
+                key={`render-data-element-${label}-${stateParticipantId}`}
+                content={content}
+                label={label}
                 id={stateCustomerInformation.id}
                 dataOriginName={intl.formatMessage(
                   {
@@ -347,7 +352,7 @@ export function CardParticipant(props: CardParticipantPropsInput) {
                 dataOriginInformation={
                   <ParticipantsCustomer intlValues={intlValues} />
                 }
-                dataAccessInformation={a.dataAccessInformation}
+                dataAccessInformation={dataAccessInformation}
               />
             ))}
           </List>
@@ -358,21 +363,20 @@ export function CardParticipant(props: CardParticipantPropsInput) {
       contentList.push({
         content: stateCustomerInformation ? (
           <List key={`participant-list-queries-${stateParticipantId}`}>
-            <RenderDataElement
+            <DataAccessElement
               {...props}
               key={'render-data-element-queries-rating-rounded'}
-              element={{
-                content:
-                  stateCustomerInformation.roundedRating !== -1
-                    ? stateCustomerInformation.roundedRating
-                    : intl.formatMessage({
-                        id: 'getacar.participant.data.rating.notAvailable',
-                      }),
-                dataAccessInformation: dataAccessPersonalData,
-                label: intl.formatMessage({
-                  id: 'getacar.participant.data.rating.rounded',
-                }),
-              }}
+              content={
+                stateCustomerInformation.roundedRating !== undefined &&
+                stateCustomerInformation.roundedRating !== -1
+                  ? stateCustomerInformation.roundedRating
+                  : intl.formatMessage({
+                      id: 'getacar.participant.data.rating.notAvailable',
+                    })
+              }
+              label={intl.formatMessage({
+                id: 'getacar.participant.data.rating.rounded',
+              })}
               id={stateCustomerInformation.id}
               dataOriginName={intl.formatMessage({
                 id: 'getacar.service.auth',
@@ -382,21 +386,20 @@ export function CardParticipant(props: CardParticipantPropsInput) {
               dataOriginInformation={spectatorInfoAuth}
               dataAccessInformation={dataAccessQueryRoundedRating}
             />
-            <RenderDataElement
+            <DataAccessElement
               {...props}
               key={'render-data-element-queries-rating'}
-              element={{
-                content:
-                  stateCustomerInformation.realRating !== -1
-                    ? stateCustomerInformation.realRating
-                    : intl.formatMessage({
-                        id: 'getacar.participant.data.rating.notAvailable',
-                      }),
-                dataAccessInformation: dataAccessPersonalData,
-                label: intl.formatMessage({
-                  id: 'getacar.participant.data.rating',
-                }),
-              }}
+              content={
+                stateCustomerInformation.realRating !== undefined &&
+                stateCustomerInformation.realRating !== -1
+                  ? stateCustomerInformation.realRating
+                  : intl.formatMessage({
+                      id: 'getacar.participant.data.rating.notAvailable',
+                    })
+              }
+              label={intl.formatMessage({
+                id: 'getacar.participant.data.rating',
+              })}
               id={stateCustomerInformation.id}
               dataOriginName={intl.formatMessage({
                 id: 'getacar.service.auth',
@@ -456,7 +459,7 @@ export function CardParticipant(props: CardParticipantPropsInput) {
         }
       }
 
-      const carData: DataElement[] = [];
+      const carData: Array<DataAccessElementInfo> = [];
       if (stateRideProviderInformation) {
         carData.push(
           ...[
@@ -480,11 +483,11 @@ export function CardParticipant(props: CardParticipantPropsInput) {
         content:
           carData.length > 0 ? (
             <List key={`participant-list-carData-${stateParticipantId}`}>
-              {carData.map((a, index) => (
-                <RenderDataElement
+              {carData.map((element, index) => (
+                <DataAccessElement
                   {...props}
+                  {...element}
                   key={`render-car-data-element-${index}`}
-                  element={a}
                   id={stateParticipantId}
                   dataOriginName={`Ride Provider (${stateParticipantId})`}
                   dataOriginId={stateParticipantId}
@@ -492,7 +495,6 @@ export function CardParticipant(props: CardParticipantPropsInput) {
                   dataOriginInformation={
                     <ParticipantsRideProvider intlValues={intlValues} />
                   }
-                  dataAccessInformation={a.dataAccessInformation}
                 />
               ))}
             </List>
@@ -500,7 +502,7 @@ export function CardParticipant(props: CardParticipantPropsInput) {
         label: 'Car Details',
         labelIcon: iconRideProvider,
       });
-      const personalData: DataElement[] = [];
+      const personalData: Array<DataAccessElementInfo> = [];
       if (stateRideProviderInformation) {
         if ('company' in stateRideProviderInformation) {
           personalData.push({
@@ -554,11 +556,11 @@ export function CardParticipant(props: CardParticipantPropsInput) {
             <List
               key={`participant-list-personalCarData-${stateParticipantId}`}
             >
-              {personalData.map((a, index) => (
-                <RenderDataElement
+              {personalData.map((element, index) => (
+                <DataAccessElement
                   {...props}
+                  {...element}
                   key={`render-car-personal-data-element-${index}`}
-                  element={a}
                   id={stateParticipantId}
                   dataOriginName={`Ride Provider (${stateParticipantId})`}
                   dataOriginId={stateParticipantId}
@@ -566,7 +568,6 @@ export function CardParticipant(props: CardParticipantPropsInput) {
                   dataOriginInformation={
                     <ParticipantsRideProvider intlValues={intlValues} />
                   }
-                  dataAccessInformation={a.dataAccessInformation}
                 />
               ))}
             </List>
@@ -577,21 +578,20 @@ export function CardParticipant(props: CardParticipantPropsInput) {
       contentList.push({
         content: stateRideProviderInformation ? (
           <List key={`participant-list-queries-${stateParticipantId}`}>
-            <RenderDataElement
+            <DataAccessElement
               {...props}
-              key={'render-data-element-queries'}
-              element={{
-                content:
-                  stateRideProviderInformation.roundedRating !== -1
-                    ? stateRideProviderInformation.roundedRating
-                    : intl.formatMessage({
-                        id: 'getacar.participant.data.rating.notAvailable',
-                      }),
-                dataAccessInformation: dataAccessPersonalData,
-                label: intl.formatMessage({
-                  id: 'getacar.participant.data.rating.rounded',
-                }),
-              }}
+              key={'render-data-element-queries-roundedRating'}
+              content={
+                stateRideProviderInformation.roundedRating !== undefined &&
+                stateRideProviderInformation.roundedRating !== -1
+                  ? stateRideProviderInformation.roundedRating
+                  : intl.formatMessage({
+                      id: 'getacar.participant.data.rating.notAvailable',
+                    })
+              }
+              label={intl.formatMessage({
+                id: 'getacar.participant.data.rating.rounded',
+              })}
               id={stateRideProviderInformation.id}
               dataOriginName={intl.formatMessage(
                 {
@@ -606,7 +606,37 @@ export function CardParticipant(props: CardParticipantPropsInput) {
               dataOriginInformation={
                 <ParticipantsRideProvider intlValues={intlValues} />
               }
-              dataAccessInformation={dataAccessPersonalData}
+              dataAccessInformation={dataAccessQueryRoundedRating}
+            />
+            <DataAccessElement
+              {...props}
+              key={'render-data-element-queries-realRating'}
+              content={
+                stateRideProviderInformation.realRating !== undefined &&
+                stateRideProviderInformation.realRating !== -1
+                  ? stateRideProviderInformation.realRating
+                  : intl.formatMessage({
+                      id: 'getacar.participant.data.rating.notAvailable',
+                    })
+              }
+              label={intl.formatMessage({
+                id: 'getacar.participant.data.rating',
+              })}
+              id={stateRideProviderInformation.id}
+              dataOriginName={intl.formatMessage(
+                {
+                  id: 'getacar.participant.rideProvider.name',
+                },
+                {
+                  name: stateRideProviderInformation.id,
+                }
+              )}
+              dataOriginId={stateRideProviderInformation.id}
+              dataOriginIcon={iconRideProvider}
+              dataOriginInformation={
+                <ParticipantsRideProvider intlValues={intlValues} />
+              }
+              dataAccessInformation={dataAccessQueryRealRating}
             />
           </List>
         ) : null,
@@ -654,47 +684,26 @@ export function CardParticipant(props: CardParticipantPropsInput) {
               overflowX: 'scroll',
             }}
           >
-            {Object.entries(stateRideProviderInformation ?? {}).map(
-              ([key, value]) => (
-                <RenderDataElement
-                  {...props}
-                  key={`debug-data-element-ride-provider-${stateParticipantId}-${key}`}
-                  element={{
-                    content:
-                      typeof value === 'string' ? value : JSON.stringify(value),
-                    dataAccessInformation: [],
-                    label: key,
-                  }}
-                  id={stateParticipantId}
-                  dataOriginName="Debug"
-                  dataOriginId={SpectatorId.EVERYTHING}
-                  dataOriginIcon={iconEverything}
-                  dataAccessInformation={dataAccessDebug}
-                />
-              )
-            )}
-            {Object.entries(stateCustomerInformation ?? {}).map(
-              ([key, value]) => (
-                <RenderDataElement
-                  {...props}
-                  key={`debug-data-element-customer-${stateParticipantId}-${key}`}
-                  element={{
-                    content:
-                      typeof value === 'string' ? value : JSON.stringify(value),
-                    dataAccessInformation: [],
-                    label: key,
-                  }}
-                  id={stateParticipantId}
-                  dataOriginName={`Debug Participant [Customer] (${stateParticipantId})`}
-                  dataOriginId={stateParticipantId}
-                  dataOriginIcon={iconCustomer}
-                  dataOriginInformation={
-                    <ParticipantsCustomer intlValues={intlValues} />
-                  }
-                  dataAccessInformation={[]}
-                />
-              )
-            )}
+            {[
+              ...Object.entries(stateRideProviderInformation ?? {}),
+              ...Object.entries(stateCustomerInformation ?? {}),
+            ].map(([key, value]) => (
+              <DataAccessElement
+                {...props}
+                key={`debug-data-element-${stateParticipantId}-${key}`}
+                content={
+                  typeof value === 'string' || typeof value === 'number'
+                    ? value
+                    : JSON.stringify(value)
+                }
+                label={key}
+                id={stateParticipantId}
+                dataOriginName="Debug"
+                dataOriginId={SpectatorId.EVERYTHING}
+                dataOriginIcon={iconEverything}
+                dataAccessInformation={dataAccessDebug}
+              />
+            ))}
           </List>
         ),
         label: intl.formatMessage({
@@ -705,14 +714,20 @@ export function CardParticipant(props: CardParticipantPropsInput) {
     }
     return contentList;
   }, [
+    dataAccessDebug,
     dataAccessPersonalData,
+    dataAccessQueryRealRating,
+    dataAccessQueryRoundedRating,
+    iconAuth,
     iconCustomer,
+    iconEverything,
     iconRideProvider,
     intl,
     intlValues,
     participantType,
     props,
     propsInputButton,
+    spectatorInfoAuth,
     stateCustomerInformation,
     stateParticipantId,
     stateRideProviderInformation,

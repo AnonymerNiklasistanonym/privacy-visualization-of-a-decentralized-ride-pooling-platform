@@ -20,10 +20,10 @@ import {
   Public,
   ServiceAuthentication,
   ServiceMatching,
-} from '@components/Tab/TabOverview/Elements';
+} from '@components/Tab/TabGuide';
 import CardGeneric from '@components/Card/CardGeneric';
+import DataAccessElement from '@components/DataAccessElement';
 import InputButtonSpectatorShow from '@components/Input/InputButton/InputButtonSpectatorShow';
-import {RenderDataElement} from '../CardParticipant/PopupContentGeneric';
 // > Globals
 import {simulationEndpoints} from '@globals/defaults/endpoints';
 // > Misc
@@ -42,6 +42,7 @@ import type {
   SimulationEndpointParticipantIdFromPseudonym,
   SimulationEndpointRideRequestInformation,
 } from '@globals/types/simulation';
+import type {DataAccessElementProps} from '@components/DataAccessElement';
 import type {InputButtonSpectatorChangeProps} from '@components/Input/InputButton/InputButtonSpectatorChange';
 import type {InputButtonSpectatorShowProps} from '@components/Input/InputButton/InputButtonSpectatorShow';
 import type {ModalDataInformationAccess} from '@components/Modal/ModalData';
@@ -53,6 +54,7 @@ export interface CardRideRequestProps
     InputButtonSpectatorShowProps,
     SettingsGlobalProps,
     CardGenericProps,
+    DataAccessElementProps,
     GlobalPropsModalDataInformation,
     GlobalPropsIntlValues {}
 
@@ -313,15 +315,15 @@ export default function CardRideRequest(props: CardRideRequestPropsInput) {
           >
             {Object.entries(stateRideRequestInformation ?? {}).map(
               ([key, value]) => (
-                <RenderDataElement
+                <DataAccessElement
                   {...props}
-                  key={`debug-data-element-ride-provider-${stateRideRequestId}-${key}`}
-                  element={{
-                    content:
-                      typeof value === 'string' ? value : JSON.stringify(value),
-                    dataAccessInformation: dataAccessInformationDebug,
-                    label: key,
-                  }}
+                  key={`debug-data-element-${stateRideRequestId}-${key}`}
+                  content={
+                    typeof value === 'string' || typeof value === 'number'
+                      ? value
+                      : JSON.stringify(value)
+                  }
+                  label={key}
                   id={stateRideRequestId}
                   dataOriginName={`Debug Ride Request (${stateRideRequestId})`}
                   dataOriginId={stateRideRequestId}
@@ -341,7 +343,6 @@ export default function CardRideRequest(props: CardRideRequestPropsInput) {
     return contentList;
   }, [
     dataAccessInformation,
-    dataAccessInformationDebug,
     iconCustomer,
     iconRideProvider,
     intl,

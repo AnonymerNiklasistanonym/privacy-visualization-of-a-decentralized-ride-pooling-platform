@@ -1,13 +1,11 @@
 // Package imports
-import {useCallback, useEffect, useMemo, useState} from 'react';
+import {memo, useCallback, useEffect, useMemo, useState} from 'react';
+import {useIntl} from 'react-intl';
 // > Components
 import {Box, ListItem, Tooltip, Typography} from '@mui/material';
 // Local imports
 // > Components
-import {
-  ServiceAuthentication,
-  ServiceMatching,
-} from '@components/Tab/TabOverview/Elements';
+import {ServiceAuthentication, ServiceMatching} from '@components/Tab/TabGuide';
 import {
   ServiceAuthenticationIcon,
   ServiceMatchingIcon,
@@ -17,37 +15,51 @@ import {
 import {SpectatorId} from '@misc/spectatorIds';
 // Type imports
 import type {
+  GlobalPropsModalDataInformation,
+  GlobalPropsSpectatorMap,
+} from '@misc/props/global';
+import type {
   ModalDataInformationAccess,
   ModalDataInformationOrigin,
 } from '@components/Modal/ModalData';
-import type {ReactElement, ReactNode} from 'react';
-import type {GlobalPropsModalDataInformation} from '@misc/props/global';
 import type {InputButtonSpectatorChangeProps} from '@components/Input/InputButton/InputButtonSpectatorChange';
+import type {ReactElement} from 'react';
 
-export interface DataElement {
+export interface DataAccessElementInfo {
+  /** Name of the data */
   label: string;
-  content: ReactNode;
-  /** Information about who can see this data besides the owner */
-  dataAccessInformation: ModalDataInformationAccess[];
-}
-
-export interface RenderDataElementProps
-  extends InputButtonSpectatorChangeProps,
-    ModalDataInformationOrigin,
-    GlobalPropsModalDataInformation {
-  /** The rendered information */
-  element: Readonly<DataElement>;
-  /** Only used for the element key */
-  id: string;
-  /** The data owner information element */
-  dataOriginInformation?: ReactElement;
+  /** The rendered content */
+  content: string | number | ReactElement;
   /** Lists all entities that have in some way access to this information */
   dataAccessInformation: Array<ModalDataInformationAccess>;
 }
 
-export function RenderDataElement(props: RenderDataElementProps) {
+export interface DataAccessElementProps
+  extends InputButtonSpectatorChangeProps,
+    GlobalPropsSpectatorMap,
+    GlobalPropsModalDataInformation {}
+
+export interface DataAccessElementPropsInput
+  extends DataAccessElementProps,
+    ModalDataInformationOrigin,
+    DataAccessElementInfo {
+  /** Only used for the element key */
+  id: string;
+  // TODO Check if this is still necessary
+  /** In case the ID is a pseudonym */
+  isPseudonym?: boolean;
+  /** The data owner information element */
+  dataOriginInformation?: ReactElement;
+}
+
+export const dataHidden = '******';
+
+export default memo(DataAccessElement);
+
+export function DataAccessElement(props: DataAccessElementPropsInput) {
   const {
-    element,
+    label,
+    content,
     stateSpectatorId,
     id,
     dataOriginId,
@@ -58,7 +70,10 @@ export function RenderDataElement(props: RenderDataElementProps) {
     stateOpenModalData,
     setStateOpenModalData,
     setStateDataModalInformation,
+    stateSpectators,
   } = props;
+
+  const intl = useIntl();
 
   const dataAccessDataModal: Array<ModalDataInformationAccess> = useMemo(
     () => [
@@ -81,10 +96,17 @@ export function RenderDataElement(props: RenderDataElementProps) {
     ]
   );
 
-  const [content, tooltip] = useMemo<[ReactNode | string, string]>(() => {
-    let contentTemp = element.content;
+  const [contentFinal, tooltip] = useMemo<
+    [string | ReactElement, string]
+  >(() => {
+    let contentTemp =
+      typeof content === 'string'
+        ? content
+        : typeof content === 'number'
+          ? `${content}`
+          : content;
     let tooltipTemp = '';
-    // TODO If spectatorId in data access is a pseudonym this is not resolved in here!
+    const spectator = stateSpectators.get(stateSpectatorId);
     if (
       stateSpectatorId !== SpectatorId.EVERYTHING &&
       !dataAccessDataModal.some(
@@ -95,33 +117,51 @@ export function RenderDataElement(props: RenderDataElementProps) {
             a.accessType === 'owner')
       )
     ) {
-      contentTemp = '******';
-      tooltipTemp =
-        'The current spectator can`t see this data, click to learn more';
+      contentTemp = dataHidden;
+      tooltipTemp = intl.formatMessage(
+        {id: 'data.access.message.currentSpectatorCantSeeData'},
+        {
+          data: label,
+          name:
+            spectator?.name !== undefined
+              ? `${spectator?.name} (${stateSpectatorId})`
+              : stateSpectatorId,
+        }
+      );
     }
 
     return [contentTemp, tooltipTemp];
-  }, [dataAccessDataModal, element.content, stateSpectatorId]);
+  }, [
+    content,
+    stateSpectators,
+    stateSpectatorId,
+    dataAccessDataModal,
+    intl,
+    label,
+  ]);
 
   const [stateDataModalOpened, setStateDataModalOpened] = useState(false);
 
+  /** In case that the data modal is called on this data access element make not of that */
   const openDataModalCallback = useCallback(() => {
     setStateOpenModalData(true);
     setStateDataModalOpened(true);
   }, [setStateOpenModalData]);
 
   useEffect(() => {
+    // In case that the data modal is closed make sure that the constant data updates are disabled
     if (stateOpenModalData === false) {
       setStateDataModalOpened(false);
     }
   }, [stateOpenModalData]);
 
   useEffect(() => {
+    // In case that the data modal is opened on this data access element constantly update the information
     if (stateDataModalOpened) {
       setStateDataModalInformation({
-        dataLabel: element.label,
-        dataValue: element.content,
-        dataValueSpectator: content,
+        dataLabel: label,
+        dataValue: content,
+        dataValueSpectator: contentFinal,
         informationAccess: dataAccessDataModal,
         informationOrigin: {
           dataOriginIcon,
@@ -136,10 +176,10 @@ export function RenderDataElement(props: RenderDataElementProps) {
     dataOriginIcon,
     dataOriginId,
     dataOriginName,
-    element.content,
-    element.label,
+    label,
     setStateDataModalInformation,
     stateDataModalOpened,
+    contentFinal,
   ]);
 
   const dataValue = useMemo<ReactElement>(
@@ -151,18 +191,16 @@ export function RenderDataElement(props: RenderDataElementProps) {
           component="span"
           gutterBottom
         >
-          {content}
+          {contentFinal}
         </Typography>
       </Tooltip>
     ),
-    [content, id, tooltip]
+    [contentFinal, id, tooltip]
   );
-
-  // TODO Convert data modal to single global modal!
 
   return (
     <ListItem
-      key={element.label}
+      key={label}
       style={{
         paddingTop: 4,
       }}
@@ -179,7 +217,7 @@ export function RenderDataElement(props: RenderDataElementProps) {
         onClick={openDataModalCallback}
       >
         <Box fontWeight="medium" display="inline">
-          {element.label}:{' '}
+          {label}:{' '}
         </Box>
         {dataValue}
       </Typography>

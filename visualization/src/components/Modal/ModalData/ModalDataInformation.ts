@@ -41,7 +41,7 @@ export interface ModalDataInformation {
   /** The data label */
   dataLabel: string;
   /** The data value element */
-  dataValue: ReactNode;
+  dataValue: string | number | ReactElement;
   /** The data value element as rendered by the current spectator */
-  dataValueSpectator: ReactNode;
+  dataValueSpectator: string | ReactElement;
 }

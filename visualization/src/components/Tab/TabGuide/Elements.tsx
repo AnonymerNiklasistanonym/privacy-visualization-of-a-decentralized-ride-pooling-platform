@@ -7,7 +7,7 @@ import {
   ChipList,
   OverviewElementSectionHeadingTitle,
   OverviewElementSectionTitle,
-} from './TabOverviewElements';
+} from './TabGuideElements';
 // > Icons
 import {
   MiscCryptoExchangeIcon,
@@ -20,7 +20,7 @@ import {
   SpectatorPublicIcon,
 } from '@components/Icons';
 // Type imports
-import type {OverviewElementProps} from './TabOverviewElements';
+import type {OverviewElementProps} from './TabGuideElements';
 
 export function Stakeholders(props: OverviewElementProps) {
   const intl = useIntl();

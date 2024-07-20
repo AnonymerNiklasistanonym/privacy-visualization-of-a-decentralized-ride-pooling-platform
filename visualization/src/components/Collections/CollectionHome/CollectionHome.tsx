@@ -13,10 +13,7 @@ import {i18n, i18nGetLanguageName} from '../../../../i18n-config';
 import {UrlParameter} from '@misc/urlParameter';
 import {fetchJson} from '@globals/lib/fetch';
 // > Components
-import {
-  ChipListElement,
-  ChipListElementProps,
-} from '@components/Tab/TabOverview/TabOverviewElements';
+import {ChipListElement, ChipListElementProps} from '@components/Tab/TabGuide';
 import {
   PageAboutIcon,
   PageHomeIcon,

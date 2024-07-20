@@ -28,7 +28,7 @@ import {
 import GenericButton from '@components/Input/InputButton/InputButtonGeneric';
 import TabBlockchain from '@components/Tab/TabBlockchain';
 import TabMap from '@components/Tab/TabMap';
-import TabOverview from '@components/Tab/TabOverview';
+import TabOverview from '@components/Tab/TabGuide';
 import TabPanelTab from './TabPanelTab';
 import TabPanelTabSectionDebug from './TabPanelTabSectionDebug';
 import TabSettings from '@components/Tab/TabSettings';

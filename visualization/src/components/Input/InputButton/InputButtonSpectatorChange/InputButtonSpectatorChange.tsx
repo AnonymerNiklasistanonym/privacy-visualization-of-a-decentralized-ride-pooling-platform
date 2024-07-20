@@ -31,7 +31,7 @@ export interface InputButtonSpectatorChangePropsInput
   /** The ID of the spectator that the should be shown on clicking it */
   spectatorId: string;
   /** A custom label that should be displayed on the button */
-  label: string;
+  label?: string;
   /** In case the supplied ID is a pseudonym some extra logic is required */
   isPseudonym?: boolean;
   /** Ignore that per default this ID cannot be resolved */
@@ -109,12 +109,12 @@ export function InputButtonSpectatorChange({
 
   /** The button label */
   const buttonLabel = useMemo<string>(() => {
-    const buttonLabelSpectate = intl.formatMessage(
-      {id: 'getacar.spectator.message.change'},
-      {
-        name: label,
-      }
-    );
+    const buttonLabelSpectate =
+      label !== undefined
+        ? label
+        : intl.formatMessage({
+            id: 'getacar.spectator.message.change',
+          });
     const buttonLabelInfo = [];
     if (isPseudonym && !spectatorCanSeePseudonym) {
       buttonLabelInfo.push(

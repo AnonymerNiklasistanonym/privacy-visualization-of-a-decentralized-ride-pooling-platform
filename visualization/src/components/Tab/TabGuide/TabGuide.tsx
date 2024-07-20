@@ -20,7 +20,7 @@ import {
   OverviewElementProps,
   OverviewElementSectionContent,
   OverviewElementSectionTitle,
-} from './TabOverviewElements';
+} from './TabGuideElements';
 import ModalImage from '@components/Modal/ModalImage';
 import TabContainer from '../TabContainer';
 // Type imports
