@@ -1,8 +1,9 @@
 // Package imports
 import {memo, useCallback} from 'react';
+import dynamic from 'next/dynamic';
 // > Components
 import {Badge, Box, Grid, Typography} from '@mui/material';
-import Masonry, {ResponsiveMasonry} from 'react-responsive-masonry';
+//import Masonry, {ResponsiveMasonry} from 'react-responsive-masonry';
 // Local imports
 // > Components
 import {GridConnectedElementsCard} from './GridConnectedElementsCard';
@@ -11,6 +12,16 @@ import {debugComponentRender} from '@misc/debug';
 // Type imports
 import type {PropsWithChildren, ReactElement} from 'react';
 import type {SettingsUiProps} from '@misc/props/settings';
+
+const Masonry = dynamic(() => import('react-responsive-masonry'), {
+  ssr: false,
+});
+const ResponsiveMasonry = dynamic(
+  () => import('react-responsive-masonry').then(a => a.ResponsiveMasonry),
+  {
+    ssr: false,
+  }
+);
 
 /** A collapsible card section with a title and element count indicator */
 export interface GridConnectedElementsSectionCards {

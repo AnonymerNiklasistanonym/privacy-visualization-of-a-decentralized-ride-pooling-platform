@@ -2,6 +2,7 @@
 
 // Package imports
 import {usePathname, useRouter, useSearchParams} from 'next/navigation';
+import dynamic from 'next/dynamic';
 import {useIntl} from 'react-intl';
 // > Components
 import {
@@ -22,8 +23,8 @@ import {
   Switch,
   TextField,
 } from '@mui/material';
-import Masonry, {ResponsiveMasonry} from 'react-responsive-masonry';
 import {ReactElement, memo, useEffect, useMemo, useState} from 'react';
+//import Masonry, {ResponsiveMasonry} from 'react-responsive-masonry';
 // Local imports
 import {i18n, i18nGetLanguageName} from '../../../../i18n-config';
 // > Components
@@ -51,6 +52,16 @@ import {stringComparator} from '@misc/compare';
 // Type imports
 import type {ReactSetState, ReactState} from '@misc/react';
 import type {SettingsProps} from '@misc/props/settings';
+
+const Masonry = dynamic(() => import('react-responsive-masonry'), {
+  ssr: false,
+});
+const ResponsiveMasonry = dynamic(
+  () => import('react-responsive-masonry').then(a => a.ResponsiveMasonry),
+  {
+    ssr: false,
+  }
+);
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface TabSettingsProps extends SettingsProps {}

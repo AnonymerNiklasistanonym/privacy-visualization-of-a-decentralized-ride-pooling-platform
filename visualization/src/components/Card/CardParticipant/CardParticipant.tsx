@@ -51,6 +51,8 @@ import type {
 import type {
   SimulationEndpointParticipantInformationCustomer,
   SimulationEndpointParticipantInformationRideProvider,
+  SimulationEndpointParticipantInformationRideProviderCompany,
+  SimulationEndpointParticipantInformationRideProviderPerson,
   SimulationEndpointParticipantTypes,
 } from '@globals/types/simulation';
 import type {InputButtonSpectatorChangeProps} from '@components/Input/InputButton/InputButtonSpectatorChange';
@@ -269,8 +271,53 @@ export function CardParticipant(props: CardParticipantPropsInput) {
   );
   const dataAccessQueryRoundedRating = useMemo<
     Array<ModalDataInformationAccess>
-  >(
-    () => [
+  >(() => {
+    const participantList: Array<ModalDataInformationAccess> = [];
+    const participant = stateSpectators.get(stateParticipantId);
+    if (participantType === 'customer') {
+      participantList.push({
+        accessType: 'transitive',
+        description: intl.formatMessage({
+          id: 'dataAccess.queryData.rating.participant',
+        }),
+        icon: iconCustomer,
+        name:
+          participant?.name !== undefined
+            ? `${participant} (${stateParticipantId})`
+            : intl.formatMessage(
+                {
+                  id: 'getacar.participant.customer.name',
+                },
+                {
+                  name: stateParticipantId,
+                }
+              ),
+        spectatorId: stateParticipantId,
+      });
+    }
+    if (participantType === 'ride_provider') {
+      participantList.push({
+        accessType: 'transitive',
+        description: intl.formatMessage({
+          id: 'getacar.participant.customer.passenger.message.dataAccess',
+        }),
+        icon: iconRideProvider,
+        name:
+          participant?.name !== undefined
+            ? `${participant} (${stateParticipantId})`
+            : intl.formatMessage(
+                {
+                  id: 'getacar.participant.rideProvider.name',
+                },
+                {
+                  name: stateParticipantId,
+                }
+              ),
+        spectatorId: stateParticipantId,
+      });
+    }
+    return [
+      ...participantList,
       {
         accessType: 'transitive',
         description: intl.formatMessage({
@@ -294,16 +341,18 @@ export function CardParticipant(props: CardParticipantPropsInput) {
         spectatorInformation: spectatorInfoMatch,
       },
       ...dataAccessNotPublic,
-    ],
-    [
-      dataAccessNotPublic,
-      iconAuth,
-      iconMatch,
-      intl,
-      spectatorInfoAuth,
-      spectatorInfoMatch,
-    ]
-  );
+    ];
+  }, [
+    dataAccessNotPublic,
+    iconAuth,
+    iconMatch,
+    iconRideProvider,
+    intl,
+    participantType,
+    spectatorInfoAuth,
+    spectatorInfoMatch,
+    stateParticipantId,
+  ]);
   const dataAccessDebug = useMemo<Array<ModalDataInformationAccess>>(
     () => [...dataAccessNotPublic],
     [dataAccessNotPublic]
@@ -413,6 +462,28 @@ export function CardParticipant(props: CardParticipantPropsInput) {
     stateRideProviderInformation?.passengerList,
   ]);
 
+  const stateRideProviderInformationPerson = useMemo<
+    SimulationEndpointParticipantInformationRideProviderPerson | undefined
+  >(
+    () =>
+      stateRideProviderInformation !== null &&
+      !('company' in stateRideProviderInformation)
+        ? stateRideProviderInformation
+        : undefined,
+    [stateRideProviderInformation]
+  );
+
+  const stateRideProviderInformationCompany = useMemo<
+    SimulationEndpointParticipantInformationRideProviderCompany | undefined
+  >(
+    () =>
+      stateRideProviderInformation !== null &&
+      'company' in stateRideProviderInformation
+        ? stateRideProviderInformation
+        : undefined,
+    [stateRideProviderInformation]
+  );
+
   // Data access infos
   const contentPersonalData = useMemo<Array<DataAccessElementInfo>>(() => {
     const personalData: Array<DataAccessElementInfo> = [];
@@ -466,6 +537,56 @@ export function CardParticipant(props: CardParticipantPropsInput) {
         });
       }
     }
+    if (participantType === 'ride_provider') {
+      if (stateRideProviderInformationPerson?.dateOfBirth) {
+        personalData.push({
+          content: stateRideProviderInformationPerson.dateOfBirth,
+          dataAccessInformation: dataAccessPersonalData,
+          label: intl.formatMessage({id: 'data.section.personalDetails.dob'}),
+        });
+      }
+      if (stateRideProviderInformationPerson?.emailAddress) {
+        personalData.push({
+          content: stateRideProviderInformationPerson.emailAddress,
+          dataAccessInformation: dataAccessPersonalData,
+          label: intl.formatMessage({id: 'data.section.personalDetails.email'}),
+        });
+      }
+      if (stateRideProviderInformationPerson?.fullName) {
+        personalData.push({
+          content: stateRideProviderInformationPerson.fullName,
+          dataAccessInformation: dataAccessPersonalData,
+          label: intl.formatMessage({
+            id: 'data.section.personalDetails.fullName',
+          }),
+        });
+      }
+      if (stateRideProviderInformationPerson?.gender) {
+        personalData.push({
+          content: stateRideProviderInformationPerson.gender,
+          dataAccessInformation: dataAccessPersonalData,
+          label: intl.formatMessage({
+            id: 'data.section.personalDetails.gender',
+          }),
+        });
+      }
+      if (stateRideProviderInformationPerson?.homeAddress) {
+        personalData.push({
+          content: stateRideProviderInformationPerson.homeAddress,
+          dataAccessInformation: dataAccessPersonalData,
+          label: intl.formatMessage({
+            id: 'data.section.personalDetails.address.home',
+          }),
+        });
+      }
+      if (stateRideProviderInformationPerson?.phoneNumber) {
+        personalData.push({
+          content: stateRideProviderInformationPerson.phoneNumber,
+          dataAccessInformation: dataAccessPersonalData,
+          label: intl.formatMessage({id: 'data.section.personalDetails.phone'}),
+        });
+      }
+    }
     return personalData;
   }, [
     dataAccessPersonalData,
@@ -477,6 +598,12 @@ export function CardParticipant(props: CardParticipantPropsInput) {
     stateCustomerInformation?.gender,
     stateCustomerInformation?.homeAddress,
     stateCustomerInformation?.phoneNumber,
+    stateRideProviderInformationPerson?.dateOfBirth,
+    stateRideProviderInformationPerson?.emailAddress,
+    stateRideProviderInformationPerson?.fullName,
+    stateRideProviderInformationPerson?.gender,
+    stateRideProviderInformationPerson?.homeAddress,
+    stateRideProviderInformationPerson?.phoneNumber,
   ]);
   const contentCarData = useMemo<Array<DataAccessElementInfo>>(() => {
     const carData: Array<DataAccessElementInfo> = [];
@@ -573,14 +700,10 @@ export function CardParticipant(props: CardParticipantPropsInput) {
   const contentCompanyData = useMemo<Array<DataAccessElementInfo>>(() => {
     const companyData: Array<DataAccessElementInfo> = [];
 
-    if (
-      participantType === 'ride_provider' &&
-      stateRideProviderInformation !== null &&
-      'company' in stateRideProviderInformation
-    ) {
-      if (stateRideProviderInformation.company) {
+    if (participantType === 'ride_provider') {
+      if (stateRideProviderInformationCompany?.company) {
         companyData.push({
-          content: stateRideProviderInformation.company,
+          content: stateRideProviderInformationCompany.company,
           dataAccessInformation: dataAccessPersonalData,
           label: intl.formatMessage({
             id: 'data.section.companyDetails.company',
@@ -593,7 +716,7 @@ export function CardParticipant(props: CardParticipantPropsInput) {
     dataAccessPersonalData,
     intl,
     participantType,
-    stateRideProviderInformation,
+    stateRideProviderInformationCompany?.company,
   ]);
   const contentDebug = useMemo<Array<DataAccessElementInfo>>(() => {
     const contentList: Array<DataAccessElementInfo> = [];
