@@ -84,7 +84,6 @@ export default function TabPanel(props: TabPanelProps) {
     setStateErrorModalOpen,
     setStateTabIndex,
     showError,
-    errorModalContent,
     stateSettingsFetchBaseUrlSimulation,
     stateSettingsGlobalDebug,
     stateSettingsMapBaseUrlPathfinder,
@@ -145,10 +144,7 @@ export default function TabPanel(props: TabPanelProps) {
 
   const openErrorModal = useCallback(() => {
     setStateErrorModalOpen(true);
-    if (errorModalContent.current.size === 0) {
-      showError('Dummy', Error('Dummy', {cause: 'Dummy'}));
-    }
-  }, [errorModalContent, setStateErrorModalOpen, showError]);
+  }, [setStateErrorModalOpen]);
 
   const [stateRenderList, setStateRenderList] = useState<
     Array<[string, number]>

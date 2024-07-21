@@ -8,7 +8,6 @@ import type {
 } from '@globals/types/simulation';
 import type {FetchOptions} from '@globals/lib/fetch';
 import type {ModalDataInformation} from '@components/Modal/ModalData';
-import type {ShowError} from '@components/Modal/ModalError';
 
 /** Props to get the current spectator/selected elements */
 export interface GlobalPropsSpectatorSelectedElements {
@@ -88,7 +87,7 @@ export interface GlobalPropsFetchSmartContracts {
 /** Props to show an error */
 export interface GlobalPropsShowError {
   /** Show an error in the global error modal. */
-  showError: ShowError;
+  showError: (title: string, error: Error) => void;
 }
 
 /** Information of spectator */

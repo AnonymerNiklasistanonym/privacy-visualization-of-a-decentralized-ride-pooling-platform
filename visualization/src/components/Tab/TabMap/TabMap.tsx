@@ -173,13 +173,29 @@ export default function TabMap(props: TabMapProps) {
       fetchJsonSimulation<SimulationEndpointGraphInformation>(
         simulationEndpoints.apiV1.graphInformation
       )
-        .then(data => setGraphState(data))
+        .then(data => {
+          if (
+            window.confirm(
+              `This will add ${data.edges.length} edges, ${data.geometry.length} geometries and ${data.vertices.length} vertices to the map [simulation]. Do you still want to continue?`
+            )
+          ) {
+            setGraphState(data);
+          }
+        })
         .catch(err => showError('Fetch simulation graph', err));
       fetchJsonEndpoint<PathfinderEndpointGraphInformation>(
         stateSettingsMapBaseUrlPathfinder,
         pathfinderEndpoints.graphInformation
       )
-        .then(data => setPathfinderGraphState(data))
+        .then(data => {
+          if (
+            window.confirm(
+              `This will add ${data.edges.length} edges and ${data.vertices.length} vertices to the map [pathfinder]. Do you still want to continue?`
+            )
+          ) {
+            setPathfinderGraphState(data);
+          }
+        })
         .catch(err => showError('Fetch pathfinder graph', err));
     },
     [fetchJsonSimulation, showError, stateSettingsMapBaseUrlPathfinder]

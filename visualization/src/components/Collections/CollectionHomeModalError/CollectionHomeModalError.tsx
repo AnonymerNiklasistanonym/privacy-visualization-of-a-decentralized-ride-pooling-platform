@@ -2,8 +2,6 @@
 
 // Package imports
 import {useCallback, useRef, useState} from 'react';
-// Local imports
-import {showErrorBuilder} from '@components/Modal/ModalError';
 // > Components
 import CollectionHome from '@components/Collections/CollectionHome';
 import ModalError from '@components/Modal/ModalError';
@@ -20,39 +18,46 @@ export default function CollectionHomeModalError() {
   // React: States
   // > Error Modal
   const [stateErrorModalOpen, setStateErrorModalOpen] = useState(false);
-  const [stateErrorModalContentSize, setStateErrorModalContentSize] =
-    useState(0);
+  const [stateErrorModalUpdate, setStateErrorModalUpdate] = useState(false);
   const errorModalContent = useRef<Map<string, ErrorModalContentElement>>(
     new Map()
   );
 
   // Props: Functions (depend on created states)
-  const showError = useCallback(
-    (message: string, error: Error) =>
-      showErrorBuilder({
-        errorModalContent,
-        setStateErrorModalContentSize,
-        setStateErrorModalOpen,
-        stateErrorModalContentSize,
-        stateErrorModalOpen,
-      })(message, error),
-    [stateErrorModalContentSize, stateErrorModalOpen]
-  );
+  const showError = useCallback((message: string, error: Error) => {
+    console.error(error);
+    const entry = errorModalContent.current.get(message);
+    // Append error or increase count
+    if (entry !== undefined) {
+      entry.count++;
+      entry.error.set(error.name + error.message, error);
+      // Update modal content but not necessarily open the error modal
+      setStateErrorModalUpdate(true);
+    } else {
+      errorModalContent.current.set(message, {
+        count: 1,
+        error: new Map([[error.name + error.message, error]]),
+      });
+      console.log(JSON.stringify(errorModalContent.current));
+      // Only open modal if new error is found
+      setStateErrorModalOpen(true);
+    }
+  }, []);
 
   // Group all props
   const props: CollectionHomeProps = {
     errorModalContent,
-    setStateErrorModalContentSize,
     setStateErrorModalOpen,
+    setStateErrorModalUpdate,
     showError,
-    stateErrorModalContentSize,
     stateErrorModalOpen,
+    stateErrorModalUpdate,
   };
 
   return (
     <>
-      <ModalError {...props} />
-      <CollectionHome {...props} />
+      <ModalError key="global-modal-error" {...props} />
+      <CollectionHome key="global-collection-home" {...props} />
     </>
   );
 }

@@ -857,42 +857,6 @@ export function CardParticipant(props: CardParticipantPropsInput) {
         label: intl.formatMessage({id: 'data.section.queries'}),
         labelIcon: iconQueries,
       });
-      if (stateCustomerInformation?.passenger !== undefined) {
-        contentList.push({
-          content: (
-            <List
-              key={`participant-list-customerPassenger-${stateParticipantId}`}
-            >
-              <DataAccessElement
-                {...propsDataAccessElement}
-                {...originCustomer}
-                key={`render-data-element-customerPassenger-${stateParticipantId}`}
-                id={stateParticipantId}
-                label={intl.formatMessage({
-                  id: 'getacar.participant.rideProvider.driver',
-                })}
-                content={
-                  <InputButtonSpectatorShow
-                    {...propsInputButton}
-                    key={`participant-change-spectator-rideProvider-${stateParticipantId}`}
-                    spectatorId={stateCustomerInformation.passenger}
-                    icon={iconRideProvider}
-                    label={intl.formatMessage({
-                      id: 'getacar.participant.rideProvider.driver',
-                    })}
-                    isPseudonym={true}
-                  />
-                }
-                dataAccessInformation={dataAccessCustomerPassenger}
-              />
-            </List>
-          ),
-          label: intl.formatMessage({
-            id: 'getacar.participant.rideProvider.driver',
-          }),
-          labelIcon: iconRideProvider,
-        });
-      }
     }
     if (participantType === 'ride_provider') {
       contentList.push({
@@ -970,54 +934,6 @@ export function CardParticipant(props: CardParticipantPropsInput) {
         label: intl.formatMessage({id: 'data.section.queries'}),
         labelIcon: iconQueries,
       });
-      if (stateRideProviderInformation?.passengerList !== undefined) {
-        contentList.push({
-          content: (
-            <List key={`participant-list-passengerList-${stateParticipantId}`}>
-              {stateRideProviderInformation.passengerList.map(
-                (passengerPseudonym, index) => (
-                  <DataAccessElement
-                    {...propsDataAccessElement}
-                    {...originRideProvider}
-                    key={`render-data-element-passengerList-${passengerPseudonym}-${stateParticipantId}`}
-                    id={stateParticipantId}
-                    label={intl.formatMessage(
-                      {
-                        id: 'getacar.participant.rideProvider.passengerNumber',
-                      },
-                      {
-                        name: index,
-                      }
-                    )}
-                    content={
-                      <InputButtonSpectatorShow
-                        {...propsInputButton}
-                        key={`participant-change-spectator-customer-${stateParticipantId}`}
-                        spectatorId={passengerPseudonym}
-                        icon={iconCustomer}
-                        label={intl.formatMessage(
-                          {
-                            id: 'getacar.participant.rideProvider.passengerNumber',
-                          },
-                          {
-                            name: index,
-                          }
-                        )}
-                        isPseudonym={true}
-                      />
-                    }
-                    dataAccessInformation={dataAccessRideProviderDriver}
-                  />
-                )
-              )}
-            </List>
-          ),
-          label: intl.formatMessage({
-            id: 'getacar.participant.rideProvider.passengers',
-          }),
-          labelIcon: iconRideProvider,
-        });
-      }
     }
     return contentList;
   }, [
@@ -1025,10 +941,7 @@ export function CardParticipant(props: CardParticipantPropsInput) {
     contentCompanyData,
     contentPersonalData,
     contentQueries,
-    dataAccessCustomerPassenger,
-    dataAccessRideProviderDriver,
     iconCompany,
-    iconCustomer,
     iconPersonalDetails,
     iconQueries,
     iconRideProvider,
@@ -1039,18 +952,105 @@ export function CardParticipant(props: CardParticipantPropsInput) {
     originRideProvider,
     participantType,
     propsDataAccessElement,
-    propsInputButton,
-    stateCustomerInformation?.passenger,
     stateParticipantId,
-    stateRideProviderInformation?.passengerList,
   ]);
 
-  const contentDebug2 = useMemo<Array<CardGenericPropsContentElement>>(() => {
+  const contentOther = useMemo<Array<CardGenericPropsContentElement>>(() => {
     debugComponentElementUpdate(
-      `CardParticipant#contentDebug#${stateParticipantId}`
+      `CardParticipant#contentOther#${stateParticipantId}`
     );
 
     const contentList: Array<CardGenericPropsContentElement> = [];
+    if (
+      participantType === 'customer' &&
+      stateCustomerInformation?.passenger !== undefined
+    ) {
+      contentList.push({
+        content: (
+          <List
+            key={`participant-list-customerPassenger-${stateParticipantId}`}
+          >
+            <DataAccessElement
+              {...propsDataAccessElement}
+              {...originCustomer}
+              key={`render-data-element-customerPassenger-${stateParticipantId}`}
+              id={stateParticipantId}
+              label={intl.formatMessage({
+                id: 'getacar.participant.rideProvider.driver',
+              })}
+              content={
+                <InputButtonSpectatorShow
+                  {...propsInputButton}
+                  key={`participant-change-spectator-rideProvider-${stateParticipantId}`}
+                  spectatorId={stateCustomerInformation.passenger}
+                  icon={iconRideProvider}
+                  label={intl.formatMessage({
+                    id: 'getacar.participant.rideProvider.driver',
+                  })}
+                  isPseudonym={true}
+                />
+              }
+              dataAccessInformation={dataAccessCustomerPassenger}
+            />
+          </List>
+        ),
+        label: intl.formatMessage({
+          id: 'getacar.participant.rideProvider.driver',
+        }),
+        labelIcon: iconRideProvider,
+      });
+    }
+    if (
+      participantType === 'ride_provider' &&
+      stateRideProviderInformation?.passengerList !== undefined
+    ) {
+      contentList.push({
+        content: (
+          <List key={`participant-list-passengerList-${stateParticipantId}`}>
+            {stateRideProviderInformation.passengerList.map(
+              (passengerPseudonym, index) => (
+                <DataAccessElement
+                  {...propsDataAccessElement}
+                  {...originRideProvider}
+                  key={`render-data-element-passengerList-${passengerPseudonym}-${stateParticipantId}`}
+                  id={stateParticipantId}
+                  label={intl.formatMessage(
+                    {
+                      id: 'getacar.participant.rideProvider.passengerNumber',
+                    },
+                    {
+                      name: index,
+                    }
+                  )}
+                  content={
+                    <InputButtonSpectatorShow
+                      {...propsInputButton}
+                      key={`participant-change-spectator-customer-${stateParticipantId}`}
+                      spectatorId={passengerPseudonym}
+                      icon={iconCustomer}
+                      label={intl.formatMessage(
+                        {
+                          id: 'getacar.participant.rideProvider.passengerNumber',
+                        },
+                        {
+                          name: index,
+                        }
+                      )}
+                      isPseudonym={true}
+                    />
+                  }
+                  dataAccessInformation={dataAccessRideProviderDriver}
+                />
+              )
+            )}
+          </List>
+        ),
+        label: intl.formatMessage({
+          id: 'getacar.participant.rideProvider.passengers',
+        }),
+        labelIcon: iconRideProvider,
+      });
+    }
     if (stateSettingsGlobalDebug === true) {
       contentList.push({
         content:
@@ -1085,11 +1085,21 @@ export function CardParticipant(props: CardParticipantPropsInput) {
     return contentList;
   }, [
     contentDebug,
+    dataAccessCustomerPassenger,
+    dataAccessRideProviderDriver,
+    iconCustomer,
     iconDebug,
     iconEverything,
+    iconRideProvider,
     intl,
+    originCustomer,
+    originRideProvider,
+    participantType,
     propsDataAccessElement,
+    propsInputButton,
+    stateCustomerInformation?.passenger,
     stateParticipantId,
+    stateRideProviderInformation?.passengerList,
     stateSettingsGlobalDebug,
   ]);
 
@@ -1098,8 +1108,8 @@ export function CardParticipant(props: CardParticipantPropsInput) {
       `CardParticipant#contentFinal#${stateParticipantId}`
     );
 
-    return [...content, ...contentDebug2];
-  }, [content, contentDebug2, stateParticipantId]);
+    return [...content, ...contentOther];
+  }, [content, contentOther, stateParticipantId]);
 
   /** Action buttons based on global state */
   const actions = useMemo<Array<ReactElement>>(() => {

@@ -376,7 +376,7 @@ export default function CardRideRequest(props: CardRideRequestPropsInput) {
             key={`data-access-element-ride-request-auction-creator-${stateRideRequestId}`}
             id={stateRideRequestId}
             label={intl.formatMessage({
-              id: 'getacar.participant.customer',
+              id: 'getacar.spectator.message.auctionCreator',
             })}
             content={
               <InputButtonSpectatorShow
@@ -394,9 +394,9 @@ export default function CardRideRequest(props: CardRideRequestPropsInput) {
           />
         ),
         label: intl.formatMessage({
-          id: 'getacar.spectator.message.auctionWinner',
+          id: 'getacar.spectator.message.auctionCreator',
         }),
-        labelIcon: iconRideProvider,
+        labelIcon: iconCustomer,
       });
     }
 
@@ -418,7 +418,7 @@ export default function CardRideRequest(props: CardRideRequestPropsInput) {
                 spectatorId={stateRideRequestInformation.auctionWinner}
                 icon={iconRideProvider}
                 label={intl.formatMessage({
-                  id: 'getacar.spectator.message.auctionWinner',
+                  id: 'getacar.participant.rideProvider',
                 })}
                 isPseudonym={true}
               />
@@ -446,7 +446,7 @@ export default function CardRideRequest(props: CardRideRequestPropsInput) {
     stateRideRequestInformation?.userId,
   ]);
 
-  const contentDebug2 = useMemo<Array<CardGenericPropsContentElement>>(() => {
+  const contentOther = useMemo<Array<CardGenericPropsContentElement>>(() => {
     debugComponentElementUpdate(
       `CardRideRequest#contentDebug#${stateRideRequestId}`
     );
@@ -499,8 +499,8 @@ export default function CardRideRequest(props: CardRideRequestPropsInput) {
       `CardRideRequest#contentFinal#${stateRideRequestId}`
     );
 
-    return [...content, ...contentDebug2];
-  }, [content, contentDebug2, stateRideRequestId]);
+    return [...content, ...contentOther];
+  }, [content, contentOther, stateRideRequestId]);
 
   return (
     <CardGeneric
