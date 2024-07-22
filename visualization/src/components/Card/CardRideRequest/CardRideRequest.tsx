@@ -54,6 +54,7 @@ import type {InputButtonSpectatorChangeProps} from '@components/Input/InputButto
 import type {InputButtonSpectatorShowProps} from '@components/Input/InputButton/InputButtonSpectatorShow';
 import type {ReactState} from '@misc/react';
 import type {SettingsGlobalProps} from '@misc/props/settings';
+import useResolvePseudonym from '@/hooks/useResolvePseudonym';
 
 export interface CardRideRequestProps
   extends InputButtonSpectatorChangeProps,
@@ -158,54 +159,14 @@ export default function CardRideRequest(props: CardRideRequestPropsInput) {
 
   // React: States
   // > Fetching of actual actor ID in case it was a pseudonym
-  const [stateResolvedPseudonymCustomer, setStateResolvedPseudonymCustomer] =
-    useState<SimulationEndpointParticipantIdFromPseudonym | undefined>(
-      undefined
-    );
-  const [
-    stateResolvedPseudonymAuctionWinner,
-    setStateResolvedPseudonymAuctionWinner,
-  ] = useState<SimulationEndpointParticipantIdFromPseudonym | undefined>(
-    undefined
+  const stateResolvedPseudonymCustomer = useResolvePseudonym(
+    stateRideRequestInformation?.userId,
+    props
   );
-
-  // React: Run on first render
-  useEffect(() => {
-    if (stateRideRequestInformation?.userId !== undefined) {
-      fetchJsonSimulation<SimulationEndpointParticipantIdFromPseudonym>(
-        simulationEndpoints.apiV1.participantIdFromPseudonym(
-          stateRideRequestInformation?.userId
-        )
-      )
-        .then(data => setStateResolvedPseudonymCustomer(data))
-        .catch(err =>
-          showError(
-            'Simulation fetch participant ID from pseudonym [CardRideRequest:userId]',
-            err
-          )
-        );
-    }
-  }, [stateRideRequestInformation?.userId, fetchJsonSimulation, showError]);
-  useEffect(() => {
-    if (stateRideRequestInformation?.auctionWinner !== undefined) {
-      fetchJsonSimulation<SimulationEndpointParticipantIdFromPseudonym>(
-        simulationEndpoints.apiV1.participantIdFromPseudonym(
-          stateRideRequestInformation?.auctionWinner
-        )
-      )
-        .then(data => setStateResolvedPseudonymAuctionWinner(data))
-        .catch(err =>
-          showError(
-            'Simulation fetch participant ID from pseudonym [CardRideRequest:auctionWinner]',
-            err
-          )
-        );
-    }
-  }, [
+  const stateResolvedPseudonymAuctionWinner = useResolvePseudonym(
     stateRideRequestInformation?.auctionWinner,
-    fetchJsonSimulation,
-    showError,
-  ]);
+    props
+  );
 
   // Icons
   const iconRideProvider = useMemo(() => <ParticipantRideProviderIcon />, []);
@@ -294,25 +255,49 @@ export default function CardRideRequest(props: CardRideRequestPropsInput) {
   >(() => {
     const dataAccessInformationList: Array<ModalDataInformationAccess> = [];
     if (stateResolvedPseudonymCustomer !== undefined) {
+      const customer = stateSpectators.get(stateResolvedPseudonymCustomer.id);
       dataAccessInformationList.push({
         accessType: 'transitive',
         description: intl.formatMessage({
           id: 'dataAccess.rideRequestData.customer',
         }),
         icon: iconCustomer,
-        name: intl.formatMessage({id: 'getacar.service.match'}),
+        name:
+          customer !== undefined
+            ? `${customer.name} (${stateResolvedPseudonymCustomer.id})`
+            : intl.formatMessage(
+                {
+                  id: 'getacar.participant.customer.name',
+                },
+                {
+                  name: stateResolvedPseudonymCustomer.id,
+                }
+              ),
         spectatorId: stateResolvedPseudonymCustomer.id,
         spectatorInformation: spectatorInfoCustomer,
       });
     }
     if (stateResolvedPseudonymAuctionWinner !== undefined) {
+      const rideProvider = stateSpectators.get(
+        stateResolvedPseudonymAuctionWinner.id
+      );
       dataAccessInformationList.push({
         accessType: 'transitive',
         description: intl.formatMessage({
           id: 'dataAccess.rideRequestData.rideProvider',
         }),
         icon: iconRideProvider,
-        name: intl.formatMessage({id: 'getacar.service.match'}),
+        name:
+          rideProvider !== undefined
+            ? `${rideProvider.name} (${stateResolvedPseudonymAuctionWinner.id})`
+            : intl.formatMessage(
+                {
+                  id: 'getacar.participant.rideProvider.name',
+                },
+                {
+                  name: stateResolvedPseudonymAuctionWinner.id,
+                }
+              ),
         spectatorId: stateResolvedPseudonymAuctionWinner.id,
         spectatorInformation: spectatorInfoRideProvider,
       });
@@ -327,6 +312,7 @@ export default function CardRideRequest(props: CardRideRequestPropsInput) {
     spectatorInfoRideProvider,
     stateResolvedPseudonymAuctionWinner,
     stateResolvedPseudonymCustomer,
+    stateSpectators,
   ]);
 
   // Origin lists
