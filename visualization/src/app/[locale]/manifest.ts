@@ -4,6 +4,8 @@ import {getIntl} from '../../services/intl';
 import type {MetadataRoute} from 'next';
 import type {ReactPropsI18nHome} from '@misc/react';
 
+// TODO Feature [no priority]: Currently this is seemingly not being used -> find out why
+
 // Generate Web Manifest:
 // mdn docs: https://developer.mozilla.org/en-US/docs/Web/Manifest
 // next.js docs: https://nextjs.org/docs/app/api-reference/file-conventions/metadata/manifest

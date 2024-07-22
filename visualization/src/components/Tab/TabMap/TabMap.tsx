@@ -204,8 +204,7 @@ export default function TabMap(props: TabMapProps) {
   const clearGraphs = useCallback(() => fetchGraphs(true), [fetchGraphs]);
 
   // React: Effects
-  // > Fetch Selected Participant
-  // TODO Make this better
+  // > Fetch Selected Participant (and it's connected participants for the connected pages)
   useEffect(() => {
     const interval = setInterval(() => {
       if (stateSelectedParticipantId === undefined) {
@@ -418,33 +417,6 @@ export default function TabMap(props: TabMapProps) {
         />
       );
     }
-    // > Connected smart contracts
-    // TODO?
-    /*
-    if (currentSelectedSpectator) {
-      connectedSmartContracts.push(
-        <CardGeneric
-          {...props}
-          key={`connected-element-smartContract-${'TODO'}`}
-          name={intl.formatMessage({
-            id: 'getacar.smartContract',
-          })}
-          content={[{content: 'TODO'}]}
-          icon={<MiscRideContractSmartContractIcon />}
-          label={intl.formatMessage(
-            {
-              id: 'connected',
-            },
-            {
-              name: intl.formatMessage({
-                id: 'getacar.smartContract',
-              }),
-            }
-          )}
-        />
-      );
-    }
-    */
     // > Connected passengers
     if (
       currentSelectedSpectator &&

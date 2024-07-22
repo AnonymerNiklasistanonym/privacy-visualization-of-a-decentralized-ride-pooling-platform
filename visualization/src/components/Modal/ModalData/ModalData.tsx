@@ -82,7 +82,6 @@ export function ModalData(props: ModalDataPropsInput) {
     ],
     [intl]
   );
-  // TODO: Add Button to show the data if hidden!
 
   const spectatorInfo = useMemo(() => {
     const spectator = stateSpectators.get(stateSpectatorId);

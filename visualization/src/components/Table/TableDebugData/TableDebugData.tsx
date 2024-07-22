@@ -86,7 +86,7 @@ export default memo(TableDebugData, (prev, next) => {
   return defaultComp && customComp;
 });
 
-// TODO Feature? Make this table generic
+// TODO Feature [no priority]: Make the table generic
 
 export function TableDebugData({
   stateDebugData,

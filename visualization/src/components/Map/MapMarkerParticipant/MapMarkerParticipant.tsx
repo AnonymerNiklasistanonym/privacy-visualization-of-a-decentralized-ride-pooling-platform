@@ -68,7 +68,6 @@ export interface MapMarkerParticipantInput extends MapMarkerParticipantProps {
   isPinned: boolean;
 }
 
-// TODO
 //const colorActiveCustomer = 'green';
 //const colorActiveRideProvider = 'blue';
 const rideRequestColor = 'blue';

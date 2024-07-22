@@ -6,10 +6,11 @@ import {getShortestPath} from '../../src/lib/pathfinder';
 import {testCases} from './pathfinder';
 // Type imports
 import type {
+  DefaultVertex,
+  DefaultVertexEdge,
+  VertexEdgeId,
   VertexGraph,
-  VertexGraphEdgesFunc,
-  VertexGraphEdgesMap,
-  VertexGraphVertices,
+  VertexId,
 } from '../../src/lib/pathfinder';
 
 const buildGraph = (
@@ -17,29 +18,27 @@ const buildGraph = (
 ): VertexGraph => {
   const createEdgeKey = (a: number, b: number) =>
     (a >= b ? [b, a] : [a, b]).join(':');
-  const vertices: VertexGraphVertices = new Map();
-  const edgesMap: VertexGraphEdgesMap = new Map();
+  const vertices: Map<VertexId, DefaultVertex> = new Map();
+  const edges: Map<VertexEdgeId, DefaultVertexEdge> = new Map();
   for (const inputElement of edgeList) {
     const edgeKey = createEdgeKey(inputElement.a, inputElement.b);
-    edgesMap.set(edgeKey, {weight: inputElement.weight});
+    edges.set(edgeKey, {weight: inputElement.weight});
     for (const node of [inputElement.a, inputElement.b]) {
       const vertex = vertices.get(node);
       if (vertex !== undefined) {
-        vertex.neighbors.push(
+        vertex.neighborIds.push(
           ...[inputElement.a, inputElement.b].filter(a => a !== node)
         );
       } else {
         vertices.set(node, {
-          neighbors: [inputElement.a, inputElement.b].filter(a => a !== node),
+          neighborIds: [inputElement.a, inputElement.b].filter(a => a !== node),
         });
       }
     }
   }
   for (const [id, vertex] of vertices) {
-    vertex.neighbors = [...new Set(vertex.neighbors.filter(a => a !== id))];
+    vertex.neighborIds = [...new Set(vertex.neighborIds.filter(a => a !== id))];
   }
-  const edges: VertexGraphEdgesFunc = (a, b) =>
-    edgesMap.get(createEdgeKey(a[0], b[0])) ?? null;
   return {edges, vertices};
 };
 

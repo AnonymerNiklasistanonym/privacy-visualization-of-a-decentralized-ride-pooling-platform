@@ -1,7 +1,10 @@
 // Package imports
 import {useEffect, useState} from 'react';
 // Local imports
+// > Globals
 import {simulationEndpoints} from '@globals/defaults/endpoints';
+// > Misc
+import {debugComponentElementUpdate} from '@misc/debug';
 // Type imports
 import {GlobalPropsFetch, GlobalPropsShowError} from '@misc/props/global';
 import {SimulationEndpointParticipantIdFromPseudonym} from '@globals/types/simulation';
@@ -10,6 +13,8 @@ export default function useResolvePseudonym(
   pseudonym: string | undefined,
   {fetchJsonSimulation, showError}: GlobalPropsFetch & GlobalPropsShowError
 ) {
+  debugComponentElementUpdate(`useResolvePseudonym#${pseudonym}`);
+
   // React: States
   // > Fetching of actual actor ID in case it was a pseudonym
   const [stateResolvedPseudonym, setStateResolvedPseudonym] = useState<
@@ -20,6 +25,7 @@ export default function useResolvePseudonym(
   // > In case the actor ID is a pseudonym fetch the actual actor ID
   useEffect(() => {
     if (pseudonym) {
+      debugComponentElementUpdate(`useResolvePseudonym#${pseudonym}#useEffect`);
       fetchJsonSimulation<SimulationEndpointParticipantIdFromPseudonym>(
         simulationEndpoints.apiV1.participantIdFromPseudonym(pseudonym)
       )

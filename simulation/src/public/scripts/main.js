@@ -233,8 +233,12 @@ const updateOrRenderElement = async (
     const popup = L.popup();
     element.bindPopup(popup);
     element.addEventListener('popupopen', () => {
-      // TODO Update content
-      console.debug('TODO Update content for ', jsonObj.id, jsonObj.type);
+      // TODO Feature [no priority]: Update popup content
+      console.debug(
+        'TODO Feature: pdate popup content',
+        jsonObj.id,
+        jsonObj.type
+      );
     });
     element._custom_id = jsonObj.id;
     currentElements.push(element);

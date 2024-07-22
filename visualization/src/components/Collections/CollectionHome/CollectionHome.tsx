@@ -243,7 +243,7 @@ export default function CollectionHome(
           options
         );
         // If a request is made update the cache
-        // TODO Cache only gets bigger, nothing is purged - clean routine
+        // TODO Feature [no priority]: Cache size only grows without ever being purged -> add clean routine using the time information
         requestCache.current.set(endpoint, {data, time: currentTime});
         debugFetching.set(endpoint, (debugFetching.get(endpoint) ?? 0) + 1);
         return data;
@@ -832,8 +832,7 @@ export default function CollectionHome(
           if (data === null) {
             return data;
           }
-          // TODO Fetch for all current participating participants and add their entries to the global search
-          // TODO Give their entries special IDs so that they are not overriding map entries
+          // TODO Feature [no priority]: Fetch for all current smart contracts their participant information and add their entries to the change spectator map -> not necessary when using it in combination with the current simulation
           return data;
         }),
     [fetchJsonSimulation, fetchJsonSimulationWait]
@@ -907,19 +906,6 @@ export default function CollectionHome(
     stateThemeMode,
     updateGlobalSearch,
   };
-
-  // TODO Initial fetching of participants for a search index
-  // TODO Also update spectators
-  // TODO Map/Blockchain page: Disable inputs while they are not initialized and show a linear or circular progress
-  // TODO Map/blockchain page: Show a circular progress while they are not initialized and for the table linear progress every time elements are fetched
-  // TODO Input search bar show as a chip the currently selected/filtered element if you can still search for a new one at the same time
-  // TODO Blockchain page: Fix filter search and change spectator to be the same as on the map page
-  // TODO Move info elements to map and blockchain page to guide page as additional card
-  // TODO Snackbar text update to use actual spectator name instead of just the ID
-  // TODO Change text IDs to not be composite values that are incompatible with German and instead use complete messages that can actually be translated
-  // TODO Fix/Check data modifiers and tooltip in case the data cannot be seen
-  // TODO Start the thesis content
-  // TODO Get connected 'future/possible' passenger from ride request
 
   return (
     <WrapperThemeProvider

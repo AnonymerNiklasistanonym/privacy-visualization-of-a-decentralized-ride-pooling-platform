@@ -115,6 +115,8 @@ export const getVertexEdgeFromGraph2 = <
 export const getVertexEdgeKey = (a: VertexId, b: VertexId) =>
   (a >= b ? [b, a] : [a, b]).join(':');
 
+// TODO Feature [no priority]: Update algorithm to be faster and update tests written for the old one
+
 /**
  * A* implementation between 2 nodes in an OSM graph.
  *

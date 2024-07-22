@@ -158,7 +158,7 @@ export default function TabBlockchain(props: TabBlockchainProps) {
         )
       )
         .then(data => {
-          // TODO Feature: Instead of fetching all blockchain entries fetch only the connected ones
+          // TODO Feature [no priority]: Instead of fetching all blockchain entries fetch only the connected ones
           setStateConnectedRideRequests(data.connectedRideRequests);
         })
         .catch(err =>

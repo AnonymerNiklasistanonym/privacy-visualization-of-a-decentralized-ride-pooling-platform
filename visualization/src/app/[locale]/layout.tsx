@@ -18,9 +18,8 @@ export default async function PageLayout({
   params: {locale},
   children,
 }: PropsWithChildren<ReactPropsI18nHome>) {
-  //// Server translations
+  // Server side translations (not used any more)
   //const intl = await getIntl(locale);
-  //// Client translations
   //const messages = JSON.parse(
   //  JSON.stringify(intl.messages)
   //) as ReactI18nMessages;

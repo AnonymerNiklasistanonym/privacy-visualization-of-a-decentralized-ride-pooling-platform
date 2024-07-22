@@ -2,7 +2,7 @@
 // eslint-disable-next-line node/no-unpublished-import
 import {describe, expect, test} from '@jest/globals';
 // Local imports
-import {getShortestPath} from '../../src/lib/pathfinder2';
+import {getShortestPath} from '../../src/lib/pathfinder';
 import {testCases} from './pathfinder';
 // Type imports
 import type {
@@ -11,7 +11,7 @@ import type {
   VertexEdgeId,
   VertexGraph,
   VertexId,
-} from '../../src/lib/pathfinder2';
+} from '../../src/lib/pathfinder';
 
 const buildGraph = (
   edgeList: Array<{a: number; b: number; weight: number}>

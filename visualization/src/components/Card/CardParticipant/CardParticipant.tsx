@@ -345,6 +345,7 @@ export function CardParticipant(props: CardParticipantPropsInput) {
   }, [
     dataAccessNotPublic,
     iconAuth,
+    iconCustomer,
     iconMatch,
     iconRideProvider,
     intl,
@@ -352,6 +353,7 @@ export function CardParticipant(props: CardParticipantPropsInput) {
     spectatorInfoAuth,
     spectatorInfoMatch,
     stateParticipantId,
+    stateSpectators,
   ]);
   const dataAccessDebug = useMemo<Array<ModalDataInformationAccess>>(
     () => [...dataAccessNotPublic],

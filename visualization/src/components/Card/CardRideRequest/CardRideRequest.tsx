@@ -1,6 +1,6 @@
 // Package imports
-import {useEffect, useMemo, useState} from 'react';
 import {useIntl} from 'react-intl';
+import {useMemo} from 'react';
 // > Components
 import {List} from '@mui/material';
 // Local imports
@@ -24,8 +24,8 @@ import {
 import CardGeneric from '@components/Card/CardGeneric';
 import DataAccessElement from '@components/DataAccessElement';
 import InputButtonSpectatorShow from '@components/Input/InputButton/InputButtonSpectatorShow';
-// > Globals
-import {simulationEndpoints} from '@globals/defaults/endpoints';
+// > Hooks
+import useResolvePseudonym from '@hooks/useResolvePseudonym';
 // > Misc
 import {SpectatorId} from '@misc/spectatorIds';
 import {debugComponentElementUpdate} from '@misc/debug';
@@ -46,15 +46,11 @@ import type {
   ModalDataInformationAccess,
   ModalDataInformationOrigin,
 } from '@components/Modal/ModalData';
-import type {
-  SimulationEndpointParticipantIdFromPseudonym,
-  SimulationEndpointRideRequestInformation,
-} from '@globals/types/simulation';
 import type {InputButtonSpectatorChangeProps} from '@components/Input/InputButton/InputButtonSpectatorChange';
 import type {InputButtonSpectatorShowProps} from '@components/Input/InputButton/InputButtonSpectatorShow';
 import type {ReactState} from '@misc/react';
 import type {SettingsGlobalProps} from '@misc/props/settings';
-import useResolvePseudonym from '@/hooks/useResolvePseudonym';
+import type {SimulationEndpointRideRequestInformation} from '@globals/types/simulation';
 
 export interface CardRideRequestProps
   extends InputButtonSpectatorChangeProps,

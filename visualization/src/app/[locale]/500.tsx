@@ -1,11 +1,11 @@
 'use server';
 
-// TODO: Is not being used
+// TODO Feature [no priority]: Currently this is seemingly not being used -> find out why
 
 // Local imports
 // > Components
 import CollectionError from '@components/Collections/CollectionError';
-// > Logging
+// > Services
 import {createLoggerSection} from '@services/logging';
 // Type imports
 import type {CollectionErrorProps} from '@components/Collections/CollectionError';

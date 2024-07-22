@@ -45,9 +45,6 @@ export interface DataAccessElementPropsInput
     DataAccessElementInfo {
   /** Only used for the element key */
   id: string;
-  // TODO Check if this is still necessary
-  /** In case the ID is a pseudonym */
-  isPseudonym?: boolean;
   /** The data owner information element */
   dataOriginInformation?: ReactElement;
 }
@@ -232,37 +229,3 @@ export function DataAccessElement(props: DataAccessElementPropsInput) {
     </ListItem>
   );
 }
-
-// TODO Fix this
-export const dataModalInformationPersonalData: ModalDataInformationAccess[] = [
-  {
-    accessType: 'local_storage',
-    description:
-      'Stores it locally to prevent multiple accounts and to contact this participant',
-    icon: <ServiceAuthenticationIcon />,
-    name: 'Authentication Service',
-    spectatorId: SpectatorId.AUTHENTICATION_SERVICE,
-    spectatorInformation: <ServiceAuthentication intlValues={{}} />,
-  },
-  {
-    accessType: 'none',
-    description:
-      'Only knows the participants pseudonym but no personal information',
-    icon: <ServiceMatchingIcon />,
-    name: 'Matching Service',
-    spectatorId: SpectatorId.MATCHING_SERVICE,
-    spectatorInformation: <ServiceMatching intlValues={{}} />,
-  },
-  {
-    accessType: 'none',
-    description: 'This data is not publicly available',
-    icon: <SpectatorPublicIcon />,
-    name: 'Public',
-    spectatorId: SpectatorId.PUBLIC,
-    spectatorInformation: (
-      <Typography variant="body1" gutterBottom>
-        TODO Add spectator section to overview
-      </Typography>
-    ),
-  },
-];

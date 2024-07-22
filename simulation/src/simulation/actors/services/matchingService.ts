@@ -223,6 +223,7 @@ export class MatchingService extends Service<SimulationTypeMatchingService> {
     return rideRequestAuction;
   }
 
+  /** Get a ride request */
   getRideRequest(rideRequestId: string) {
     const rideRequestAuction = this.auctions.find(a => a.id === rideRequestId);
     if (rideRequestAuction) {
@@ -231,8 +232,7 @@ export class MatchingService extends Service<SimulationTypeMatchingService> {
     throw new Error('Ride request does not exist.');
   }
 
-  // TODO Should the contract address be added somewhere in there?
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  /** Add the ride contract address to an existing ride requests */
   getSetContractAddress(rideRequestId: string, contractAddress: string) {
     const rideRequestAuction = this.getRideRequest(rideRequestId);
     rideRequestAuction.rideContractAddress = contractAddress;
@@ -263,7 +263,6 @@ export class MatchingService extends Service<SimulationTypeMatchingService> {
     return rideRequestAuction.rideContractAddress;
   }
 
-  // TODO: Update
   getAuctions() {
     return this.auctions;
   }

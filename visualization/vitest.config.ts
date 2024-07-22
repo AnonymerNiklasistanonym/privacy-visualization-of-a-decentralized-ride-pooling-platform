@@ -8,10 +8,12 @@ export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: [
-      ...['styles', 'components', 'globals', 'misc', 'services'].map(a => ({
-        find: `@${a}`,
-        replacement: resolve(__dirname, 'src', a),
-      })),
+      ...['styles', 'components', 'hooks', 'globals', 'misc', 'services'].map(
+        a => ({
+          find: `@${a}`,
+          replacement: resolve(__dirname, 'src', a),
+        })
+      ),
       {
         find: '@',
         replacement: resolve(__dirname, 'src', '@/'),

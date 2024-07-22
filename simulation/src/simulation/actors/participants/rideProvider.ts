@@ -85,7 +85,7 @@ export abstract class RideProvider<
         await wait(1 * 1000);
         continue;
       }
-      // TODO Find the closest open ride request (aerial distance for fast computation)
+      // Find the closest open ride request using the aerial/haversine distance
       const closestOpenRideRequest = openRideRequests.reduce((a, b) =>
         haversineDistance(
           this.currentLocation,
@@ -139,7 +139,7 @@ export abstract class RideProvider<
               speeds.carInKmH
             )
         ),
-        // TODO Handle multiple passengers
+        // TODO Feature [no priority]: Bid with a passenger count > 0
         0,
         this.publicKey
       );
