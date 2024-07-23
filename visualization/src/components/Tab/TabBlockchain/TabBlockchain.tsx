@@ -237,16 +237,9 @@ export default function TabBlockchain(props: TabBlockchainProps) {
           {...props}
           cardType="customer"
           id={stateSelectedCustomerResolved}
-          label={intl.formatMessage(
-            {
-              id: 'connected',
-            },
-            {
-              name: intl.formatMessage({
-                id: 'getacar.participant.customer',
-              }),
-            }
-          )}
+          label={intl.formatMessage({
+            id: 'getacar.participant.customer.message.connected',
+          })}
         />
       );
     }
@@ -256,16 +249,9 @@ export default function TabBlockchain(props: TabBlockchainProps) {
           {...props}
           cardType="ride_provider"
           id={stateSelectedRideProviderResolved}
-          label={intl.formatMessage(
-            {
-              id: 'connected',
-            },
-            {
-              name: intl.formatMessage({
-                id: 'getacar.participant.rideProvider',
-              }),
-            }
-          )}
+          label={intl.formatMessage({
+            id: 'getacar.participant.rideProvider.message.connected',
+          })}
         />
       );
     }
@@ -275,16 +261,9 @@ export default function TabBlockchain(props: TabBlockchainProps) {
           {...props}
           id={stateConnectedRideRequest}
           cardType={'ride_request'}
-          label={intl.formatMessage(
-            {
-              id: 'connected',
-            },
-            {
-              name: intl.formatMessage({
-                id: 'getacar.rideRequest',
-              }),
-            }
-          )}
+          label={intl.formatMessage({
+            id: 'getacar.rideRequest.message.connected',
+          })}
         />
       );
     }

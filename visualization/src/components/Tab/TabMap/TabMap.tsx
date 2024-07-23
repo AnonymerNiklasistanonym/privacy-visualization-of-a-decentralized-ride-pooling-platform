@@ -348,8 +348,6 @@ export default function TabMap(props: TabMapProps) {
     const connectedParticipants: Array<ReactElement> = [];
     /** The connected ride requests */
     const connectedRideRequests: Array<ReactElement> = [];
-    /** The connected smart contracts */
-    const connectedSmartContracts: Array<ReactElement> = [];
 
     const currentSelectedSpectator =
       stateSelectedParticipantId !== undefined
@@ -404,16 +402,9 @@ export default function TabMap(props: TabMapProps) {
           key={`connected-element-rideRequest-${connectedRideRequest}`}
           cardType={'ride_request'}
           id={connectedRideRequest}
-          label={intl.formatMessage(
-            {
-              id: 'connected',
-            },
-            {
-              name: intl.formatMessage({
-                id: 'getacar.rideRequest',
-              }),
-            }
-          )}
+          label={intl.formatMessage({
+            id: 'getacar.rideRequest.message.connected',
+          })}
         />
       );
     }
@@ -431,16 +422,9 @@ export default function TabMap(props: TabMapProps) {
             cardType="customer"
             id={stateConnectedPassenger}
             isPseudonym={true}
-            label={intl.formatMessage(
-              {
-                id: 'connected',
-              },
-              {
-                name: intl.formatMessage({
-                  id: 'getacar.spectator.message.passenger',
-                }),
-              }
-            )}
+            label={intl.formatMessage({
+              id: 'getacar.spectator.message.passenger.connected',
+            })}
           />
         );
       }
@@ -487,16 +471,6 @@ export default function TabMap(props: TabMapProps) {
         title: intl.formatMessage({
           id: 'getacar.rideRequest.message.connected.plural',
         }),
-      },
-      {
-        cards: connectedSmartContracts,
-        icon: <ConnectedElementsIcon fontSize="large" />,
-        title: intl.formatMessage(
-          {id: 'connected'},
-          {
-            name: intl.formatMessage({id: 'getacar.smartContract.plural'}),
-          }
-        ),
       },
     ];
   }, [
