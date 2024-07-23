@@ -4,15 +4,9 @@ import {useIntl} from 'react-intl';
 // > Components
 import {Box, ListItem, Tooltip, Typography} from '@mui/material';
 // Local imports
-// > Components
-import {ServiceAuthentication, ServiceMatching} from '@components/Tab/TabGuide';
-import {
-  ServiceAuthenticationIcon,
-  ServiceMatchingIcon,
-  SpectatorPublicIcon,
-} from '@components/Icons';
 // > Misc
 import {SpectatorId} from '@misc/spectatorIds';
+import {spectatorName} from '@misc/spectatorName';
 // Type imports
 import type {
   GlobalPropsModalDataInformation,
@@ -119,10 +113,7 @@ export function DataAccessElement(props: DataAccessElementPropsInput) {
         {id: 'data.access.message.currentSpectatorCantSeeData'},
         {
           data: label,
-          name:
-            spectator?.name !== undefined
-              ? `${spectator?.name} (${stateSpectatorId})`
-              : stateSpectatorId,
+          name: spectatorName(stateSpectatorId, name => name, spectator),
         }
       );
     }

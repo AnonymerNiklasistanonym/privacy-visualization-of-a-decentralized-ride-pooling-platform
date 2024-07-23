@@ -1,5 +1,5 @@
 // Package imports
-import {memo, useState} from 'react';
+import {memo, useCallback, useState} from 'react';
 // > Components
 import {
   Box,
@@ -44,9 +44,9 @@ export function ModalDataListElement(props: ModalDataListElementPropsInput) {
 
   const [open, setOpen] = useState(false);
 
-  const handleClick = () => {
-    setOpen(!open);
-  };
+  const handleClick = useCallback(() => {
+    setOpen(oldOpen => !oldOpen);
+  }, []);
 
   const theme = useTheme();
 

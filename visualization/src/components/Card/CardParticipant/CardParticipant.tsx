@@ -31,6 +31,7 @@ import InputButtonSpectatorShow from '@components/Input/InputButton/InputButtonS
 // > Misc
 import {SpectatorId} from '@misc/spectatorIds';
 import {debugComponentElementUpdate} from '@misc/debug';
+import {spectatorName} from '@misc/spectatorName';
 // Type imports
 import type {
   CardGenericProps,
@@ -281,17 +282,15 @@ export function CardParticipant(props: CardParticipantPropsInput) {
           id: 'dataAccess.queryData.rating.participant',
         }),
         icon: iconCustomer,
-        name:
-          participant?.name !== undefined
-            ? `${participant} (${stateParticipantId})`
-            : intl.formatMessage(
-                {
-                  id: 'getacar.participant.customer.name',
-                },
-                {
-                  name: stateParticipantId,
-                }
-              ),
+        name: spectatorName(
+          stateParticipantId,
+          name =>
+            intl.formatMessage(
+              {id: 'getacar.participant.customer.name'},
+              {name}
+            ),
+          participant
+        ),
         spectatorId: stateParticipantId,
       });
     }
@@ -302,17 +301,15 @@ export function CardParticipant(props: CardParticipantPropsInput) {
           id: 'getacar.participant.customer.passenger.message.dataAccess',
         }),
         icon: iconRideProvider,
-        name:
-          participant?.name !== undefined
-            ? `${participant} (${stateParticipantId})`
-            : intl.formatMessage(
-                {
-                  id: 'getacar.participant.rideProvider.name',
-                },
-                {
-                  name: stateParticipantId,
-                }
-              ),
+        name: spectatorName(
+          stateParticipantId,
+          name =>
+            intl.formatMessage(
+              {id: 'getacar.participant.rideProvider.name'},
+              {name}
+            ),
+          participant
+        ),
         spectatorId: stateParticipantId,
       });
     }
@@ -752,17 +749,12 @@ export function CardParticipant(props: CardParticipantPropsInput) {
       dataOriginIcon: spectator?.icon ?? iconCustomer,
       dataOriginId: stateParticipantId,
       dataOriginInformation: spectatorInfoCustomer,
-      dataOriginName:
-        spectator !== undefined
-          ? `${spectator.name} [${stateParticipantId}]`
-          : intl.formatMessage(
-              {
-                id: 'getacar.participant.customer.name',
-              },
-              {
-                name: stateParticipantId,
-              }
-            ),
+      dataOriginName: spectatorName(
+        stateParticipantId,
+        name =>
+          intl.formatMessage({id: 'getacar.participant.customer.name'}, {name}),
+        spectator
+      ),
     };
   }, [
     iconCustomer,
@@ -777,17 +769,15 @@ export function CardParticipant(props: CardParticipantPropsInput) {
       dataOriginIcon: spectator?.icon ?? iconRideProvider,
       dataOriginId: stateParticipantId,
       dataOriginInformation: spectatorInfoRideProvider,
-      dataOriginName:
-        spectator !== undefined
-          ? `${spectator.name} [${stateParticipantId}]`
-          : intl.formatMessage(
-              {
-                id: 'getacar.participant.rideProvider.name',
-              },
-              {
-                name: stateParticipantId,
-              }
-            ),
+      dataOriginName: spectatorName(
+        stateParticipantId,
+        name =>
+          intl.formatMessage(
+            {id: 'getacar.participant.rideProvider.name'},
+            {name}
+          ),
+        spectator
+      ),
     };
   }, [
     iconRideProvider,

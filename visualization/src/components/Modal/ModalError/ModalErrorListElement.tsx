@@ -26,7 +26,7 @@ import type {
   ErrorModalContentElement,
   ErrorModalPropsGet,
   ErrorModalPropsSet,
-} from './ModalError';
+} from './ModalErrorTypes';
 
 export interface ErrorModalListElementProps
   extends ErrorModalPropsSet,
@@ -45,7 +45,7 @@ export function ErrorModalListElement({
 }: ErrorModalListElementProps) {
   const [open, setOpen] = useState(false);
 
-  const handleClick = useCallback(() => setOpen(!open), [setOpen, open]);
+  const handleClick = useCallback(() => setOpen(oldOpen => !oldOpen), []);
 
   const removeErrorMessage = useCallback(() => {
     errorModalContent.current.delete(title);

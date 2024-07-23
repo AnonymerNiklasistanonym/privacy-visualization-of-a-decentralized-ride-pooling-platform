@@ -5,35 +5,20 @@ import {useIntl} from 'react-intl';
 import {List, ListSubheader, Typography} from '@mui/material';
 // Local imports
 // > Components
+import ModalErrorListElement from './ModalErrorListElement';
 import ModalGeneric from '@components/Modal/ModalGeneric';
 // Type imports
-import type {ReactRef, ReactSetState, ReactState} from '@misc/react';
-import ModalErrorListElement from './ModalErrorListElement';
-
-export interface ErrorModalContentElement {
-  error: Map<string, Error>;
-  count: number;
-}
+import type {
+  ErrorModalContentElement,
+  ErrorModalPropsErrorBuilder,
+  ErrorModalPropsGet,
+  ErrorModalPropsSet,
+} from './ModalErrorTypes';
 
 export interface ModalErrorProps
   extends ErrorModalPropsGet,
     ErrorModalPropsSet,
     ErrorModalPropsErrorBuilder {}
-
-export interface ErrorModalPropsGet {
-  stateErrorModalOpen: ReactState<boolean>;
-  stateErrorModalUpdate: ReactState<boolean>;
-  errorModalContent: ReactRef<Map<string, ErrorModalContentElement>>;
-}
-
-export interface ErrorModalPropsSet {
-  setStateErrorModalOpen: ReactSetState<boolean>;
-  setStateErrorModalUpdate: ReactSetState<boolean>;
-}
-
-export interface ErrorModalPropsErrorBuilder
-  extends ErrorModalPropsGet,
-    ErrorModalPropsSet {}
 
 export default memo(ModalError);
 

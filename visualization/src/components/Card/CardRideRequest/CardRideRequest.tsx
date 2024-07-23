@@ -29,6 +29,7 @@ import useResolvePseudonym from '@hooks/useResolvePseudonym';
 // > Misc
 import {SpectatorId} from '@misc/spectatorIds';
 import {debugComponentElementUpdate} from '@misc/debug';
+import {spectatorName} from '@misc/spectatorName';
 // Type imports
 import type {
   CardGenericProps,
@@ -258,17 +259,15 @@ export default function CardRideRequest(props: CardRideRequestPropsInput) {
           id: 'dataAccess.rideRequestData.customer',
         }),
         icon: iconCustomer,
-        name:
-          customer !== undefined
-            ? `${customer.name} (${stateResolvedPseudonymCustomer.id})`
-            : intl.formatMessage(
-                {
-                  id: 'getacar.participant.customer.name',
-                },
-                {
-                  name: stateResolvedPseudonymCustomer.id,
-                }
-              ),
+        name: spectatorName(
+          stateResolvedPseudonymCustomer.id,
+          name =>
+            intl.formatMessage(
+              {id: 'getacar.participant.customer.name'},
+              {name}
+            ),
+          customer
+        ),
         spectatorId: stateResolvedPseudonymCustomer.id,
         spectatorInformation: spectatorInfoCustomer,
       });
@@ -283,17 +282,15 @@ export default function CardRideRequest(props: CardRideRequestPropsInput) {
           id: 'dataAccess.rideRequestData.rideProvider',
         }),
         icon: iconRideProvider,
-        name:
-          rideProvider !== undefined
-            ? `${rideProvider.name} (${stateResolvedPseudonymAuctionWinner.id})`
-            : intl.formatMessage(
-                {
-                  id: 'getacar.participant.rideProvider.name',
-                },
-                {
-                  name: stateResolvedPseudonymAuctionWinner.id,
-                }
-              ),
+        name: spectatorName(
+          stateResolvedPseudonymAuctionWinner.id,
+          name =>
+            intl.formatMessage(
+              {id: 'getacar.participant.rideProvider.name'},
+              {name}
+            ),
+          rideProvider
+        ),
         spectatorId: stateResolvedPseudonymAuctionWinner.id,
         spectatorInformation: spectatorInfoRideProvider,
       });

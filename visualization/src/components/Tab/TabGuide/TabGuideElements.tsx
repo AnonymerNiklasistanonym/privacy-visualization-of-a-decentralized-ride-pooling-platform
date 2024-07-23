@@ -1,6 +1,7 @@
 'use client';
 
 // Package imports
+import {useCallback} from 'react';
 // > Components
 import {Box, Chip, Typography} from '@mui/material';
 // Type imports
@@ -29,6 +30,20 @@ export function ImageBox({
   setStateImgModalOpen,
   url,
 }: OverviewElementImagePropsInput) {
+  const onClick = useCallback(() => {
+    setStateImgUrl(url);
+    setStateImgAlt(alt);
+    setStateImgBg('#fff');
+    setStateImgModalOpen(true);
+  }, [
+    alt,
+    setStateImgAlt,
+    setStateImgBg,
+    setStateImgModalOpen,
+    setStateImgUrl,
+    url,
+  ]);
+
   return (
     <Box
       component="img"
@@ -42,12 +57,7 @@ export function ImageBox({
       }}
       alt={alt}
       src={url}
-      onClick={() => {
-        setStateImgUrl(url);
-        setStateImgAlt(alt);
-        setStateImgBg('#fff');
-        setStateImgModalOpen(true);
-      }}
+      onClick={onClick}
     />
   );
 }

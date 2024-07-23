@@ -21,6 +21,8 @@ import LoadingCircle from '@components/Loading/LoadingCircle';
 import ModalDataElement from './ModalDataElement';
 // > Misc
 import {debugComponentRender, debugMemoHelper} from '@misc/debug';
+import {SpectatorId} from '@misc/spectatorIds';
+import {spectatorName} from '@misc/spectatorName';
 // Type imports
 import type {
   ModalDataInformation,
@@ -31,7 +33,6 @@ import type {GlobalPropsSpectatorMap} from '@misc/props/global';
 import type {InputButtonSpectatorChangeProps} from '@components/Input/InputButton/InputButtonSpectatorChange';
 import type {ModalDataListElementProps} from './ModalDataElement';
 import type {ReactNode} from 'react';
-import {SpectatorId} from '@misc/spectatorIds';
 
 export interface ModalDataProps
   extends InputButtonSpectatorChangeProps,
@@ -85,10 +86,7 @@ export function ModalData(props: ModalDataPropsInput) {
 
   const spectatorInfo = useMemo(() => {
     const spectator = stateSpectators.get(stateSpectatorId);
-    if (spectator) {
-      return `${spectator.name} (${stateSpectatorId})`;
-    }
-    return stateSpectatorId;
+    return spectatorName(stateSpectatorId, name => name, spectator);
   }, [stateSpectatorId, stateSpectators]);
 
   const closeDataModalCallback = useCallback(() => {

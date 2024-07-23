@@ -14,9 +14,11 @@ import {
   Stack,
 } from '@mui/material';
 // Local imports
-import {debugComponentRender} from '@misc/debug';
 // > Components
 import InputExtraActions from '@components/Input/InputExtraActions';
+// > Misc
+import {debugComponentRender} from '@misc/debug';
+import {spectatorName} from '@misc/spectatorName';
 // Type imports
 import {
   GlobalPropsSpectatorMap,
@@ -84,7 +86,11 @@ export function InputChangeSpectator(props: InputChangeSpectatorPropsInput) {
                   <MenuItem key={spectatorId} value={spectatorId}>
                     <ListItemIcon>{spectatorInfo.icon}</ListItemIcon>
                     <ListItemText
-                      primary={`${spectatorInfo.name} (${spectatorId})`}
+                      primary={spectatorName(
+                        spectatorId,
+                        name => name,
+                        spectatorInfo
+                      )}
                     />
                   </MenuItem>
                 )),
