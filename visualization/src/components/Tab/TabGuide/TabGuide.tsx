@@ -31,13 +31,11 @@ import type {
 import type {GlobalPropsIntlValues} from '@misc/props/global';
 import type {ModalImageProps} from '@components/Modal/ModalImage';
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface TabOverviewProps
   extends SettingsOverviewProps,
     SettingsUiProps,
     GlobalPropsIntlValues {}
 
-// eslint-disable-next-line no-empty-pattern
 export default function TabOverview(propsInput: TabOverviewProps) {
   const {intlValues, stateSettingsUiGridSpacing} = propsInput;
   const intl = useIntl();

@@ -74,7 +74,6 @@ export interface TabBlockchainProps
   setStateInfoCardBlockchainDismissed: ReactSetState<boolean>;
 }
 
-// eslint-disable-next-line no-empty-pattern
 export default function TabBlockchain(props: TabBlockchainProps) {
   debugComponentRender('TabBlockchain');
 

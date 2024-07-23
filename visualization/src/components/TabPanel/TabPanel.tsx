@@ -78,7 +78,6 @@ export interface TabPanelProps
     TabMapProps,
     TabSettingsProps {}
 
-// eslint-disable-next-line no-empty-pattern
 export default function TabPanel(props: TabPanelProps) {
   const {
     setStateErrorModalOpen,
