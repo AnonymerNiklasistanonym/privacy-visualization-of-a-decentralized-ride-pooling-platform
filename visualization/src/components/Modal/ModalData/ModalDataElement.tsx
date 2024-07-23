@@ -96,8 +96,6 @@ export function ModalDataListElement(props: ModalDataListElementPropsInput) {
                 key={`modal_${stateDataModalContentElement.name}`}
                 spectatorId={stateDataModalContentElement.spectatorId}
                 icon={stateDataModalContentElement.icon ?? <QuestionMarkIcon />}
-                label={stateDataModalContentElement.name}
-                isPseudonym={stateDataModalContentElement.isPseudonym ?? false}
                 ignoreUnableToResolve={true}
               />
             </CardActions>

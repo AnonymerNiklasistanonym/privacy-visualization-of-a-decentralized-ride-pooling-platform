@@ -60,6 +60,7 @@ import type {InputButtonSpectatorChangeProps} from '@components/Input/InputButto
 import type {InputButtonSpectatorShowProps} from '@components/Input/InputButton/InputButtonSpectatorShow';
 import type {ReactState} from '@misc/react';
 import type {SettingsGlobalProps} from '@misc/props/settings';
+import useResolvePseudonym from '@hooks/useResolvePseudonym';
 
 export interface CardParticipantProps
   extends InputButtonSpectatorChangeProps,
@@ -205,6 +206,19 @@ export function CardParticipant(props: CardParticipantPropsInput) {
   const spectatorInfoRideProvider = useMemo(
     () => <ParticipantsRideProvider intlValues={intlValues} />,
     [intlValues]
+  );
+
+  const driverResolvedPseudonym = useResolvePseudonym(
+    stateCustomerInformation?.passenger,
+    props
+  );
+  // TODO Feature [no priority]: Support multiple passengers
+  const passengerResolvedPseudonym = useResolvePseudonym(
+    stateRideProviderInformation?.passengerList !== undefined &&
+      stateRideProviderInformation.passengerList.length > 0
+      ? stateRideProviderInformation.passengerList[0]
+      : undefined,
+    props
   );
 
   // Data access lists
@@ -361,18 +375,20 @@ export function CardParticipant(props: CardParticipantPropsInput) {
   >(() => {
     const dataAccessCustomerPassengerList: Array<ModalDataInformationAccess> =
       [];
-    if (stateCustomerInformation?.passenger) {
+    if (
+      stateCustomerInformation?.passenger &&
+      driverResolvedPseudonym !== undefined
+    ) {
       dataAccessCustomerPassengerList.push({
         accessType: 'transitive',
         description: intl.formatMessage({
           id: 'getacar.participant.rideProvider.driver.message.dataAccess',
         }),
         icon: iconRideProvider,
-        isPseudonym: true,
         name: intl.formatMessage({
           id: 'getacar.participant.rideProvider.driver',
         }),
-        spectatorId: stateCustomerInformation.passenger,
+        spectatorId: driverResolvedPseudonym.id,
       });
     }
     return [
@@ -399,6 +415,7 @@ export function CardParticipant(props: CardParticipantPropsInput) {
     ];
   }, [
     dataAccessNotPublic,
+    driverResolvedPseudonym,
     iconAuth,
     iconMatch,
     iconRideProvider,
@@ -412,20 +429,17 @@ export function CardParticipant(props: CardParticipantPropsInput) {
   >(() => {
     const dataAccessRideProviderDriverList: Array<ModalDataInformationAccess> =
       [];
-    if (stateRideProviderInformation?.passengerList !== undefined) {
-      stateRideProviderInformation.passengerList.map(passengerPseudonym => {
-        dataAccessRideProviderDriverList.push({
-          accessType: 'transitive',
-          description: intl.formatMessage({
-            id: 'getacar.participant.customer.passenger.message.dataAccess',
-          }),
-          icon: iconRideProvider,
-          isPseudonym: true,
-          name: intl.formatMessage({
-            id: 'getacar.participant.rideProvider.passenger',
-          }),
-          spectatorId: passengerPseudonym,
-        });
+    if (passengerResolvedPseudonym !== undefined) {
+      dataAccessRideProviderDriverList.push({
+        accessType: 'transitive',
+        description: intl.formatMessage({
+          id: 'getacar.participant.customer.passenger.message.dataAccess',
+        }),
+        icon: iconCustomer,
+        name: intl.formatMessage({
+          id: 'getacar.participant.rideProvider.passenger',
+        }),
+        spectatorId: passengerResolvedPseudonym.id,
       });
     }
     return [
@@ -451,14 +465,14 @@ export function CardParticipant(props: CardParticipantPropsInput) {
       ...dataAccessNotPublic,
     ];
   }, [
-    dataAccessNotPublic,
-    iconAuth,
-    iconMatch,
-    iconRideProvider,
+    passengerResolvedPseudonym,
     intl,
+    iconAuth,
     spectatorInfoAuth,
+    iconMatch,
     spectatorInfoMatch,
-    stateRideProviderInformation?.passengerList,
+    dataAccessNotPublic,
+    iconCustomer,
   ]);
 
   const stateRideProviderInformationPerson = useMemo<
@@ -1117,15 +1131,7 @@ export function CardParticipant(props: CardParticipantPropsInput) {
         spectatorId={stateParticipantId}
         icon={participantType === 'customer' ? iconCustomer : iconRideProvider}
         isPseudonym={false}
-        label={intl.formatMessage(
-          {id: 'getacar.spectator.this'},
-          {
-            name:
-              participantType === 'customer'
-                ? intl.formatMessage({id: 'getacar.participant.customer'})
-                : intl.formatMessage({id: 'getacar.participant.rideProvider'}),
-          }
-        )}
+        label={undefined}
       />,
     ];
     if (fixMarker !== true) {
@@ -1144,7 +1150,6 @@ export function CardParticipant(props: CardParticipantPropsInput) {
     fixMarker,
     iconCustomer,
     iconRideProvider,
-    intl,
     participantType,
     propsInputButton,
     stateParticipantId,

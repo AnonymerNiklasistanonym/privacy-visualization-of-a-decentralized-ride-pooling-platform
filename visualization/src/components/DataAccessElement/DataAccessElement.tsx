@@ -66,8 +66,8 @@ export function DataAccessElement(props: DataAccessElementPropsInput) {
 
   const intl = useIntl();
 
-  const dataAccessDataModal: Array<ModalDataInformationAccess> = useMemo(
-    () => [
+  const dataAccessDataModal: Array<ModalDataInformationAccess> = useMemo(() => {
+    return [
       {
         accessType: 'owner',
         description: 'Owns this data',
@@ -77,15 +77,14 @@ export function DataAccessElement(props: DataAccessElementPropsInput) {
         spectatorInformation: dataOriginInformation,
       },
       ...dataAccessInformation,
-    ],
-    [
-      dataAccessInformation,
-      dataOriginIcon,
-      dataOriginId,
-      dataOriginInformation,
-      dataOriginName,
-    ]
-  );
+    ];
+  }, [
+    dataAccessInformation,
+    dataOriginIcon,
+    dataOriginId,
+    dataOriginInformation,
+    dataOriginName,
+  ]);
 
   const [contentFinal, tooltip] = useMemo<
     [string | ReactElement, string]

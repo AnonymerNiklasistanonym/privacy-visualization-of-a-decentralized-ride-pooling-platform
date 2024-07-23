@@ -10,8 +10,6 @@ export type ModalDataInformationAccessType =
 export interface ModalDataInformationAccess {
   /** The icon of the entity that has access (or not) */
   icon?: ReactNode;
-  /** Indicator if it's ID is a pseudonym */
-  isPseudonym?: boolean;
   /** The type of access this entity has */
   accessType: ModalDataInformationAccessType;
   /** The name of the entity */
