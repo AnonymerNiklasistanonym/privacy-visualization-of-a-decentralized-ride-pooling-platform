@@ -14,9 +14,8 @@
   - [React](#react)
 
 > [!WARNING]
-> Running `npm install` will display 5 high severity vulnerabilities coming from `madge`.
-> When you don't wanna use this tool just run `npm uninstall madge` or remove the line in the `package.json`.
-> Besides the check entry nothing is using this package.
+> Running `npm install` would currently display 5 high severity vulnerabilities when `madge` is listed as dev dependency.
+> This is why this dependency is called via `npx` temporarily and not listed in `package.json`.
 
 ## Run
 
@@ -127,7 +126,7 @@ Furthermore:
 
 | Command | Description |
 | --- | --- |
-| `npm run check:circular` | Check for circular dependencies |
+| `npm run check:circular` | Check for circular dependencies (uses `npx` since madge currently has security vulnerabilities) |
 | `npm run check:dependencies_unused` | Check for unused dependencies |
 | `npm run check:exports` | Check for unused exports |
 | `npm run check:i18n_missed` | Check for missing translations |

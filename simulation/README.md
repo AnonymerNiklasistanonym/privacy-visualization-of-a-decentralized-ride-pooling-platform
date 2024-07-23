@@ -12,9 +12,8 @@
   - [Flamegraph](#flamegraph)
 
 > [!WARNING]
-> Running `npm install` will display 5 high severity vulnerabilities coming from `madge`.
-> When you don't wanna use this tool just run `npm uninstall madge` or remove the line in the `package.json`.
-> Besides the check entry nothing is using this package.
+> Running `npm install` would currently display 5 high severity vulnerabilities when `madge` is listed as dev dependency.
+> This is why this dependency is called via `npx` temporarily and not listed in `package.json`.
 
 Simulate the following parts of the GETACAR platform:
 
@@ -142,7 +141,7 @@ To copy them out of a `docker` container run: `docker cp $ID:$LOG_DIR ./app_logs
 
 | Command | Description |
 | --- | --- |
-| `npm run check:circular` | Check for circular dependencies |
+| `npm run check:circular` | Check for circular dependencies (uses `npx` since madge currently has security vulnerabilities) |
 | `npm run check:exports` | Check for unused exports |
 | `npm run fix` | Fix code style based on [`eslint` rules](.eslintrc.json) |
 | `npm run lint` | Check code style based on [`eslint` rules](.eslintrc.json) and on `next` internals |
