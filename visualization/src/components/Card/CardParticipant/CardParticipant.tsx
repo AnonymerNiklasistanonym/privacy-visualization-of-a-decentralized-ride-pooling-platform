@@ -230,7 +230,7 @@ export function CardParticipant(props: CardParticipantPropsInput) {
         description: intl.formatMessage({id: 'dataAccess.personalData.as'}),
         icon: iconAuth,
         name: intl.formatMessage({
-          id: 'getacar.spectator.service.authentication',
+          id: 'getacar.service.auth',
         }),
         spectatorId: SpectatorId.AUTHENTICATION_SERVICE,
         spectatorInformation: spectatorInfoAuth,
@@ -261,7 +261,7 @@ export function CardParticipant(props: CardParticipantPropsInput) {
         description: intl.formatMessage({id: 'dataAccess.queryData.rating.as'}),
         icon: iconAuth,
         name: intl.formatMessage({
-          id: 'getacar.spectator.service.authentication',
+          id: 'getacar.service.auth',
         }),
         spectatorId: SpectatorId.AUTHENTICATION_SERVICE,
         spectatorInformation: spectatorInfoAuth,
@@ -322,7 +322,7 @@ export function CardParticipant(props: CardParticipantPropsInput) {
         }),
         icon: iconAuth,
         name: intl.formatMessage({
-          id: 'getacar.spectator.service.authentication',
+          id: 'getacar.service.auth',
         }),
         spectatorId: SpectatorId.AUTHENTICATION_SERVICE,
         spectatorInformation: spectatorInfoAuth,
@@ -382,7 +382,7 @@ export function CardParticipant(props: CardParticipantPropsInput) {
         description: intl.formatMessage({id: 'dataAccess.driver.as'}),
         icon: iconAuth,
         name: intl.formatMessage({
-          id: 'getacar.spectator.service.authentication',
+          id: 'getacar.service.auth',
         }),
         spectatorId: SpectatorId.AUTHENTICATION_SERVICE,
         spectatorInformation: spectatorInfoAuth,
@@ -435,7 +435,7 @@ export function CardParticipant(props: CardParticipantPropsInput) {
         description: intl.formatMessage({id: 'dataAccess.passenger.as'}),
         icon: iconAuth,
         name: intl.formatMessage({
-          id: 'getacar.spectator.service.authentication',
+          id: 'getacar.service.auth',
         }),
         spectatorId: SpectatorId.AUTHENTICATION_SERVICE,
         spectatorInformation: spectatorInfoAuth,
@@ -994,7 +994,8 @@ export function CardParticipant(props: CardParticipantPropsInput) {
     }
     if (
       participantType === 'ride_provider' &&
-      stateRideProviderInformation?.passengerList !== undefined
+      stateRideProviderInformation?.passengerList !== undefined &&
+      stateRideProviderInformation?.passengerList.length > 0
     ) {
       contentList.push({
         content: (

@@ -304,14 +304,14 @@ export default function CollectionHome(
           icon: <ServiceAuthenticationIcon />,
           id: SpectatorId.AUTHENTICATION_SERVICE,
           name: intl.formatMessage({
-            id: 'getacar.spectator.service.authentication',
+            id: 'getacar.service.auth',
           }),
         },
         {
           category: intl.formatMessage({id: 'getacar.service'}),
           icon: <ServiceMatchingIcon />,
           id: SpectatorId.MATCHING_SERVICE,
-          name: intl.formatMessage({id: 'getacar.spectator.service.matching'}),
+          name: intl.formatMessage({id: 'getacar.service.match'}),
         },
       ].map(a => [
         a.id,

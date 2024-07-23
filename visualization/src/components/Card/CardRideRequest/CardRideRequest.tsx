@@ -223,7 +223,7 @@ export default function CardRideRequest(props: CardRideRequestPropsInput) {
         description: intl.formatMessage({id: 'dataAccess.rideRequestData.as'}),
         icon: iconAuth,
         name: intl.formatMessage({
-          id: 'getacar.spectator.service.authentication',
+          id: 'getacar.service.auth',
         }),
         spectatorId: SpectatorId.AUTHENTICATION_SERVICE,
         spectatorInformation: spectatorInfoAuth,

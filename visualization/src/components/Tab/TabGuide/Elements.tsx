@@ -297,7 +297,7 @@ export function Blockchain(props: OverviewElementProps) {
     <>
       <OverviewElementSectionTitle {...props} id="anchor-blockchain">
         {intl.formatMessage({
-          id: 'page.home.tab.guide.section.blockchain.title',
+          id: 'page.home.tab.blockchain.title',
         })}
       </OverviewElementSectionTitle>
       <OverviewElementSectionHeadingTitle
