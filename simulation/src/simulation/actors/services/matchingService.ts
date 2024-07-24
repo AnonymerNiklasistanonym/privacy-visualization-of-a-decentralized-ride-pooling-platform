@@ -85,11 +85,9 @@ export class MatchingService extends Service<SimulationTypeMatchingService> {
         }
         if (auction.bids.length === 0) {
           auction.auctionStatus = 'closed';
-          this.logger.debug(
-            'No bids for the request were found, close auction',
-            {
-              auction,
-            }
+          this.logger.warn(
+            'No bids for the ride request were found, close auction',
+            {auction}
           );
           continue;
         }
@@ -141,7 +139,7 @@ export class MatchingService extends Service<SimulationTypeMatchingService> {
               auction.request.maxWaitingTime * 2
         ) {
           this.logger.debug(
-            'Ride request auction was closed and has no connected ride contract',
+            'Purge ride request auction that was closed and has no connected ride contract',
             {auction}
           );
           this.auctions.splice(index, 1);

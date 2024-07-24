@@ -345,7 +345,7 @@ export function getShortestPath<
     result = reconstructShortestPath(graph, closedList, targetId);
     timings.set('reconstruct', performance.now() - timingReconstructStart);
   }
-  logger.info(
+  logger.debug(
     `Timings: ${Array.from(timings.entries())
       .map(([name, timing]) => `${name}: ${timing}ms`)
       .join(', ')} while closing ${

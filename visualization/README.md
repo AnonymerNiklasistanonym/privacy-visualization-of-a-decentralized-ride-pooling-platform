@@ -12,6 +12,7 @@
   - [Commands](#commands)
 - [Profiling](#profiling)
   - [React](#react)
+  - [Docker Resource Monitor](#docker-resource-monitor)
 
 > [!WARNING]
 > Running `npm install` would currently display 5 high severity vulnerabilities when `madge` is listed as dev dependency.
@@ -147,7 +148,11 @@ npx depcruise src --include-only "^src/components" --output-type dot | dot -T sv
 
 For popular browsers there is a [`React Developer Tools` extension](https://react.dev/learn/react-developer-tools) which supports a lot of debugging and profiling options.
 
-#### Component updates
+#### Component Updates
 
 To show when a component is updated go to the components tab of the `React Developer Tools` extension and click the settings icon.
 Then enable in the `General` tab the option `Highlight updates when components render` to visually see when a components is updated by a colored border around that component.
+
+### Docker Resource Monitor
+
+There is an application called [`ctop`](https://github.com/bcicen/ctop) which can summarize live memory/CPU usage and network usage of a docker container.

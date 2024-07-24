@@ -10,6 +10,7 @@
 - [Profiling](#profiling)
   - [Ticks](#ticks)
   - [Flamegraph](#flamegraph)
+  - [Docker Resource Monitor](#docker-resource-monitor)
 
 > [!WARNING]
 > Running `npm install` would currently display 5 high severity vulnerabilities when `madge` is listed as dev dependency.
@@ -221,3 +222,7 @@ When finished send a `SIGINT`/`SIGTERM` signal (`CTRL` + `C`) and then open the 
 > On some terminals this might not be possible via `CTRL` + `C` but you can always use for example `htop`, use the tree perspective and filter for `0x`, then send a `SIGTERM` to the parent `0x` process.
 
 ![Example flamegraph output of `0x`](./res/flamegraph_example.png)
+
+### Docker Resource Monitor
+
+There is an application called [`ctop`](https://github.com/bcicen/ctop) which can summarize live memory/CPU usage and network usage of a docker container.

@@ -159,7 +159,7 @@ export abstract class RideProvider<
         closestOpenRideRequest.id
       );
       if (closedRideRequest.auctionWinner !== pseudonym) {
-        this.logger.debug('Bid for open ride request was not successful', {
+        this.logger.warn('Bid for open ride request was not successful', {
           closedRideRequest,
         });
         continue;

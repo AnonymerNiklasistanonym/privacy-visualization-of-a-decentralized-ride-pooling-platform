@@ -133,23 +133,6 @@ export abstract class Participant<JsonType> extends Actor<
       simulation.config.customPathfinderProvider === 'all' ||
       simulation.config.customPathfinderProvider === 'internal'
     ) {
-      //routeInternal = await measureTimeWrapper(
-      //  () =>
-      //    workerCaller<WorkerDataPathfinder, WorkerResultPathfinder>(
-      //      {
-      //        graph: simulation.osmVertexGraph,
-      //        sourceCoordinates: this.currentLocation,
-      //        targetCoordinates: newLocation,
-      //      },
-      //      workerFilePathPathfinder
-      //    ),
-      //  stats =>
-      //    this.logger.info(
-      //      'get route calculation [worker]',
-      //      id,
-      //      `${stats.executionTimeInMS}ms`
-      //    )
-      //);
       routeInternal = await measureTimeWrapper(
         () =>
           getShortestPathOsmCoordinates(

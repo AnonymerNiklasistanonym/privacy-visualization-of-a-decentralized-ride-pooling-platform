@@ -144,15 +144,17 @@ export const createMockedMatchingService = (
   );
 };
 
+export type RideProvider = RideProviderPerson | RideProviderCompany;
+
 export class Simulation {
   // Properties
-  public readonly customers: Customer[];
+  public readonly customers: Array<Customer>;
 
-  public readonly rideProviders: (RideProviderPerson | RideProviderCompany)[];
+  public readonly rideProviders: Array<RideProvider>;
 
-  public readonly authenticationServices: AuthenticationService[];
+  public readonly authenticationServices: Array<AuthenticationService>;
 
-  public readonly matchingServices: MatchingService[];
+  public readonly matchingServices: Array<MatchingService>;
 
   public readonly blockchain: Blockchain;
 
@@ -538,7 +540,6 @@ export class Simulation {
         simulationEndpointRoutes.apiV1.smartContractConnectedRideRequests(':id')
       )
       .get((req, res) => {
-        logger.warn('Got request for connected ride requests!', req.params.id);
         const smartContracts = this.blockchain.rideContracts;
         const smartContract = smartContracts.find(
           a => a.walletId === req.params.id
@@ -551,7 +552,6 @@ export class Simulation {
                 .filter(a => a.rideContractAddress === req.params.id)
             )
             .map(a => a.id);
-          logger.warn('Respond with!', {connectedRideRequests});
           res.json({
             connectedRideRequests,
           } as SimulationEndpointSmartContractConnectedRideRequests);

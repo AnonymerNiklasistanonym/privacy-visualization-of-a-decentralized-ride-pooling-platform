@@ -313,3 +313,6 @@ dist*
 
 # Ignore default dependency graphs
 dependency-graph.svg
+
+# Python venv
+venv_*

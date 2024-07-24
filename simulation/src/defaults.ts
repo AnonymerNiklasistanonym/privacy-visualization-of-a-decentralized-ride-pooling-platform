@@ -26,9 +26,9 @@ export const defaultConfig: Readonly<SimulationConfig> = {
     count: 100,
   },
   rideProvider: {
-    countCompany: 3,
+    countCompany: 4,
     countCompanyFleet: 20,
-    countPerson: 25,
+    countPerson: 20,
   },
 
   // Location
