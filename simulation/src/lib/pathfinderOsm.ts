@@ -74,7 +74,7 @@ export const getShortestPathOsmCoordinates = (
     return null;
   }
   let lastVertexPair: VertexIdPair<OsmVertex> = shortestPath[0];
-  return shortestPath.reduce((prev, curr) => {
+  return shortestPath.reduce<Array<Coordinates>>((prev, curr) => {
     if (lastVertexPair[0] === curr[0]) {
       return [...prev, curr[1]];
     }
@@ -94,5 +94,5 @@ export const getShortestPathOsmCoordinates = (
     ];
     lastVertexPair = curr;
     return result;
-  }, [] as Array<Coordinates>);
+  }, []);
 };

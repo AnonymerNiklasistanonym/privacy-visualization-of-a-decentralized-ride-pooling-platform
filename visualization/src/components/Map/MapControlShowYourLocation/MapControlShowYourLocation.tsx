@@ -4,7 +4,6 @@ import {useIntl} from 'react-intl';
 import {useMap} from 'react-leaflet';
 // > Components
 import Control from 'react-leaflet-custom-control';
-import {Tooltip} from '@mui/material';
 // Local imports
 // > Components
 import {FindLocationIcon} from '@components/Icons';
@@ -41,13 +40,14 @@ export function MapControlShowYourLocation({
 
   return (
     <Control prepend position="bottomright">
-      <Tooltip title={intl.formatMessage({id: 'location.showYour'})}>
-        <div className="leaflet-bar">
-          <a onClick={findLocation}>
-            <FindLocationIcon style={{marginTop: '3px'}} />
-          </a>
-        </div>
-      </Tooltip>
+      <div className="leaflet-bar">
+        <a
+          onClick={findLocation}
+          title={intl.formatMessage({id: 'location.showYour'})}
+        >
+          <FindLocationIcon style={{marginTop: '3px'}} />
+        </a>
+      </div>
     </Control>
   );
 }

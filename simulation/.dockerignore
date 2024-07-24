@@ -5,7 +5,9 @@
 .gitignore
 build
 cache
+config_small.json
 *.log
+*.svg
 dist
 Dockerfile
 docs
@@ -17,3 +19,8 @@ tests
 typedoc.js
 config.schema.json
 delete*
+
+# Profiling
+*.0x
+isolate-*.log
+processed.txt

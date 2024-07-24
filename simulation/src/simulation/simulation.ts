@@ -241,7 +241,7 @@ export class Simulation {
 
   /** Prepare simulation */
   async prepare(): Promise<void> {
-    logger.debug('Prepare simulation...');
+    logger.info('Prepare simulation...');
 
     // Make sure that the pathfinder server is running when it's specified
     if (
@@ -307,7 +307,7 @@ export class Simulation {
 
   /** Run simulation */
   async run(): Promise<void> {
-    logger.debug('Run simulation...');
+    logger.info('Run simulation...');
     this.state = 'RUNNING';
     const runningActors = [
       ...this.customers,
@@ -320,12 +320,13 @@ export class Simulation {
       await Promise.all(runningActors);
     }
     this.state = 'INACTIVE';
-    logger.debug('Simulation inactive');
+    logger.info('Simulation inactive');
   }
 
   pause(): void {
-    logger.debug('Pause simulation...');
+    // TODO Feature [no priority]: Implement this to instantly stop the simulation
     this.state = 'PAUSING';
+    logger.info('Pause simulation...');
   }
 
   // Debug methods

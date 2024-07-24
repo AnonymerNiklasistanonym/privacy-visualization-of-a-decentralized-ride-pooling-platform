@@ -209,6 +209,8 @@ export abstract class RideProvider<
       this.status = 'idle';
       await wait(getRandomIntFromInterval(1, 20) * 1000);
     }
+    this.status = 'not running any more';
+    this.logger.info(this.status, {simulationState: simulation.state});
   }
 
   abstract get endpointRideProvider(): SimulationEndpointParticipantInformationRideProvider;

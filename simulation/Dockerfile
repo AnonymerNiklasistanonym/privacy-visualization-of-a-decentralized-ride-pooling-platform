@@ -4,7 +4,7 @@ FROM node:21-alpine
 RUN apk add --no-cache curl
 
 # Uncomment next line to inspect the image/container using bash
-#RUN apk add --no-cache bash
+RUN apk add --no-cache bash
 
 # Setting up the work directory in the top level of the file system
 WORKDIR /app

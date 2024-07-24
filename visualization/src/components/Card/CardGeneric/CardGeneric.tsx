@@ -11,6 +11,7 @@ import {
   Divider,
   IconButton,
   Stack,
+  Tooltip,
 } from '@mui/material';
 import {
   Fingerprint as FingerprintIcon,
@@ -48,6 +49,8 @@ export interface CardGenericProps {
   isPinned?: boolean;
   /** Fix the content space for the marker scroll */
   fixMarker?: boolean;
+  /** Fix the content max height in case the map is smaller than per default  */
+  fixMarkerHeight?: boolean;
 }
 
 export interface CardGenericPropsInput extends CardGenericProps {
@@ -71,6 +74,7 @@ export default function CardGeneric({
   actions,
   content,
   fixMarker,
+  fixMarkerHeight,
   icon,
   id,
   isPinned,
@@ -85,14 +89,14 @@ export default function CardGeneric({
     const result: Array<ReactElement> = [];
     if (label !== undefined) {
       result.push(
-        <Chip
-          color="warning"
-          icon={<InfoIcon />}
-          key="label"
-          label={label}
-          size="small"
-          title={label}
-        />
+        <Tooltip key="label" title={label} placement="top">
+          <Chip
+            color="warning"
+            icon={<InfoIcon />}
+            label={label}
+            size="small"
+          />
+        </Tooltip>
       );
     }
     if (id !== undefined) {
@@ -109,14 +113,14 @@ export default function CardGeneric({
     }
     if (status !== undefined) {
       result.push(
-        <Chip
-          color="primary"
-          icon={<InfoIcon />}
-          key="status"
-          label={status}
-          size="small"
-          title={status}
-        />
+        <Tooltip key="status" title={status}>
+          <Chip
+            color="primary"
+            icon={<InfoIcon />}
+            label={status}
+            size="small"
+          />
+        </Tooltip>
       );
     }
     return result;
@@ -177,7 +181,7 @@ export default function CardGeneric({
       <CardContent
         sx={{
           // Hide overflow in the content part
-          maxHeight: '35vh',
+          maxHeight: fixMarkerHeight ? '25vh' : '35vh',
           minWidth: '8rem',
           overflowY: 'scroll',
         }}

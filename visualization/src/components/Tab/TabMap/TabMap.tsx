@@ -568,6 +568,7 @@ export default function TabMap(props: TabMapProps) {
                   stateGraphPathfinder={stateGraphPathfinder}
                   statePinnedCustomers={statePinnedCustomers}
                   statePinnedRideProviders={statePinnedRideProviders}
+                  fixMarkerHeight={!stateInfoCardMapDismissed}
                 />
               </Box>
             </Grid>

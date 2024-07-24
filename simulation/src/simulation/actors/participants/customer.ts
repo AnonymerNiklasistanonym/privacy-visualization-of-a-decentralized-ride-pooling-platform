@@ -226,9 +226,12 @@ export class Customer extends ParticipantPerson<SimulationTypeCustomer> {
       this.status = 'idle';
       await wait(getRandomIntFromInterval(1, 20) * 1000);
     }
-    this.status =
-      'not running any more' +
-      (badRouteCounter >= 10 ? ' (stopped because of a bad location)' : '');
+    this.status = 'not running any more';
+    this.logger.info(this.status, {simulationState: simulation.state});
+    if (badRouteCounter >= 10) {
+      this.status += ' (stopped because of too many bad location)';
+      this.logger.warn(this.status, {badRouteCounter});
+    }
   }
 
   get endpointCustomer(): SimulationEndpointParticipantInformationCustomer {
