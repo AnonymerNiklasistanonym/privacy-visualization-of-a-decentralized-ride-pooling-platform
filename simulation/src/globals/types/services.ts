@@ -18,6 +18,7 @@ export interface GetACarRideRequest {
   minRating: number;
   minPassengerRating: number;
   maxPassengers: number;
+  time: string;
 }
 
 export type GetACarSmartContractWalletId = string;
@@ -30,4 +31,6 @@ export interface GetACarSmartContract {
   rideProviderId: string;
   customerRating: number;
   rideProviderRating: number;
+  time: string;
+  deposit: number;
 }

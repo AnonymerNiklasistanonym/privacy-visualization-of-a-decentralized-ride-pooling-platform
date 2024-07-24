@@ -487,6 +487,10 @@ export class Simulation {
             dropoffLocationCoordinates: rideRequest.request.dropoffLocationReal,
             id: rideRequest.id,
             pickupLocationCoordinates: rideRequest.request.pickupLocationReal,
+            // TODO Feature [no priority]: Connected Smart Contract
+            rideContractAddress: rideRequest.rideContractAddress,
+            time: rideRequest.auctionStartedTimestamp.toISOString(),
+
             type: 'ride_request',
           } as SimulationEndpointRideRequestInformation);
           return;
@@ -530,6 +534,7 @@ export class Simulation {
                   ),
                 undefined
               ) ?? 'error',
+            time: smartContract.time.toISOString(),
             type: 'smart_contract',
           } as SimulationEndpointSmartContractInformation);
           return;

@@ -6,6 +6,7 @@ import {List} from '@mui/material';
 // Local imports
 // > Components
 import {
+  MoreIcon,
   ParticipantCustomerIcon,
   ParticipantRideProviderIcon,
   ParticipantRideRequestIcon,
@@ -173,6 +174,7 @@ export default function CardRideRequest(props: CardRideRequestPropsInput) {
   const iconMatch = useMemo(() => <ServiceMatchingIcon />, []);
   const iconEverything = useMemo(() => <SpectatorEverythingIcon />, []);
   const iconDebug = useMemo(() => <SettingsDebugIcon />, []);
+  const iconOther = useMemo(() => <MoreIcon />, []);
 
   // Spectator infos
   const spectatorInfoPublic = useMemo(
@@ -307,6 +309,10 @@ export default function CardRideRequest(props: CardRideRequestPropsInput) {
     stateResolvedPseudonymCustomer,
     stateSpectators,
   ]);
+  const dataAccessOther = useMemo<Array<ModalDataInformationAccess>>(() => {
+    const dataAccessInformationList: Array<ModalDataInformationAccess> = [];
+    return [...dataAccessInformationList, ...dataAccessPseudonymResolved];
+  }, [dataAccessPseudonymResolved]);
 
   // Origin lists
   const originMatch = useMemo<ModalDataInformationOrigin>(() => {
@@ -339,6 +345,49 @@ export default function CardRideRequest(props: CardRideRequestPropsInput) {
     }
     return contentList;
   }, [dataAccessDebug, stateRideRequestInformation, stateSettingsGlobalDebug]);
+  const contentOther = useMemo<Array<DataAccessElementInfo>>(() => {
+    const contentList: Array<DataAccessElementInfo> = [];
+
+    if (stateRideRequestInformation?.maxWaitingTime !== undefined) {
+      contentList.push({
+        content: `${Math.round(stateRideRequestInformation.maxWaitingTime / 100) / 10}s`,
+        dataAccessInformation: dataAccessOther,
+        label: intl.formatMessage({
+          id: 'data.maxWaitingTime',
+        }),
+      });
+    }
+    if (stateRideRequestInformation?.userPublicKey !== undefined) {
+      contentList.push({
+        content: stateRideRequestInformation.userPublicKey,
+        dataAccessInformation: dataAccessOther,
+        label:
+          intl.formatMessage({
+            id: 'getacar.participant.customer',
+          }) +
+          ' ' +
+          intl.formatMessage({
+            id: 'data.publicKey',
+          }),
+      });
+    }
+    if (stateRideRequestInformation?.time !== undefined) {
+      contentList.push({
+        content: stateRideRequestInformation.time,
+        dataAccessInformation: dataAccessOther,
+        label: intl.formatMessage({
+          id: 'data.time',
+        }),
+      });
+    }
+    return contentList;
+  }, [
+    dataAccessOther,
+    intl,
+    stateRideRequestInformation?.maxWaitingTime,
+    stateRideRequestInformation?.userPublicKey,
+    stateRideRequestInformation?.time,
+  ]);
 
   const content = useMemo<Array<CardGenericPropsContentElement>>(() => {
     debugComponentElementUpdate(
@@ -411,10 +460,38 @@ export default function CardRideRequest(props: CardRideRequestPropsInput) {
         labelIcon: iconRideProvider,
       });
     }
+
+    contentList.push({
+      content:
+        contentOther.length > 0 ? (
+          <List
+            key={`rideRequest-list-other-${stateRideRequestId}`}
+            sx={{
+              overflowX: 'scroll',
+            }}
+          >
+            {contentOther.map(element => (
+              <DataAccessElement
+                {...propsDataAccessElement}
+                {...originMatch}
+                key={`render-data-element-other-${element.label}-${stateRideRequestId}`}
+                id={stateRideRequestId}
+                {...element}
+              />
+            ))}
+          </List>
+        ) : null,
+      label: intl.formatMessage({
+        id: 'other',
+      }),
+      labelIcon: iconOther,
+    });
     return contentList;
   }, [
+    contentOther,
     dataAccessPseudonymResolved,
     iconCustomer,
+    iconOther,
     iconRideProvider,
     intl,
     originMatch,
@@ -425,7 +502,7 @@ export default function CardRideRequest(props: CardRideRequestPropsInput) {
     stateRideRequestInformation?.userId,
   ]);
 
-  const contentOther = useMemo<Array<CardGenericPropsContentElement>>(() => {
+  const contentDebug2 = useMemo<Array<CardGenericPropsContentElement>>(() => {
     debugComponentElementUpdate(
       `CardRideRequest#contentDebug#${stateRideRequestId}`
     );
@@ -478,8 +555,8 @@ export default function CardRideRequest(props: CardRideRequestPropsInput) {
       `CardRideRequest#contentFinal#${stateRideRequestId}`
     );
 
-    return [...content, ...contentOther];
-  }, [content, contentOther, stateRideRequestId]);
+    return [...content, ...contentDebug2];
+  }, [content, contentDebug2, stateRideRequestId]);
 
   return (
     <CardGeneric

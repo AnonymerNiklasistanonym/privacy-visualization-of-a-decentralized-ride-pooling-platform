@@ -32,7 +32,7 @@ import TabOverview from '@components/Tab/TabGuide';
 import TabPanelTab from './TabPanelTab';
 import TabPanelTabSectionDebug from './TabPanelTabSectionDebug';
 import TabSettings from '@components/Tab/TabSettings';
-import TableDebugData from '@components/Table/TableDebugData';
+import TableDebugData from '@components/Table/TableData';
 // > Globals
 import {simulationEndpoints} from '@globals/defaults/endpoints';
 // > Misc

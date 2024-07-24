@@ -43,7 +43,7 @@ export type DebugDataType =
   | 'ride_request'
   | 'smart_contract';
 
-export interface TableDebugDataProps {
+export interface TableDataProps {
   stateDebugData: ReactState<DebugData>;
   debugDataType: DebugDataType;
   onRowClick?: (type: DebugDataType, id: string) => void;
@@ -64,12 +64,14 @@ const renderTypeIcon = (type: DebugDataType) =>
   );
 
 const ID_LENGTH = 120;
+const DEPOSIT_LENGTH = 60;
 const PSEUDO_LENGTH = 190;
 const RATING_LENGTH = 150;
+const TIME_LENGTH = 240;
 
-export default memo(TableDebugData, (prev, next) => {
+export default memo(TableData, (prev, next) => {
   const defaultComp = debugMemoHelper(
-    'TableDebugData',
+    'TableData',
     ['debugDataType', 'height'],
     prev,
     next
@@ -88,22 +90,20 @@ export default memo(TableDebugData, (prev, next) => {
 
 // TODO Feature [no priority]: Make the table generic
 
-export function TableDebugData({
+export function TableData({
   stateDebugData,
   debugDataType,
   height,
   onRowClick,
-}: TableDebugDataProps) {
-  debugComponentRender(`TableDebugData#${debugDataType}`);
+}: TableDataProps) {
+  debugComponentRender(`TableData#${debugDataType}`);
 
   const intl = useIntl();
 
   const [rows, columns] = useMemo<
     [Array<GridRowModel>, Array<GridColDef>]
   >(() => {
-    debugComponentElementUpdate(
-      `TableDebugData#[rows, columns]#${debugDataType}`
-    );
+    debugComponentElementUpdate(`TableData#[rows, columns]#${debugDataType}`);
     const rowsList: GridRowModel[] = [];
     const columnsList: GridColDef[] = [
       {
@@ -256,9 +256,11 @@ export function TableDebugData({
               customerId: a.customerIdResolved,
               customerPseudonym: a.customerId,
               customerRating: a.customerRating,
+              deposit: a.deposit,
               rideProviderId: a.rideProviderIdResolved,
               rideProviderPseudonym: a.rideProviderId,
               rideProviderRating: a.rideProviderRating,
+              time: a.time,
             }) satisfies GridRowModel &
               Partial<SimulationEndpointSmartContractInformation>
         )
@@ -333,6 +335,16 @@ export function TableDebugData({
             </Box>
           ),
           width: RATING_LENGTH,
+        },
+        {
+          field: 'deposit',
+          headerName: intl.formatMessage({id: 'data.deposit'}),
+          width: DEPOSIT_LENGTH,
+        },
+        {
+          field: 'time',
+          headerName: intl.formatMessage({id: 'data.time'}),
+          width: TIME_LENGTH,
         }
       );
     }

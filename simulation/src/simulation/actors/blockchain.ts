@@ -19,6 +19,8 @@ export interface SimulationTypeRideContract {
   rideProviderPseudonym: string;
   /** Deposit amount */
   deposit: number;
+  /** Time when the ride contract was created */
+  time: Date;
   /** Rating given from the Ride Provider to the Customer */
   customerRating?: number;
   /** Rating given from the Customer to the Ride Provider */
@@ -61,6 +63,7 @@ export class Blockchain extends Actor<SimulationTypeBlockchain> {
       customerPseudonym,
       deposit: maximumRideCost,
       rideProviderPseudonym,
+      time: new Date(),
     });
     return rideContractId;
   }

@@ -47,6 +47,7 @@ import {
   Link as ConnectedElementsIcon,
   PushPin as PinnedElementsIcon,
   Navigation as NavigateToLocationIcon,
+  MoreVert as MoreIcon,
 } from '@mui/icons-material';
 export {
   ClearSelectedParticipantIcon,
@@ -61,6 +62,7 @@ export {
   MiscGetACarFoundationIcon,
   MiscRideContractServiceIcon,
   MiscRideContractSmartContractIcon,
+  MoreIcon,
   NavigateToLocationIcon,
   PageAboutIcon,
   PageHomeIcon,

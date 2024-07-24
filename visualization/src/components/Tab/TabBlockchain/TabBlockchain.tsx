@@ -19,7 +19,7 @@ import GridConnectedElementsCard from '@components/Grid/GridConnectedElements/Gr
 import InputChangeSpectator from '@components/Input/InputChangeSpectator';
 import InputSearchBar from '@components/Input/InputSearchBar';
 import TabContainer from '@components/Tab/TabContainer';
-import TableDebugData from '@components/Table/TableDebugData';
+import TableDebugData from '@components/Table/TableData';
 // > Misc
 import {
   debugComponentElementUpdate,
