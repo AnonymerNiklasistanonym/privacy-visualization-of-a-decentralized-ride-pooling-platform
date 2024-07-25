@@ -1,5 +1,6 @@
 // Package imports
 import {memo, useCallback, useMemo, useState} from 'react';
+import {useTheme} from '@mui/material';
 // > Components
 import {
   Badge,
@@ -45,6 +46,8 @@ export function ErrorModalListElement({
 }: ErrorModalListElementProps) {
   const [open, setOpen] = useState(false);
 
+  const theme = useTheme();
+
   const handleClick = useCallback(() => setOpen(oldOpen => !oldOpen), []);
 
   const removeErrorMessage = useCallback(() => {
@@ -80,7 +83,10 @@ export function ErrorModalListElement({
               <ErrorIcon />
             </Badge>
           </ListItemIcon>
-          <ListItemText primary={`${title} (${errorName})`} />
+          <ListItemText
+            primary={`${title} (${errorName})`}
+            sx={{color: theme.palette.mode === 'dark' ? 'white' : undefined}}
+          />
           {open ? <ExpandLessIcon /> : <ExpandMoreIcon />}
         </ListItemButton>
       </ListItem>

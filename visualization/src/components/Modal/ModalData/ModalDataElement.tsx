@@ -1,5 +1,6 @@
 // Package imports
 import {memo, useCallback, useState} from 'react';
+import {useTheme} from '@mui/material';
 // > Components
 import {
   Box,
@@ -10,7 +11,6 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
-  useTheme,
 } from '@mui/material';
 // > Icons
 import {

@@ -68,8 +68,8 @@ export interface MapMarkerParticipantInput extends MapMarkerParticipantProps {
   isPinned: boolean;
 }
 
-//const colorActiveCustomer = 'green';
-//const colorActiveRideProvider = 'blue';
+const colorDropoffLocation = 'green';
+const colorPickupLocation = 'yellow';
 const rideRequestColor = 'blue';
 
 export default memo(MapMarkerParticipant);
@@ -354,13 +354,13 @@ export function ParticipantMarkerElement(props: ParticipantMarkerElementProps) {
     const locations = [
       {
         cloaked: stateRideRequestInformation.pickupLocation,
-        color: 'green',
+        color: colorDropoffLocation,
         label: intl.formatMessage({id: 'getacar.rideRequest.location.pickup'}),
         real: stateRideRequestInformation.pickupLocationCoordinates,
       },
       {
         cloaked: stateRideRequestInformation.dropoffLocation,
-        color: 'red',
+        color: colorPickupLocation,
         label: intl.formatMessage({id: 'getacar.rideRequest.location.dropoff'}),
         real: stateRideRequestInformation.dropoffLocationCoordinates,
       },
