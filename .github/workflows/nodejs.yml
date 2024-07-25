@@ -19,6 +19,8 @@ on:
     branches:
       - main
       - dev
+  # Trigger workflow manually
+  workflow_dispatch:
 
 jobs:
   # Check if the project can be built without errors
