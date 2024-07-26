@@ -1,4 +1,6 @@
-.PHONY: build clean format
+.PHONY: clean format
+.PHONY: build_spd build_thesis build_simulation build_visualization
+.PHONY: docker
 .PHONY: installNecessaryPackagesPacman installNecessaryPackagesPacmanAur installNecessaryPackagesUbuntu installNecessaryPythonPackages
 .PHONY: copyGlobals createCopyImages lintFix
 
@@ -11,16 +13,47 @@ LATEXINDENT?=latexindent
 LATEXINDENT_ARGS?=--overwriteIfDifferent \
                   --silent \
                   --local="$(CURDIR)/latex/indentconfig.yaml"
+DOCKER?=docker
+PYTHON?=python
 
 SPD_DIR=student-project-description
+THESIS_DIR=thesis
+SIMULATION_DIR=simulation
+VISUALIZATION_DIR=visualization
+GLOBALS_DIR_TYPESCRIPT=globals/typescript
 
-all: build
+all: build_spd build_thesis build_simulation build_visualization
 
-build:
+build_spd:
 	$(MAKE) -C "$(SPD_DIR)"
+
+build_thesis:
+	$(MAKE) -C "$(THESIS_DIR)" batch
+
+build_simulation:
+	cd $(SIMULATION_DIR); \
+	npm install; \
+	npm run build
+#	cd $(SIMULATION_DIR); \
+#	docker build --tag nextjs-docker .
+
+build_visualization:
+	cd $(VISUALIZATION_DIR); \
+	npm install; \
+	npm run build
+#	cd $(VISUALIZATION_DIR); \
+#	docker build --tag express-docker .
 
 clean:
 	$(MAKE) -C "$(SPD_DIR)" clean
+	$(MAKE) -C "$(THESIS_DIR)" clean
+	rm -rf $(SIMULATION_DIR)/node_modules
+	rm -rf $(SIMULATION_DIR)/build $(SIMULATION_DIR)/cache $(SIMULATION_DIR)/dist $(SIMULATION_DIR)/docs $(SIMULATION_DIR)/logs
+	rm -rf $(VISUALIZATION_DIR)/node_modules $(VISUALIZATION_DIR)/.next
+	rm -rf $(GLOBALS_DIR_TYPESCRIPT)/node_modules
+
+docker:
+	$(DOCKER) compose up --build
 
 format:
 	$(LATEXINDENT) $(LATEXINDENT_ARGS) latex/globals/*.tex
@@ -47,10 +80,10 @@ installNecessaryPackagesUbuntu:
 	)
 
 installNecessaryPythonPackages:
-	python -m pip install $(NECESSARY_PACKAGES_PYTHON)
+	$(PYTHON) -m pip install $(NECESSARY_PACKAGES_PYTHON)
 	# Package list with versions for README.md
 	@$(foreach NECESSARY_PACKAGE_PYTHON, $(sort $(NECESSARY_PACKAGES_PYTHON)), \
-		echo "  - \`$(NECESSARY_PACKAGE_PYTHON)\` ($(shell python -m pip show $(NECESSARY_PACKAGE_PYTHON) | grep Version: | cut -d' ' -f2))"; \
+		echo "  - \`$(NECESSARY_PACKAGE_PYTHON)\` ($(shell $(PYTHON) -m pip show $(NECESSARY_PACKAGE_PYTHON) | grep Version: | cut -d' ' -f2))"; \
 	)
 
 copyGlobals:
@@ -65,8 +98,8 @@ createCopyImages:
 
 lintFix:
 	cd globals/typescript; \
-	npm run fix
+	npm ci && npm run fix
 	cd simulation; \
-	npm run fix
+	npm ci && npm run fix
 	cd visualization; \
-	npm run fix
+	npm ci && npm run fix
