@@ -316,3 +316,7 @@ dependency-graph.svg
 
 # Python venv
 venv_*
+
+# draw.io temp files
+*.drawio.bkp
+*.drawio.dtmp
