@@ -6,7 +6,7 @@
 
 NECESSARY_PACKAGES_PACMAN = make texlive-latex texlive-binextra texlive-xetex texlive-latexextra texlive-luatex texlive-fontsrecommended texlive-langgerman texlive-langenglish texlive-mathscience texlive-bibtexextra texlive-plaingeneric texlive-publishers perl-yaml-tiny perl-file-homedir aspell aspell-en biber nodejs docker docker-compose python yay inkscape
 NECESSARY_PACKAGES_PACMAN_AUR = powershell-bin
-NECESSARY_PACKAGES_UBUNTU_WSL = make texlive-full latexmk python3-pygments biber aspell
+NECESSARY_PACKAGES_UBUNTU_WSL = make texlive-full latexmk python3-pygments biber aspell inkscape
 NECESSARY_PACKAGES_PYTHON = pygments-tsx
 
 LATEXINDENT?=latexindent
