@@ -71,7 +71,7 @@ clean:
 
 build_simulation:
 	cd $(SIMULATION_DIR); \
-	npm install; \
+	npm ci; \
 	npm run build
 
 simulation: build_simulation
@@ -84,7 +84,7 @@ docker_simulation:
 
 build_visualization:
 	cd $(VISUALIZATION_DIR); \
-	npm install; \
+	npm ci; \
 	npm run build
 
 visualization: build_visualization
