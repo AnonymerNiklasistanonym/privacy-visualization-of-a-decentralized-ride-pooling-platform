@@ -1,5 +1,6 @@
 .PHONY: clean format
-.PHONY: build_spd build_thesis build_simulation build_visualization
+.PHONY: build_spd build_thesis
+.PHONY: build_simulation build_visualization simulation visualization docker_simulation docker_visualization
 .PHONY: docker
 .PHONY: installNecessaryPackagesPacman installNecessaryPackagesPacmanAur installNecessaryPackagesUbuntu installNecessaryPythonPackages
 .PHONY: copyGlobals createCopyImages lintFix
@@ -34,15 +35,27 @@ build_simulation:
 	cd $(SIMULATION_DIR); \
 	npm install; \
 	npm run build
-#	cd $(SIMULATION_DIR); \
-#	docker build --tag nextjs-docker .
+
+simulation: build_simulation
+	cd $(SIMULATION_DIR); \
+	npm run start
+
+docker_simulation:
+	cd $(SIMULATION_DIR); \
+	docker build --tag nextjs-docker .
 
 build_visualization:
 	cd $(VISUALIZATION_DIR); \
 	npm install; \
 	npm run build
-#	cd $(VISUALIZATION_DIR); \
-#	docker build --tag express-docker .
+
+visualization: build_visualization
+	cd $(VISUALIZATION_DIR); \
+	npm run start
+
+docker_visualization:
+	cd $(VISUALIZATION_DIR); \
+	docker build --tag express-docker .
 
 clean:
 	$(MAKE) -C "$(SPD_DIR)" clean
