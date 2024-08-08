@@ -4,6 +4,7 @@ GIT_REPO_CODE=$HOME/Documents/GitHubUniStuttgart/bsc-2024-mikeler-code
 GIT_REPO_THESIS=$HOME/Documents/GitHubUniStuttgart/bsc-2024-mikeler-thesis
 
 # Copy all non directory files
+rm "$GIT_REPO_CODE/"* "$GIT_REPO_THESIS/"*
 cp ./* "$GIT_REPO_CODE/"
 cp ./* "$GIT_REPO_THESIS/"
 cp ./.* "$GIT_REPO_CODE/"
