@@ -314,8 +314,9 @@ dist*
 # Ignore default dependency graphs
 dependency-graph.svg
 
-# Python venv
+# Python
 venv_*
+*.pyc
 
 # draw.io temp files
 *.drawio.bkp

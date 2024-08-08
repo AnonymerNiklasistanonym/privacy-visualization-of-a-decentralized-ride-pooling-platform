@@ -9,8 +9,8 @@ cp ./* "$GIT_REPO_THESIS/"
 cp ./.* "$GIT_REPO_CODE/"
 cp ./.* "$GIT_REPO_THESIS/"
 # > Remove unwanted files
-rm "$GIT_REPO_CODE/copy_to_other_git_repo.sh"
-rm "$GIT_REPO_THESIS/copy_to_other_git_repo.sh"
+rm "$GIT_REPO_CODE/copy_to_other_git_repo.sh" "$GIT_REPO_THESIS/copy_to_other_git_repo.sh"
+rm "$GIT_REPO_CODE/update_file_other_git_repo.py" "$GIT_REPO_THESIS/update_file_other_git_repo.py"
 rm "$GIT_REPO_THESIS/compose.yaml"
 
 # Copy .github workflows
@@ -42,3 +42,9 @@ cp -a ./images "$GIT_REPO_CODE/images"
 cp -a ./pathfinder "$GIT_REPO_CODE/pathfinder"
 cp -a ./simulation "$GIT_REPO_CODE/simulation"
 cp -a ./visualization "$GIT_REPO_CODE/visualization"
+
+# Special file updates:
+python -m update_file_other_git_repo --file "$GIT_REPO_CODE/Makefile" --type Makefile --name "Student Project Description" Thesis
+python -m update_file_other_git_repo --file "$GIT_REPO_THESIS/Makefile" --type Makefile --name "Student Project Description" Code
+python -m update_file_other_git_repo --file "$GIT_REPO_CODE/README.md" --type md --name "Student Project Description" Thesis Personal
+python -m update_file_other_git_repo --file "$GIT_REPO_THESIS/README.md" --type md --name "Student Project Description" Code Personal

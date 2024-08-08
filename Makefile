@@ -7,7 +7,7 @@
 .PHONY: build_spd
 # Thesis
 .PHONY: build_thesis
-# Misc
+# Other
 .PHONY: installNecessaryPackagesPacman installNecessaryPackagesPacmanAur installNecessaryPackagesUbuntu installNecessaryPythonPackages
 
 NECESSARY_PACKAGES_PACMAN = make texlive-latex texlive-binextra texlive-xetex texlive-latexextra texlive-luatex texlive-fontsrecommended texlive-langgerman texlive-langenglish texlive-mathscience texlive-bibtexextra texlive-plaingeneric texlive-publishers perl-yaml-tiny perl-file-homedir aspell aspell-en biber nodejs npm docker docker-compose python yay inkscape
@@ -116,6 +116,7 @@ lintFix:
 	cd visualization; \
 	npm ci && npm run fix
 
+
 # Thesis
 
 build_thesis:
@@ -124,10 +125,12 @@ build_thesis:
 format:
 	$(LATEXINDENT) $(LATEXINDENT_ARGS) latex/globals/*.tex
 
+
 # Student Project Description
 
 build_spd:
 	$(MAKE) -C "$(SPD_DIR)"
+
 
 # Other
 
