@@ -21,7 +21,7 @@
 4. Then just clone the repository:
 
    ```sh
-   git clone git@github.tik.uni-stuttgart.de:$REPO_NAME.git
+   git clone git@github.tik.uni-stuttgart.de:$REPO_USER/$REPO_NAME.git
    ```
 
 ## Change identity for local repository
@@ -112,4 +112,11 @@ git diff file.txt
 git diff --staged
 # > specific file to the previous commit
 git diff --staged file.txt
+```
+
+## Mirror repository
+
+```sh
+# Push the whole repository to a remote repository
+git push -f git@github.tik.uni-stuttgart.de:$REPO_USER/$REPO_NAME $REPO_BRANCH
 ```
