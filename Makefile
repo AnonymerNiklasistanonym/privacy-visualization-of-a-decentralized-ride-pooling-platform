@@ -121,6 +121,7 @@ lintFix:
 
 build_thesis:
 	$(MAKE) -C "$(THESIS_DIR)" batch
+	$(MAKE) -C "$(THESIS_DIR)" dist
 
 format:
 	$(LATEXINDENT) $(LATEXINDENT_ARGS) latex/globals/*.tex
