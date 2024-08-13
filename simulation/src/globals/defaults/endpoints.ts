@@ -18,12 +18,15 @@ export const simulationEndpoints = Object.freeze({
     rideRequestInformation: (id: string) =>
       `${ser.apiV1.route}${ser.apiV1.rideRequestInformation(id)}`,
     rideRequests: `${ser.apiV1.route}${ser.apiV1.rideRequests}`,
+    rideRequestsFromSmartContract: (id: string) =>
+      `${ser.apiV1.route}${ser.apiV1.rideRequestsFromSmartContract(id)}`,
     shortestPath: `${ser.apiV1.route}${ser.apiV1.shortestPath}`,
     smartContract: (id: string) =>
       `${ser.apiV1.route}${ser.apiV1.smartContract(id)}`,
-    smartContractConnectedRideRequests: (id: string) =>
-      `${ser.apiV1.route}${ser.apiV1.smartContractConnectedRideRequests(id)}`,
-    smartContracts: `${ser.apiV1.route}${ser.apiV1.smartContracts}`,
+    smartContracts: (offset = 0, limit = -1) =>
+      `${ser.apiV1.route}${ser.apiV1.smartContracts}?offset=${offset}&limit=${limit}`,
+    smartContractsFromParticipant: (id: string) =>
+      `${ser.apiV1.route}${ser.apiV1.smartContractsFromParticipant(id)}`,
   }),
   internal: Object.freeze({
     authenticationServices: `${ser.internal.route}${ser.internal.authenticationServices}`,

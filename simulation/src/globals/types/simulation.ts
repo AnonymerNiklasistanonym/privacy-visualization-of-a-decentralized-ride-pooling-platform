@@ -124,6 +124,12 @@ export interface SimulationEndpointSmartContracts {
   smartContracts: Array<SimulationEndpointSmartContractId>;
 }
 
+export interface SimulationEndpointSmartContractsPagination
+  extends SimulationEndpointSmartContracts {
+  length: number;
+  offset: number;
+}
+
 export interface SimulationEndpointSmartContractInformation
   extends GetACarSmartContract {
   // Helper

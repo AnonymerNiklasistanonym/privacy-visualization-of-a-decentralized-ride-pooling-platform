@@ -80,6 +80,12 @@ export interface GlobalPropsFetchParticipantCoordinates {
 export interface GlobalPropsFetchSmartContracts {
   fetchJsonSimulationWaitSmartContracts: (
     requestBalancer: MutableRefObject<boolean>,
+    page?: number,
+    options?: Readonly<FetchOptions>
+  ) => Promise<Array<SimulationEndpointSmartContractInformation> | null>;
+  fetchJsonSimulationWaitSmartContractsFromParticipant: (
+    requestBalancer: MutableRefObject<boolean>,
+    participant: string,
     options?: Readonly<FetchOptions>
   ) => Promise<Array<SimulationEndpointSmartContractInformation> | null>;
 }

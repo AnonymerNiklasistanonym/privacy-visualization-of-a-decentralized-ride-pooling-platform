@@ -5,7 +5,7 @@ import {getIntl} from '@services/intl';
 // > Logging
 import {createLoggerSection} from '@services/logging';
 // > Globals
-import {confidenceVisualizer, getacar} from '@globals/defaults/urls';
+import {confidentialityVisualizer, getacar} from '@globals/defaults/urls';
 // > Styles
 import styles from '@styles/page.about.module.css';
 // Type imports
@@ -32,7 +32,7 @@ export default async function About({params: {locale}}: AboutProps) {
             {id: 'page.about.content'},
             {
               CONFIDENTIALITY_VISUALIZER: (
-                <a href={confidenceVisualizer}>
+                <a href={confidentialityVisualizer}>
                   {intl.formatMessage({id: 'confidentialityVisualizer.name'})}
                 </a>
               ),

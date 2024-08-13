@@ -38,6 +38,7 @@ import type {
   SimulationEndpointSmartContractConnectedRideRequests,
   SimulationEndpointSmartContractInformation,
   SimulationEndpointSmartContracts,
+  SimulationEndpointSmartContractsPagination,
 } from '../globals/types/simulation';
 import type {Coordinates} from '../globals/types/coordinates';
 import type {OsmVertexGraph} from '../lib/pathfinderOsm';
@@ -500,8 +501,52 @@ export class Simulation {
     router
       .route(simulationEndpointRoutes.apiV1.smartContracts)
       .get((req, res) => {
+        const offset =
+          (typeof req.query.offset !== 'string' &&
+            typeof req.query.offset !== 'number') ||
+          isNaN(Number(req.query.offset))
+            ? 0
+            : parseInt(req.query.offset);
+        const limit =
+          (typeof req.query.limit !== 'string' &&
+            typeof req.query.limit !== 'number') ||
+          isNaN(Number(req.query.limit))
+            ? 50
+            : parseInt(req.query.limit);
         res.json({
-          smartContracts: this.blockchain.rideContracts.map(a => a.walletId),
+          length: this.blockchain.rideContracts.length,
+          offset,
+          smartContracts: this.blockchain.rideContracts
+            .slice(offset, offset + (limit === -1 ? Infinity : limit))
+            .map(a => a.walletId),
+        } satisfies SimulationEndpointSmartContractsPagination);
+      });
+    router
+      .route(
+        simulationEndpointRoutes.apiV1.smartContractsFromParticipant(':id')
+      )
+      .get((req, res) => {
+        const asParticipant = this.authenticationServices.find(a =>
+          a.simulationGetPseudonyms(req.params.id)
+        );
+        if (asParticipant) {
+          const pseudonyms = asParticipant.simulationGetPseudonyms(
+            req.params.id
+          );
+          if (pseudonyms) {
+            res.json({
+              smartContracts: this.blockchain.rideContracts
+                .filter(
+                  a =>
+                    pseudonyms.includes(a.customerPseudonym) ||
+                    pseudonyms.includes(a.rideProviderPseudonym)
+                )
+                .map(a => a.walletId),
+            } satisfies SimulationEndpointSmartContracts);
+          }
+        }
+        res.json({
+          smartContracts: [],
         } satisfies SimulationEndpointSmartContracts);
       });
     router
@@ -543,7 +588,7 @@ export class Simulation {
       });
     router
       .route(
-        simulationEndpointRoutes.apiV1.smartContractConnectedRideRequests(':id')
+        simulationEndpointRoutes.apiV1.rideRequestsFromSmartContract(':id')
       )
       .get((req, res) => {
         const smartContracts = this.blockchain.rideContracts;

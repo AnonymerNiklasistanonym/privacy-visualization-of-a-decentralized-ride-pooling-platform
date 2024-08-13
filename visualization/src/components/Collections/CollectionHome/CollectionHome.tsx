@@ -32,7 +32,7 @@ import WrapperThemeProvider from '@components/Wrapper/WrapperThemeProvider';
 import {
   baseUrlPathfinder,
   baseUrlSimulation,
-  confidenceVisualizer,
+  confidentialityVisualizer,
   getacar,
 } from '@globals/defaults/urls';
 import {simulationEndpoints} from '@globals/defaults/endpoints';
@@ -79,6 +79,9 @@ interface RequestCacheEntry {
   /** The running request with resolved data */
   data: Promise<unknown>;
 }
+
+const cacheRequestPurgeTimeInterval = 10 * 1000;
+const cacheRequestPurgeAge = 5 * 60 * 1000;
 
 /** Home page collection (top level component) */
 export default function CollectionHome(
@@ -204,7 +207,7 @@ export default function CollectionHome(
   const fetchJsonSimulation = useCallback(
     async <T,>(
       endpoint: string,
-      cacheTimeMultiplier?: number,
+      cacheTimeMultiplier = 1,
       options?: Readonly<FetchOptions>
     ): Promise<T> => {
       const cacheEntry = requestCache.current.get(endpoint);
@@ -219,21 +222,10 @@ export default function CollectionHome(
       if (
         cacheEntry !== undefined &&
         cacheTime !== undefined &&
-        cacheTimeMultiplier !== undefined &&
         cacheTime < stateSettingsFetchCacheUpdateRateInMs * cacheTimeMultiplier
       ) {
         debugCache(
-          `Stopped request because it was cached within the cache time multiplier (${cacheTime}ms x ${cacheTimeMultiplier})`,
-          endpoint
-        );
-        return cacheEntry.data as Promise<T>;
-      } else if (
-        cacheEntry !== undefined &&
-        cacheTime !== undefined &&
-        cacheTime < stateSettingsFetchCacheUpdateRateInMs
-      ) {
-        debugCache(
-          `Stopped request because it was cached recently (${cacheTime}ms)`,
+          `Stopped request because it was cached recently (${cacheTime}ms x ${cacheTimeMultiplier})`,
           endpoint
         );
         return cacheEntry.data as Promise<T>;
@@ -243,7 +235,6 @@ export default function CollectionHome(
           options
         );
         // If a request is made update the cache
-        // TODO Feature [no priority]: Cache size only grows without ever being purged -> add clean routine using the time information
         requestCache.current.set(endpoint, {data, time: currentTime});
         debugFetching.set(endpoint, (debugFetching.get(endpoint) ?? 0) + 1);
         return data;
@@ -400,6 +391,22 @@ export default function CollectionHome(
     }
     setStateThemeModeInitialized(true);
   }, []);
+  // > Purge old cached requests
+  useEffect(() => {
+    const interval = setInterval(() => {
+      // Purge existing entries when they reach a specific age
+      const currentTime = new Date().getTime();
+      for (const [key, value] of requestCache.current.entries()) {
+        if (currentTime - value.time.getTime() > cacheRequestPurgeAge) {
+          requestCache.current.delete(key);
+        }
+      }
+    }, cacheRequestPurgeTimeInterval);
+    return () => {
+      // On close stop interval
+      clearInterval(interval);
+    };
+  });
 
   // React: Run every time a state changes
   // > Snackbar listeners
@@ -702,7 +709,7 @@ export default function CollectionHome(
         <ChipListElement {...authServiceChip} noDescription={true} />
       ),
       CONFIDENTIALITY_VISUALIZER: (
-        <Link href={confidenceVisualizer}>
+        <Link href={confidentialityVisualizer}>
           {intl.formatMessage({id: 'confidentialityVisualizer.name'})}
         </Link>
       ),
@@ -725,10 +732,14 @@ export default function CollectionHome(
 
   const requestBalancerFetchParticipantCoordinates = useRef(false);
   const fetchJsonSimulationWaitParticipantCoordinates = useCallback(
-    () =>
+    (
+      requestBalancer: MutableRefObject<boolean>,
+      options?: Readonly<FetchOptions>
+    ) =>
       fetchJsonSimulationWait<SimulationEndpointParticipantCoordinates>(
         simulationEndpoints.apiV1.participantCoordinates,
-        requestBalancerFetchParticipantCoordinates
+        requestBalancer,
+        options
       ).then(data => {
         if (data === null) {
           return data;
@@ -810,10 +821,49 @@ export default function CollectionHome(
 
   const requestBalancerFetchSmartContracts = useRef(false);
   const fetchJsonSimulationWaitSmartContracts = useCallback(
-    () =>
+    (
+      requestBalancer: MutableRefObject<boolean>,
+      page = 0,
+      options?: Readonly<FetchOptions>
+    ) =>
+      // TODO Use pagination instead of fetching all of them
       fetchJsonSimulationWait<SimulationEndpointSmartContracts>(
-        simulationEndpoints.apiV1.smartContracts,
-        requestBalancerFetchSmartContracts
+        simulationEndpoints.apiV1.smartContracts(page * 25, -1),
+        requestBalancer,
+        options
+      )
+        .then(data => {
+          if (data === null) {
+            return data;
+          }
+          return Promise.all(
+            data.smartContracts.map(smartContractId =>
+              fetchJsonSimulation<SimulationEndpointSmartContractInformation>(
+                simulationEndpoints.apiV1.smartContract(smartContractId),
+                200
+              )
+            )
+          );
+        })
+        .then(data => {
+          if (data === null) {
+            return data;
+          }
+          // TODO Feature [no priority]: Fetch for all current smart contracts their participant information and add their entries to the change spectator map -> not necessary when using it in combination with the current simulation
+          return data;
+        }),
+    [fetchJsonSimulation, fetchJsonSimulationWait]
+  );
+  const fetchJsonSimulationWaitSmartContractsFromParticipant = useCallback(
+    (
+      requestBalancer: MutableRefObject<boolean>,
+      participantId: string,
+      options?: Readonly<FetchOptions>
+    ) =>
+      fetchJsonSimulationWait<SimulationEndpointSmartContracts>(
+        simulationEndpoints.apiV1.smartContractsFromParticipant(participantId),
+        requestBalancer,
+        options
       )
         .then(data => {
           if (data === null) {
@@ -839,13 +889,17 @@ export default function CollectionHome(
   );
 
   useEffect(() => {
-    fetchJsonSimulationWaitParticipantCoordinates().catch(err =>
+    fetchJsonSimulationWaitParticipantCoordinates(
+      requestBalancerFetchParticipantCoordinates
+    ).catch(err =>
       showError(
         'Error while initializing existing participants [participant coordinates]',
         err
       )
     );
-    fetchJsonSimulationWaitSmartContracts().catch(err =>
+    fetchJsonSimulationWaitSmartContracts(
+      requestBalancerFetchSmartContracts
+    ).catch(err =>
       showError(
         'Error while initializing existing participants [smart contracts]',
         err
@@ -860,6 +914,7 @@ export default function CollectionHome(
     fetchJsonSimulationWait,
     fetchJsonSimulationWaitParticipantCoordinates,
     fetchJsonSimulationWaitSmartContracts,
+    fetchJsonSimulationWaitSmartContractsFromParticipant,
     globalSearch,
     intlValues,
     setStateDataModalInformation,

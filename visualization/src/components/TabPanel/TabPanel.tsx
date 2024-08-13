@@ -188,7 +188,7 @@ export default function TabPanel(props: TabPanelProps) {
           simulationEndpoints.apiV1.rideRequests
         ),
         fetchJsonSimulation<SimulationEndpointSmartContracts>(
-          simulationEndpoints.apiV1.smartContracts
+          simulationEndpoints.apiV1.smartContracts()
         ),
       ])
         .then(

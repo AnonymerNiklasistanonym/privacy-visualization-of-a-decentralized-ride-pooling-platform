@@ -15,11 +15,13 @@ export const simulationEndpointRoutes = Object.freeze({
       `/participant_pseudonyms_from_id/${id}`,
     rideRequestInformation: (id: string) => `/ride_request/${id}`,
     rideRequests: '/ride_requests',
+    rideRequestsFromSmartContract: (id: string) =>
+      `/ride_requests_smart_contract/${id}`,
     shortestPath: '/shortest_path',
     smartContract: (id: string) => `/smart_contract/${id}`,
-    smartContractConnectedRideRequests: (id: string) =>
-      `/smart_contract_connected_ride_requests/${id}`,
     smartContracts: '/smart_contracts',
+    smartContractsFromParticipant: (id: string) =>
+      `/smart_contracts_participant/${id}`,
   }),
 
   // Routes only used internally

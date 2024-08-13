@@ -82,6 +82,7 @@ export default function TabBlockchain(props: TabBlockchainProps) {
     stateShowParticipantId,
     fetchJsonSimulation,
     fetchJsonSimulationWaitSmartContracts,
+    fetchJsonSimulationWaitSmartContractsFromParticipant,
     setStateSelectedParticipantId,
     setStateSelectedSmartContractId,
     setStateSpectatorId,
@@ -152,7 +153,7 @@ export default function TabBlockchain(props: TabBlockchainProps) {
       stateSelectedSmartContractId !== undefined
     ) {
       fetchJsonSimulation<SimulationEndpointSmartContractConnectedRideRequests>(
-        simulationEndpoints.apiV1.smartContractConnectedRideRequests(
+        simulationEndpoints.apiV1.rideRequestsFromSmartContract(
           stateSelectedSmartContractId
         )
       )
@@ -374,9 +375,14 @@ export default function TabBlockchain(props: TabBlockchainProps) {
   }, [stateSelectedParticipantId, stateSmartContracts, stateSpectators, intl]);
 
   const requestBalancerFetchSmartContracts = useRef(false);
-  const fetchSmartContracts = useCallback(
-    () =>
-      fetchJsonSimulationWaitSmartContracts(requestBalancerFetchSmartContracts)
+  const requestBalancerFetchSmartContractsFromParticipant = useRef(false);
+
+  const fetchSmartContractsPage = useCallback(
+    (page: number) =>
+      fetchJsonSimulationWaitSmartContracts(
+        requestBalancerFetchSmartContracts,
+        page
+      )
         .then(data => {
           if (data === null) {
             return;
@@ -393,6 +399,45 @@ export default function TabBlockchain(props: TabBlockchainProps) {
         .catch(err => showError('Fetch simulation smart contracts', err)),
     [fetchJsonSimulationWaitSmartContracts, showError, refSmartContracts]
   );
+
+  const fetchSmartContractsFromParticipant = useCallback(
+    (id: string) =>
+      fetchJsonSimulationWaitSmartContractsFromParticipant(
+        requestBalancerFetchSmartContractsFromParticipant,
+        id
+      )
+        .then(data => {
+          if (data === null) {
+            return;
+          }
+          if (
+            JSON.stringify(data) !== JSON.stringify(refSmartContracts.current)
+          ) {
+            refSmartContracts.current = data;
+            setStateSmartContracts(refSmartContracts.current);
+            setStateSmartContractsFetchedOnce(true);
+          }
+          setStateFetchingSmartContracts(false);
+        })
+        .catch(err => showError('Fetch simulation smart contracts', err)),
+    [
+      fetchJsonSimulationWaitSmartContractsFromParticipant,
+      showError,
+      refSmartContracts,
+    ]
+  );
+
+  const fetchSmartContracts = useCallback(() => {
+    if (stateSelectedParticipantId !== undefined) {
+      fetchSmartContractsFromParticipant(stateSelectedParticipantId);
+    } else {
+      fetchSmartContractsPage(0);
+    }
+  }, [
+    stateSelectedParticipantId,
+    fetchSmartContractsFromParticipant,
+    fetchSmartContractsPage,
+  ]);
 
   const [stateWindowIsHidden, setStateWindowIsHidden] = useState(false);
 
