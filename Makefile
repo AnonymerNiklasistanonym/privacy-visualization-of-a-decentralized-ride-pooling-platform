@@ -120,7 +120,6 @@ lintFix:
 # Thesis
 
 build_thesis:
-	$(MAKE) -C "$(THESIS_DIR)" batch
 	$(MAKE) -C "$(THESIS_DIR)" dist
 
 format:
