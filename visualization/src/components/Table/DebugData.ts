@@ -4,7 +4,7 @@ import {
   SimulationEndpointParticipantInformationRideProvider,
   SimulationEndpointRideRequestInformation,
   SimulationEndpointSmartContractInformation,
-} from '@globals/types/simulation';
+} from 'lib_globals';
 
 export interface DebugData {
   customers: SimulationEndpointParticipantInformationCustomer[];

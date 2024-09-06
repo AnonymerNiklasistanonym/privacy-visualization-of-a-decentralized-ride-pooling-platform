@@ -3,7 +3,7 @@ import {Service} from '../service';
 import {getRandomId} from '../../../misc/helpers';
 import {wait} from '../../../lib/wait';
 // Type imports
-import type {Coordinates} from '../../../globals/types/coordinates';
+import type {Coordinates} from 'lib_globals';
 import type {Simulation} from '../../simulation';
 
 export interface Area extends Coordinates {

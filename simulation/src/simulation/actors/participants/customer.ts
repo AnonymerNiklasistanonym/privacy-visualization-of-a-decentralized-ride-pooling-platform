@@ -4,7 +4,7 @@ import {randomInt} from 'crypto';
 // Local imports
 import {ParticipantPerson} from '../participant';
 // > Globals
-import {h3Resolution} from '../../../globals/defaults/h3';
+import {constants} from 'lib_globals';
 // > Libs
 import {wait} from '../../../lib/wait';
 // > Misc
@@ -14,9 +14,11 @@ import {
   getRandomIntFromInterval,
 } from '../../../misc/helpers';
 // Type imports
-import type {Coordinates} from '../../../globals/types/coordinates';
+import type {
+  Coordinates,
+  SimulationEndpointParticipantInformationCustomer,
+} from 'lib_globals';
 import type {Simulation} from '../../simulation';
-import type {SimulationEndpointParticipantInformationCustomer} from '../../../globals/types/simulation';
 import type {SimulationTypeCustomer} from '../participant';
 
 export class Customer extends ParticipantPerson<SimulationTypeCustomer> {
@@ -115,9 +117,13 @@ export class Customer extends ParticipantPerson<SimulationTypeCustomer> {
         latLngToCell(
           this.currentLocation.lat,
           this.currentLocation.long,
-          h3Resolution
+          constants.h3.h3Resolution
         ),
-        latLngToCell(dropoffLocation.lat, dropoffLocation.long, h3Resolution),
+        latLngToCell(
+          dropoffLocation.lat,
+          dropoffLocation.long,
+          constants.h3.h3Resolution
+        ),
         this.getRating(simulation),
         this.publicKey,
         maxWaitingTime,

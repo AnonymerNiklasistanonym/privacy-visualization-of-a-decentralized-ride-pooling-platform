@@ -1,5 +1,5 @@
 // optimized version of the package 'haversineDistance'
-import type {Coordinates} from '../globals/types/coordinates';
+import type {Coordinates} from 'lib_globals';
 
 const asin = Math.asin;
 const cos = Math.cos;

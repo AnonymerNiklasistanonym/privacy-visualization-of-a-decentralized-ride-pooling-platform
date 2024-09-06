@@ -6,7 +6,7 @@ import {Button, Tooltip} from '@mui/material';
 import {Lock as LockIcon} from '@mui/icons-material';
 // Local imports
 // > Globals
-import {simulationEndpoints} from '@globals/defaults/endpoints';
+import {constants} from 'lib_globals';
 // > Misc
 import {SpectatorId} from '@misc/spectatorIds';
 import {debugComponentRender} from '@misc/debug';
@@ -18,7 +18,7 @@ import type {
   GlobalPropsSpectatorSelectedElementsSet,
 } from '@misc/props/global';
 import type {ReactNode} from 'react';
-import type {SimulationEndpointParticipantIdFromPseudonym} from '@globals/types/simulation';
+import type {SimulationEndpointParticipantIdFromPseudonym} from 'lib_globals';
 
 export interface InputButtonSpectatorChangeProps
   extends GlobalPropsSpectatorSelectedElements,
@@ -67,7 +67,9 @@ export function InputButtonSpectatorChange({
   useEffect(() => {
     if (isPseudonym) {
       fetchJsonSimulation<SimulationEndpointParticipantIdFromPseudonym>(
-        simulationEndpoints.apiV1.participantIdFromPseudonym(spectatorId)
+        constants.endpoints.simulation.apiV1.participantIdFromPseudonym(
+          spectatorId
+        )
       )
         .then(data => setStateResolvedPseudonym(data))
         .catch(err =>

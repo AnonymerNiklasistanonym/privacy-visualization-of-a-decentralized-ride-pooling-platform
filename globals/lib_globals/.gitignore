@@ -1,0 +1,12 @@
+# Ignore built files
+dist
+# Ignore node dependencies
+node_modules
+# Ignore chached files
+cache
+# Ignore log files
+logs
+# Ignore npm pack files
+*.tgz
+# Ignore jest reports
+benchmarks

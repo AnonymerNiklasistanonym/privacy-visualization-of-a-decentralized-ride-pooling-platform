@@ -2,7 +2,7 @@
 import path from 'path';
 // Local imports
 // > Globals
-import {ports} from './globals/defaults/ports';
+import {constants} from 'lib_globals';
 // Type imports
 import type {SimulationConfig, SimulationConfigCustom} from './simulation';
 
@@ -48,7 +48,7 @@ export const defaultConfig: Readonly<SimulationConfig> = {
   ],
 
   // Port of server
-  port: ports.simulation,
+  port: constants.ports.simulation,
 
   // Misc
   cacheDir: path.join(__dirname, '..', 'cache'),

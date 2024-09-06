@@ -3,7 +3,7 @@
 import {createLoggerSection} from '../services/logging';
 import {haversineDistance} from './haversineDistance';
 // Type imports
-import type {Coordinates} from '../globals/types/coordinates';
+import type {Coordinates} from 'lib_globals';
 
 const logger = createLoggerSection('lib', 'coordinatesInterpolation');
 

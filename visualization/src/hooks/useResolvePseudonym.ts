@@ -2,12 +2,12 @@
 import {useEffect, useState} from 'react';
 // Local imports
 // > Globals
-import {simulationEndpoints} from '@globals/defaults/endpoints';
+import {constants} from 'lib_globals';
 // > Misc
 import {debugComponentElementUpdate} from '@misc/debug';
 // Type imports
 import {GlobalPropsFetch, GlobalPropsShowError} from '@misc/props/global';
-import {SimulationEndpointParticipantIdFromPseudonym} from '@globals/types/simulation';
+import {SimulationEndpointParticipantIdFromPseudonym} from 'lib_globals';
 
 export default function useResolvePseudonym(
   pseudonym: string | undefined,
@@ -27,7 +27,9 @@ export default function useResolvePseudonym(
     if (pseudonym) {
       debugComponentElementUpdate(`useResolvePseudonym#${pseudonym}#useEffect`);
       fetchJsonSimulation<SimulationEndpointParticipantIdFromPseudonym>(
-        simulationEndpoints.apiV1.participantIdFromPseudonym(pseudonym)
+        constants.endpoints.simulation.apiV1.participantIdFromPseudonym(
+          pseudonym
+        )
       )
         .then(data => setStateResolvedPseudonym(data))
         .catch(err =>

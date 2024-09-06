@@ -6,7 +6,7 @@ import {useIntl} from 'react-intl';
 // > Components
 import {Box, Grid, Paper, Typography} from '@mui/material';
 // Local imports
-import {simulationEndpoints} from '@globals/defaults/endpoints';
+import {constants} from 'lib_globals';
 // > Components
 import {
   ConnectedElementsIcon,
@@ -52,7 +52,7 @@ import type {
   SimulationEndpointParticipantIdFromPseudonym,
   SimulationEndpointSmartContractConnectedRideRequests,
   SimulationEndpointSmartContractInformation,
-} from '@globals/types/simulation';
+} from 'lib_globals';
 import type {CardRefreshProps} from '@components/Card/CardRefresh';
 import type {InputChangeSpectatorProps} from '@components/Input/InputChangeSpectator';
 import type {InputExtraActionsAction} from '@components/Input/InputExtraActions';
@@ -153,7 +153,7 @@ export default function TabBlockchain(props: TabBlockchainProps) {
       stateSelectedSmartContractId !== undefined
     ) {
       fetchJsonSimulation<SimulationEndpointSmartContractConnectedRideRequests>(
-        simulationEndpoints.apiV1.rideRequestsFromSmartContract(
+        constants.endpoints.simulation.apiV1.rideRequestsFromSmartContract(
           stateSelectedSmartContractId
         )
       )
@@ -178,7 +178,7 @@ export default function TabBlockchain(props: TabBlockchainProps) {
   useEffect(() => {
     if (stateSelectedCustomerPseudonym !== undefined) {
       fetchJsonSimulation<SimulationEndpointParticipantIdFromPseudonym>(
-        simulationEndpoints.apiV1.participantIdFromPseudonym(
+        constants.endpoints.simulation.apiV1.participantIdFromPseudonym(
           stateSelectedCustomerPseudonym
         )
       )
@@ -197,7 +197,7 @@ export default function TabBlockchain(props: TabBlockchainProps) {
   useEffect(() => {
     if (stateSelectedRideProviderPseudonym !== undefined) {
       fetchJsonSimulation<SimulationEndpointParticipantIdFromPseudonym>(
-        simulationEndpoints.apiV1.participantIdFromPseudonym(
+        constants.endpoints.simulation.apiV1.participantIdFromPseudonym(
           stateSelectedRideProviderPseudonym
         )
       )

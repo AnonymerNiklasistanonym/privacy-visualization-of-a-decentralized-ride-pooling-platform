@@ -11,6 +11,7 @@
   - [Ticks](#ticks)
   - [Flamegraph](#flamegraph)
   - [Docker Resource Monitor](#docker-resource-monitor)
+  - [Benchmarks](#benchmarks)
 
 > [!WARNING]
 > Running `npm install` would currently display 5 high severity vulnerabilities when `madge` is listed as dev dependency.
@@ -226,3 +227,64 @@ When finished send a `SIGINT`/`SIGTERM` signal (`CTRL` + `C`) and then open the 
 ### Docker Resource Monitor
 
 There is an application called [`ctop`](https://github.com/bcicen/ctop) which can summarize live memory/CPU usage and network usage of a docker container.
+
+### Benchmarks
+
+There is a benchmarks that checks how fast the *shortest* path finding algorithm is (and also compares it to an algorithm that is not using the haversine distance as admissable heuristic).
+
+To run the benchmark run `npm run bench`:
+
+```text
+Benchmarks:
+  getShortestPath Small Bounding Box benchmark
+    Small Bounding Box_sample#0_getShortestPath                  0.084 ms ±  0.32 %  (99 runs sampled)
+    Small Bounding Box_sample#0_getShortestPathOsmCoordinates    0.091 ms ±  0.73 %  (96 runs sampled)
+    Small Bounding Box_sample#1_getShortestPath                  0.257 ms ±  0.96 %  (98 runs sampled)
+    Small Bounding Box_sample#1_getShortestPathOsmCoordinates    0.187 ms ±  1.05 %  (93 runs sampled)
+    Small Bounding Box_sample#2_getShortestPath                  0.434 ms ±  1.31 %  (96 runs sampled)
+    Small Bounding Box_sample#2_getShortestPathOsmCoordinates    0.339 ms ±  1.33 %  (94 runs sampled)
+    Small Bounding Box_sample#3_getShortestPath                  0.086 ms ±  1.03 %  (92 runs sampled)
+    Small Bounding Box_sample#3_getShortestPathOsmCoordinates    0.083 ms ±  0.78 %  (98 runs sampled)
+    Small Bounding Box_sample#4_getShortestPath                  0.348 ms ±  0.74 %  (96 runs sampled)
+    Small Bounding Box_sample#4_getShortestPathOsmCoordinates    0.319 ms ±  1.20 %  (96 runs sampled)
+    Small Bounding Box_sample#5_getShortestPath                  0.155 ms ±  1.01 %  (97 runs sampled)
+    Small Bounding Box_sample#5_getShortestPathOsmCoordinates    0.142 ms ±  1.06 %  (96 runs sampled)
+    Small Bounding Box_sample#6_getShortestPath                  0.646 ms ±  1.26 %  (94 runs sampled)
+    Small Bounding Box_sample#6_getShortestPathOsmCoordinates    0.712 ms ±  1.02 %  (93 runs sampled)
+    Small Bounding Box_sample#7_getShortestPath                  0.288 ms ±  1.70 %  (96 runs sampled)
+    Small Bounding Box_sample#7_getShortestPathOsmCoordinates    0.239 ms ±  0.47 %  (97 runs sampled)
+    Small Bounding Box_sample#8_getShortestPath                  0.234 ms ±  1.35 %  (95 runs sampled)
+    Small Bounding Box_sample#8_getShortestPathOsmCoordinates    0.217 ms ±  0.89 %  (95 runs sampled)
+    Small Bounding Box_sample#9_getShortestPath                  0.015 ms ±  0.53 %  (96 runs sampled)
+    Small Bounding Box_sample#9_getShortestPathOsmCoordinates    0.151 ms ±  1.26 %  (91 runs sampled)
+  getShortestPath Bounding Box City benchmark
+    Bounding Box City_sample#0_getShortestPath                  13.54 ms ±  1.37 %  (77 runs sampled)
+    Bounding Box City_sample#0_getShortestPathOsmCoordinates     3.99 ms ±  0.51 %  (92 runs sampled)
+    Bounding Box City_sample#1_getShortestPath                   1.94 ms ±  0.69 %  (95 runs sampled)
+    Bounding Box City_sample#1_getShortestPathOsmCoordinates     1.71 ms ±  0.62 %  (93 runs sampled)
+    Bounding Box City_sample#2_getShortestPath                  27.60 ms ±  3.14 %  (49 runs sampled)
+    Bounding Box City_sample#2_getShortestPathOsmCoordinates    14.30 ms ±  0.94 %  (73 runs sampled)
+    Bounding Box City_sample#3_getShortestPath                   4.64 ms ±  0.50 %  (86 runs sampled)
+    Bounding Box City_sample#3_getShortestPathOsmCoordinates     2.38 ms ±  0.39 %  (94 runs sampled)
+    Bounding Box City_sample#4_getShortestPath                  0.267 ms ±  0.59 %  (96 runs sampled)
+    Bounding Box City_sample#4_getShortestPathOsmCoordinates     1.50 ms ±  0.47 %  (95 runs sampled)
+  getShortestPath City benchmark
+    City_sample#0_getShortestPath                  21.26 ms ±  0.66 %  (62 runs sampled)
+    City_sample#0_getShortestPathOsmCoordinates     7.34 ms ±  0.31 %  (88 runs sampled)
+    City_sample#1_getShortestPath                  21.32 ms ±  1.64 %  (62 runs sampled)
+    City_sample#1_getShortestPathOsmCoordinates    11.01 ms ±  1.08 %  (79 runs sampled)
+    City_sample#2_getShortestPath                   8.58 ms ±  0.86 %  (86 runs sampled)
+    City_sample#2_getShortestPathOsmCoordinates     3.00 ms ±  0.43 %  (90 runs sampled)
+    City_sample#3_getShortestPath                  18.06 ms ±  1.52 %  (73 runs sampled)
+    City_sample#3_getShortestPathOsmCoordinates     6.03 ms ±  1.13 %  (86 runs sampled)
+    City_sample#4_getShortestPath                   9.23 ms ±  3.16 %  (80 runs sampled)
+    City_sample#4_getShortestPathOsmCoordinates     1.92 ms ±  0.31 %  (96 runs sampled)
+Test Suites: 1 passed, 1 total
+Tests:       40 passed, 40 total
+Snapshots:   0 total
+Time:        239.143 s
+```
+
+It can be observed that for random points (rerunning at least 50 times each computation) it takes in the most extreme cases on average 10ms to find a path.
+This is on the larger map (which is the bounding box of Stuttgart) always faster than using a path finder without the heuristic.
+On a small map the path finder without the heuristic is almost always faster most likely because it has not to deal with the overhead of the additional heuristic computation.

@@ -1,18 +1,14 @@
 // Local imports
 import {logDir} from '../../logger-config';
 // > Globals
-import {
-  LoggerLevel,
-  createLogger,
-  createLoggerSections,
-} from '@globals/lib/logging';
+import {logging} from 'lib_globals_fs';
 
-export const loggerVisualization = createLogger(
+export const loggerVisualization = logging.createLogger(
   'visualization',
   logDir,
-  LoggerLevel.INFO,
-  LoggerLevel.DEBUG
+  logging.LoggerLevel.INFO,
+  logging.LoggerLevel.DEBUG
 );
 
 export const createLoggerSection = (section: string, subsection?: string) =>
-  createLoggerSections(loggerVisualization, section, subsection);
+  logging.createLoggerSections(loggerVisualization, section, subsection);

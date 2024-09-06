@@ -1,4 +1,5 @@
-import {PartialRecord} from '../../globals/types/logic';
+// Type imports
+import type {PartialRecord} from 'lib_globals';
 
 export interface OverpassApiResponse<DATA> {
   version: number;

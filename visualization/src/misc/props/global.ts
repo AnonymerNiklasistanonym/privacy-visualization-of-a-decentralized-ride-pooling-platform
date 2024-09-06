@@ -1,12 +1,12 @@
 // Type imports
-import type {MutableRefObject, ReactElement} from 'react';
-import type {ReactSetState, ReactState} from '../react';
 import type {
+  FetchOptions,
   SimulationEndpointParticipantCoordinates,
   SimulationEndpointParticipantTypes,
   SimulationEndpointSmartContractInformation,
-} from '@globals/types/simulation';
-import type {FetchOptions} from '@globals/lib/fetch';
+} from 'lib_globals';
+import type {MutableRefObject, ReactElement} from 'react';
+import type {ReactSetState, ReactState} from '../react';
 import type {ModalDataInformation} from '@components/Modal/ModalData';
 
 /** Props to get the current spectator/selected elements */

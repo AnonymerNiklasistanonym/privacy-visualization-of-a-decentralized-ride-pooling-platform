@@ -9,8 +9,7 @@ import {Simulation} from './simulation';
 import {defaultConfig} from './defaults';
 import {updateSimulationConfigWithData} from './simulation';
 // > Globals
-import {simulationEndpointRoutes} from './globals/defaults/routes';
-import {simulationEndpoints} from './globals/defaults/endpoints';
+import {constants} from 'lib_globals';
 // > Libs
 import {getCliFlag, getCliOverride} from './lib/cli';
 import {fileExists} from './lib/fileOperations';
@@ -112,19 +111,19 @@ async function main() {
 
   // Generate simulated server routes
   app.use(
-    simulationEndpointRoutes.simulation.route,
+    constants.routes.simulationEndpoint.simulation.route,
     simulation.generateRoutes()
   );
 
   // Generate simulation API routes
   app.use(
-    simulationEndpointRoutes.apiV1.route,
+    constants.routes.simulationEndpoint.apiV1.route,
     simulation.generateFrontendRoutes()
   );
 
   // Generate internal API routes
   app.use(
-    simulationEndpointRoutes.internal.route,
+    constants.routes.simulationEndpoint.internal.route,
     simulation.generateInternalRoutes()
   );
 
@@ -134,11 +133,11 @@ async function main() {
     const globalSimulationEndpoints: {
       internal: Record<string, unknown | string>;
     } = {
-      ...simulationEndpoints,
+      ...constants.endpoints.simulation,
     };
     globalSimulationEndpoints.internal = {
       ...globalSimulationEndpoints.internal,
-      rideRequest: simulationEndpoints.internal.rideRequest(''),
+      rideRequest: constants.endpoints.simulation.internal.rideRequest(''),
     };
     res.render('main', {
       layout: 'index',
@@ -158,12 +157,14 @@ async function main() {
       globalStartPos: JSON.stringify(simulation.startPos),
 
       // URLS
-      urlJsonAs: simulationEndpoints.internal.authenticationServices,
-      urlJsonCustomers: simulationEndpoints.internal.customers,
-      urlJsonMs: simulationEndpoints.internal.matchingServices,
-      urlJsonRideProviders: simulationEndpoints.internal.rideProviders,
-      urlJsonRideRequests: simulationEndpoints.internal.rideRequests,
-      urlJsonSmartContracts: simulationEndpoints.internal.smartContracts,
+      urlJsonAs: constants.endpoints.simulation.internal.authenticationServices,
+      urlJsonCustomers: constants.endpoints.simulation.internal.customers,
+      urlJsonMs: constants.endpoints.simulation.internal.matchingServices,
+      urlJsonRideProviders:
+        constants.endpoints.simulation.internal.rideProviders,
+      urlJsonRideRequests: constants.endpoints.simulation.internal.rideRequests,
+      urlJsonSmartContracts:
+        constants.endpoints.simulation.internal.smartContracts,
     });
   });
 

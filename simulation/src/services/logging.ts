@@ -2,32 +2,30 @@
 import path from 'path';
 // Local imports
 // > Globals
-import {
-  LoggerLevel,
-  createLogger,
-  createLoggerSections,
-} from '../globals/lib/logging';
+import {logging} from 'lib_globals_fs';
+// Type imports
+import type {Logger} from 'winston';
 
 const logDir = process.env.LOG_DIR ?? path.join(__dirname, '..', '..', 'logs');
 
-export const loggerVisualization = createLogger(
+export const loggerVisualization: Logger = logging.createLogger(
   'simulation',
   logDir,
-  LoggerLevel.INFO,
-  LoggerLevel.DEBUG
+  logging.LoggerLevel.INFO,
+  logging.LoggerLevel.DEBUG
 );
 
 export const createLoggerSection = (section: string, subsection?: string) =>
-  createLoggerSections(loggerVisualization, section, subsection);
+  logging.createLoggerSections(loggerVisualization, section, subsection);
 
-export const loggerPathfinder = createLogger(
+export const loggerPathfinder: Logger = logging.createLogger(
   'pathfinder',
   logDir,
-  LoggerLevel.INFO,
-  LoggerLevel.DEBUG
+  logging.LoggerLevel.INFO,
+  logging.LoggerLevel.DEBUG
 );
 
 export const createLoggerPathfinderSection = (
   section: string,
   subsection?: string
-) => createLoggerSections(loggerPathfinder, section, subsection);
+) => logging.createLoggerSections(loggerPathfinder, section, subsection);

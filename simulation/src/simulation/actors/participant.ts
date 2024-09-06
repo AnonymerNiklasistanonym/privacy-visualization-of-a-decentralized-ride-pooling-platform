@@ -2,19 +2,19 @@
 import {Actor} from './actor';
 import {getShortestPathOsmCoordinates} from '../../lib/pathfinderOsm';
 import {interpolateCurrentCoordinatesFromPath} from '../../lib/coordinatesInterpolation';
-import {measureTimeWrapper} from '../../globals/lib/timeWrapper';
 import {osmnxServerRequest} from '../../lib/osmnx';
-import {speeds} from '../../globals/defaults/speed';
 import {wait} from '../../lib/wait';
+// > Globals
+import {constants, timeWrapper} from 'lib_globals';
 // Type imports
 import type {
+  Coordinates,
+  GetACarParticipantTypes,
   SimulationEndpointParticipantCoordinatesParticipant,
   SimulationEndpointParticipantInformation,
   SimulationEndpointParticipantPersonInformation,
-} from '../../globals/types/simulation';
+} from 'lib_globals';
 import type {AuthenticationService} from './services/authenticationService';
-import type {Coordinates} from '../../globals/types/coordinates';
-import type {GetACarParticipantTypes} from '../../globals/types/participant';
 import type {Simulation} from '../simulation';
 
 export interface SimulationTypeParticipant {
@@ -133,7 +133,7 @@ export abstract class Participant<JsonType> extends Actor<
       simulation.config.customPathfinderProvider === 'all' ||
       simulation.config.customPathfinderProvider === 'internal'
     ) {
-      routeInternal = await measureTimeWrapper(
+      routeInternal = await timeWrapper.measureTimeWrapper(
         () =>
           getShortestPathOsmCoordinates(
             simulation.osmVertexGraph,
@@ -158,7 +158,7 @@ export abstract class Participant<JsonType> extends Actor<
       simulation.config.customPathfinderProvider === 'all'
     ) {
       try {
-        routeOsmnx = await measureTimeWrapper(
+        routeOsmnx = await timeWrapper.measureTimeWrapper(
           () => osmnxServerRequest(this.currentLocation, newLocation),
           stats =>
             this.logger.debug(
@@ -225,8 +225,8 @@ export abstract class Participant<JsonType> extends Actor<
     const interpolatedCoordinatesInfo = interpolateCurrentCoordinatesFromPath(
       newCurrentRoute,
       this.type === 'ride_provider' || isPassenger
-        ? speeds.carInKmH
-        : speeds.personInKmH
+        ? constants.speeds.carInKmH
+        : constants.speeds.personInKmH
     );
     this.currentRoute = newCurrentRoute;
     let currentTravelTimeInMs = 0;

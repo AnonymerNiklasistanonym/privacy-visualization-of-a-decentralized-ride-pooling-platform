@@ -33,8 +33,10 @@
     "@mui/icons-material": "^5.16.4",
     "@mui/material": "^5.16.4",
     "@mui/x-data-grid": "^7.11.0",
-    "h3-js": "^4.1.0",
     "leaflet": "^1.9.4",
+    "lib_globals": "file:../globals/lib_globals",
+    "lib_globals_fs": "file:../globals/lib_globals_fs",
+    "lib_pathfinder": "file:../globals/lib_pathfinder",
     "negotiator": "^0.6.3",
     "next": "14.2.5",
     "react": "^18.3.1",
@@ -45,9 +47,7 @@
     "react-leaflet-fullscreen": "^4.1.1",
     "react-number-format": "^5.4.0",
     "react-responsive-masonry": "^2.2.1",
-    "sass": "^1.77.8",
-    "winston": "^3.13.1",
-    "winston-daily-rotate-file": "^5.0.0"
+    "sass": "^1.77.8"
   },
   "devDependencies": {
     "@testing-library/react": "^16.0.0",

@@ -24,8 +24,7 @@ import {
 } from '../MapMarkerIcons';
 import CardRefresh from '@components/Card/CardRefresh';
 // > Globals
-import {getH3Polygon} from '@globals/lib/h3';
-import {simulationEndpoints} from '@globals/defaults/endpoints';
+import {constants, h3} from 'lib_globals';
 // Type imports
 import type {
   GlobalPropsFetch,
@@ -40,7 +39,7 @@ import type {
   SimulationEndpointParticipantInformationRideProvider,
   SimulationEndpointParticipantTypes,
   SimulationEndpointRideRequestInformation,
-} from '@globals/types/simulation';
+} from 'lib_globals';
 import type {CardRefreshProps} from '@components/Card/CardRefresh';
 import type {Marker as LMarker} from 'leaflet';
 import type {ReactNode} from 'react';
@@ -114,7 +113,7 @@ export function MapMarkerParticipant(props: MapMarkerParticipantInput) {
     if (participantType === 'customer') {
       const customerInformation =
         await fetchJsonSimulation<SimulationEndpointParticipantInformationCustomer>(
-          simulationEndpoints.apiV1.participantInformationCustomer(
+          constants.endpoints.simulation.apiV1.participantInformationCustomer(
             stateParticipantId
           )
         );
@@ -124,7 +123,7 @@ export function MapMarkerParticipant(props: MapMarkerParticipantInput) {
     if (participantType === 'ride_provider') {
       const rideProviderInformation =
         await fetchJsonSimulation<SimulationEndpointParticipantInformationRideProvider>(
-          simulationEndpoints.apiV1.participantInformationRideProvider(
+          constants.endpoints.simulation.apiV1.participantInformationRideProvider(
             stateParticipantId
           )
         );
@@ -134,13 +133,15 @@ export function MapMarkerParticipant(props: MapMarkerParticipantInput) {
     if (rideRequestId !== undefined) {
       const rideRequest =
         await fetchJsonSimulation<SimulationEndpointRideRequestInformation>(
-          simulationEndpoints.apiV1.rideRequestInformation(rideRequestId)
+          constants.endpoints.simulation.apiV1.rideRequestInformation(
+            rideRequestId
+          )
         );
       setStateRideRequestInformation(rideRequest);
       if (rideRequest.auctionWinner !== null) {
         const rideRequestAuctionWinnerId =
           await fetchJsonSimulation<SimulationEndpointParticipantIdFromPseudonym>(
-            simulationEndpoints.apiV1.participantIdFromPseudonym(
+            constants.endpoints.simulation.apiV1.participantIdFromPseudonym(
               rideRequest.auctionWinner
             )
           );
@@ -148,7 +149,7 @@ export function MapMarkerParticipant(props: MapMarkerParticipantInput) {
       }
       const rideRequestUserId =
         await fetchJsonSimulation<SimulationEndpointParticipantIdFromPseudonym>(
-          simulationEndpoints.apiV1.participantIdFromPseudonym(
+          constants.endpoints.simulation.apiV1.participantIdFromPseudonym(
             rideRequest.userId
           )
         );
@@ -371,7 +372,7 @@ export function ParticipantMarkerElement(props: ParticipantMarkerElementProps) {
           key={`${location.label}-cloaked-${stateParticipantId}`}
           color={rideRequestColor}
           fillColor={location.color}
-          positions={getH3Polygon(location.cloaked)}
+          positions={h3.getH3Polygon(location.cloaked)}
         >
           <Tooltip
             content={

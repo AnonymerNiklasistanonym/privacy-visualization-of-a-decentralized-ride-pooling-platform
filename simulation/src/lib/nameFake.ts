@@ -1,6 +1,6 @@
 // Local imports
 // > Globals
-import {fetchJson} from '../globals/lib/fetch';
+import {fetch} from 'lib_globals';
 // > Services
 import {createLoggerSection} from '../services/logging';
 
@@ -10,7 +10,7 @@ const baseUrlNameFakeApi = 'https://api.namefake.com';
 
 export const nameFakeApiRequest = (): Promise<NameFakeApiResponse> => {
   logger.info(`fetch ${baseUrlNameFakeApi}`);
-  return fetchJson<NameFakeApiResponse>(baseUrlNameFakeApi);
+  return fetch.fetchJson<NameFakeApiResponse>(baseUrlNameFakeApi);
 };
 
 export interface NameFakeApiResponse {

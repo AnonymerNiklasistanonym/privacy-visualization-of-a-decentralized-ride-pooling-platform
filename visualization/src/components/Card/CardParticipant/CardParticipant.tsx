@@ -55,7 +55,7 @@ import type {
   SimulationEndpointParticipantInformationRideProviderCompany,
   SimulationEndpointParticipantInformationRideProviderPerson,
   SimulationEndpointParticipantTypes,
-} from '@globals/types/simulation';
+} from 'lib_globals';
 import type {InputButtonSpectatorChangeProps} from '@components/Input/InputButton/InputButtonSpectatorChange';
 import type {InputButtonSpectatorShowProps} from '@components/Input/InputButton/InputButtonSpectatorShow';
 import type {ReactState} from '@misc/react';

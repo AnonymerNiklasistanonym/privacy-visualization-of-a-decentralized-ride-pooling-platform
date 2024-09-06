@@ -1,7 +1,26 @@
 name: getacar-visualization
 
 services:
+  lib_globals:
+    # Build image and tag it (name is important for the other services)
+    image: local_image_lib_globals
+    build: globals/lib_globals
+  lib_globals_fs:
+    # Build image and tag it (name is important for the other services)
+    image: local_image_lib_globals_fs
+    build: globals/lib_globals_fs
+  lib_pathfinder:
+    # Build image and tag it (name is important for the other services)
+    image: local_image_lib_pathfinder
+    build: globals/lib_pathfinder
   simulation:
+    depends_on:
+        lib_globals:
+          condition: service_completed_successfully
+        lib_globals_fs:
+          condition: service_completed_successfully
+        lib_pathfinder:
+          condition: service_completed_successfully
     build: simulation
     expose:
       - 3020
@@ -27,6 +46,8 @@ services:
     ports:
       - "3000:3000"
     depends_on:
+      lib_globals:
+        condition: service_completed_successfully
       simulation:
         condition: service_healthy
     healthcheck:

@@ -14,15 +14,15 @@ import {
 import {companyNames} from './companyNames';
 import {createOsmVertexGraph} from './createOsmVertexGraph';
 // > Globals
-import {getJsonCacheWrapper} from '../../globals/lib/cacheWrapper';
-import {measureTimeWrapper} from '../../globals/lib/timeWrapper';
+import {cacheWrapper} from 'lib_globals_fs';
+import {timeWrapper} from 'lib_globals';
 // > Libs
 import {generatePublicKey} from '../../lib/crypto';
 import {nameFakeApiRequest} from '../../lib/nameFake';
 // > Services
 import {createLoggerSection} from '../../services/logging';
 // Type imports
-import type {Coordinates} from '../../globals/types/coordinates';
+import type {Coordinates} from 'lib_globals';
 import type {OsmVertexGraph} from '../../lib/pathfinderOsm';
 import type {OverpassRequestBbDataBuilding} from './overpass';
 import type {SimulationConfig} from './simulationConfig';
@@ -85,8 +85,8 @@ export const timeCacheWrapper = async <DATA_TYPE>(
   name: string
 ): Promise<DATA_TYPE> => {
   let usedCache = false;
-  return measureTimeWrapper(
-    getJsonCacheWrapper<DATA_TYPE>(
+  return timeWrapper.measureTimeWrapper(
+    cacheWrapper.getJsonCacheWrapper<DATA_TYPE>(
       getData,
       path.join(config.cacheDir, cacheFilePath),
       {
@@ -133,12 +133,12 @@ export const updateSimulationConfigWithData = async (
     throw Error('Could not find any location data for the simulation!');
   }
   const [osmVertexGraph, places] = await Promise.all([
-    measureTimeWrapper(
+    timeWrapper.measureTimeWrapper(
       () => createOsmVertexGraph(locationData),
       stats =>
         logger.info(`created OsmVertexGraph in ${stats.executionTimeInMS}ms`)
     ),
-    measureTimeWrapper(
+    timeWrapper.measureTimeWrapper(
       () =>
         locationData
           .flatMap(a => a.buildings.map(a => [a, overpassGetBuildingName(a)]))

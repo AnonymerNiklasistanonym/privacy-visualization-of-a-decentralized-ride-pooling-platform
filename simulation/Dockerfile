@@ -1,4 +1,4 @@
-FROM node:21-alpine
+FROM node:21-alpine as base
 
 # Used for health check in 'docker compose'
 RUN apk add --no-cache curl
@@ -6,8 +6,23 @@ RUN apk add --no-cache curl
 # Uncomment next line to inspect the image/container using bash
 RUN apk add --no-cache bash
 
+# <<<< Copy external built local libraries
+COPY --from=local_image_lib_globals /globals/ /globals/
+COPY --from=local_image_lib_globals_fs /globals/ /globals/
+COPY --from=local_image_lib_pathfinder /globals/ /globals/
+# >>>>
+
+FROM base AS deps
 # Setting up the work directory in the top level of the file system
 WORKDIR /app
+# Install dependencies based on the preferred package manager
+COPY package.json package-lock.json ./
+RUN npm ci
+
+# Rebuild the source code only when needed
+FROM base AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
 
 # Create user
 RUN addgroup --system --gid 1001 nodejs
@@ -16,8 +31,6 @@ RUN adduser --system --uid 1001 express
 # Copy all non .dockerignored files into that directory
 COPY . .
 
-# Install dependencies
-RUN npm ci
 # Build server
 RUN npm run build
 # Remove build files and dev dependencies

@@ -1,6 +1,6 @@
 // Local imports
 // > Globals
-import {fetchJson} from '../../globals/lib/fetch';
+import {fetch} from 'lib_globals';
 // > Services
 import {createLoggerSection} from '../../services/logging';
 // Type imports
@@ -21,13 +21,16 @@ export const overpassApiRequest = async <JsonResponseType>(
     `${overpassApiPrefixJsonTimeout}${query}`
   )}`;
   logger.info(`fetch ${method} ${baseUrlOverpassApi} body=${body}...`);
-  return fetchJson<OverpassApiResponse<JsonResponseType>>(baseUrlOverpassApi, {
-    fetchOptions: {
-      // The body contains the query
-      // to understand the query language see "The Programmatic Query Language" on
-      // https://wiki.openstreetmap.org/wiki/Overpass_API#The_Programmatic_Query_Language_(OverpassQL)
-      body,
-      method,
-    },
-  });
+  return fetch.fetchJson<OverpassApiResponse<JsonResponseType>>(
+    baseUrlOverpassApi,
+    {
+      fetchOptions: {
+        // The body contains the query
+        // to understand the query language see "The Programmatic Query Language" on
+        // https://wiki.openstreetmap.org/wiki/Overpass_API#The_Programmatic_Query_Language_(OverpassQL)
+        body,
+        method,
+      },
+    }
+  );
 };

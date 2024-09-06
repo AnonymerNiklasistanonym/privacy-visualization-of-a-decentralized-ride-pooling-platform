@@ -1,19 +1,16 @@
 // Local imports
 // > Globals
-import {fetchJson} from '../globals/lib/fetch';
-import {pathfinderEndpoints} from '../globals/defaults/endpoints';
-import {ports} from '../globals/defaults/ports';
+import {constants, fetch} from 'lib_globals';
 // Type imports
-import type {Coordinates} from '../globals/types/coordinates';
-import type {OsmnxServerResponse} from '../globals/lib/osmnx';
+import type {Coordinates, OsmnxServerResponse} from 'lib_globals';
 
 /** Request the shortest path between 2 coordinates */
 export const osmnxServerRequest = async (
   source: Readonly<Coordinates>,
   target: Readonly<Coordinates>
 ): Promise<OsmnxServerResponse> =>
-  fetchJson<OsmnxServerResponse>(
-    `http://localhost:${ports.pathfinder}${pathfinderEndpoints.shortestPathCoordinates}`,
+  fetch.fetchJson<OsmnxServerResponse>(
+    `http://localhost:${constants.ports.pathfinder}${constants.endpoints.pathfinder.shortestPathCoordinates}`,
     {
       fetchOptions: {
         body: JSON.stringify({source, target}),

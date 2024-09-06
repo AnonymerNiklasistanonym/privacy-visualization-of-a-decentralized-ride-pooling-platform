@@ -5,20 +5,20 @@ import {memo, useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import CardParticipant from '../CardParticipant';
 import CardRideRequest from '../CardRideRequest';
 // > Globals
-import {simulationEndpoints} from '@globals/defaults/endpoints';
+import {constants} from 'lib_globals';
 // > Misc
 import {debugRequestBlock, debugVisibilityChange} from '@misc/debug';
 // Type imports
-import type {ReactSetState, ReactState} from '@misc/react';
 import type {
+  GetACarParticipantTypes,
   SimulationEndpointParticipantIdFromPseudonym,
   SimulationEndpointParticipantInformationCustomer,
   SimulationEndpointParticipantInformationRideProvider,
   SimulationEndpointRideRequestInformation,
-} from '@globals/types/simulation';
+} from 'lib_globals';
+import type {ReactSetState, ReactState} from '@misc/react';
 import type {CardParticipantProps} from '../CardParticipant';
 import type {CardRideRequestProps} from '../CardRideRequest';
-import type {GetACarParticipantTypes} from '@globals/types/participant';
 import type {SettingsConnectedElementsProps} from '@misc/props/settings';
 
 export interface CardRefreshProps
@@ -85,7 +85,7 @@ export function CardRefresh(props: CardRefreshPropsInput) {
       (cardType === 'customer' || cardType === 'ride_provider')
     ) {
       fetchJsonSimulation<SimulationEndpointParticipantIdFromPseudonym>(
-        simulationEndpoints.apiV1.participantIdFromPseudonym(id)
+        constants.endpoints.simulation.apiV1.participantIdFromPseudonym(id)
       )
         .then(data => setStateResolvedPseudonym(data.id))
         .catch(err =>
@@ -115,7 +115,7 @@ export function CardRefresh(props: CardRefreshPropsInput) {
       if (cardType === 'customer' && participantId !== undefined) {
         const customerInformation =
           await fetchJsonSimulationWait<SimulationEndpointParticipantInformationCustomer>(
-            simulationEndpoints.apiV1.participantInformationCustomer(
+            constants.endpoints.simulation.apiV1.participantInformationCustomer(
               participantId
             ),
             currentlyFetching
@@ -127,7 +127,7 @@ export function CardRefresh(props: CardRefreshPropsInput) {
       } else if (cardType === 'ride_provider' && participantId !== undefined) {
         const rideProviderInformation =
           await fetchJsonSimulationWait<SimulationEndpointParticipantInformationRideProvider>(
-            simulationEndpoints.apiV1.participantInformationRideProvider(
+            constants.endpoints.simulation.apiV1.participantInformationRideProvider(
               participantId
             ),
             currentlyFetching
@@ -139,7 +139,7 @@ export function CardRefresh(props: CardRefreshPropsInput) {
       } else if (cardType === 'ride_request') {
         const rideRequestInformation =
           await fetchJsonSimulationWait<SimulationEndpointRideRequestInformation>(
-            simulationEndpoints.apiV1.rideRequestInformation(id),
+            constants.endpoints.simulation.apiV1.rideRequestInformation(id),
             currentlyFetching
           );
         if (rideRequestInformation === null) {

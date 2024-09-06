@@ -321,3 +321,7 @@ venv_*
 # draw.io temp files
 *.drawio.bkp
 *.drawio.dtmp
+
+# Auto generated files
+test_suite_analysis
+managed_context

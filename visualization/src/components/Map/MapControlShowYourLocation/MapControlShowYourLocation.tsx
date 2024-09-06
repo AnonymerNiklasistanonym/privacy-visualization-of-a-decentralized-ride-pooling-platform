@@ -10,7 +10,7 @@ import {FindLocationIcon} from '@components/Icons';
 // > Misc
 import {debugComponentRender} from '@misc/debug';
 // Type imports
-import type {Coordinates} from '@globals/types/coordinates';
+import type {Coordinates} from 'lib_globals';
 import type {ReactSetState} from '@misc/react';
 
 export default memo(MapControlShowYourLocation);

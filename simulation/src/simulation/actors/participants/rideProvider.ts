@@ -4,9 +4,7 @@ import {randomInt} from 'crypto';
 // Local imports
 import {Participant} from '../participant';
 // > Globals
-import {costs} from '../../../globals/defaults/costs';
-import {getH3CellCenter} from '../../../globals/lib/h3';
-import {speeds} from '../../../globals/defaults/speed';
+import {constants, h3} from 'lib_globals';
 // > Libs
 import {getTravelTimeInMsCoordinates} from '../../../lib/coordinatesInterpolation';
 import {haversineDistance} from '../../../lib/haversineDistance';
@@ -18,17 +16,17 @@ import {
 } from '../../../misc/helpers';
 // Type imports
 import type {
+  Coordinates,
   SimulationEndpointParticipantInformationRideProvider,
   SimulationEndpointParticipantInformationRideProviderCompany,
   SimulationEndpointParticipantInformationRideProviderPerson,
-} from '../../../globals/types/simulation';
+} from 'lib_globals';
 import type {
   SimulationTypeRideProvider,
   SimulationTypeRideProviderCompany,
   SimulationTypeRideProviderPerson,
 } from '../participant';
 import type {AuthenticationService} from '../services/authenticationService';
-import type {Coordinates} from '../../../globals/types/coordinates';
 import type {Simulation} from '../../simulation';
 
 export abstract class RideProvider<
@@ -89,11 +87,11 @@ export abstract class RideProvider<
       const closestOpenRideRequest = openRideRequests.reduce((a, b) =>
         haversineDistance(
           this.currentLocation,
-          getH3CellCenter(a.request.pickupLocation)
+          h3.getH3CellCenter(a.request.pickupLocation)
         ) <
         haversineDistance(
           this.currentLocation,
-          getH3CellCenter(b.request.pickupLocation)
+          h3.getH3CellCenter(b.request.pickupLocation)
         )
           ? a
           : b
@@ -126,9 +124,10 @@ export abstract class RideProvider<
         closestOpenRideRequest.id,
         pseudonym,
         // Base cost + random cost + cost to reach pickup + cost to reach destination
-        costs.baseCostRide +
+        constants.costs.baseCostRide +
           getRandomIntFromInterval(1, 5) +
-          (estimatedDistanceToDriveInM / 1000) * costs.avgCostRideKilometer,
+          (estimatedDistanceToDriveInM / 1000) *
+            constants.costs.avgCostRideKilometer,
         this.getRating(simulation),
         this.model,
         new Date(
@@ -136,7 +135,7 @@ export abstract class RideProvider<
             getTravelTimeInMsCoordinates(
               this.currentLocation,
               coordinatesPickupLocation,
-              speeds.carInKmH
+              constants.speeds.carInKmH
             )
         ),
         // TODO Feature [no priority]: Bid with a passenger count > 0

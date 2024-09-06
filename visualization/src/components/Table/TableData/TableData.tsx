@@ -33,7 +33,7 @@ import type {
   SimulationEndpointParticipantInformationRideProviderPerson,
   SimulationEndpointRideRequestInformation,
   SimulationEndpointSmartContractInformation,
-} from '@globals/types/simulation';
+} from 'lib_globals';
 import type {DebugData} from '../DebugData';
 import type {ReactState} from '@misc/react';
 

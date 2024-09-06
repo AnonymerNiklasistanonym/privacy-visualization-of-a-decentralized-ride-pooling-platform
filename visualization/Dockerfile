@@ -3,6 +3,12 @@ FROM node:21.7-alpine AS base
 # Uncomment next line to inspect the image/container using bash
 RUN apk add --no-cache bash
 
+# <<<< Copy external built local libraries
+COPY --from=local_image_lib_globals /globals/ /globals/
+COPY --from=local_image_lib_globals_fs /globals/ /globals/
+#COPY --from=local_image_lib_pathfinder /globals/ /globals/
+# >>>>
+
 # Install dependencies only when needed
 FROM base AS deps
 # Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine to understand why libc6-compat might be needed.

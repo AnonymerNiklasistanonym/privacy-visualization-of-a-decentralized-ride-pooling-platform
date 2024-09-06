@@ -34,7 +34,7 @@ import TabPanelTabSectionDebug from './TabPanelTabSectionDebug';
 import TabSettings from '@components/Tab/TabSettings';
 import TableDebugData from '@components/Table/TableData';
 // > Globals
-import {simulationEndpoints} from '@globals/defaults/endpoints';
+import {constants} from 'lib_globals';
 // > Misc
 import {
   debugComponentRenderCounter,
@@ -58,7 +58,7 @@ import type {
   SimulationEndpointRideRequests,
   SimulationEndpointSmartContractInformation,
   SimulationEndpointSmartContracts,
-} from '@globals/types/simulation';
+} from 'lib_globals';
 import type {DebugData} from '@components/Table/DebugData';
 import type {ModalErrorProps} from '@components/Modal/ModalError';
 import type {ReactElement} from 'react';
@@ -182,13 +182,13 @@ export default function TabPanel(props: TabPanelProps) {
 
       Promise.all([
         fetchJsonSimulation<SimulationEndpointParticipantCoordinates>(
-          simulationEndpoints.apiV1.participantCoordinates
+          constants.endpoints.simulation.apiV1.participantCoordinates
         ),
         fetchJsonSimulation<SimulationEndpointRideRequests>(
-          simulationEndpoints.apiV1.rideRequests
+          constants.endpoints.simulation.apiV1.rideRequests
         ),
         fetchJsonSimulation<SimulationEndpointSmartContracts>(
-          simulationEndpoints.apiV1.smartContracts()
+          constants.endpoints.simulation.apiV1.smartContracts()
         ),
       ])
         .then(
@@ -201,7 +201,7 @@ export default function TabPanel(props: TabPanelProps) {
               Promise.all(
                 participantCoordinatesData.customers.map(a =>
                   fetchJsonSimulation<SimulationEndpointParticipantInformationCustomer>(
-                    simulationEndpoints.apiV1.participantInformationCustomer(
+                    constants.endpoints.simulation.apiV1.participantInformationCustomer(
                       a.id
                     )
                   )
@@ -210,7 +210,7 @@ export default function TabPanel(props: TabPanelProps) {
               Promise.all(
                 participantCoordinatesData.rideProviders.map(a =>
                   fetchJsonSimulation<SimulationEndpointParticipantInformationRideProvider>(
-                    simulationEndpoints.apiV1.participantInformationRideProvider(
+                    constants.endpoints.simulation.apiV1.participantInformationRideProvider(
                       a.id
                     )
                   )
@@ -219,14 +219,16 @@ export default function TabPanel(props: TabPanelProps) {
               Promise.all(
                 rideRequestsData.rideRequests.map(a =>
                   fetchJsonSimulation<SimulationEndpointRideRequestInformation>(
-                    simulationEndpoints.apiV1.rideRequestInformation(a)
+                    constants.endpoints.simulation.apiV1.rideRequestInformation(
+                      a
+                    )
                   )
                 )
               ),
               Promise.all(
                 smartContractsData.smartContracts.map(a =>
                   fetchJsonSimulation<SimulationEndpointSmartContractInformation>(
-                    simulationEndpoints.apiV1.smartContract(a)
+                    constants.endpoints.simulation.apiV1.smartContract(a)
                   )
                 )
               ),
@@ -416,7 +418,7 @@ export default function TabPanel(props: TabPanelProps) {
             onClick={() =>
               fetchTextEndpoint(
                 stateSettingsFetchBaseUrlSimulation,
-                simulationEndpoints.simulation.state
+                constants.endpoints.simulation.simulation.state
               )
                 .then(a => alert(`Simulation state: ${a}`))
                 .catch(err => showError('Fetch simulation state', err))
@@ -428,7 +430,7 @@ export default function TabPanel(props: TabPanelProps) {
             onClick={() =>
               fetchTextEndpoint(
                 stateSettingsFetchBaseUrlSimulation,
-                simulationEndpoints.simulation.pause
+                constants.endpoints.simulation.simulation.pause
               ).catch(err => showError('Fetch simulation state pause', err))
             }
           >
@@ -438,7 +440,7 @@ export default function TabPanel(props: TabPanelProps) {
             onClick={() =>
               fetchTextEndpoint(
                 stateSettingsFetchBaseUrlSimulation,
-                simulationEndpoints.simulation.run
+                constants.endpoints.simulation.simulation.run
               ).catch(err => showError('Fetch simulation state run', err))
             }
           >

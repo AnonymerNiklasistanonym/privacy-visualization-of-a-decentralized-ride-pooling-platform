@@ -2,7 +2,7 @@
 // > Services
 import {createLoggerSection} from '../../services/logging';
 // Type imports
-import type {LoggerSections} from '../../globals/lib/logging';
+import type {LoggerSections} from 'lib_globals_fs';
 import type {Simulation} from '../simulation';
 
 /**

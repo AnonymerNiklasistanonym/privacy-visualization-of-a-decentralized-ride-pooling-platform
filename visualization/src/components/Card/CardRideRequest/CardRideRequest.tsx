@@ -52,7 +52,7 @@ import type {InputButtonSpectatorChangeProps} from '@components/Input/InputButto
 import type {InputButtonSpectatorShowProps} from '@components/Input/InputButton/InputButtonSpectatorShow';
 import type {ReactState} from '@misc/react';
 import type {SettingsGlobalProps} from '@misc/props/settings';
-import type {SimulationEndpointRideRequestInformation} from '@globals/types/simulation';
+import type {SimulationEndpointRideRequestInformation} from 'lib_globals';
 
 export interface CardRideRequestProps
   extends InputButtonSpectatorChangeProps,

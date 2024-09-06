@@ -19,6 +19,7 @@ tests
 typedoc.js
 config.schema.json
 delete*
+benchmarks
 
 # Profiling
 *.0x

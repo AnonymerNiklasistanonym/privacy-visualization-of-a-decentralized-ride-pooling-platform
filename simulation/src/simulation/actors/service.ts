@@ -1,7 +1,7 @@
 // Local imports
 import {Actor} from './actor';
 // Type imports
-import type {Coordinates} from '../../globals/types/coordinates';
+import type {Coordinates} from 'lib_globals';
 
 export interface Area extends Coordinates {
   radius: number;

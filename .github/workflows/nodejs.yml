@@ -15,6 +15,7 @@ on:
       - simulation/**
       - visualization/**
       - .github/workflows/nodejs.yml
+      - Makefile
     branches:
       - main
       - dev
@@ -24,6 +25,7 @@ on:
       - simulation/**
       - visualization/**
       - .github/workflows/nodejs.yml
+      - Makefile
     branches:
       - main
       - dev
@@ -31,6 +33,41 @@ on:
   workflow_dispatch:
 
 jobs:
+  build_libs:
+
+    strategy:
+      matrix:
+        node-version: [22.x]
+        os: [ubuntu-latest,windows-latest]
+        lib: [lib_globals,lib_globals_fs,lib_pathfinder]
+
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        working-directory: globals/${{ matrix.lib }}
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+        cache-dependency-path: globals/${{ matrix.lib }}/package-lock.json
+    - name: Install dependencies (npm)
+      run: npm ci
+    - name: Run tests
+      run: npm run test
+      continue-on-error: true
+    - name: Lint
+      run: npm run lint
+      continue-on-error: true
+    - name: Build
+      run: npm run compile
+    - name: Package
+      run: npm pack
+
+
   # Check if the project can be built without errors
   # Linting, tests and documentation generation is allowed to fail so that in
   # case of an error in them the core build and scripts are still verified
@@ -46,13 +83,16 @@ jobs:
       run:
         working-directory: visualization
 
+    needs:
+    - build_libs
+
     steps:
     - uses: actions/checkout@v4
     - name: Cache
       id: cache-nextjs
       uses: actions/cache@v4
       with:
-        path: .next/cache
+        path: visualization/.next/cache
         key: ${{ runner.os }}-nextjs
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v4
@@ -60,55 +100,16 @@ jobs:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
         cache-dependency-path: visualization/package-lock.json
-    #- name: Install dependencies (apt - Linux)
-    #  if: matrix.os == 'ubuntu-latest'
-    #  run: sudo apt install graphviz pandoc
-    #- name: Install dependencies (choco - Windows)
-    #  if: matrix.os == 'windows-latest'
-    #  run: choco install graphviz nsis pandoc
-    - name: Install dependencies (npm)
-      run: npm ci
-    #- name: Run tests
-    #  run: npm run test
-    #  continue-on-error: true
-    - name: Lint
-      run: npm run lint
-      continue-on-error: true
-    - name: Build
-      run: npm run build
-    - name: Checks
-      run: npm run check
-      continue-on-error: true
-    - name: Checks [expected to fail]
-      run: npm run check:exports
-      continue-on-error: true
-    - name: Build Docker image
-      if: matrix.os == 'ubuntu-latest'
-      run: docker build --tag nextjs-docker .
-
-  # Check if the project can be built without errors
-  # Linting, tests and documentation generation is allowed to fail so that in
-  # case of an error in them the core build and scripts are still verified
-  build_simulation:
-
-    strategy:
-      matrix:
-        node-version: [22.x]
-        os: [ubuntu-latest,windows-latest]
-
-    runs-on: ${{ matrix.os }}
-    defaults:
-      run:
-        working-directory: simulation
-
-    steps:
-    - uses: actions/checkout@v4
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ matrix.node-version }}
-        cache: 'npm'
-        cache-dependency-path: simulation/package-lock.json
+    - name: Setup lib_globals
+      run: |
+        npm ci
+        npm run compile
+      working-directory: globals/lib_globals
+    - name: Setup lib_globals_fs
+      run: |
+        npm ci
+        npm run compile
+      working-directory: globals/lib_globals_fs
     - name: Install dependencies (npm)
       run: npm ci
     - name: Run tests
@@ -125,11 +126,110 @@ jobs:
     - name: Checks [expected to fail]
       run: npm run check:exports
       continue-on-error: true
-    - name: Build Docker image
-      if: matrix.os == 'ubuntu-latest'
-      run: docker build --tag express-docker .
+
+
+  # Check if the project can be built without errors
+  # Linting, tests and documentation generation is allowed to fail so that in
+  # case of an error in them the core build and scripts are still verified
+  build_simulation:
+
+    strategy:
+      matrix:
+        node-version: [22.x]
+        os: [ubuntu-latest,windows-latest]
+
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        working-directory: simulation
+
+    needs:
+    - build_libs
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+        cache-dependency-path: simulation/package-lock.json
+    - name: Setup lib_globals
+      run: |
+        npm ci
+        npm run compile
+      working-directory: globals/lib_globals
+    - name: Setup lib_globals_fs
+      run: |
+        npm ci
+        npm run compile
+      working-directory: globals/lib_globals_fs
+    - name: Setup lib_pathfinder
+      run: |
+        npm ci
+        npm run compile
+      working-directory: globals/lib_pathfinder
+    - name: Install dependencies (npm)
+      run: npm ci
+    - name: Run tests
+      run: npm run test
+      continue-on-error: true
+    - name: Lint
+      run: npm run lint
+      continue-on-error: true
+    - name: Build
+      run: npm run build
+    - name: Checks
+      run: npm run check
+      continue-on-error: true
+    - name: Checks [expected to fail]
+      run: npm run check:exports
+      continue-on-error: true
     - name: Create documentation
       # hangs on Windows (GitHub Actions)
       if: matrix.os == 'ubuntu-latest'
       run: npm run docs
       continue-on-error: true
+
+
+  # Check if the project can be built without errors in docker
+  build_docker:
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+
+    runs-on: ${{ matrix.os }}
+
+    needs:
+      - build_simulation
+      - build_visualization
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Build Docker
+      run: docker compose build
+
+
+  # Check if the project can be built without errors using the Makefile
+  build_make:
+
+    strategy:
+      matrix:
+        node-version: [22.x]
+        os: [ubuntu-latest]
+
+    runs-on: ${{ matrix.os }}
+
+    needs:
+      - build_simulation
+      - build_visualization
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+    - name: Build Makefile
+      run: make build_simulation build_visualization

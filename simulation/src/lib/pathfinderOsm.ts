@@ -1,15 +1,16 @@
 // Local imports
-import {getShortestPath, getVertexEdgeFromGraph2} from './pathfinder';
 import {createLoggerSection} from '../services/logging';
 import {haversineDistance} from './haversineDistance';
+// > Globals
+import {getShortestPath, getVertexEdgeFromGraph2} from 'lib_pathfinder';
 // Type imports
 import type {
   DefaultVertex,
   DefaultVertexEdge,
   VertexGraph,
   VertexIdPair,
-} from './pathfinder';
-import type {Coordinates} from '../globals/types/coordinates';
+} from 'lib_pathfinder';
+import type {Coordinates} from 'lib_globals';
 
 const logger = createLoggerSection('lib', 'pathfinderOsm');
 
@@ -63,7 +64,8 @@ export const getShortestPathOsmCoordinates = (
     sourceVertex[0],
     targetVertex[0],
     // Use the air-line distance as heuristic
-    ([, vertex]) => haversineDistance(vertex, targetCoordinates)
+    ([, vertex]) => haversineDistance(vertex, targetCoordinates),
+    logger.debug
   );
   if (shortestPath === null || shortestPath.length === 0) {
     logger.error(

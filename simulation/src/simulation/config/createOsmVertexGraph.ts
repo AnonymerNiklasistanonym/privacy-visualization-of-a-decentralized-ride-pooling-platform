@@ -1,7 +1,8 @@
 // Local imports
 import {createLoggerSection} from '../../services/logging';
-import {getVertexEdgeKey} from '../../lib/pathfinder';
 import {haversineDistance} from '../../lib/haversineDistance';
+// > Globals
+import {getVertexEdgeKey} from 'lib_pathfinder';
 // Type imports
 import type {
   OsmVertex,
@@ -9,7 +10,7 @@ import type {
   OsmVertexGraph,
 } from '../../lib/pathfinderOsm';
 import type {OverpassRequestBbData} from './overpass';
-import type {VertexEdgeId} from '../../lib/pathfinder';
+import type {VertexEdgeId} from 'lib_pathfinder';
 
 const logger = createLoggerSection('simulation', 'config#pathfinderOsm');
 

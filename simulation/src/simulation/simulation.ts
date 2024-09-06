@@ -10,12 +10,9 @@ import {Blockchain} from './actors/blockchain';
 import {Customer} from './actors/participants/customer';
 import {MatchingService} from './actors/services/matchingService';
 // > Globals
-import {baseUrlPathfinder} from '../globals/defaults/urls';
-import {fetchText} from '../globals/lib/fetch';
-import {pathfinderEndpoints} from '../globals/defaults/endpoints';
-import {simulationEndpointRoutes} from '../globals/defaults/routes';
+import {constants, fetch} from 'lib_globals';
+import {getVertexEdgeFromGraph2, getVertexEdgeKey} from 'lib_pathfinder';
 // > Libs
-import {getVertexEdgeFromGraph2, getVertexEdgeKey} from '../lib/pathfinder';
 import {generateRandomNumberPlate} from '../lib/numberPlate';
 import {getShortestPathOsmCoordinates} from '../lib/pathfinderOsm';
 import {osmnxServerRequest} from '../lib/osmnx';
@@ -29,6 +26,7 @@ import {
 import {createLoggerSection} from '../services/logging';
 // Type imports
 import type {
+  Coordinates,
   SimulationEndpointGraphInformation,
   SimulationEndpointParticipantCoordinates,
   SimulationEndpointParticipantIdFromPseudonym,
@@ -39,8 +37,7 @@ import type {
   SimulationEndpointSmartContractInformation,
   SimulationEndpointSmartContracts,
   SimulationEndpointSmartContractsPagination,
-} from '../globals/types/simulation';
-import type {Coordinates} from '../globals/types/coordinates';
+} from 'lib_globals';
 import type {OsmVertexGraph} from '../lib/pathfinderOsm';
 import type {SimulationConfigWithData} from './config/simulationConfigWithData';
 
@@ -251,18 +248,18 @@ export class Simulation {
     ) {
       try {
         logger.info(
-          `fetchText ${baseUrlPathfinder}${pathfinderEndpoints.running}`
+          `fetchText ${constants.urls.baseUrlPathfinder}${constants.endpoints.pathfinder.running}`
         );
-        const responseRunning = await fetchText(
-          `${baseUrlPathfinder}${pathfinderEndpoints.running}`
+        const responseRunning = await fetch.fetchText(
+          `${constants.urls.baseUrlPathfinder}${constants.endpoints.pathfinder.running}`
         );
         if (responseRunning !== 'Success') {
           throw Error(
             `Pathfinder server was found but does not appear to be running! (${responseRunning})`
           );
         }
-        const responseUpdateConfig = await fetchText(
-          `${baseUrlPathfinder}${pathfinderEndpoints.updateConfig}`,
+        const responseUpdateConfig = await fetch.fetchText(
+          `${constants.urls.baseUrlPathfinder}${constants.endpoints.pathfinder.updateConfig}`,
           {
             fetchOptions: {
               body: JSON.stringify({
@@ -404,17 +401,23 @@ export class Simulation {
     router.use('/matching_services', routerMatchingServers);
     router.use('/blockchain', routerBlockchain);
 
-    router.route(simulationEndpointRoutes.simulation.pause).get((req, res) => {
-      this.pause();
-      res.send(this.state);
-    });
-    router.route(simulationEndpointRoutes.simulation.run).get((req, res) => {
-      this.run();
-      res.send(this.state);
-    });
-    router.route(simulationEndpointRoutes.simulation.state).get((req, res) => {
-      res.send(this.state);
-    });
+    router
+      .route(constants.routes.simulationEndpoint.simulation.pause)
+      .get((req, res) => {
+        this.pause();
+        res.send(this.state);
+      });
+    router
+      .route(constants.routes.simulationEndpoint.simulation.run)
+      .get((req, res) => {
+        this.run();
+        res.send(this.state);
+      });
+    router
+      .route(constants.routes.simulationEndpoint.simulation.state)
+      .get((req, res) => {
+        res.send(this.state);
+      });
 
     return router;
   }
@@ -423,7 +426,7 @@ export class Simulation {
     const router = express.Router();
     // Global registered routes
     router
-      .route(simulationEndpointRoutes.apiV1.participantCoordinates)
+      .route(constants.routes.simulationEndpoint.apiV1.participantCoordinates)
       .get((req, res) => {
         res.json({
           customers: this.customers.map(a => a.endpointCoordinates),
@@ -432,7 +435,9 @@ export class Simulation {
       });
     router
       .route(
-        simulationEndpointRoutes.apiV1.participantInformationCustomer(':id')
+        constants.routes.simulationEndpoint.apiV1.participantInformationCustomer(
+          ':id'
+        )
       )
       .get((req, res) => {
         const customer = this.customers.find(a => a.id === req.params.id);
@@ -448,7 +453,9 @@ export class Simulation {
       });
     router
       .route(
-        simulationEndpointRoutes.apiV1.participantInformationRideProvider(':id')
+        constants.routes.simulationEndpoint.apiV1.participantInformationRideProvider(
+          ':id'
+        )
       )
       .get((req, res) => {
         const rideProvider = this.rideProviders.find(
@@ -465,7 +472,7 @@ export class Simulation {
         res.status(404);
       });
     router
-      .route(simulationEndpointRoutes.apiV1.rideRequests)
+      .route(constants.routes.simulationEndpoint.apiV1.rideRequests)
       .get((req, res) => {
         res.json({
           rideRequests: this.matchingServices
@@ -474,7 +481,9 @@ export class Simulation {
         } satisfies SimulationEndpointRideRequests);
       });
     router
-      .route(simulationEndpointRoutes.apiV1.rideRequestInformation(':id'))
+      .route(
+        constants.routes.simulationEndpoint.apiV1.rideRequestInformation(':id')
+      )
       .get((req, res) => {
         const rideRequests = this.matchingServices.flatMap(a =>
           a.getAuctions()
@@ -499,7 +508,7 @@ export class Simulation {
         res.status(404);
       });
     router
-      .route(simulationEndpointRoutes.apiV1.smartContracts)
+      .route(constants.routes.simulationEndpoint.apiV1.smartContracts)
       .get((req, res) => {
         const offset =
           (typeof req.query.offset !== 'string' &&
@@ -523,7 +532,9 @@ export class Simulation {
       });
     router
       .route(
-        simulationEndpointRoutes.apiV1.smartContractsFromParticipant(':id')
+        constants.routes.simulationEndpoint.apiV1.smartContractsFromParticipant(
+          ':id'
+        )
       )
       .get((req, res) => {
         const asParticipant = this.authenticationServices.find(a =>
@@ -550,7 +561,7 @@ export class Simulation {
         } satisfies SimulationEndpointSmartContracts);
       });
     router
-      .route(simulationEndpointRoutes.apiV1.smartContract(':id'))
+      .route(constants.routes.simulationEndpoint.apiV1.smartContract(':id'))
       .get((req, res) => {
         const smartContracts = this.blockchain.rideContracts;
         const smartContract = smartContracts.find(
@@ -588,7 +599,9 @@ export class Simulation {
       });
     router
       .route(
-        simulationEndpointRoutes.apiV1.rideRequestsFromSmartContract(':id')
+        constants.routes.simulationEndpoint.apiV1.rideRequestsFromSmartContract(
+          ':id'
+        )
       )
       .get((req, res) => {
         const smartContracts = this.blockchain.rideContracts;
@@ -612,7 +625,9 @@ export class Simulation {
       });
     router
       .route(
-        simulationEndpointRoutes.apiV1.participantIdFromPseudonym(':pseudonym')
+        constants.routes.simulationEndpoint.apiV1.participantIdFromPseudonym(
+          ':pseudonym'
+        )
       )
       .get((req, res) => {
         const asParticipant = this.authenticationServices.find(
@@ -632,7 +647,11 @@ export class Simulation {
         res.status(404);
       });
     router
-      .route(simulationEndpointRoutes.apiV1.participantPseudonymsFromId(':id'))
+      .route(
+        constants.routes.simulationEndpoint.apiV1.participantPseudonymsFromId(
+          ':id'
+        )
+      )
       .get((req, res) => {
         const pseudonyms = this.authenticationServices.reduce<
           Array<string> | undefined
@@ -651,7 +670,7 @@ export class Simulation {
 
     // DEBUG: Created route graph
     router
-      .route(simulationEndpointRoutes.apiV1.graphInformation)
+      .route(constants.routes.simulationEndpoint.apiV1.graphInformation)
       .get((req, res) => {
         logger.info('Request graph information');
         const edges: Array<{id: string; geometry: Coordinates[]}> = [];
@@ -716,7 +735,7 @@ export class Simulation {
         } as SimulationEndpointGraphInformation);
       });
     router
-      .route(simulationEndpointRoutes.apiV1.shortestPath)
+      .route(constants.routes.simulationEndpoint.apiV1.shortestPath)
       .get(async (req, res) => {
         const vertices = Array.from(this.osmVertexGraph.vertices);
         const coordinatesPath = [
@@ -750,27 +769,29 @@ export class Simulation {
     const router = express.Router();
     // REMOVE
     router
-      .route(simulationEndpointRoutes.internal.customers)
+      .route(constants.routes.simulationEndpoint.internal.customers)
       .get((req, res) => {
         res.json({customers: this.customersJson});
       });
     router
-      .route(simulationEndpointRoutes.internal.rideProviders)
+      .route(constants.routes.simulationEndpoint.internal.rideProviders)
       .get((req, res) => {
         res.json({rideProviders: this.rideProvidersJson});
       });
     router
-      .route(simulationEndpointRoutes.internal.authenticationServices)
+      .route(
+        constants.routes.simulationEndpoint.internal.authenticationServices
+      )
       .get((req, res) => {
         res.json({authenticationServices: this.authenticationServicesJson});
       });
     router
-      .route(simulationEndpointRoutes.internal.matchingServices)
+      .route(constants.routes.simulationEndpoint.internal.matchingServices)
       .get((req, res) => {
         res.json({matchingServices: this.matchingServicesJson});
       });
     router
-      .route(simulationEndpointRoutes.internal.rideRequest(':id'))
+      .route(constants.routes.simulationEndpoint.internal.rideRequest(':id'))
       .get((req, res) => {
         const rideRequests = this.matchingServicesJson.flatMap(a =>
           a.auctionsDb.flatMap(b => b)
@@ -779,14 +800,14 @@ export class Simulation {
         res.json({rideRequest});
       });
     router
-      .route(simulationEndpointRoutes.internal.rideRequests)
+      .route(constants.routes.simulationEndpoint.internal.rideRequests)
       .get((req, res) => {
         res.json({
           rideRequests: this.matchingServices.flatMap(a => a.getAuctions()),
         });
       });
     router
-      .route(simulationEndpointRoutes.internal.smartContracts)
+      .route(constants.routes.simulationEndpoint.internal.smartContracts)
       .get((req, res) => {
         res.json({smartContracts: this.rideContractsJson});
       });

@@ -1,8 +1,9 @@
 .PHONY: clean format
 # Code
 .PHONY: build_simulation build_visualization simulation visualization docker_simulation docker_visualization
+.PHONY: build_libs docker_libs
 .PHONY: docker
-.PHONY: copyGlobals createCopyImages lintFix
+.PHONY: createCopyImages lintFix
 # Student Project Description
 .PHONY: build_spd
 # Thesis
@@ -39,7 +40,7 @@ PYTHON?=python
 # Code
 SIMULATION_DIR=simulation
 VISUALIZATION_DIR=visualization
-GLOBALS_DIR_TYPESCRIPT=globals/typescript
+GLOBALS_DIR_LIBS=globals
 DOCKER?=docker
 # Student Project Description
 SPD_DIR=student-project-description
@@ -61,7 +62,8 @@ clean:
 	rm -rf $(SIMULATION_DIR)/node_modules
 	rm -rf $(SIMULATION_DIR)/build $(SIMULATION_DIR)/cache $(SIMULATION_DIR)/dist $(SIMULATION_DIR)/docs $(SIMULATION_DIR)/logs
 	rm -rf $(VISUALIZATION_DIR)/node_modules $(VISUALIZATION_DIR)/.next
-	rm -rf $(GLOBALS_DIR_TYPESCRIPT)/node_modules
+	$(foreach GLOBAL_LIB_DIR, $(wildcard $(GLOBALS_DIR_LIBS)/lib_*), rm -rf "$(CURDIR)/$(GLOBAL_LIB_DIR)/dist"; \
+	  rm -rf "$(CURDIR)/$(GLOBAL_LIB_DIR)/node_modules";)
 	# Student Project Description
 	$(MAKE) -C "$(SPD_DIR)" clean
 	# Thesis
@@ -69,7 +71,7 @@ clean:
 
 # Code
 
-build_simulation:
+build_simulation: build_libs
 	cd $(SIMULATION_DIR); \
 	npm ci; \
 	npm run build
@@ -78,11 +80,11 @@ simulation: build_simulation
 	cd $(SIMULATION_DIR); \
 	npm run start
 
-docker_simulation:
+docker_simulation: docker_libs
 	cd $(SIMULATION_DIR); \
 	docker build --tag nextjs-docker .
 
-build_visualization:
+build_visualization: build_libs
 	cd $(VISUALIZATION_DIR); \
 	npm ci; \
 	npm run build
@@ -91,16 +93,20 @@ visualization: build_visualization
 	cd $(VISUALIZATION_DIR); \
 	npm run start
 
-docker_visualization:
+docker_visualization: docker_libs
 	cd $(VISUALIZATION_DIR); \
 	docker build --tag express-docker .
 
 docker:
 	$(DOCKER) compose up --build
 
-copyGlobals:
-	cd globals; \
-	./copy.ps1
+docker_libs:
+	$(foreach GLOBAL_LIB_DIR, $(wildcard $(GLOBALS_DIR_LIBS)/lib_*), cd "$(CURDIR)/$(GLOBAL_LIB_DIR)"; \
+	  docker build --tag "local_image_$(shell basename $(GLOBAL_LIB_DIR))" .;)
+
+build_libs:
+	$(foreach GLOBAL_LIB_DIR, $(wildcard $(GLOBALS_DIR_LIBS)/lib_*), cd "$(CURDIR)/$(GLOBAL_LIB_DIR)"; \
+	  npm ci && npm run compile;)
 
 createCopyImages:
 	cd images; \
@@ -109,8 +115,8 @@ createCopyImages:
 	./copy_images.sh 2>&1 | tee copy_images.sh.log
 
 lintFix:
-	cd globals/typescript; \
-	npm ci && npm run fix
+	$(foreach GLOBAL_LIB_DIR, $(wildcard $(GLOBALS_DIR_LIBS)/lib_*), cd "$(CURDIR)/$(GLOBAL_LIB_DIR)"; \
+	  npm ci && npm run fix;)
 	cd simulation; \
 	npm ci && npm run fix
 	cd visualization; \

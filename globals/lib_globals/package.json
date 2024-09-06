@@ -1,0 +1,31 @@
+{
+  "name": "lib_globals",
+  "private": true,
+  "version": "1.0.0",
+  "description": "TODO",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "lint": "gts lint",
+    "clean": "gts clean",
+    "compile": "tsc",
+    "fix": "gts fix",
+    "prepack": "npm run compile"
+  },
+  "files": [
+    "/dist"
+  ],
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.5.1",
+    "gts": "^5.3.1",
+    "typescript": "^5.5.4"
+  },
+  "dependencies": {
+    "h3-js": "^4.1.0",
+    "winston": "^3.14.2",
+    "winston-daily-rotate-file": "^5.0.0"
+  }
+}

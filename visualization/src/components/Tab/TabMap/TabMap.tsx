@@ -24,10 +24,7 @@ import InputSearchBar from '@components/Input/InputSearchBar';
 import Map from '@components/Map';
 import TabContainer from '@components/Tab/TabContainer';
 // > Globals
-import {
-  pathfinderEndpoints,
-  simulationEndpoints,
-} from '@globals/defaults/endpoints';
+import {constants} from 'lib_globals';
 // > Misc
 import {SearchBarId} from '@misc/searchBarIds';
 import {SpectatorId} from '@misc/spectatorIds';
@@ -51,6 +48,12 @@ import type {
   GridConnectedElementsSectionCards,
   GridConnectedElementsSectionInfoElement,
 } from '@components/Grid/GridConnectedElements';
+import type {
+  PathfinderEndpointGraphInformation,
+  SimulationEndpointGraphInformation,
+  SimulationEndpointParticipantInformationCustomer,
+  SimulationEndpointParticipantInformationRideProvider,
+} from 'lib_globals';
 import type {ReactSetState, ReactState} from '@misc/react';
 import type {
   SettingsConnectedElementsProps,
@@ -58,14 +61,8 @@ import type {
   SettingsMapProps,
   SettingsUiProps,
 } from '@misc/props/settings';
-import type {
-  SimulationEndpointGraphInformation,
-  SimulationEndpointParticipantInformationCustomer,
-  SimulationEndpointParticipantInformationRideProvider,
-} from '@globals/types/simulation';
 import type {InputExtraActionsAction} from '@components/Input/InputExtraActions';
 import type {MapProps} from '@components/Map';
-import type {PathfinderEndpointGraphInformation} from '@globals/types/pathfinder';
 import type {ReactElement} from 'react';
 
 export interface TabMapProps
@@ -171,7 +168,7 @@ export default function TabMap(props: TabMapProps) {
         return;
       }
       fetchJsonSimulation<SimulationEndpointGraphInformation>(
-        simulationEndpoints.apiV1.graphInformation
+        constants.endpoints.simulation.apiV1.graphInformation
       )
         .then(data => {
           if (
@@ -185,7 +182,7 @@ export default function TabMap(props: TabMapProps) {
         .catch(err => showError('Fetch simulation graph', err));
       fetchJsonEndpoint<PathfinderEndpointGraphInformation>(
         stateSettingsMapBaseUrlPathfinder,
-        pathfinderEndpoints.graphInformation
+        constants.endpoints.pathfinder.graphInformation
       )
         .then(data => {
           if (
@@ -224,7 +221,7 @@ export default function TabMap(props: TabMapProps) {
 
       if (selectedSpectator.category === selectedSpectatorCategoryCustomer) {
         fetchJsonSimulation<SimulationEndpointParticipantInformationCustomer>(
-          simulationEndpoints.apiV1.participantInformationCustomer(
+          constants.endpoints.simulation.apiV1.participantInformationCustomer(
             stateSelectedParticipantId
           )
         ).then(customerInformation => {
@@ -241,7 +238,7 @@ export default function TabMap(props: TabMapProps) {
         selectedSpectator.category === selectedSpectatorCategoryRideProvider
       ) {
         fetchJsonSimulation<SimulationEndpointParticipantInformationRideProvider>(
-          simulationEndpoints.apiV1.participantInformationRideProvider(
+          constants.endpoints.simulation.apiV1.participantInformationRideProvider(
             stateSelectedParticipantId
           )
         ).then(rideProviderInformation => {

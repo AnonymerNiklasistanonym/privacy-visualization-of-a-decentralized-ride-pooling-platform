@@ -3,12 +3,13 @@ import fs from 'fs/promises';
 import path from 'path';
 // Local imports
 // > Globals
-import {getJsonCacheWrapper} from '../../globals/lib/cacheWrapper';
+import {cacheWrapper} from 'lib_globals_fs';
 // > Libs
 import {overpassApiRequest} from '../../lib/overpass';
 // > Services
 import {createLoggerSection} from '../../services/logging';
 // Type imports
+import type {Coordinates, PartialRecord, WithRequired} from 'lib_globals';
 import type {
   OverpassApiResponse,
   OverpassApiResponseElementNode,
@@ -18,8 +19,6 @@ import type {
   TagsNodesRelevant,
   TagsWaysRelevant,
 } from '../../lib/overpass';
-import type {PartialRecord, WithRequired} from '../../globals/types/logic';
-import type {Coordinates} from '../../globals/types/coordinates';
 
 const logger = createLoggerSection('overpass');
 
@@ -28,7 +27,7 @@ export const overpassCachedRequest = async <JsonResponseType extends {}>(
   cacheFilePath: string,
   ignoreCache = false
 ): Promise<OverpassApiResponse<JsonResponseType>> =>
-  getJsonCacheWrapper(
+  cacheWrapper.getJsonCacheWrapper(
     () => {
       logger.info(`cache web request ${cacheFilePath} (${query})`);
       return overpassApiRequest<JsonResponseType>(query);

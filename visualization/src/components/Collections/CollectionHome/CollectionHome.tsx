@@ -11,7 +11,6 @@ import {Link} from '@mui/material';
 // Local imports
 import {i18n, i18nGetLanguageName} from '../../../../i18n-config';
 import {UrlParameter} from '@misc/urlParameter';
-import {fetchJson} from '@globals/lib/fetch';
 // > Components
 import {ChipListElement, ChipListElementProps} from '@components/Tab/TabGuide';
 import {
@@ -29,13 +28,7 @@ import SnackbarContentChange from '@components/Snackbar/SnackbarContentChange';
 import TabPanel from '@components/TabPanel';
 import WrapperThemeProvider from '@components/Wrapper/WrapperThemeProvider';
 // > Globals
-import {
-  baseUrlPathfinder,
-  baseUrlSimulation,
-  confidentialityVisualizer,
-  getacar,
-} from '@globals/defaults/urls';
-import {simulationEndpoints} from '@globals/defaults/endpoints';
+import {constants, fetch} from 'lib_globals';
 // > Misc
 import {
   debugCache,
@@ -49,6 +42,14 @@ import {SpectatorId} from '@misc/spectatorIds';
 import {TabIndex} from '@misc/tabIndices';
 // Type imports
 import type {
+  FetchOptions,
+  SimulationEndpointParticipantCoordinates,
+  SimulationEndpointParticipantInformationCustomer,
+  SimulationEndpointParticipantInformationRideProvider,
+  SimulationEndpointSmartContractInformation,
+  SimulationEndpointSmartContracts,
+} from 'lib_globals';
+import type {
   GlobalPropsShowError,
   GlobalPropsSpectatorInfo,
   GlobalSearchElement,
@@ -58,14 +59,6 @@ import type {
   ModalDataProps,
 } from '@components/Modal/ModalData';
 import type {MutableRefObject, PropsWithChildren, ReactElement} from 'react';
-import type {
-  SimulationEndpointParticipantCoordinates,
-  SimulationEndpointParticipantInformationCustomer,
-  SimulationEndpointParticipantInformationRideProvider,
-  SimulationEndpointSmartContractInformation,
-  SimulationEndpointSmartContracts,
-} from '@globals/types/simulation';
-import type {FetchOptions} from '@globals/lib/fetch';
 import type {ModalErrorProps} from '@components/Modal/ModalError';
 import type {TabPanelProps} from '@components/TabPanel';
 
@@ -120,13 +113,13 @@ export default function CollectionHome(
   const [
     stateSettingsFetchBaseUrlSimulation,
     setStateSettingsFetchBaseUrlSimulation,
-  ] = useState(baseUrlSimulation);
+  ] = useState(constants.urls.baseUrlSimulation);
   const [stateSettingsMapUpdateRateInMs, setStateSettingsMapUpdateRateInMs] =
     useState(1000 / 5);
   const [
     stateSettingsMapBaseUrlPathfinder,
     setStateSettingsMapBaseUrlPathfinder,
-  ] = useState(baseUrlPathfinder);
+  ] = useState(constants.urls.baseUrlPathfinder);
   // >> Cards
   const [stateSettingsCardUpdateRateInMs, setStateSettingsCardUpdateRateInMs] =
     useState(1000 / 5);
@@ -230,7 +223,7 @@ export default function CollectionHome(
         );
         return cacheEntry.data as Promise<T>;
       } else {
-        const data = fetchJson<T>(
+        const data = fetch.fetchJson<T>(
           `${stateSettingsFetchBaseUrlSimulation}${endpoint}`,
           options
         );
@@ -709,14 +702,16 @@ export default function CollectionHome(
         <ChipListElement {...authServiceChip} noDescription={true} />
       ),
       CONFIDENTIALITY_VISUALIZER: (
-        <Link href={confidentialityVisualizer}>
+        <Link href={constants.urls.confidentialityVisualizer}>
           {intl.formatMessage({id: 'confidentialityVisualizer.name'})}
         </Link>
       ),
       CUSTOMER: <ChipListElement {...customerChip} noDescription={true} />,
       CUSTOMERS: <ChipListElement {...customersChip} noDescription={true} />,
       GETACAR: (
-        <Link href={getacar}>{intl.formatMessage({id: 'getacar.name'})}</Link>
+        <Link href={constants.urls.getacar}>
+          {intl.formatMessage({id: 'getacar.name'})}
+        </Link>
       ),
       MATCHING_SERVICE: (
         <ChipListElement {...matchServiceChip} noDescription={true} />
@@ -737,7 +732,7 @@ export default function CollectionHome(
       options?: Readonly<FetchOptions>
     ) =>
       fetchJsonSimulationWait<SimulationEndpointParticipantCoordinates>(
-        simulationEndpoints.apiV1.participantCoordinates,
+        constants.endpoints.simulation.apiV1.participantCoordinates,
         requestBalancer,
         options
       ).then(data => {
@@ -761,7 +756,9 @@ export default function CollectionHome(
             async () => {
               const customerInformation =
                 await fetchJsonSimulation<SimulationEndpointParticipantInformationCustomer>(
-                  simulationEndpoints.apiV1.participantInformationCustomer(a.id)
+                  constants.endpoints.simulation.apiV1.participantInformationCustomer(
+                    a.id
+                  )
                 );
               return {
                 callback: () => {
@@ -786,7 +783,7 @@ export default function CollectionHome(
             async () => {
               const rideProviderInformation =
                 await fetchJsonSimulation<SimulationEndpointParticipantInformationRideProvider>(
-                  simulationEndpoints.apiV1.participantInformationRideProvider(
+                  constants.endpoints.simulation.apiV1.participantInformationRideProvider(
                     a.id
                   )
                 );
@@ -828,7 +825,7 @@ export default function CollectionHome(
     ) =>
       // TODO Use pagination instead of fetching all of them
       fetchJsonSimulationWait<SimulationEndpointSmartContracts>(
-        simulationEndpoints.apiV1.smartContracts(page * 25, -1),
+        constants.endpoints.simulation.apiV1.smartContracts(page * 25, -1),
         requestBalancer,
         options
       )
@@ -839,7 +836,9 @@ export default function CollectionHome(
           return Promise.all(
             data.smartContracts.map(smartContractId =>
               fetchJsonSimulation<SimulationEndpointSmartContractInformation>(
-                simulationEndpoints.apiV1.smartContract(smartContractId),
+                constants.endpoints.simulation.apiV1.smartContract(
+                  smartContractId
+                ),
                 200
               )
             )
@@ -861,7 +860,9 @@ export default function CollectionHome(
       options?: Readonly<FetchOptions>
     ) =>
       fetchJsonSimulationWait<SimulationEndpointSmartContracts>(
-        simulationEndpoints.apiV1.smartContractsFromParticipant(participantId),
+        constants.endpoints.simulation.apiV1.smartContractsFromParticipant(
+          participantId
+        ),
         requestBalancer,
         options
       )
@@ -872,7 +873,9 @@ export default function CollectionHome(
           return Promise.all(
             data.smartContracts.map(smartContractId =>
               fetchJsonSimulation<SimulationEndpointSmartContractInformation>(
-                simulationEndpoints.apiV1.smartContract(smartContractId),
+                constants.endpoints.simulation.apiV1.smartContract(
+                  smartContractId
+                ),
                 200
               )
             )

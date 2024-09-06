@@ -31,20 +31,20 @@ import {debugRequestBlock, debugVisibilityChange} from '@misc/debug';
 import '@styles/Map.module.scss';
 // Type imports
 import type {
+  Coordinates,
+  PathfinderEndpointGraphInformation,
+  SimulationEndpointGraphInformation,
+  SimulationEndpointParticipantCoordinates,
+} from 'lib_globals';
+import type {
   GlobalPropsFetchParticipantCoordinates,
   GlobalPropsPinnedParticipants,
   GlobalPropsShowError,
   GlobalPropsSpectatorsSet,
 } from '@misc/props/global';
 import type {ReactSetState, ReactState} from '@misc/react';
-import type {
-  SimulationEndpointGraphInformation,
-  SimulationEndpointParticipantCoordinates,
-} from '@globals/types/simulation';
-import type {Coordinates} from '@globals/types/coordinates';
 import type {LatLngExpression} from 'leaflet';
 import type {MapMarkerParticipantProps} from './MapMarkerParticipant';
-import type {PathfinderEndpointGraphInformation} from '@globals/types/pathfinder';
 
 export interface StatPos {
   lat: number;
