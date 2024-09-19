@@ -4,36 +4,18 @@
 .PHONY: build_libs docker_libs
 .PHONY: docker
 .PHONY: createCopyImages lintFix
-# Student Project Description
-.PHONY: build_spd
-# Thesis
-.PHONY: build_thesis
 # Other
 .PHONY: installNecessaryPackagesPacman installNecessaryPackagesPacmanAur installNecessaryPackagesUbuntu installNecessaryPythonPackages
 
-NECESSARY_PACKAGES_PACMAN = make texlive-latex texlive-binextra texlive-xetex texlive-latexextra texlive-luatex texlive-fontsrecommended texlive-langgerman texlive-langenglish texlive-mathscience texlive-bibtexextra texlive-plaingeneric texlive-publishers perl-yaml-tiny perl-file-homedir aspell aspell-en biber nodejs npm docker docker-compose python yay inkscape
 # Code
-#NECESSARY_PACKAGES_PACMAN = make nodejs npm docker docker-compose python yay inkscape
-# Thesis
-#NECESSARY_PACKAGES_PACMAN = make texlive-latex texlive-binextra texlive-xetex texlive-latexextra texlive-luatex texlive-fontsrecommended texlive-langgerman texlive-langenglish texlive-mathscience texlive-bibtexextra texlive-plaingeneric texlive-publishers perl-yaml-tiny perl-file-homedir aspell aspell-en biber python inkscape
+NECESSARY_PACKAGES_PACMAN = make nodejs npm docker docker-compose python yay inkscape
 
+# Code
 NECESSARY_PACKAGES_PACMAN_AUR = powershell-bin
-# Code
-#NECESSARY_PACKAGES_PACMAN_AUR = powershell-bin
-# Thesis
-#NECESSARY_PACKAGES_PACMAN_AUR =
 
-NECESSARY_PACKAGES_UBUNTU_WSL = make nodejs npm texlive-full latexmk python3-pygments biber aspell inkscape
-# Code
-#NECESSARY_PACKAGES_UBUNTU_WSL = make nodejs npm inkscape
-# Thesis
-#NECESSARY_PACKAGES_UBUNTU_WSL = make texlive-full latexmk python3-pygments biber aspell inkscape
+NECESSARY_PACKAGES_UBUNTU_WSL = make nodejs npm inkscape
 
-NECESSARY_PACKAGES_PYTHON = pygments-tsx
-# Code
-#NECESSARY_PACKAGES_PYTHON =
-# Thesis
-#NECESSARY_PACKAGES_PYTHON = pygments-tsx
+NECESSARY_PACKAGES_PYTHON =
 
 PYTHON?=python
 
@@ -42,20 +24,8 @@ SIMULATION_DIR=simulation
 VISUALIZATION_DIR=visualization
 GLOBALS_DIR_LIBS=globals
 DOCKER?=docker
-# Student Project Description
-SPD_DIR=student-project-description
-# Thesis
-THESIS_DIR=thesis
-LATEXINDENT?=latexindent
-LATEXINDENT_ARGS?=--overwriteIfDifferent \
-                  --silent \
-                  --local="$(CURDIR)/latex/indentconfig.yaml"
 
-all: build_spd build_thesis build_simulation build_visualization
-# Code
-#all: build_simulation build_visualization
-# Thesis
-#all: build_thesis
+all: build_simulation build_visualization
 
 clean:
 	# Code
@@ -64,10 +34,6 @@ clean:
 	rm -rf $(VISUALIZATION_DIR)/node_modules $(VISUALIZATION_DIR)/.next
 	$(foreach GLOBAL_LIB_DIR, $(wildcard $(GLOBALS_DIR_LIBS)/lib_*), rm -rf "$(CURDIR)/$(GLOBAL_LIB_DIR)/dist"; \
 	  rm -rf "$(CURDIR)/$(GLOBAL_LIB_DIR)/node_modules";)
-	# Student Project Description
-	$(MAKE) -C "$(SPD_DIR)" clean
-	# Thesis
-	$(MAKE) -C "$(THESIS_DIR)" clean
 
 # Code
 
@@ -121,22 +87,6 @@ lintFix:
 	npm ci && npm run fix
 	cd visualization; \
 	npm ci && npm run fix
-
-
-# Thesis
-
-build_thesis:
-	$(MAKE) -C "$(THESIS_DIR)" dist
-
-format:
-	$(LATEXINDENT) $(LATEXINDENT_ARGS) latex/globals/*.tex
-
-
-# Student Project Description
-
-build_spd:
-	$(MAKE) -C "$(SPD_DIR)"
-
 
 # Other
 
